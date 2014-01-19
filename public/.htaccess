@@ -1,0 +1,25 @@
+<IfModule mod_rewrite.c>
+	<IfModule mod_negotiation.c>
+    	Options -MultiViews
+    </IfModule>
+
+    RewriteEngine On
+
+    # Redirect Trailing Slashes...
+	RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+    RewriteBase /psis/
+	# Handle Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+<IfModule mod_setenvif.c>
+  <IfModule mod_headers.c>
+      BrowserMatch MSIE ie
+          Header set X-UA-Compatible "IE=Edge,chrome=1" env=ie
+            </IfModule>
+            </IfModule>
+            <IfModule mod_headers.c>
+              Header append Vary User-Agent
+              </IfModule>
