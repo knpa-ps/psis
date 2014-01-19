@@ -4,3 +4,8 @@ composer.phar
 composer.lock
 .DS_Store
 Thumbs.db
+.idea
+*.iml
+*.sublime-project
+*.sublime-workspace
+
