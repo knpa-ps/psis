@@ -19,7 +19,7 @@ class AddCustomColumnsToUsersTable extends Migration {
 				$table->string('account_name', 255);
 	            $table->integer('dept_id')->unsigned();
 	            $table->string('dept_detail', 255);
-	            $table->smallInteger('user_rank');
+	            $table->string('user_rank', 10);
 	            $table->string('user_name', 20);
 	            $table->unique('account_name');
 

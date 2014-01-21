@@ -14,7 +14,17 @@ class Code extends Eloquent {
 		return $this->belongsTo('CodeCategory', 'category_code', 'category_code');
 	}
 
+	/**
+	 * @deprecated use in($categoryCode)
+	 * @param  [type] $categoryCode
+	 * @return [type]
+	 */
 	public static function withCategory($categoryCode) 
+	{
+		return self::where('category_code', '=', $categoryCode)->get();
+	}
+
+	public static function in($categoryCode)
 	{
 		return self::where('category_code', '=', $categoryCode)->get();
 	}

@@ -14,3 +14,18 @@
 body {
 	font-family: "맑은 고딕","Malgun Gothic","나눔고딕",NanumGothic,"돋움",dotum,"Georgia Pro",Arial;
 }
+.datatable .row-selector {
+	padding:0;
+}
+
+.datatable .row-selector .checker {
+	margin:0;
+}
+
+.datatable .dt-col-row-selector {
+	width:24px;
+}
+
+.single-line {
+	white-space:nowrap;
+}

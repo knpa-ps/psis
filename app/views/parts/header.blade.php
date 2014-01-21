@@ -6,7 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- The styles -->
-{{ HTML::style('static/css/bootstrap-classic.min.css', array('id'=>'bs-css')) }}
+
+<link rel="stylesheet" href="{{ asset('static/css/bootstrap-classic.min.css') }}" id="bs-css" />
 <style type="text/css">
   .sidebar-nav {
     padding: 9px 0;

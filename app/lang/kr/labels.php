@@ -1,5 +1,9 @@
 <?php 
 
+/**
+ * DEPRECATED
+ * use strings.php
+ */
 return array(
     'login_account_name' => '계정',
     'login_password' => '비밀번호',
