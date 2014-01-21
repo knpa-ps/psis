@@ -13,6 +13,7 @@ class UsersTableSeeder extends Seeder {
             'email'=> 'admin',
             'password'  => 'admin',
             'activated' => true,
+            'user_name' => '관리자'
         ));
 
         // Find the group using the group id

@@ -62,7 +62,7 @@ Route::filter('auth.basic', function()
 
 Route::filter('guest', function()
 {
-	if (Auth::check()) return Redirect::to('/');
+	if (Sentry::check()) return Redirect::to('/');
 });
 
 /*
@@ -83,3 +83,8 @@ Route::filter('csrf', function()
 		throw new Illuminate\Session\TokenMismatchException;
 	}
 });
+
+/**
+ * View Composers
+ */
+View::composer('layouts.base', 'LayoutComposer');

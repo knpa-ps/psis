@@ -14,20 +14,23 @@
 /**
  * public pages
  */
+Route::group(array('before'=>'guest'), function(){
 
-//로그인
-Route::get('/login', 'AuthController@showLogin');
-Route::post('/login', array(
-    'before' => 'csrf',
-    'uses' => 'AuthController@doLogin'
-));
+    //로그인
+    Route::get('/login', 'AuthController@showLogin');
+    Route::post('/login', array(
+        'before' => 'csrf',
+        'uses' => 'AuthController@doLogin'
+    ));
 
-//회원가입
-Route::post('/register', array(
-    'before' => 'csrf',
-    'uses' => 'AuthController@doRegister'
-));
-Route::get('/register', 'AuthController@showRegisterForm');
+    //회원가입
+    Route::post('/register', array(
+        'before' => 'csrf',
+        'uses' => 'AuthController@doRegister'
+    ));
+    Route::get('/register', 'AuthController@showRegisterForm');
+ 
+});
 
 //부서검색 관련
 Route::group(array('prefix'=>'dept'), function(){
@@ -48,5 +51,16 @@ Route::group(array('prefix'=>'dept'), function(){
 Route::group(array('before'=>'auth'), function() {
     Route::get('/', 'HomeController@showDashboard');
     Route::get('/logout', 'AuthController@doLogout');
+
+    Route::get('/profile', 'HomeController@showProfile');
+
+    Route::get('/sg', 'AdminController@showGroupList');
+    Route::get('/sp', 'AdminController@showPermissions');
+    Route::get('/su', 'AdminController@showUserList');
+    Route::get('/sl', 'BudgetController@showList');
+    Route::get('/si', 'EscortEquipController@showInventory');
+    Route::get('/sisi', 'ReportController@showList');
+    Route::get('/sdfdd', 'ReportController@showComposeForm');
+    
 });
 

@@ -1,5 +1,5 @@
 <?php
-
+include('FileSeeder.php');
 class DatabaseSeeder extends Seeder {
 
 	/**
@@ -11,9 +11,16 @@ class DatabaseSeeder extends Seeder {
 	{
 		Eloquent::unguard();
 
+		$this->call('DepartmentsTableSeeder');
+
         $this->call('GroupsTableSeeder');
 		$this->call('UsersTableSeeder');
 		$this->call('CodesTableSeeder');
+		
+		$this->call('ModulesTableSeeder');
+		$this->call('ModuleActionsTableSeeder');
+		$this->call('MenusTableSeeder');
+		$this->call('ActionPermissionsTableSeeder');
 	}
 
 }

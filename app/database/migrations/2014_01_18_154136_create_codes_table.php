@@ -19,7 +19,7 @@ class CreateCodesTable extends Migration {
 			$table->increments('id');
 			$table->string('category_code', 4);
 			$table->string('name', 100);
-			$table->string('description');
+			$table->text('description');
 			$table->integer('sort_order');
 			$table->smallInteger('is_public');
 			$table->timestamps();
@@ -33,7 +33,7 @@ class CreateCodesTable extends Migration {
 			$table->string('category_code', 4);
 			$table->string('code', 4);
 			$table->string('title', 100);
-			$table->string('group_ids');
+			$table->text('group_ids');
 			$table->integer('sort_order');
 			$table->unique('code');
 			$table->timestamps();

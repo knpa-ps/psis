@@ -51,9 +51,7 @@ textarea {
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
-body {
-    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
+
 .white, .white a {
     color: #fff;
 }
@@ -61,7 +59,9 @@ body {
  * Side navigation
  *
  */
-
+#breadcrumb li {
+    display:inline;
+}
 #sidebar-wrapper {
     margin-left: 220px;
     margin-top: -20px;
@@ -81,7 +81,7 @@ body {
 }
 
 .sidebar-nav {
-    position: absolute;
+    position: relative;
     top: 0;
     width: 220px;
     min-width: 220px;
@@ -90,10 +90,32 @@ body {
     padding: 0;
 }
 
+#sidebar-wrapper #sb-profile {
+    margin: 20px 5px 10px 5px;
+}
+
+#sidebar-wrapper #sb-profile .panel-heading {
+    font-weight: bold;
+}
+
+#sidebar-wrapper #sb-profile .panel-heading a {
+    text-decoration: none;
+    color: black;
+}
+
+#sidebar-wrapper #sb-profile dl.dl-horizontal dt {
+    width: 70px;
+}
+#sidebar-wrapper #sb-profile dl.dl-horizontal dd {
+    margin-left: 80px;
+}
+
+
 .sidebar-nav li {
     line-height: 40px;
     text-indent: 20px;
 }
+
 
 .sidebar-nav li a {
     color: #999999;
@@ -112,10 +134,18 @@ body {
     text-decoration: none;
 }
 
+.sidebar-nav li.active a {
+    color: #FFFFFF;
+    display: block;
+    text-decoration: none;
+    background-color: #8A8A8A;
+}
+
 .sidebar-nav > .sidebar-brand {
     height: 65px;
     line-height: 60px;
     font-size: 18px;
+    font-weight: bold;
 }
 
 .sidebar-nav > .sidebar-brand a {

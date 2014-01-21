@@ -3,7 +3,9 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class AddAccountNameToUsersTable extends Migration {
+class AddCustomColumnsToUsersTable extends Migration {
+
+
 
 	/**
 	 * Run the migrations.
@@ -15,10 +17,12 @@ class AddAccountNameToUsersTable extends Migration {
 		if (Schema::hasTable('users')) {
 			Schema::table('users', function(Blueprint $table) {
 				$table->string('account_name', 255);
-	            $table->integer('dept_id');
+	            $table->integer('dept_id')->unsigned();
+	            $table->string('dept_detail', 255);
 	            $table->smallInteger('user_rank');
 	            $table->string('user_name', 20);
 	            $table->unique('account_name');
+
 			});
 		}
 	}
@@ -47,7 +51,10 @@ class AddAccountNameToUsersTable extends Migration {
 			{
 				$table->dropColumn('user_name');
 			}
+			if (Schema::hasColumn('users', 'dept_detail')) 
+			{
+				$table->dropColumn('dept_detail');
+			}
 		});
 	}
-
 }
