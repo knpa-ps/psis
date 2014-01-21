@@ -49,6 +49,9 @@
     </div>
     
 </footer>
+
+    
+
     <!-- jQuery -->
     {{ HTML::script('static/js/jquery-1.7.2.min.js') }}
     <!-- jQuery UI -->

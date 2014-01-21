@@ -64,5 +64,6 @@ Route::group(array('before'=>'auth'), function() {
     Route::get('/sisi', 'ReportController@showList');
     Route::get('/sdfdd', 'ReportController@showComposeForm');
     
+    Route::resource('users', 'UsersController');
 });
 

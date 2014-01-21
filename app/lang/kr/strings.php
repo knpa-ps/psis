@@ -1,6 +1,21 @@
 <?php 
 
 return array(
+
+    'account_name' => '계정',
+    'login_password' => '비밀번호',
+    'login_remember' => '자동 로그인',
+    'password_confirmation'=>'비밀번호 확인',
+    'user_name'=>'이름',
+    'user_rank'=>'계급',
+    'department'=>'부서',
+    'user_id'=>'번호',
+    'groups' => '권한 그룹',
+    'dept_detail'=>'세부 소속',
+    'user_status'=>'상태',
+    'registered_at'=>'가입일시',
+    'last_login'=>'마지막 로그인',
+    'user_list'=>'회원 목록',
     'site_title' => '경비정보관리시스템',
     'site_logo_text' => '경비정보관리시스템',
     'login_wrong_password' => '비밀번호가 일치하지 않습니다.',
@@ -35,9 +50,6 @@ return array(
 
     'registered' => '정상적으로 등록되었습니다.\n관리자의 승인이 이루어지면 사용하실 수 있습니다.',
 
-    'user_name' => '이름',
-    'department' => '부서',
-    'groups' => '권한 그룹',
 
     'change_theme' => '테마 바꾸기',
 
