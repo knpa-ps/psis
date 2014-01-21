@@ -49,6 +49,9 @@
     </div>
     
 </footer>
+<script type="text/javascript">
+    var baseUrl = '{{ url() }}/';
+</script>
     <!-- jQuery -->
     {{ HTML::script('static/js/jquery-1.7.2.min.js') }}
     <!-- jQuery UI -->
