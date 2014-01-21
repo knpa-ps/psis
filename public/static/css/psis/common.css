@@ -1,0 +1,16 @@
+.footer {
+	text-align: center;
+	padding: 30px 0;
+
+	border-top: 1px solid #e5e5e5;
+	background-color: #f5f5f5;
+}
+.navbar .brand {
+	font-family: "맑은 고딕","Malgun Gothic","나눔고딕",NanumGothic,"돋움",dotum,"Georgia Pro",Arial;
+	color:white;
+	font-weight: bold;
+	width: 220px;
+}
+body {
+	font-family: "맑은 고딕","Malgun Gothic","나눔고딕",NanumGothic,"돋움",dotum,"Georgia Pro",Arial;
+}

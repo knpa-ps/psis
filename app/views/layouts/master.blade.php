@@ -1,41 +1,91 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<html lang="kr">
 <head>
     @include('parts.header')
-
-    @section('style')
+    @section('styles')
     @show
 </head>
 <body>
 
-@section('navbar')
-@show
+@include('parts.navbar')    
 
-@section('sidebar')
-@show
+<div class="container-fluid">
+    <div class="row-fluid">
 
-<div class="container">
-	@section('content-header')
-	@show
-    @yield('content')
-    @section('content-footer')
-	@show
-</div>
+        @include('parts.sidebar')
+            
+        @if ($GLOBALS['showSidebar'])
+            <div id="content" class="span10">
+        @else
+            <div id="content" class="span12">
+        @endif
 
-{{ HTML::script('assets/js/vendor/jquery-1.10.1.min.js') }}
-{{ HTML::script('assets/js/vendor/bootstrap.min.js') }}
-{{ HTML::script('assets/js/vendor/modernizr-2.6.2.min.js') }}
-{{ HTML::script('assets/js/vendor/jquery.placeholder.js') }}
-{{ HTML::script('assets/js/common.js') }}
-{{ HTML::script('assets/js/plugins.js') }}
+        <noscript>
+            <div class="alert alert-block span12">
+                <h4 class="alert-heading">@lang('strings.warning')</h4>
+                <p>@lang('strings.no_js')</p>
+            </div>
+        </noscript>
 
-@section('footer')
-@show
+        <!-- content starts -->
+            @include('parts.breadcrumbs')
+            @section('content')
+            @show
+         <!-- content ends -->
+        </div><!--/#content.span10-->
 
-@section('script')
+    </div><!--/fluid-row-->
+                
+        
+</div><!--/.fluid-container-->
+
+<hr>
+
+<footer class="footer">
+    <div class="container">
+        <p class="pull-left">
+            @lang('strings.footer_text')
+        </p>
+    </div>
+    
+</footer>
+    <!-- jQuery -->
+    {{ HTML::script('static/js/jquery-1.7.2.min.js') }}
+    <!-- jQuery UI -->
+    {{ HTML::script('static/js/jquery-ui-1.8.21.custom.min.js') }}
+    <!-- transition / effect library -->
+    {{ HTML::script('static/js/bootstrap-transition.js') }}
+    <!-- alert enhancer library -->
+    {{ HTML::script('static/js/bootstrap-alert.js') }}
+    <!-- modal / dialog library -->
+    {{ HTML::script('static/js/bootstrap-modal.js') }}
+    <!-- custom dropdown library -->
+    {{ HTML::script('static/js/bootstrap-dropdown.js') }}
+    <!-- library for creating tabs -->
+    {{ HTML::script('static/js/bootstrap-tab.js') }}
+    <!-- library for advanced tooltip -->
+    {{ HTML::script('static/js/bootstrap-tooltip.js') }}
+    <!-- popover effect library -->
+    {{ HTML::script('static/js/bootstrap-popover.js') }}
+    <!-- button enhancer library -->
+    {{ HTML::script('static/js/bootstrap-button.js') }}
+    <!-- autocomplete library -->
+    {{ HTML::script('static/js/bootstrap-typeahead.js') }}
+    <!-- library for cookie management -->
+    {{ HTML::script('static/js/jquery.cookie.js') }}
+    <!-- select or dropdown enhancer -->
+    {{ HTML::script('static/js/jquery.chosen.min.js') }}
+    <!-- checkbox, radio, and file input styler -->
+    {{ HTML::script('static/js/jquery.uniform.min.js') }}
+    <!-- notification plugin -->
+    {{ HTML::script('static/js/jquery.noty.js') }}
+    <!-- autogrowing textarea plugin -->
+    {{ HTML::script('static/js/jquery.autogrow-textarea.js') }}
+    <!-- history.js for cross-browser state change on ajax -->
+    {{ HTML::script('static/js/jquery.history.js') }}
+    
+    {{ HTML::script('static/js/psis/app.js') }}
+@section('scripts')
 
 @show
 </body>

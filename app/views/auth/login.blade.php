@@ -1,4 +1,4 @@
-@extends('layouts.master')
+@extends('layouts.public-master')
 
 @section('style')
     {{ HTML::style('assets/css/login.css') }}

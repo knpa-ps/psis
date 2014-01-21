@@ -9,7 +9,7 @@ class AdminController extends BaseController {
 
 	public function showUserList()
 	{
-		return View::make('main');
+		return View::make('admin.users');
 	}
 
 	public function showPermissions()

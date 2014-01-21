@@ -10,7 +10,6 @@
 | and give it the Closure to execute when that URI is requested.
 |
 */
-
 /**
  * public pages
  */
@@ -54,9 +53,12 @@ Route::group(array('before'=>'auth'), function() {
 
     Route::get('/profile', 'HomeController@showProfile');
 
-    Route::get('/sg', 'AdminController@showGroupList');
-    Route::get('/sp', 'AdminController@showPermissions');
-    Route::get('/su', 'AdminController@showUserList');
+    Route::group(array('before'=>'admin', 'prefix'=>'admin'), function(){
+        Route::get('/groups', 'AdminController@showGroupList');
+        Route::get('/permissions', 'AdminController@showPermissions');
+        Route::get('/users', 'AdminController@showUserList');
+    });
+
     Route::get('/sl', 'BudgetController@showList');
     Route::get('/si', 'EscortEquipController@showInventory');
     Route::get('/sisi', 'ReportController@showList');

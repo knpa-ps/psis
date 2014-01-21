@@ -43,10 +43,8 @@ Route::filter('ajax', function()
 	if (!Request::ajax()) return App::abort(403, 'Unauthorized Action');
 });
 
-
-Route::filter('auth.basic', function()
+Route::filter('admin', function()
 {
-	return Auth::basic();
 });
 
 /*
@@ -87,4 +85,4 @@ Route::filter('csrf', function()
 /**
  * View Composers
  */
-View::composer('layouts.base', 'LayoutComposer');
+View::composer('layouts.master', 'LayoutComposer');
