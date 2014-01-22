@@ -93,7 +93,7 @@ class AuthController extends BaseController {
     }
 
     public function showRegisterForm($data = array()) {
-        $codes = Code::withCategory('H001');
+        $codes = Code::in('H001');
         $codeSelectItems = array();
         foreach ($codes as $code) {
             $codeSelectItems[$code->code] = $code->title;
@@ -122,7 +122,8 @@ class AuthController extends BaseController {
         $data['userRank'] = Input::get('user_rank');
         $data['userName'] = Input::get('user_name');
         $data['departmentId'] = Input::get('department_id');
-
+        $data['deptDetail'] = Input::get('dept_detail');
+        
         $accountNameLabel = Lang::get('labels.login_account_name');
         $passwordLabel = Lang::get('labels.login_password');
         $userRankLabel = Lang::get('labels.user_rank');
@@ -147,7 +148,7 @@ class AuthController extends BaseController {
                 $departmentLabel => $data['departmentId']
             ),
             array(
-                $accountNameLabel => 'required|alpha_dash|between:4,30',
+                $accountNameLabel => 'required|alpha_dash|between:4,30|unique:users,account_name',
                 $passwordLabel => "required|min:8|in:{$data['passwordConf']}",
                 $userRankLabel => "required|in:$ranks",
                 $userNameLabel => 'required|max:10',
@@ -165,6 +166,8 @@ class AuthController extends BaseController {
             'account_name' => $data['accountName'],
             'password' => $data['password'],
             'user_name' => $data['userName'],
+            'user_rank' => $data['userRank'],
+            'dept_detail' => $data['deptDetail'],
             'dept_id' => $data['departmentId']
         ));
 

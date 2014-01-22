@@ -1,4 +1,20 @@
+$(document).on('click', '.datatable.multi-selectable tbody tr', function(){
+    $(this).toggleClass('row-selected');
+});
+$(document).on('click', '.datatable.single-selectable tbody tr', function(){
+    if ( $(this).hasClass('row-selected') ) {
+        $(this).removeClass('row-selected');
+    }
+    else {
+        $(this).closest('.datatable.single-selectable').find('tr.row-selected').removeClass('row-selected');
+        $(this).addClass('row-selected');
+    }
+});
 
+function fnGetSelected( oTableLocal )
+{
+    return oTableLocal.$('tr.row-selected');
+}
 //additional functions for data table
 $.fn.dataTableExt.oApi.fnPagingInfo = function ( oSettings )
 {

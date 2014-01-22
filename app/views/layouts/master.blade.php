@@ -40,7 +40,6 @@
 </div><!--/.fluid-container-->
 
 <hr>
-
 <footer class="footer">
     <div class="container">
         <p class="pull-left">
@@ -49,6 +48,7 @@
     </div>
     
 </footer>
+
 <script type="text/javascript">
     var baseUrl = '{{ url() }}/';
 </script>
@@ -72,21 +72,17 @@
     {{ HTML::script('static/js/bootstrap-popover.js') }}
     <!-- button enhancer library -->
     {{ HTML::script('static/js/bootstrap-button.js') }}
-    <!-- autocomplete library -->
-    {{ HTML::script('static/js/bootstrap-typeahead.js') }}
     <!-- library for cookie management -->
     {{ HTML::script('static/js/jquery.cookie.js') }}
     <!-- select or dropdown enhancer -->
     {{ HTML::script('static/js/jquery.chosen.min.js') }}
     <!-- checkbox, radio, and file input styler -->
     {{ HTML::script('static/js/jquery.uniform.min.js') }}
-    <!-- notification plugin -->
-    {{ HTML::script('static/js/jquery.noty.js') }}
-    <!-- autogrowing textarea plugin -->
-    {{ HTML::script('static/js/jquery.autogrow-textarea.js') }}
     <!-- history.js for cross-browser state change on ajax -->
     {{ HTML::script('static/js/jquery.history.js') }}
-    
+    {{ HTML::script('static/js/jquery.placeholder.js') }}  
+    {{ HTML::script('static/js/jquery.validate.min.js') }}  
+    {{ HTML::script('static/js/bootbox.min.js') }}  
     {{ HTML::script('static/js/psis/app.js') }}
 @section('scripts')
 

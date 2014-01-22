@@ -15,7 +15,7 @@ return array(
     'user_status'=>'상태',
     'registered_at'=>'가입일시',
     'last_login'=>'마지막 로그인',
-    'user_list'=>'회원 목록',
+    'user_list'=>'사용자 목록',
     'site_title' => '경비정보관리시스템',
     'site_logo_text' => '경비정보관리시스템',
     'login_wrong_password' => '비밀번호가 일치하지 않습니다.',
@@ -56,6 +56,22 @@ return array(
     'warning'=>'경고',
     'no_js'=>'이 시스템을 이용하기 위해서는 자바스크립트가 활성화되어야 합니다.',
     'footer_text'=>'<strong>문의사항</strong> 본청 경비국 경비3계 의경 최영우<br>
-            <strong>일반전화</strong> 02-3150-1170 / <strong>경비전화</strong> 7-1170'
+            <strong>일반전화</strong> 02-3150-1170 / <strong>경비전화</strong> 7-1170',
+    'create'=>'추가',
+    'create_user'=>'사용자 추가',
+    'delete_user'=>'사용자 삭제',
+    'edit'=>'수정',
+    'edit_status'=>'상태변경',
 
+    'delete'=>'삭제',
+    'cancel'=>'취소',
+  	'confirm'=>'확인',
+  	'ok'=>'확인',
+    'select_all'=>'전체선택',
+    'confirm_delete' => '정말 삭제하시겠습니까?',
+    'no_selection' => '선택된 항목이 없습니다.',
+    'cannot_delete_admin'=>'관리자 계정은 삭제할 수 없습니다.',
+    'cannot_update_admin'=>'관리자 계정은 변경할 수 없습니다.',
+    'user_active'=>'활성화',
+    'user_inactive'=>'비활성화'
 );

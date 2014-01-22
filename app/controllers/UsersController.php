@@ -9,13 +9,16 @@ class UsersController extends BaseController {
 	 */
 	public function index()
 	{
-		// $users = User::select(
-		// 	array(
-		// 		'id as chk', 'id', 'account_name', 'user_name', 'user_rank', 'dept_id', 'dept_detail', 'activated'));
-  //       return Datatables::of($users)
-  //       ->edit_column('chk', "sdf")
-  //       ->make();
-		return User::with('rank')->get();
+		DB::table('users')
+		->leftJoin('codes', function($join){
+			$join->on('users.user_rank','=','codes.code')
+			->where('codes.category_code','=','H001');
+		})
+		->leftJoin('departments', 'departments.id','=','users.dept_id')
+		->select(array(
+				
+			));
+		return User::getJoinedQuery();
 	}
 
 	/**

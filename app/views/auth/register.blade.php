@@ -14,6 +14,7 @@
                 <p>{{ $m }}</p>
             @endforeach
         </div>
+        
         @endif
         {{ Form::text('account_name', $accountName, array('class'=>'form-control',
                                         'placeholder'=>Lang::get('labels.login_account_name'),
@@ -50,6 +51,10 @@
         </div>
         <br>
         {{ Form::hidden('department_id', $departmentId) }}
+
+        {{ Form::text('dept_detail', $userName, array('class'=>'form-control',
+                                                'placeholder'=>Lang::get('strings.dept_detail'))) }}
+        <br>
         {{ Form::button(Lang::get('strings.register'), array('class'=>'btn btn-lg btn-primary btn-block', 'type'=>'submit')) }}
     {{ Form::close() }}
 @stop

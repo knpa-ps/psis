@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder {
 		$this->call('CodesTableSeeder');
 		
 		$this->call('ModulesTableSeeder');
-		$this->call('ModuleActionsTableSeeder');
 		$this->call('MenusTableSeeder');
+		$this->call('ModuleActionsTableSeeder');
 		$this->call('ActionPermissionsTableSeeder');
 	}
 

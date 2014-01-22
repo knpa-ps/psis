@@ -9,7 +9,12 @@
 | It's a breeze. Simply tell Laravel the URIs it should respond to
 | and give it the Closure to execute when that URI is requested.
 |
-*/
+
+/**
+ * global patterns
+ */
+Route::pattern('user_id', '[0-9]+');
+
 /**
  * public pages
  */
@@ -54,9 +59,19 @@ Route::group(array('before'=>'auth'), function() {
     Route::get('/profile', 'HomeController@showProfile');
 
     Route::group(array('before'=>'admin', 'prefix'=>'admin'), function(){
+        Route::any('/', 'AdminController@showUserList');
+
         Route::get('/groups', 'AdminController@showGroupList');
         Route::get('/permissions', 'AdminController@showPermissions');
-        Route::get('/users', 'AdminController@showUserList');
+        Route::any('/users', 'AdminController@showUserList');
+
+        Route::get('/users/get', 'AdminController@getUsers');
+        Route::get('/user/{user_id}', 'AdminController@showUserDetail');
+        Route::group(array('before'=>'ajax'), function(){
+            Route::post('user/delete', 'AdminController@deleteUser');
+            Route::post('user/actiavted', 'AdminController@setUserActivated');
+            Route::post('user/{user_id}/edit', 'AdminController@updateUser');
+        });
     });
 
     Route::get('/sl', 'BudgetController@showList');
@@ -64,6 +79,5 @@ Route::group(array('before'=>'auth'), function() {
     Route::get('/sisi', 'ReportController@showList');
     Route::get('/sdfdd', 'ReportController@showComposeForm');
     
-    Route::resource('users', 'UsersController');
 });
 

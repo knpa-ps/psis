@@ -1,4 +1,34 @@
 $(document).ready(function(){
+	$.extend($.validator, {
+		messages: {
+			required: "이 항목을 입력해주세요.",
+			remote: "잘못된 입력입니다.",
+			email: "올바른 이메일 주소를 입력해주세요.",
+			url: "올바른 URL을 입력해주세요.",
+			date: "날짜를 입력해주세요.",
+			dateISO: "날짜를 입력해주세요.",
+			number: "숫자를 입력해주세요.",
+			digits: "숫자를 입력해주세요.",
+			creditcard: "올바른 신용카드 번호를 입력해주세요.",
+			equalTo: "같은 값을 다시 입력해주세요.",
+			maxlength: $.validator.format("{0}글자 이하로 입력해주세요."),
+			minlength: $.validator.format("{0}글자 이상으로 입력해주세요."),
+			rangelength: $.validator.format("{0}~{1}글자 사이로 입력해주세요."),
+			range: $.validator.format("{0}~{1} 사이의 값을 입력해주세요."),
+			max: $.validator.format("{0}보다 작거나 같은 값을 입력해주세요."),
+			min: $.validator.format("{0}보다 크거나 같은 값을 입력해주세요.")
+		}
+	});
+
+	bootbox.backdrop(false);
+	bootbox.animate(false);
+	
+	bootbox.addLocale('kr', {
+		OK: "확인",
+		CANCEL: "취소",
+		CONFIRM: "확인"
+	});
+	bootbox.setLocale('kr');
 	var current_theme = $.cookie('current_theme')==null ? 'classic' :$.cookie('current_theme');
 	switch_theme(current_theme);
 	
@@ -63,26 +93,36 @@ $(document).ready(function(){
 	function(){
 		$(this).animate({'margin-left':'-=5'},300);
 	});
-	
+
+
+	$(".select-all").click(function(){
+		var b = !$(this).hasClass('active');
+		var targetId = $(this).data('target');
+		if (b) {
+			$("#"+targetId+".multi-selectable tbody tr").addClass('row-selected');
+		} else {
+			$("#"+targetId+".multi-selectable tbody tr").removeClass('row-selected');
+		}
+
+	});
+
 	//other things to do on document ready, seperated for ajax calls
 	docReady();
 });
-
+function popup(url, title, w, h) {
+  var left = (screen.width/2)-(w/2);
+  var top = (screen.height/2)-(h/2);
+  return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
+} 
 function docReady(){
 	//prevent # links from moving to top
 	$('a[href="#"][data-top!=true]').click(function(e){
 		e.preventDefault();
 	});
-	
+	$('input, textarea').placeholder();
+
 	//datepicker
 	$('.datepicker').datepicker();
-	
-	//notifications
-	$('.noty').click(function(e){
-		e.preventDefault();
-		var options = $.parseJSON($(this).attr('data-noty-options'));
-		noty(options);
-	});
 
 	//uniform - styler for checkbox, radio and file input
 	$("input:checkbox, input:radio, input:file").not('[data-no-uniform="true"],#uniform-is-ajax').uniform();
@@ -102,9 +142,6 @@ function docReady(){
 
 	//tooltip
 	$('[rel="tooltip"],[data-rel="tooltip"]').tooltip({"placement":"bottom",delay: { show: 400, hide: 200 }});
-
-	//auto grow textarea
-	$('textarea.autogrow').autogrow();
 
 	//popover
 	$('[rel="popover"],[data-rel="popover"]').popover();

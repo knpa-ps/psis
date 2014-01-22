@@ -14,18 +14,32 @@
 body {
 	font-family: "맑은 고딕","Malgun Gothic","나눔고딕",NanumGothic,"돋움",dotum,"Georgia Pro",Arial;
 }
-.datatable .row-selector {
-	padding:0;
-}
-
-.datatable .row-selector .checker {
-	margin:0;
-}
-
-.datatable .dt-col-row-selector {
-	width:24px;
-}
 
 .single-line {
 	white-space:nowrap;
+}
+
+table.datatable tr.even.row-selected td {
+	background-color: #B0BED9;
+}
+
+table.datatable tr.odd.row-selected td {
+	background-color: #9FAFD1;
+}
+
+.datatable-controls {
+	margin-bottom: 20px;
+}
+
+.form.form-modal {
+	margin-bottom: 0;
+}
+
+.center {
+	text-align: center;
+}
+
+.btn-group {
+	display: inline-block;
+	vertical-align: middle;
 }

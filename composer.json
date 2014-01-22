@@ -7,7 +7,8 @@
 		"laravel/framework": "4.1.*",
         "way/generators": "dev-master",
         "cartalyst/sentry": "2.0.*",
-        "bllim/datatables": "*"
+
+        "bllim/datatables" : "*"
 	},
 	"autoload": {
 		"classmap": [

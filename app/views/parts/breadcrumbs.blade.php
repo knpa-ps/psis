@@ -7,7 +7,7 @@
     				<li class="active">{{ $menu->name }}</li>	
     			@else
 					<li>
-						<a href="{{ action($menu->action->action) }}">{{ $menu->name }}</a>
+						<a href="{{ $menu->href }}">{{ $menu->name }}</a>
 						<span class="divider">/</span>
 					</li>	
     			@endif

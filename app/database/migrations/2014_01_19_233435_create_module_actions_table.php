@@ -15,6 +15,8 @@ class CreateModuleActionsTable extends Migration {
 		Schema::create('module_actions', function(Blueprint $table) {
 			$table->increments('id');
 			$table->integer('module_id')->unsigned();
+			$table->integer('menu_id')->unsigned()->nullable();
+			$table->smallInteger('menu_default');
 			$table->string('action', 255);
 			$table->string('name', 255);
 			$table->integer('type');
@@ -25,6 +27,12 @@ class CreateModuleActionsTable extends Migration {
 			->references('id')
 			->on('modules')
 			->onDelete('cascade')
+			->onUpdate('cascade');
+
+			$table->foreign('menu_id')
+			->references('id')
+			->on('menus')
+			->onDelete('set null')
 			->onUpdate('cascade');
 		});
 	}

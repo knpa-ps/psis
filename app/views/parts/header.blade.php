@@ -7,13 +7,14 @@
 
 <!-- The styles -->
 
-<link rel="stylesheet" href="{{ asset('static/css/bootstrap-classic.min.css') }}" id="bs-css" />
+<link rel="stylesheet" href="{{ asset('static/css/bootstrap-classic.css') }}" id="bs-css" />
 <style type="text/css">
   .sidebar-nav {
     padding: 9px 0;
   }
 </style>
 {{ HTML::style('static/css/bootstrap-responsive.css') }}
+{{ HTML::script('static/js/respond.min.js') }}
 {{ HTML::style('static/css/charisma-app.css') }}
 {{ HTML::style('static/css/jquery-ui-1.8.21.custom.css') }}
 {{ HTML::style('static/css/chosen.css') }}

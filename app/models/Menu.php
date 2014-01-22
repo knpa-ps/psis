@@ -9,7 +9,7 @@ class Menu extends Eloquent {
 
 	public function action()
 	{
-		return $this->belongsTo('Action', 'action_id', 'id');
+		return $this->hasMany('Action');
 	}
 
 	public static function breadcrumbs(array $menus)
@@ -56,27 +56,6 @@ class Menu extends Eloquent {
 		return $tree;
 	}
 
-	private static function hasActiveDecendant($children, $actionKey)
-	{
-		foreach ($children as $c)
-		{
-			if (isset($c->children))
-			{
-				if (self::hasActiveDecendant($c->children, $actionKey))
-				{
-					return true;
-				}
-			}
-
-			if ($c->action->action === $actionKey)
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	private static function isVisible(array $groupIds, Menu $menu)
 	{
 		if (!trim($menu->group_ids))
@@ -105,7 +84,16 @@ class Menu extends Eloquent {
 				}
 
 				$menu->is_active = self::isActive($menu, $actionKey);
-				
+				$menu->href = "#";
+
+				foreach ($menu->action()->get() as $action)
+				{
+					if ($action->menu_default)
+					{
+						$menu->href = action($action->action);
+					}
+				}
+
 				$tree[] = $menu;
 			}
 		}
@@ -127,9 +115,12 @@ class Menu extends Eloquent {
 			}
 		}
 
-		if ($menu->action->action === $actionKey)
+		foreach ($menu->action()->get() as $action)
 		{
-			return true;
+			if ($action->action === $actionKey)
+			{
+				return true;
+			}
 		}
 
 		return false;

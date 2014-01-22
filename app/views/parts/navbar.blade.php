@@ -57,11 +57,11 @@
                     @endif
 
                         @if (isset($menu->children) && !empty($menu->children))
-                            <a href="{{ action($menu->action->action) }}" 
+                            <a href="{{ $menu->href }}" 
                             class="dropdown-toggle" 
                             data-toggle="dropdown">
                         @else
-                            <a href="{{ action($menu->action->action) }}">
+                            <a href="{{ $menu->href }}">
                         @endif
 
                         {{ $menu->name }} 
@@ -75,7 +75,7 @@
                                     @else
                                         <li>
                                     @endif
-                                        <a href="{{ action($c->action->action) }}">{{ $c->name }}</a>
+                                        <a href="{{ $c->href }}">{{ $c->name }}</a>
                                     </li>    
                                 @endforeach
                             </ul>
