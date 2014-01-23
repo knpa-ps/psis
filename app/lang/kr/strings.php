@@ -59,6 +59,8 @@ return array(
             <strong>일반전화</strong> 02-3150-1170 / <strong>경비전화</strong> 7-1170',
     'create'=>'추가',
     'create_user'=>'사용자 추가',
+    'create_group'=>'그룹 추가',
+    'delete_group'=>'그룹 삭제',
     'delete_user'=>'사용자 삭제',
     'edit'=>'수정',
     'edit_status'=>'상태변경',

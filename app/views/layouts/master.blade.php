@@ -49,7 +49,8 @@
     
 </footer>
     <!-- jQuery -->
-    {{ HTML::script('static/js/jquery-1.7.2.min.js') }}
+    {{ HTML::script('static/js/jquery-1.10.2.min.js') }}
+    {{ HTML::script('static/js/jquery-migrate-1.2.1.min.js') }}
     <!-- jQuery UI -->
     {{ HTML::script('static/js/jquery-ui-1.8.21.custom.min.js') }}
     <!-- transition / effect library -->
@@ -71,7 +72,7 @@
     <!-- library for cookie management -->
     {{ HTML::script('static/js/jquery.cookie.js') }}
     <!-- select or dropdown enhancer -->
-    {{ HTML::script('static/js/jquery.chosen.min.js') }}
+    {{ HTML::script('static/js/chosen.jquery.min.js') }}
     <!-- checkbox, radio, and file input styler -->
     {{ HTML::script('static/js/jquery.uniform.min.js') }}
     <!-- history.js for cross-browser state change on ajax -->

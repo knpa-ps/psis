@@ -58,7 +58,11 @@
 						@lang('strings.user_rank')
 					</label>
 					<div class="controls">
-						{{ Form::select('user_rank', $ranks, $user->user_rank?$user->user_rank:'R006') }}
+						{{ Form::select('user_rank', $ranks, $user->user_rank?$user->user_rank:'R006',
+						array(
+							'data-rel'=>'chosen',
+							'class'=>'input-large'
+						)) }}
 					</div>
 				</div>
 			</div>

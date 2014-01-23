@@ -1,4 +1,10 @@
+$(document).ajaxError(function(){
+	noty({
+		type:'error', layout:'topRight', text:"서버 오류가 발생했습니다."
+	});
+});
 $(document).ready(function(){
+	
 	bootbox.backdrop(false);
 	bootbox.animate(false);
 	bootbox.addLocale('kr', {
@@ -27,15 +33,6 @@ $(document).ready(function(){
 	{
 		$('#bs-css').attr('href', baseUrl+'static/css/bootstrap-'+theme_name+'.css');
 	}
-
-	//disbaling some functions for Internet Explorer
-	if($.browser.msie)
-	{
-		$('#is-ajax').prop('checked',false);
-		$('#for-is-ajax').hide();
-		$('#toggle-fullscreen').hide();
-	}
-	
 	
 	//highlight current / active link
 	$('ul.main-menu li a').each(function(){

@@ -8,11 +8,6 @@ class AdminController extends BaseController {
 		return View::make('admin.groups');
 	}
 
-	public function getGroups()
-	{
-
-	}
-
 	public function showUserList($data = array())
 	{
         $codes = Code::in('H001');
@@ -74,7 +69,7 @@ class AdminController extends BaseController {
 
 	public function showPermissions()
 	{
-		return View::make('main');
+		return View::make('admin.permissions');
 	}
 
 	public function setUserActivated()
@@ -220,5 +215,49 @@ class AdminController extends BaseController {
 
         return $this->updateUser($user->id);
 
+	}
+
+	public function getGroups()
+	{
+		$builder = Group::select(array(
+				'id',
+				'name',
+				'created_at'
+			));
+		
+		return Datatables::of($builder)->make();
+	}
+
+	public function deleteGroup()
+	{
+		$ids = Input::all();
+		foreach ($ids as $id)
+		{
+			if (!is_numeric($id))
+			{
+				Log::error('requested group id is not numeric value');
+				return Lang::get('strings.server_error');
+			}
+		}
+		
+		foreach ($ids as $id)
+		{
+			$g = Sentry::findGroupById($id);
+			if ($g->name === '관리자') 
+			{
+				return Lang::get('strings.cannot_delete_admin');
+			}
+			$g->delete();
+		}
+		return Lang::get('strings.success');
+	}
+
+	public function createGroup()
+	{
+		$gname = Input::get('groupName');
+		Sentry::createGroup(array(
+			'name'=>$gname
+			));
+		return Lang::get('strings.success');
 	}
 }

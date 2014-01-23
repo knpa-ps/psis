@@ -65,15 +65,22 @@ Route::group(array('before'=>'auth'), function() {
         Route::any('/', 'AdminController@showUserList');
 
         Route::get('/groups', 'AdminController@showGroupList');
+
         Route::get('/permissions', 'AdminController@showPermissions');
         Route::any('/users', 'AdminController@showUserList');
 
-        Route::get('/users/get', 'AdminController@getUsers');
+        
         Route::get('/user/new', 'AdminController@showUserDetail');
         Route::post('/user/new', 'AdminController@insertUser');
         Route::get('/user/{user_id}', 'AdminController@showUserDetail');
         Route::post('user/{user_id}', 'AdminController@updateUser');
+
         Route::group(array('before'=>'ajax'), function(){
+            Route::get('/users/get', 'AdminController@getUsers');
+            Route::get('groups/get', 'AdminController@getGroups');
+            Route::post('groups/delete', 'AdminController@deleteGroup');
+            Route::post('groups/create', 'AdminController@createGroup');
+
             Route::post('user/delete', 'AdminController@deleteUser');
             Route::post('user/actiavted', 'AdminController@setUserActivated');
         });

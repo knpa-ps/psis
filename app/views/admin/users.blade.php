@@ -179,7 +179,7 @@ $(document).ready(function(){
 				oTable.fnDraw();
 			},
 			error: function() {
-				bootbox.alert("@lang('stirngs.server_error')"
+				bootbox.alert("@lang('strings.server_error')"
 					);
 			}
 		});
