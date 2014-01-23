@@ -48,10 +48,6 @@
     </div>
     
 </footer>
-
-<script type="text/javascript">
-    var baseUrl = '{{ url() }}/';
-</script>
     <!-- jQuery -->
     {{ HTML::script('static/js/jquery-1.7.2.min.js') }}
     <!-- jQuery UI -->
@@ -80,10 +76,17 @@
     {{ HTML::script('static/js/jquery.uniform.min.js') }}
     <!-- history.js for cross-browser state change on ajax -->
     {{ HTML::script('static/js/jquery.history.js') }}
+    {{ HTML::script('static/js/jquery.noty.js') }}  
     {{ HTML::script('static/js/jquery.placeholder.js') }}  
-    {{ HTML::script('static/js/jquery.validate.min.js') }}  
     {{ HTML::script('static/js/bootbox.min.js') }}  
     {{ HTML::script('static/js/psis/app.js') }}
+    <script type="text/javascript">
+        var baseUrl = '{{ url() }}/';
+        @foreach ($notifications as $noty)
+            noty({{ json_encode($noty) }});
+        @endforeach
+    </script>
+
 @section('scripts')
 
 @show

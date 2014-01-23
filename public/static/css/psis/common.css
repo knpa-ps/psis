@@ -13,6 +13,7 @@
 }
 body {
 	font-family: "맑은 고딕","Malgun Gothic","나눔고딕",NanumGothic,"돋움",dotum,"Georgia Pro",Arial;
+	min-width: 724px;
 }
 
 .single-line {
@@ -33,6 +34,14 @@ table.datatable tr.odd.row-selected td {
 
 .form.form-modal {
 	margin-bottom: 0;
+}
+
+.table input, .table select {
+	margin-bottom: 0;
+}
+
+.table.table-form th {
+	height:28px;
 }
 
 .center {

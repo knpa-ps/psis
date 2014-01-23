@@ -73,6 +73,33 @@
 		"name" : "사용자 정보 조회",
 		"menu_id": 501,
 		"menu_default": 0
+	},
+	{
+		"id" : 304,
+		"module_id" : 5,
+		"type" : 1,
+		"action" : "AdminController@updateUser",
+		"name" : "사용자 정보 업데이트",
+		"menu_id": 501,
+		"menu_default": 0
+	},
+	{
+		"id" : 305,
+		"module_id" : 5,
+		"type" : 1,
+		"action" : "AdminController@deleteUser",
+		"name" : "사용자 정보 삭제",
+		"menu_id": 501,
+		"menu_default": 0
+	},
+	{
+		"id" : 306,
+		"module_id" : 5,
+		"type" : 1,
+		"action" : "AdminController@setUserActivated",
+		"name" : "사용자 상태변경",
+		"menu_id": 501,
+		"menu_default": 0
 	}
 
 ]

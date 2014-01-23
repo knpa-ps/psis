@@ -1,34 +1,13 @@
 $(document).ready(function(){
-	$.extend($.validator, {
-		messages: {
-			required: "이 항목을 입력해주세요.",
-			remote: "잘못된 입력입니다.",
-			email: "올바른 이메일 주소를 입력해주세요.",
-			url: "올바른 URL을 입력해주세요.",
-			date: "날짜를 입력해주세요.",
-			dateISO: "날짜를 입력해주세요.",
-			number: "숫자를 입력해주세요.",
-			digits: "숫자를 입력해주세요.",
-			creditcard: "올바른 신용카드 번호를 입력해주세요.",
-			equalTo: "같은 값을 다시 입력해주세요.",
-			maxlength: $.validator.format("{0}글자 이하로 입력해주세요."),
-			minlength: $.validator.format("{0}글자 이상으로 입력해주세요."),
-			rangelength: $.validator.format("{0}~{1}글자 사이로 입력해주세요."),
-			range: $.validator.format("{0}~{1} 사이의 값을 입력해주세요."),
-			max: $.validator.format("{0}보다 작거나 같은 값을 입력해주세요."),
-			min: $.validator.format("{0}보다 크거나 같은 값을 입력해주세요.")
-		}
-	});
-
 	bootbox.backdrop(false);
 	bootbox.animate(false);
-	
 	bootbox.addLocale('kr', {
 		OK: "확인",
 		CANCEL: "취소",
 		CONFIRM: "확인"
 	});
 	bootbox.setLocale('kr');
+
 	var current_theme = $.cookie('current_theme')==null ? 'classic' :$.cookie('current_theme');
 	switch_theme(current_theme);
 	

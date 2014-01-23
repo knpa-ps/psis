@@ -67,10 +67,10 @@ Route::group(array('before'=>'auth'), function() {
 
         Route::get('/users/get', 'AdminController@getUsers');
         Route::get('/user/{user_id}', 'AdminController@showUserDetail');
+        Route::post('user/{user_id}', 'AdminController@updateUser');
         Route::group(array('before'=>'ajax'), function(){
             Route::post('user/delete', 'AdminController@deleteUser');
             Route::post('user/actiavted', 'AdminController@setUserActivated');
-            Route::post('user/{user_id}/edit', 'AdminController@updateUser');
         });
     });
 

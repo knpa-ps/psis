@@ -133,9 +133,18 @@ $(document).ready(function(){
 				"sAjaxSource": "{{ action('AdminController@getUsers') }}",
 				"aoColumnDefs": [
 					{
+						"aTargets": [4],
+						"mRender": function(data, type, full) {
+							if (data)
+								return data.replace(/:/gi, " ").trim();
+							else
+								return data;
+						}
+					},
+					{
 						"aTargets": [1],
 						"mRender": function(data, type, full) {
-							return '<a href="{{ url("admin/user") }}/'+full[0]+'">'+data+'</a>';
+							return '<a href="{{ url("admin/user") }}/'+full[0]+'"><strong>'+data+'</strong></a>';
 						}
 					},
 					{
@@ -149,11 +158,6 @@ $(document).ready(function(){
 					}
 				]
 			}));
-
-	$("#edit-selected").click(function(){
-
-	});
-
 	$("#delete-selected").click(function(){
 
 		var selected = fnGetSelected(oTable);

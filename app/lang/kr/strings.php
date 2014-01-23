@@ -73,5 +73,8 @@ return array(
     'cannot_delete_admin'=>'관리자 계정은 삭제할 수 없습니다.',
     'cannot_update_admin'=>'관리자 계정은 변경할 수 없습니다.',
     'user_active'=>'활성화',
-    'user_inactive'=>'비활성화'
+    'user_inactive'=>'비활성화',
+    'user_detail'=>'사용자 정보',
+
+    'success_edit'=>'수정되었습니다.'
 );

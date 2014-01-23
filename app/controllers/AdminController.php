@@ -98,7 +98,7 @@ class AdminController extends BaseController {
 				'users.account_name',
 				'users.user_name',
 				'codes.title',
-				'departments.dept_name',
+				'departments.full_name',
 				'users.dept_detail',
 				'users.activated'
 			));
@@ -108,7 +108,20 @@ class AdminController extends BaseController {
 
 	public function showUserDetail($userId)
 	{
-		return View::make('admin.user-info');
+        $codes = Code::in('H001');
+        $ranks = array();
+        foreach ($codes as $code) {
+            $ranks[$code->code] = $code->title;
+        }
+
+
+		$user = User::where('id', '=', $userId)->with('rank', 'groups', 'department')->first();
+
+		return View::make('admin.user-info', array(
+			'user'=>$user,
+			'ranks'=>$ranks,
+			'groups'=>Group::all()
+		));
 	}
 
 	public function showPermissions()
@@ -145,7 +158,6 @@ class AdminController extends BaseController {
 			}
 			$user->save();
 		}
-
 	}
 
 	public function deleteUser()
@@ -171,9 +183,54 @@ class AdminController extends BaseController {
 			$user->delete();
 		}
 	}
-
-	public function updateUser()
+	
+	public function updateUser($userId)
 	{
+		$codes = Code::in('H001');
+		$ranks = array();
+		foreach ($codes as $c) $ranks[] = $c['code'];
+		$ranks = implode(',',$ranks);
 
+		$input = Input::all();
+
+        $validator = Validator::make($input,
+            array(
+                'user_name' => 'required|max:10',
+                'user_rank' => "required|in:$ranks",
+                'department_id' => "required|exists:departments,id",
+                'dept_detail' => 'max:100'
+            )
+        );
+
+        if ($validator->fails())
+        {
+        	$msg = array();
+        	foreach ($validator->messages()->all() as $m) $msg[] = $m;
+        	$msg = implode('<br>', $msg);
+        	Log::error('update user : input validation fails. '.$validator->messages()->all());
+
+        	LayoutComposer::addNotification('error', $msg);
+        	return $this->showUserDetail($userId);
+        }
+
+        $user = User::find($userId);
+
+        $user->user_name = $input['user_name'];
+        $user->user_rank = $input['user_rank'];
+        $user->dept_id = $input['department_id'];
+        $user->dept_detail = $input['dept_detail'];
+
+        $user->groups()->detach();
+        if (!isset($input['groups_ids']))
+        {
+        	$input['groups_ids'] = array();
+        }
+        foreach ($input['groups_ids'] as $groupId)
+        {
+        	$user->groups()->attach($groupId);
+        }
+        $user->push();
+    	LayoutComposer::addNotification('success', Lang::get('strings.success_edit'));
+        return $this->showUserDetail($userId);
 	}
 }
