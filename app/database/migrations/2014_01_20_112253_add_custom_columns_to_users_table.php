@@ -5,8 +5,6 @@ use Illuminate\Database\Schema\Blueprint;
 
 class AddCustomColumnsToUsersTable extends Migration {
 
-
-
 	/**
 	 * Run the migrations.
 	 *
@@ -22,7 +20,6 @@ class AddCustomColumnsToUsersTable extends Migration {
 	            $table->string('user_rank', 10);
 	            $table->string('user_name', 20);
 	            $table->unique('account_name');
-
 			});
 		}
 	}

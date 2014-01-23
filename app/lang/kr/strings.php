@@ -76,5 +76,11 @@ return array(
     'user_inactive'=>'비활성화',
     'user_detail'=>'사용자 정보',
 
-    'success_edit'=>'수정되었습니다.'
+    'success'=>'성공하였습니다.',
+    'success_edit'=>'수정되었습니다.',
+    'group_list'=>'그룹 목록',
+    'group_name'=>'이름',
+    'created_at'=>'생성 시간',
+    'actions'=>'작업'
+
 );

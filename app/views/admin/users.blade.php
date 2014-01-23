@@ -32,7 +32,7 @@
 							<i class="icon-trash icon-white"></i> @lang('strings.delete')
 						</button>
 						<div class="pull-right">
-							<a href="#create-modal" class="btn btn-primary" id="create-new" data-toggle="modal">
+							<a href="{{ url('admin/user/new') }}" class="btn btn-primary">
 								<i class="icon-plus icon-white"></i> @lang('strings.create')
 							</a>
 						</div>
@@ -67,59 +67,6 @@
 	</div>
 </div>
 
-<div class="modal hide fade" id="create-modal">
-	<div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal">×</button>
-		<h3>@lang('strings.create_user')</h3>
-	</div>
-	{{ Form::open(array('action'=>'AdminController@showUserList', 'method'=>'post', 'class'=>'form form-modal', 'role'=>'form')) }}
-	<div class="modal-body">
-        @if (isset($messages) && !empty($messages))
-        <div class="alert alert-danger">
-            @foreach ($messages as $m)
-                <p>{{ $m }}</p>
-            @endforeach
-        </div>
-        @endif
-        {{ Form::text('account_name', $accountName, array('class'=>'form-control',
-                                        'placeholder'=>Lang::get('labels.login_account_name'),
-                                        'required'=>'',
-                                        'autofocus'=>'' )) }}
-        <p class="help-block">@lang('strings.account_name_help')</p>
-
-        {{ Form::password('password', array('class'=>'form-control input-medium',
-                                                'placeholder'=>Lang::get('labels.login_password'),
-                                                'required'=>'')) }}
-        {{ Form::password('password_confirmation', array('class'=>'form-control input-medium',
-                                                'placeholder'=>Lang::get('labels.password_confirmation'),
-                                                'required'=>'')) }}
-        <p class="help-block">@lang('strings.password_help')</p>
-
-        {{ Form::label('user_rank', Lang::get('labels.user_rank'), array('class'=>'control-label') ) }}
-        {{ Form::select('user_rank', $codeSelectItems, $userRank, array(
-            'class'=>'form-control'
-        )) }}
-        <br>
-        {{ Form::text('user_name', $userName, array('class'=>'form-control',
-                                                'placeholder'=>Lang::get('labels.user_name'),
-                                                'required'=>'')) }}
-        <br>
-        <div class="input-append">
-        <span class="input-large uneditable-input" id="department-name">{{ $departmentName==''?Lang::get('strings.department'):$departmentName}}
-        </span><button class="btn" type="button" id="dept-search"
-            onclick="popup('{{action('DepartmentController@showDeptTree')}}', '', 500, 800)">@lang('strings.search')</button>
-        </div>
-        {{ Form::hidden('department', $departmentName) }}
-        {{ Form::hidden('department_id', $departmentId) }}
-        {{ Form::text('dept_detail', $userName, array('class'=>'form-control',
-                                                'placeholder'=>Lang::get('strings.dept_detail'))) }}
-    </div>
-	<div class="modal-footer">
-		<a href="#" class="btn" data-dismiss="modal">@lang('strings.cancel')</a>
-		{{ Form::button(Lang::get('strings.create'), array('class'=>'btn btn-lg btn-primary btn-block', 'type'=>'submit')) }}
-	</div>
-    {{ Form::close() }}	
-</div>
 @stop
 
 @section('scripts')
@@ -133,10 +80,14 @@ $(document).ready(function(){
 				"sAjaxSource": "{{ action('AdminController@getUsers') }}",
 				"aoColumnDefs": [
 					{
+						"sClass":"single-line",
+						"aTargets": [0,1,2,3,4,5,6]
+					},
+					{
 						"aTargets": [4],
 						"mRender": function(data, type, full) {
 							if (data)
-								return data.replace(/:/gi, " ").trim();
+								return $.trim(data.replace(/:/gi, " "));
 							else
 								return data;
 						}
@@ -234,17 +185,7 @@ $(document).ready(function(){
 		});
 	});
 
-	@if ($showCreateModal)
-	$("#create-modal").show();
-	$("#create-modal").modal('show');
-	@endif
 });
-
-function setDept(deptId, deptName) {
-    $("span#department-name").text(deptName);
-    $("input[name='department']").val(deptName);
-    $("input[name='department_id']").val(deptId);
-}
 
 </script>
 @stop

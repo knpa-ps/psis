@@ -20,8 +20,11 @@ class User extends Eloquent {
 		return $this->belongsToMany('Group', 'users_groups', 'user_id', 'group_id');
 	}
 
-	public function withAll()
+	public static function table()
 	{
-		return $this->with('rank', 'department', 'groups');
+		return DB::table('users')->leftJoin('codes', function($query){
+			$query->on('codes.code','=','users.user_rank')
+			->where('codes.category_code', '=', 'H001');
+		})->leftJoin('departments', 'departments.id','=','users.dept_id');
 	}
 }

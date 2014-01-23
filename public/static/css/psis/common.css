@@ -19,7 +19,13 @@ body {
 .single-line {
 	white-space:nowrap;
 }
-
+.dataTables_scrollHeadInner table.datatable {
+	margin-bottom: 0;
+	max-width: none;
+}
+.dataTables_scrollBody table.datatable {
+	max-width: 0;
+}
 table.datatable tr.even.row-selected td {
 	background-color: #B0BED9;
 }
@@ -27,7 +33,6 @@ table.datatable tr.even.row-selected td {
 table.datatable tr.odd.row-selected td {
 	background-color: #9FAFD1;
 }
-
 .datatable-controls {
 	margin-bottom: 20px;
 }

@@ -18,6 +18,10 @@ Route::pattern('user_id', '[0-9]+');
 /**
  * public pages
  */
+Route::group(array('before'=>'ajax'), function(){
+    Route::get('isUniqueAccountName', 'UserController@isUniqueAccountName');
+});
+
 Route::group(array('before'=>'guest'), function(){
 
     //로그인
@@ -33,7 +37,6 @@ Route::group(array('before'=>'guest'), function(){
         'uses' => 'AuthController@doRegister'
     ));
     Route::get('/register', 'AuthController@showRegisterForm');
- 
 });
 
 //부서검색 관련
@@ -66,6 +69,8 @@ Route::group(array('before'=>'auth'), function() {
         Route::any('/users', 'AdminController@showUserList');
 
         Route::get('/users/get', 'AdminController@getUsers');
+        Route::get('/user/new', 'AdminController@showUserDetail');
+        Route::post('/user/new', 'AdminController@insertUser');
         Route::get('/user/{user_id}', 'AdminController@showUserDetail');
         Route::post('user/{user_id}', 'AdminController@updateUser');
         Route::group(array('before'=>'ajax'), function(){

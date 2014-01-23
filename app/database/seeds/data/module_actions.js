@@ -100,6 +100,15 @@
 		"name" : "사용자 상태변경",
 		"menu_id": 501,
 		"menu_default": 0
+	},
+	{
+		"id" : 307,
+		"module_id" : 5,
+		"type" : 1,
+		"action" : "AdminController@insertUser",
+		"name" : "사용자 상태변경",
+		"menu_id": 501,
+		"menu_default": 0
 	}
 
 ]
