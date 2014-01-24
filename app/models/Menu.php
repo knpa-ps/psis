@@ -34,29 +34,35 @@ class Menu extends Eloquent {
 		return array();
 	}
 
-	/**
-	 * 해당 group ids에게 노출된 메뉴들의 트리를 가져온다.
-	 * @param  array $groupIds
-	 * @return array
-	 */
-	public static function tree(array $groupIds)
+	public static function tree()
 	{
 		$filtered = array();
 
+		$user = Sentry::getUser();
+		$groups = $user->getGroups();
+		$groupIds = array();
+		foreach ($groups as $g)
+		{
+			$groupIds[] = $g->id;
+		}
+
+		$isAdmin = $user->hasAccess('admin');
+
 		foreach (Menu::with('action')->get() as $menu) 
 		{
-			if (self::isVisible($groupIds, $menu))
+			if (self::isVisible($groupIds, $menu) || $isAdmin)
 			{
 				$filtered[] = $menu;
 			}
 		}
+
 		$actionKey = Route::currentRouteAction();
 		$tree = self::buildTree($filtered, 0, $actionKey);
 		
 		return $tree;
 	}
 
-	private static function isVisible(array $groupIds, Menu $menu)
+	private static function isVisible($groupIds, Menu $menu)
 	{
 		if (!trim($menu->group_ids))
 		{

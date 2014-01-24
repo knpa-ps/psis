@@ -69,7 +69,21 @@ class AdminController extends BaseController {
 
 	public function showPermissions()
 	{
-		return View::make('admin.permissions');
+		$mid = Input::get('mid');
+		if ($mid)
+		{
+			$permissions = Permission::where('module_id','=',$mid)->get();
+			$currentModule = Module::where('id','=',$mid)->first();
+		}
+		else
+		{
+			$permissions = array();
+			$currentModule = null;
+		}
+		$groups = Sentry::findAllGroups();
+		$modules = Module::all();
+		return View::make('admin.permissions', array('modules'=>$modules, 'permissions'=>$permissions, 
+			'groups'=>$groups, 'currentModule'=>$currentModule));
 	}
 
 	public function setUserActivated()
@@ -91,7 +105,7 @@ class AdminController extends BaseController {
 			$user = User::find($id);
 			if ($user->account_name === 'admin') 
 			{
-				return Lang::get('strings.cannot_deactivate_admin');
+				return Lang::get('strings.cannot_update_admin');
 			}
 
 			$user->activated = $activated;
@@ -259,5 +273,27 @@ class AdminController extends BaseController {
 			'name'=>$gname
 			));
 		return Lang::get('strings.success');
+	}
+
+	public function updatePermissions()
+	{
+		$mid = Input::get('mid');
+
+		$permissions = Permission::where('module_id','=',$mid)->get();
+		$groups = Sentry::findAllGroups();
+		
+		foreach ($groups as $group)
+		{
+			$groupPerms = array();
+			foreach ($permissions as $perm)
+			{
+				$groupIds = Input::get(str_replace('.', '_', $perm->key));
+				$groupPerms[$perm->key] = $groupIds && in_array($group->id, $groupIds);
+			}
+			$group->permissions = $groupPerms;
+			$group->save();
+		}
+
+		return json_encode(array('type'=>'success','layout'=>'topRight','text'=>Lang::get('strings.success')));
 	}
 }

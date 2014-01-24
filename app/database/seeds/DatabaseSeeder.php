@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder {
 		$this->call('ModulesTableSeeder');
 		$this->call('MenusTableSeeder');
 		$this->call('ModuleActionsTableSeeder');
-		$this->call('ActionPermissionsTableSeeder');
+		$this->call('ModulePermissionsTableSeeder');
 	}
 
 }

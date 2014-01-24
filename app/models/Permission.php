@@ -2,7 +2,7 @@
 
 class Permission extends Eloquent {
 
-	protected $table = 'action_permissions';
+	protected $table = 'module_permissions';
 
 	protected $guarded = array();
 

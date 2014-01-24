@@ -83,6 +83,11 @@ return array(
     'group_list'=>'그룹 목록',
     'group_name'=>'이름',
     'created_at'=>'생성 시간',
-    'actions'=>'작업'
-
+    'actions'=>'작업',
+    'module_name'=>'모듈 이름',
+    'description'=>'설명',
+    'permissions_placeholder'=>'권한을 설정할 모듈을 선택해주세요.',
+    'no_configurable_permissions'=>'이 모듈에 대해서는 설정할 수 있는 권한이 없습니다.',
+    'permissions_list'=>'권한 목록',
+    'save'=>'저장'
 );

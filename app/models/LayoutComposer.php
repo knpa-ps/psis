@@ -41,7 +41,7 @@ class LayoutComposer {
 			$user = new StdObj;
 			Log::error('could not find current logged user information.');
 		}
-		$menus = Menu::tree(array());
+		$menus = Menu::tree();
 
 		$breadcrumbs = Menu::breadcrumbs($menus);
 

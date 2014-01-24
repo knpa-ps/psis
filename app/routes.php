@@ -83,6 +83,8 @@ Route::group(array('before'=>'auth'), function() {
 
             Route::post('user/delete', 'AdminController@deleteUser');
             Route::post('user/actiavted', 'AdminController@setUserActivated');
+
+            Route::post('permissions/update', 'AdminController@updatePermissions');
         });
     });
 

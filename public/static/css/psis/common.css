@@ -26,10 +26,12 @@ body {
 .dataTables_scrollBody table.datatable {
 	max-width: 0;
 }
+table.datatable tr.row-selected td {
+	background-color: #B0BED9;
+}
 table.datatable tr.even.row-selected td {
 	background-color: #B0BED9;
 }
-
 table.datatable tr.odd.row-selected td {
 	background-color: #9FAFD1;
 }
@@ -48,11 +50,9 @@ table.datatable tr.odd.row-selected td {
 .table.table-form th {
 	height:28px;
 }
-
 .center {
 	text-align: center;
 }
-
 .btn-group {
 	display: inline-block;
 	vertical-align: middle;
