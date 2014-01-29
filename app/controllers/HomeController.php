@@ -6,8 +6,4 @@ class HomeController extends BaseController {
         return View::make('main');
 	}
 
-	public function showProfile()
-	{
-		return View::make('main');
-	}
 }

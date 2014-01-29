@@ -48,6 +48,40 @@
     </div>
     
 </footer>
+<div class="modal hide" id="change-password-modal">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">&times;</a>
+        <h3>@lang('strings.change_password')</h3>
+    </div>
+    <form class="form-horizontal form-modal" id="change-password-form" novalidate>
+    <div class="modal-body">
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label" for="old-password">@lang('strings.old_password')</label>
+                    <div class="controls">
+                        <input type="password" required class="input-xlarge" name="old_password">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="password">@lang('strings.login_password')</label>
+                    <div class="controls">
+                        <input type="password" required class="input-xlarge" name="password" minlength="8">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="password-confirmation">@lang('strings.password_confirmation')</label>
+                    <div class="controls">
+                        <input type="password" required class="input-xlarge" name="password_confirmation" data-validation-passwordagain>
+                    </div>
+                </div>
+            </fieldset>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" id="change-password-submit" class="btn btn-primary">@lang('strings.ok')</button>
+        <button type="button" class="btn">@lang('strings.cancel')</button>
+    </div>
+    </form>
+</div>
     <!-- jQuery -->
     {{ HTML::script('static/js/jquery-1.10.2.min.js') }}
     {{ HTML::script('static/js/jquery-migrate-1.2.1.min.js') }}
@@ -81,11 +115,43 @@
     {{ HTML::script('static/js/jquery.placeholder.js') }}  
     {{ HTML::script('static/js/bootbox.min.js') }}  
     {{ HTML::script('static/js/psis/app.js') }}
+
+    {{HTML::script('static/js/jqBootstrapValidation.js')}}
+
     <script type="text/javascript">
+        $("#change-password-modal input,select,textarea").not("[type=submit]").jqBootstrapValidation(); 
         var baseUrl = '{{ url() }}/';
         @foreach ($notifications as $noty)
             noty({{ json_encode($noty) }});
         @endforeach
+        $("#change-password-form").submit(function(){
+            var params = $("#change-password-form").serializeArray();
+            $.ajax({
+                url: "{{ action('UserController@changePassword') }}",
+                type: 'post',
+                data: params,
+                success: function(result) {
+                    var msg = "";
+                    switch(parseInt(result)) {
+
+                        case 0:
+                            $("#change-password-modal").modal('hide');
+                            msg = "@lang('strings.password_changed')";
+                            $("#change-password-form input").val("");
+                            break;
+                        case -1:
+                            msg = "@lang('strings.invalid_parameters')";
+                            break;
+                        case -2:
+                            msg = "@lang('strings.login_wrong_password')";
+                            break;
+
+                    }
+                    bootbox.alert(msg);
+                }
+            });
+            return false;
+        });
     </script>
 
 @section('scripts')

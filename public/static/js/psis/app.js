@@ -98,7 +98,20 @@ function docReady(){
 	$('input, textarea').placeholder();
 
 	//datepicker
-	$('.datepicker').datepicker();
+	$(".datepicker").datepicker({
+		changeYear:true,
+		changeMonth:true,
+		dateFormat:"yy-mm-dd",
+		dayNamesMin: [ "월", "화", "수", "목", "금", "토", "일" ],
+		monthNamesShort: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" ],
+		showMonthAfterYear:true
+	});
+
+	var today = new Date();
+	var fd = new Date(today.getFullYear(), today.getMonth(), 1);
+	var ld = new Date(today.getFullYear(), today.getMonth()+1, 0);
+	$(".datepicker.start").datepicker("setDate", fd);
+	$(".datepicker.end").datepicker("setDate", ld);
 
 	//uniform - styler for checkbox, radio and file input
 	$("input:checkbox, input:radio, input:file").not('[data-no-uniform="true"],#uniform-is-ajax').uniform();

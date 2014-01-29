@@ -22,7 +22,6 @@
                     <li><a data-value="cerulean" href="#"><i class="icon-blank"></i> Cerulean</a></li>
                     <li><a data-value="redy" href="#"><i class="icon-blank"></i> Redy</a></li>
                     <li><a data-value="simplex" href="#"><i class="icon-blank"></i> Simplex</a></li>
-                    <li><a data-value="slate" href="#"><i class="icon-blank"></i> Slate</a></li>
                     <li><a data-value="spacelab" href="#"><i class="icon-blank"></i> Spacelab</a></li>
                     <li><a data-value="united" href="#"><i class="icon-blank"></i> United</a></li>
                 </ul>
@@ -36,7 +35,7 @@
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a href="{{ action('HomeController@showProfile') }}">@lang('strings.my_info')</a></li>
+                    <li><a data-toggle="modal" href="#change-password-modal" id="change-password">@lang('strings.change_password')</a></li>
                     <li class="divider"></li>
                     <li>
                         <a tabindex="-1"  

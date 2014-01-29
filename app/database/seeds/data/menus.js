@@ -61,7 +61,7 @@
 		"name": "시스템관리",
 		"url": "",
 		"is_shortcut" : 0,
-		"group_ids" : "",
+		"group_ids" : "1",
 		"sort_order" : 7
 	},
 	{
@@ -70,7 +70,7 @@
 		"name": "사용자 관리",
 		"url": "",
 		"is_shortcut" : 0,
-		"group_ids" : "",
+		"group_ids" : "1",
 		"sort_order" : 8
 	},
 	{
@@ -79,7 +79,7 @@
 		"name": "그룹 관리",
 		"url": "",
 		"is_shortcut" : 0,
-		"group_ids" : "",
+		"group_ids" : "1",
 		"sort_order" : 9
 	},
 	{
@@ -88,7 +88,7 @@
 		"name": "권한 관리",
 		"url": "",
 		"is_shortcut" : 0,
-		"group_ids" : "",
+		"group_ids" : "1",
 		"sort_order" : 10
 	}
 ]

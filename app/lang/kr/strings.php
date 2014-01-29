@@ -89,5 +89,21 @@ return array(
     'permissions_placeholder'=>'권한을 설정할 모듈을 선택해주세요.',
     'no_configurable_permissions'=>'이 모듈에 대해서는 설정할 수 있는 권한이 없습니다.',
     'permissions_list'=>'권한 목록',
-    'save'=>'저장'
+    'save'=>'저장',
+    'report_compose'=>'경비상황보고서 작성',
+    'compose'=>'작성',
+    'change_password' => '비밀번호 변경',
+    'old_password' => '기존 비밀번호',
+    'invalid_parameters'=>'유효하지 않은 요청입니다.',
+    'password_changed'=>'비밀번호가 변경되었습니다.',
+    'report_title'=>'상황보고서 제목',
+    'report_content'=>'내용',
+    'report_attachments'=>'붙임',
+    'report_uploading'=>'보고서를 올리는 중입니다. 잠시만 기다려주세요..',
+    'no_hwpctrl'=>'HwpCtrl이 설치되지 않았습니다.',
+    'failed_to_upload'=>'파일을 업로드하는 도중 오류가 발생했습니다. 다시 시도해주세요.',
+    'report_uploaded'=>'보고서 작성을 완료했습니다.',
+    'need_title'=>'제목을 입력해주세요.',
+    'select'=>'선택',
+    'report_list'=>'경비상황보고서'
 );

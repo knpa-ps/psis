@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreatePsReportsHistoryTable extends Migration {
+class CreatePsReportHistoryTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -14,7 +14,10 @@ class CreatePsReportsHistoryTable extends Migration {
 	{
 		Schema::create('ps_reports_history', function(Blueprint $table) {
 			$table->increments('id');
-			
+			$table->text('content');
+			$table->text('file_ids');
+			$table->integer('creator_id')->unsigned();
+			$table->integer('report_id')->unsigned();
 			$table->timestamps();
 		});
 	}

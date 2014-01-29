@@ -9,6 +9,15 @@
 		"menu_default": 1
 	},
 	{
+		"id" : 3,
+		"module_id" : 2,
+		"type" : 1,
+		"action" : "ReportController@showReport",
+		"name" : "경비상황보고서 조회",
+		"menu_id": 2,
+		"menu_default": 0
+	},
+	{
 		"id" : 2,
 		"module_id" : 2,
 		"type" : 1,

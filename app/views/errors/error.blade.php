@@ -1,77 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-		<style>
-			*{
-				margin:0;
-				padding:0;
-			}
-			body{
-				font-family: 'Audiowide', cursive, arial, helvetica, sans-serif;
-				background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAUElEQVQYV2NkYGAwBuKzQAwDID4IoIgxIikAMZE1oRiArBDdZBSNMIXoJiFbDZYDKcSmCOYimDuNSVKIzRNYrUYOFuQgweoZbIoxgoeoAAcAEckW11HVTfcAAAAASUVORK5CYII=) repeat;
-				background-color:#212121;
-				color:white;
-				font-size: 18px;
-				padding-bottom:20px;
-			}
-			.error-code{
-				font-family: arial, helvetica, sans-serif;
-				font-size: 200px;
-				color: white;
-				color: rgba(255, 255, 255, 0.98);
-				width: 50%;
-				text-align: right;
-				margin-top: 5%;
-				text-shadow: 5px 5px hsl(0, 0%, 25%);
-				float: left;
-			}
-			.not-found{
-				width: 47%;
-				float: right;
-				margin-top: 5%;
-				font-size: 50px;
-				color: white;
-				text-shadow: 2px 2px 5px hsl(0, 0%, 61%);
-				padding-top: 70px;
-			}
-			.clear{
-				float:none;
-				clear:both;
-			}
-			.content{
-				text-align:center;
-				line-height: 30px;
-			}
-			input[type=text]{
-				border: hsl(247, 89%, 72%) solid 1px;
-				outline: none;
-				padding: 5px 3px;
-				font-size: 16px;
-				border-radius: 8px;
-			}
-			a{
-				text-decoration: none;
-				color: #9ECDFF;
-				text-shadow: 0px 0px 2px white;
-			}
-			a:hover{
-				color:white;
-			}
+@extends('layouts.master')
 
-		</style>
-		<title>Error</title>
-	</head>
-	<body>
-		
-		<p class="error-code">
-			
-		</p>
-		<p class="not-found">Not<br/>Found</p>
-		<div class="clear"></div>
-		<div class="content">
-			The page your are looking for is not found.
-			<br/><a href="index.html">Go Home</a> or<br/><form>Search<br/><input autofocus type="text" name="search" /></form>
-		</div>
-	</body>
-</html>
+@section('content')
+<div class="row-fluid">
+	<div class="span12">
+
+	<div class="hero-unit">
+        <h1>{{ $header or "오류가 발생했습니다." }}</h1>
+        <br>
+			<p class="lead">{{ $message or "해당 요청에 대해 권한이 없거나 잘못된 경로로 접근했을 수 있습니다. 계속해서 문제가 반복될 시에는 관리자에게 문의해주세요." }}</p>
+      </div>
+	</div>
+</div>
+@stop

@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreatePsReportsTable extends Migration {
+class CreateFilesTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,9 +12,14 @@ class CreatePsReportsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('ps_reports', function(Blueprint $table) {
+		Schema::create('files', function(Blueprint $table) {
 			$table->increments('id');
-			
+			$table->string('name', 1024);
+			$table->text('path');
+			$table->string('ext', 20);
+			$table->integer('size');
+			$table->string('mime_type', 255);
+			$table->integer('uploader_id')->unsigned();
 			$table->timestamps();
 		});
 	}
@@ -27,7 +32,7 @@ class CreatePsReportsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('ps_reports');
+		Schema::drop('files');
 	}
 
 }

@@ -29,4 +29,29 @@ class UserController extends BaseController {
 
 		return json_encode($result);
 	}
+
+	public function changePassword()
+	{
+		$oldPw = Input::get('old_password');
+		$newPw = Input::get('password');
+
+		$validator = Validator::make(Input::all(),
+			array(
+				'old_password'=>'required',
+				'password'=>'required|min:8|confirmed'
+			));
+
+		if ($validator->fails()) {
+			return -1;
+		} 
+
+		if (!Sentry::checkPassword($oldPw)) {
+			return -2;
+		}
+
+		$user = Sentry::getUser();
+		$user->password = $newPw;
+		$user->save();
+		return 0;
+	}
 }

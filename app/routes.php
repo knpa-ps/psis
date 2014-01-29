@@ -59,7 +59,6 @@ Route::group(array('before'=>'auth'), function() {
     Route::get('/', 'HomeController@showDashboard');
     Route::get('/logout', 'AuthController@doLogout');
 
-    Route::get('/profile', 'HomeController@showProfile');
 
     Route::group(array('before'=>'admin', 'prefix'=>'admin'), function(){
         Route::any('/', 'AdminController@showUserList');
@@ -88,10 +87,39 @@ Route::group(array('before'=>'auth'), function() {
         });
     });
 
-    Route::get('/sl', 'BudgetController@showList');
-    Route::get('/si', 'EscortEquipController@showInventory');
-    Route::get('/sisi', 'ReportController@showList');
-    Route::get('/sdfdd', 'ReportController@showComposeForm');
-    
+    Route::group(array('prefix'=>'user'), function(){
+
+        Route::group(array('before'=>'ajax'), function(){
+            Route::post('changePassword', 'UserController@changePassword');
+        });
+    });
+
+    Route::group(array('prefix'=>'report'), function(){
+        
+
+    });
+
+    Route::group(array('prefix'=>'reports'), function(){
+        Route::get('/list', 'ReportController@showList');
+        Route::get('/compose', 'ReportController@showComposeForm');
+        Route::post('uploadAttachment', 'ReportController@uploadAttachments');
+        Route::post('create', 'ReportController@insertReport');
+        Route::get('detail', 'ReportController@showReport');
+        Route::group(array('before'=>'ajax'), function(){
+            Route::get('listData', 'ReportController@getReports');
+            Route::post('setClosed', 'ReportController@setClosed');
+            Route::post('edit', 'ReportController@editReport');
+        });
+    });
+
+    Route::group(array('prefix'=>'budget'), function(){
+        Route::get('/list', 'BudgetController@showList');
+    });
+
+    Route::group(array('prefix'=>'escort'), function(){
+        Route::get('/inventory', 'EscortEquipController@showInventory');
+    });
+
+    Route::get('download', 'FileController@download');
 });
 

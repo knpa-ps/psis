@@ -22,6 +22,24 @@ App::after(function($request, $response)
 	//
 });
 
+App::error(function($e, $code){
+	if (Request::ajax()) {
+		return Response::make($e->getMessage(), $code); 
+	} else {
+		switch ($code) {
+			case 404:
+				$header = '권한 없음';
+				$message = '해당 작업에 대한 권한이 없습니다. 관리자에게 문의해주세요.';
+			break;
+			default:
+			$header = '';
+			$message = '';
+			break;
+		}
+		return View::make('errors.error', array('header'=>$header,'message'=>$message));
+	}
+});
+
 /*
 |--------------------------------------------------------------------------
 | Authentication Filters

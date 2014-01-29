@@ -7,7 +7,6 @@ Released under the MIT License <http://www.opensource.org/licenses/mit-license.p
 
 // Define a destination
 $targetFolder = '/uploads'; // Relative to the root
-
 if (!empty($_FILES)) {
 	$tempFile = $_FILES['Filedata']['tmp_name'];
 	$targetPath = $_SERVER['DOCUMENT_ROOT'] . $targetFolder;
@@ -17,11 +16,16 @@ if (!empty($_FILES)) {
 	$fileTypes = array('jpg','jpeg','gif','png'); // File extensions
 	$fileParts = pathinfo($_FILES['Filedata']['name']);
 	
-	if (in_array($fileParts['extension'],$fileTypes)) {
-		//move_uploaded_file($tempFile,$targetFile);
-		echo '1';
+	if (in_array(strtolower($fileParts['extension']),$fileTypes)) {
+		if (move_uploaded_file($tempFile,$targetFile)) {
+			echo '1';
+		} else {
+			echo '<pre>';
+			print_r($_FILES);
+			echo '</pre>';
+			die();
+		}
 	} else {
 		echo 'Invalid file type.';
 	}
 }
-?>

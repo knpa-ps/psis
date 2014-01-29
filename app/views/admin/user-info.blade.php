@@ -36,7 +36,7 @@
 					</label>
 					<div class="controls">
 						<input type="password" name="password"
-						minlength="8">	
+						minlength="8">
 					</div>
 				</div>
 			</div>
