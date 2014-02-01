@@ -2,7 +2,7 @@
 
 class PSConfig extends Eloquent {
 	protected $table = 'configs';
-	protected $guarded = array();
+	protected $guarded = array('created_at', 'updated_at');
 
 	public static $rules = array();
 

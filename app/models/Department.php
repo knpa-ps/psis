@@ -21,10 +21,16 @@ class Department extends Eloquent {
 	public static function region($deptId)
 	{
 		$dept = self::where('id','=',$deptId)->first();
+
+		if (!$dept)
+		{
+			return null;
+		}
+
 		$paths = explode(':', trim($dept->full_path, ':'));
 		if (count($paths) == 0) 
 		{
-			return NULL;
+			return null;
 		}
 		
 		$regionId = $paths[0];
