@@ -29,7 +29,6 @@ class ReportController extends BaseController {
 			return App::abort(404, 'unauthorized action');
 		}
 
-
 		if (!empty($_FILES)) {
 			$tempFile = $_FILES['Filedata']['tmp_name'];
 			$targetPath = Config::get('app.uploadPath');

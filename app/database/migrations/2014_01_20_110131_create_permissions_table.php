@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateModulesTable extends Migration {
+class CreatePermissionsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,12 +12,12 @@ class CreateModulesTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('modules', function(Blueprint $table) {
+		Schema::create('permissions', function(Blueprint $table) {
 			$table->increments('id');
-			$table->string('name', 200);
+			$table->string('key', 255);
 			$table->text('description');
-			$table->text('content');
 			$table->timestamps();
+			$table->unique('key');
 		});
 	}
 
@@ -29,7 +29,6 @@ class CreateModulesTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::dropIfExists('modules');
+		Schema::dropIfExists('permissions');
 	}
-
 }

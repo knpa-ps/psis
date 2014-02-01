@@ -38,6 +38,7 @@ return array(
     'department_help' => '클릭하여 부서를 선택해주세요.',
 
     'search'=>'검색',
+    'view'=>'조회',
 
     'title_dept_list'=>'부서검색',
 

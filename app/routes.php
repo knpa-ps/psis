@@ -55,7 +55,7 @@ Route::group(array('prefix'=>'dept'), function(){
 /**
  *  pages that need login
  */ 
-Route::group(array('before'=>'auth'), function() {
+Route::group(array('before'=>'auth|menu'), function() {
     Route::get('/', 'HomeController@showDashboard');
     Route::get('/logout', 'AuthController@doLogout');
 
@@ -94,11 +94,6 @@ Route::group(array('before'=>'auth'), function() {
         });
     });
 
-    Route::group(array('prefix'=>'report'), function(){
-        
-
-    });
-
     Route::group(array('prefix'=>'reports'), function(){
         Route::get('/list', 'ReportController@showList');
         Route::get('/compose', 'ReportController@showComposeForm');
@@ -113,7 +108,27 @@ Route::group(array('before'=>'auth'), function() {
     });
 
     Route::group(array('prefix'=>'budget'), function(){
-        Route::get('/list', 'BudgetController@showList');
+        Route::group(array('prefix'=>'meal'), function(){
+            Route::get('/', 'BgMealPayController@show');
+
+            Route::group(array('before'=>'ajax'), function(){
+                Route::post('/create', 'BgMealPayController@create');
+                Route::post('/update', 'BgMealPayController@update');
+                Route::post('/delete', 'BgMealPayController@delete');
+                Route::get('/read', 'BgMealPayController@read');
+                Route::post('/setClosed', 'BgMealPayController@setClosed');
+            });
+        });
+
+        Route::group(array('prefix'=>'mob'), function(){
+            Route::get('/', 'BgMobPayController@show');
+
+        });
+
+        Route::group(array('prefix'=>'config'), function(){
+            Route::get('/', 'BgConfigController@show');
+
+        });
     });
 
     Route::group(array('prefix'=>'escort'), function(){

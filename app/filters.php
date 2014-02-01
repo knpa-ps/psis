@@ -13,13 +13,11 @@
 
 App::before(function($request)
 {
-
 });
 
 
 App::after(function($request, $response)
 {
-	//
 });
 
 App::error(function($e, $code){
@@ -30,13 +28,8 @@ App::error(function($e, $code){
 			case 404:
 				$header = '권한 없음';
 				$message = '해당 작업에 대한 권한이 없습니다. 관리자에게 문의해주세요.';
-			break;
-			default:
-			$header = '';
-			$message = '';
-			break;
+				return View::make('errors.error', array('header'=>$header,'message'=>$message));
 		}
-		return View::make('errors.error', array('header'=>$header,'message'=>$message));
 	}
 });
 
@@ -116,3 +109,14 @@ Route::filter('csrf', function()
  */
 View::composer('layouts.master', 'LayoutComposer');
 
+Route::filter('menu', function(){
+
+	$action = Route::currentRouteAction();
+	$routes = explode('@', $action);
+	$method = $routes[1];
+	if (substr($method, 0, 4) == 'show')
+	{
+		$menuService = new MenuService;
+		$menuService->setActiveMenu($action);
+	}
+});

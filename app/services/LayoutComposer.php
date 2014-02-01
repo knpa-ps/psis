@@ -17,13 +17,6 @@ class LayoutComposer {
 	public function compose($view)
 	{
 		$actionKey = Route::currentRouteAction();
-		$action = Action::info($actionKey);
-
-		$title = '';
-		if ($action)
-		{
-			$title = $action->name;
-		}
 
 		try
 		{
@@ -41,9 +34,21 @@ class LayoutComposer {
 			$user = new StdObj;
 			Log::error('could not find current logged user information.');
 		}
-		$menus = Menu::tree();
 
-		$breadcrumbs = Menu::breadcrumbs($menus);
+		$menuService = new MenuService;
+		$menus = $menuService->getMenuTree();
+		$breadcrumbs = $menuService->breadcrumbs($menus);
+
+		$activeMenu = $menuService->getActiveMenu();
+
+		if ($activeMenu)
+		{
+			$title = $activeMenu->name;
+		}
+		else
+		{
+			$title = '';
+		}
 
 		$view->with(array(
 			'menus'=>$menus,

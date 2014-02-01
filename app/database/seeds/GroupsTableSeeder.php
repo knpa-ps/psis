@@ -29,7 +29,17 @@ class GroupsTableSeeder extends Seeder {
 
             Sentry::createGroup(array(
                 'id'=>4,
-                'name'=>'경비상황보고'
+                'name'=> '경비상황보고'
+            ));
+            
+            Sentry::createGroup(array(
+                'id'=>5,
+                'name'=> '경비예산 관리자'
+            ));
+
+            Sentry::createGroup(array(
+                'id'=>6,
+                'name'=> '경비예산'
             ));
 
         }

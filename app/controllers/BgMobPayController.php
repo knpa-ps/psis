@@ -1,11 +1,6 @@
 <?php
 
-class BudgetController extends BaseController {
-
-	public function showList()
-	{
-		
-	}
+class BgMobPayController extends BaseController {
 
 	/**
 	 * Display a listing of the resource.
@@ -14,7 +9,7 @@ class BudgetController extends BaseController {
 	 */
 	public function index()
 	{
-        return View::make('budgets.index');
+        return View::make('bgmobpays.index');
 	}
 
 	/**
@@ -24,7 +19,7 @@ class BudgetController extends BaseController {
 	 */
 	public function create()
 	{
-        return View::make('budgets.create');
+        return View::make('bgmobpays.create');
 	}
 
 	/**
@@ -43,9 +38,9 @@ class BudgetController extends BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show()
 	{
-        return View::make('budgets.show');
+        return View::make('bgmobpays.show');
 	}
 
 	/**
@@ -56,7 +51,7 @@ class BudgetController extends BaseController {
 	 */
 	public function edit($id)
 	{
-        return View::make('budgets.edit');
+        return View::make('bgmobpays.edit');
 	}
 
 	/**

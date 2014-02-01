@@ -3,13 +3,16 @@
 @section('content')
 <div class="row-fluid">
 	<div class="span12 well well-small">
-		<form class="form form-horizontal" id="q_form">
+		<form class="form form-horizontal form-query" id="q_form">
+			<div class="header">
+				<h4>조회조건</h4>
+			</div>
 			<div class="row-fluid">
 				<div class="span6">
 					
 					<div class="control-group">
 						<label for="q_date" class="control-label">
-							검색일자 
+							조회기간 
 						</label>
 						<div class="controls">
 							<input type="text" class="input-small datepicker start" name="q_date_start" id="q_date_start"> ~ 
@@ -56,7 +59,7 @@
 					<div class="control-group pull-right">
 						<div class="controls">
 							<button type="button" class="btn btn-primary" id="q_form_submit">
-								@lang('strings.search')
+								@lang('strings.view')
 							</button>
 						</div>
 					</div>

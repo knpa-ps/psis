@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreatePsReportHistoryTable extends Migration {
+class CreateBgMealPaysCloseDateTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,13 +12,10 @@ class CreatePsReportHistoryTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('ps_reports_history', function(Blueprint $table) {
+		Schema::create('bg_meal_pays_close_date', function(Blueprint $table) {
 			$table->increments('id');
-			$table->text('content');
-			$table->text('file_ids');
-			$table->integer('creator_id')->unsigned();
-			$table->integer('report_id')->unsigned();
-			$table->softDeletes();
+			$table->date('belong_month');
+			$table->date('close_date');
 			$table->timestamps();
 		});
 	}
@@ -31,7 +28,7 @@ class CreatePsReportHistoryTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('ps_reports_history');
+		Schema::drop('bg_meal_pays_close_date');
 	}
 
 }

@@ -57,3 +57,17 @@ table.datatable tr.odd.row-selected td {
 	display: inline-block;
 	vertical-align: middle;
 }
+
+.form-query {
+	margin-bottom: 0;
+
+}
+.form-query .control-group {
+	margin-bottom: 10px;
+}
+
+.form-query .header {
+	margin-bottom: 10px;
+	border-bottom: 1px solid #EEEEEE;
+	padding-bottom: 10px;
+}

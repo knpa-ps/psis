@@ -16,12 +16,12 @@ class CreateMenusTable extends Migration {
 			$table->increments('id');
 			$table->integer('parent_id')->nullable();
 			$table->string('name', 100);
+			$table->text('action');
 			$table->text('url');
 			$table->smallInteger('is_shortcut');
 			$table->text('group_ids');
 			$table->integer('sort_order');
 			$table->timestamps();
-
 			$table->index('parent_id');
 			$table->index('sort_order');
 		});
@@ -35,7 +35,7 @@ class CreateMenusTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::dropIfExists('menus');
+		Schema::drop('menus');
 	}
 
 }
