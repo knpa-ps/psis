@@ -76,6 +76,36 @@
 	},
 
 	{
+		"id": 301,
+		"parent_id": 300,
+		"name": "경호장비관리",
+		"action": "HomeController@showDashboard",
+		"is_shortcut" : 0,
+		"group_ids" : "",
+		"sort_order" : 7
+	},
+
+	{
+		"id": 302,
+		"parent_id": 300,
+		"name": "경호장비보유내역",
+		"action": "HomeController@showDashboard",
+		"is_shortcut" : 0,
+		"group_ids" : "",
+		"sort_order" : 8
+	},
+
+	{
+		"id": 303,
+		"parent_id": 300,
+		"name": "경호장비 급/대여대장",
+		"action": "HomeController@showDashboard",
+		"is_shortcut" : 0,
+		"group_ids" : "",
+		"sort_order" : 9
+	},
+
+	{
 		"id": 500,
 		"parent_id": 0,
 		"name": "시스템관리",

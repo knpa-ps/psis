@@ -133,8 +133,7 @@ class ReportController extends BaseController {
 			$query->where('departments.full_name', 'like', "%$dept%");
 		}
 
-		$user = Sentry::getUser();
-		if (!$user->hasAccess('admin')) 
+		if (!$user->hasAccess('reports.admin')) 
 		{
 			$query->where('departments.full_path', 'like', '%'.$user->dept_id.'%');
 		}

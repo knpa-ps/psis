@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateBgMobPaysTable extends Migration {
+class CreateEsEquipCategory extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,9 +12,9 @@ class CreateBgMobPaysTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('bg_mob_pays', function(Blueprint $table) {
+		Schema::create('es_equip_category', function(Blueprint $table) {
 			$table->increments('id');
-			
+			$table->string('name', 255);
 			$table->timestamps();
 		});
 	}
@@ -27,7 +27,7 @@ class CreateBgMobPaysTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('bg_mob_pays');
+		Schema::drop('es_equip_category');
 	}
 
 }

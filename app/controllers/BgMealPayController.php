@@ -52,27 +52,9 @@ class BgMealPayController extends BaseController {
 		$region = Input::get('q_region');
 		$groupByMonth = Input::get('q_monthly_sum');
 		$event = Input::get("q_event");
-		$query = $this->service->buildQuery($start, $end, $region, $event, $groupByMonth);
+		$query = $this->service->buildQuery($start, $end, $region, $event, $groupByMonth, $user->dept_id);
 		
 		return Datatables::of($query)->make();
-	}
-
-	public function readSum()
-	{
-		$user = Sentry::getUser();
-		if (!$user->hasAccess('budget.mealpay.read'))
-		{
-			return App::abort(404, 'unauthorized action');
-		}
-
-		$start = Input::get('q_date_start');
-		$end = Input::get('q_date_end');
-		$region = Input::get('q_region');
-		$groupByMonth = Input::get('q_monthly_sum');
-		$event = Input::get("q_event");
-		$query = $this->service->buildSumQuery($start, $end, $region, $event);
-
-		return $query->first()->toJson();
 	}
 
 	public function create()
@@ -84,17 +66,7 @@ class BgMealPayController extends BaseController {
 
 		$input = Input::all();
 		$user = Sentry::getUser();
-		$region = Department::region($user->dept_id);
-		$region = null;
-		if ($region != null)
-		{
-			$deptId = $region->id;
-		}
-		else
-		{
-			$deptId = 1;
-		}
-		$input['dept_id'] = $deptId;
+		$input['dept_id'] = $user->dept_id;
 		$input['creator_id'] = $user->id;
 
 		return $this->service->create($input);

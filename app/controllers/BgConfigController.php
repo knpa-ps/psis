@@ -2,6 +2,15 @@
 
 class BgConfigController extends BaseController {
 
+	public function __construct()
+	{
+		if (!Sentry::getUser()->hasAccess('budget.admin'))
+		{
+			return App::abort(404,'unauthorized action');
+		}
+
+	}
+
 	public function show()
 	{
 

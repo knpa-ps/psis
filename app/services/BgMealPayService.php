@@ -2,9 +2,10 @@
 
 class BgMealPayService {
 
-	public function buildSumQuery($start, $end, $region, $event)
+	public function buildSumQuery($start, $end, $region, $event, $deptId)
 	{
-		$sumQuery = DB::table('bg_meal_pays')->select(array(
+		$sumQuery = DB::table('bg_meal_pays')->leftJoin('departments', 'departments.id','=','bg_meal_pays.dept_id')
+			->select(array(
 					DB::raw('0 as type'),
 					DB::raw('0 as sort_order'),
 					DB::raw('0 as id'),
@@ -34,20 +35,27 @@ class BgMealPayService {
 			$sumQuery->where('bg_meal_pays.use_date', '<=', $end);
 		}
 
-		if ($region)
+		if (!Sentry::getUser()->hasAccess('budget.admin'))
 		{
-			$sumQuery->where('bg_meal_pays.dept_id', '=', $region);
+			$sumQuery->where('departments.full_path', 'like', "%:$deptId:%");
+		}
+		else
+		{
+			if ($region)
+			{
+				$sumQuery->where('departments.full_path', 'like', "%:$region:%");
+			}
 		}
 
 		if ($event)
 		{
-			$sumQuery->where('bg_meal_pays.event_name', 'like', $event);
+			$sumQuery->where('bg_meal_pays.event_name', 'like', "%$event%");
 		}
 
 		return $sumQuery;
 	}
 
-	public function buildQuery($start, $end, $region, $event, $groupByMonth)
+	public function buildQuery($start, $end, $region, $event, $groupByMonth, $deptId)
 	{
 		$dataQuery = DB::table('bg_meal_pays')->leftJoin('departments', 'departments.id','=','bg_meal_pays.dept_id');
 		if ($groupByMonth)
@@ -57,7 +65,7 @@ class BgMealPayService {
 					'departments.sort_order',
 					DB::raw('"" as id'),
 					DB::raw('date_format(bg_meal_pays.use_date, "%Y-%m")'),
-					DB::raw('departments.dept_name'),
+					DB::raw('departments.full_name'),
 					DB::raw('"" as event_name'),
 					DB::raw('sum( demo_cnt+escort_cnt+crowd_cnt+rescue_cnt+etc_cnt ) as sum1'),
 					DB::raw('sum(demo_cnt) as dc'),
@@ -80,7 +88,7 @@ class BgMealPayService {
 					'departments.sort_order',
 					'bg_meal_pays.id',
 					'bg_meal_pays.use_date',
-					'departments.dept_name',
+					'departments.full_name',
 					'bg_meal_pays.event_name',
 					DB::raw('demo_cnt+escort_cnt+crowd_cnt+rescue_cnt+etc_cnt as sum1'),
 					'demo_cnt',
@@ -106,17 +114,24 @@ class BgMealPayService {
 			$dataQuery->where('bg_meal_pays.use_date', '<=', $end);
 		}
 
-		if ($region)
-		{
-			$dataQuery->where('bg_meal_pays.dept_id', '=', $region);
-		}
-
 		if ($event)
 		{
-			$dataQuery->where('bg_meal_pays.event_name', 'like', $event);
+			$dataQuery->where('bg_meal_pays.event_name', 'like', "%$event%");
 		}
 
-		$sumQuery = $this->buildSumQuery($start, $end, $region, $event);
+		if (!Sentry::getUser()->hasAccess('budget.admin'))
+		{
+			$dataQuery->where('departments.full_path', 'like', "%:$deptId:%");
+		}
+		else
+		{
+			if ($region)
+			{
+				$dataQuery->where('departments.full_path', 'like', "%:$region:%");
+			}
+		}
+
+		$sumQuery = $this->buildSumQuery($start, $end, $region, $event, $deptId);
 		return DB::table(DB::raw('( ('.$sumQuery->toSql().') UNION ALL ('.$dataQuery->toSql().') ) AS tb'))
 		->setBindings(array_merge($sumQuery->getBindings(), $dataQuery->getBindings()))
 		->orderBy('type', 'asc')

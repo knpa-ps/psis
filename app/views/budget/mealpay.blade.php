@@ -326,6 +326,20 @@ $(function(){
 				{
 					"aTargets": [0],
 					"bVisible": false
+				},
+				{
+					"aTargets": [2],
+					"mRender": function(data, type, full) {
+						var segments = data.split(':');
+						if (segments.length >= 3)
+						{
+							return segments[1];
+						}
+						else 
+						{
+							return data;
+						}
+					}
 				}
 			],
 
@@ -344,42 +358,47 @@ $(function(){
 				);
 			return;
 		}
-		var ids = [];
-		selected.each(function(){
-			var data = oTable.fnGetData(this);
-			var id = data[0];
-			if (id > 0)
-			{
-				ids.push(id);
-			}
-		});
 
-		$.ajax({
-			url: "{{ action('BgMealPayController@delete') }}",
-			contentType: 'application/json; charset=utf-8',
-			data: JSON.stringify(ids),
-			type: "post",
-			success: function(response) {
-				var msg = {
-					layout: "topRight"
-				};
-				switch (parseInt(response)) {
-					case 0:
-					msg.type = "success";
-					msg.text = "삭제되었습니다.";
-					break;
-					case -1:
-					msg.type = "error";
-					msg.text = editableStart+" 이전의 자료는 이미 마감되어 삭제할 수 없습니다.";
-					break;
-					default:
-					msg.type = "error";
-					msg.text = "서버에서 오류가 발생했습니다.";
-					break;
+		bootbox.confirm("삭제하시겠습니까?", function(result){
+			if (!result) return;
+				
+			var ids = [];
+			selected.each(function(){
+				var data = oTable.fnGetData(this);
+				var id = data[0];
+				if (id > 0)
+				{
+					ids.push(id);
 				}
-				noty(msg);
-				oTable.fnDraw();
-			}
+			});
+
+			$.ajax({
+				url: "{{ action('BgMealPayController@delete') }}",
+				contentType: 'application/json; charset=utf-8',
+				data: JSON.stringify(ids),
+				type: "post",
+				success: function(response) {
+					var msg = {
+						layout: "topRight"
+					};
+					switch (parseInt(response)) {
+						case 0:
+						msg.type = "success";
+						msg.text = "삭제되었습니다.";
+						break;
+						case -1:
+						msg.type = "error";
+						msg.text = editableStart+" 이전의 자료는 이미 마감되어 삭제할 수 없습니다.";
+						break;
+						default:
+						msg.type = "error";
+						msg.text = "서버에서 오류가 발생했습니다.";
+						break;
+					}
+					noty(msg);
+					oTable.fnDraw();
+				}
+			});
 		});
 	});
 
