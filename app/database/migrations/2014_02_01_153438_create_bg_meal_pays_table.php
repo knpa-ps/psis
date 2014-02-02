@@ -25,6 +25,9 @@ class CreateBgMealPaysTable extends Migration {
 			$table->decimal('officer_cnt', 10,1);
 			$table->decimal('officer2_cnt', 10,1);
 			$table->decimal('troop_cnt', 10,1);
+			$table->decimal('officer_amt', 10,1);
+			$table->decimal('officer2_amt', 10, 1);
+			$table->decimal('troop_amt', 10, 1);
 			$table->integer('creator_id')->unsigned();
 			$table->softDeletes();
 			$table->timestamps();

@@ -53,8 +53,26 @@ class BgMealPayController extends BaseController {
 		$groupByMonth = Input::get('q_monthly_sum');
 		$event = Input::get("q_event");
 		$query = $this->service->buildQuery($start, $end, $region, $event, $groupByMonth);
-
+		
 		return Datatables::of($query)->make();
+	}
+
+	public function readSum()
+	{
+		$user = Sentry::getUser();
+		if (!$user->hasAccess('budget.mealpay.read'))
+		{
+			return App::abort(404, 'unauthorized action');
+		}
+
+		$start = Input::get('q_date_start');
+		$end = Input::get('q_date_end');
+		$region = Input::get('q_region');
+		$groupByMonth = Input::get('q_monthly_sum');
+		$event = Input::get("q_event");
+		$query = $this->service->buildSumQuery($start, $end, $region, $event);
+
+		return $query->first()->toJson();
 	}
 
 	public function create()
