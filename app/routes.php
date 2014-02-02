@@ -57,6 +57,7 @@ Route::group(array('prefix'=>'dept'), function(){
  */ 
 Route::group(array('before'=>'auth|menu'), function() {
     Route::get('/', 'HomeController@showDashboard');
+    Route::post('/setConfigs', 'HomeController@setConfigs');
     Route::get('/logout', 'AuthController@doLogout');
 
 
@@ -126,8 +127,13 @@ Route::group(array('before'=>'auth|menu'), function() {
         });
 
         Route::group(array('prefix'=>'config'), function(){
-            Route::get('/', 'BgConfigController@show');
+            Route::any('/', 'BgConfigController@show');
 
+            Route::group(array('before'=>'ajax'), function(){
+                Route::get('/readCloseDates', 'BgConfigController@readCloseDates');
+                Route::post('/createCloseDate', 'BgConfigController@createCloseDate');
+                Route::post('/deleteCloseDates', 'BgConfigController@deleteCloseDates');
+            });
         });
     });
 

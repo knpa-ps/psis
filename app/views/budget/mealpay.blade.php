@@ -333,7 +333,7 @@ $(function(){
 				var params = $("#q_form").serializeArray();
 				aoData = $.merge(aoData, params);
 			}
-		}));
+	}));
 
 	$("#delete-selected").click(function(){
 		var selected = fnGetSelected(oTable);
@@ -399,6 +399,9 @@ $(function(){
 					case 0:
 					msg.type = "success";
 					msg.text = "추가되었습니다.";
+					$("#create-form input[type=text]").val('');
+					$("#create-form input[type=number]").val(0);
+
 					break;
 					default:
 					msg.type = "error";

@@ -147,28 +147,3 @@ function docReady(){
 		$target.slideToggle();
 	});
 }
-
-var dtOptions = {
-		"bSort": false,
-		"bAutoWidth":false,
-		"iDisplayLength":25,
-		"sDom": "<'row-fluid'<'span6'l><'span6'<'pull-right'f>>r>t<'row-fluid'<'span12'i>><'row-fluid'<'span12'<'pull-right'p>>>",
-		"sPaginationType": "bootstrap",
-		"oLanguage": {
-			"oPaginate": {
-				"sNext": "다음",
-				"sPrevious": "이전",
-				"sFirst": "처음",
-				"sLast": "마지막"
-			},	
-			"sEmptyTable": "자료가 없습니다.",
-			"sZeroRecords": "자료가 없습니다.",
-			"sLengthMenu": "페이지당 _MENU_ 개 출력",
-			"sInfoEmpty": "",
-			"sInfo": "총 _TOTAL_개 중 _START_~_END_",
-			"sInfoFiltered": " - 전체 _MAX_개",
-			"sLoadingRecords": "자료를 가져오는 중입니다...",
-			"sProcessing": "자료를 가져오는 중입니다...",
-			"sSearch": "결과 내 검색:"
-		}
-};

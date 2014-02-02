@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateBgMealPaysCloseDateTable extends Migration {
+class CreateBgMobPaysTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,10 +12,9 @@ class CreateBgMealPaysCloseDateTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('bg_meal_pays_close_date', function(Blueprint $table) {
+		Schema::create('bg_mob_pays', function(Blueprint $table) {
 			$table->increments('id');
-			$table->date('belong_month');
-			$table->dateTime('close_date');
+			
 			$table->timestamps();
 		});
 	}
@@ -28,7 +27,7 @@ class CreateBgMealPaysCloseDateTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('bg_meal_pays_close_date');
+		Schema::drop('bg_mob_pays');
 	}
 
 }

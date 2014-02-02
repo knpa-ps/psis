@@ -2,78 +2,46 @@
 
 class BgConfigController extends BaseController {
 
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
-	public function index()
-	{
-        return View::make('bgconfigs.index');
-	}
-
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create()
-	{
-        return View::make('bgconfigs.create');
-	}
-
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @return Response
-	 */
-	public function store()
-	{
-		//
-	}
-
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
 	public function show()
 	{
-        return View::make('bgconfigs.show');
+
+		$configs = PSConfig::category('budget');
+        return View::make('budget.config', get_defined_vars());
 	}
 
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
+	public function createCloseDate()
 	{
-        return View::make('bgconfigs.edit');
+		$bm = Input::get('bm');
+		$cd = Input::get('cd');
+
+		DB::table('bg_meal_pays_close_date')->insert(array(
+				'belong_month'=>$bm.'-01',
+				'close_date'=>$cd
+			));
+		return 0;
 	}
 
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function update($id)
+	public function readCloseDates()
 	{
-		//
+		$query = DB::table('bg_meal_pays_close_date')->select(array('id','belong_month', 'close_date'))->orderBy('belong_month','desc');
+		return Datatables::of($query)->make();
 	}
 
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function destroy($id)
+	public function deleteCloseDates()
 	{
-		//
-	}
+		$ids = Input::all();
 
+		if (count($ids) == 0) {
+			return -2;
+		}
+
+		$forbiddens = DB::table('bg_meal_pays_close_date')->whereIn('id', $ids)->where('close_date','<',DB::raw('NOW()'))->get();
+		if (count($forbiddens)>0)
+		{
+			return -1;
+		}
+
+		DB::table('bg_meal_pays_close_date')->whereIn('id', $ids)->delete();
+		return 0;
+	}
 }

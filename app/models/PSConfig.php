@@ -16,4 +16,13 @@ class PSConfig extends Eloquent {
 		} 
 		return $configs;
 	}
+
+	public static function set($data)
+	{
+		foreach ($data as $k=>$v)
+		{
+			PSConfig::where('key', '=', $k)->update(array('value'=>$v));
+		}
+		return 0;
+	}
 }
