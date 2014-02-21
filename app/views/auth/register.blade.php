@@ -52,8 +52,15 @@
         <br>
         {{ Form::hidden('department_id', $departmentId) }}
 
-        {{ Form::text('dept_detail', $userName, array('class'=>'form-control',
+        {{ Form::text('dept_detail', $userName, array('class'=>'form-control first',
                                                 'placeholder'=>Lang::get('strings.dept_detail'))) }}
+        
+        {{ Form::text('contact', $contact, array('class'=>'form-control middle',
+                                                'placeholder'=>'일반전화')) }}
+        {{ Form::text('contact_extension', $contact_extension, array('class'=>'form-control middle',
+                                                'placeholder'=>'경비전화')) }}
+        {{ Form::text('contact_phone', $contact_phone, array('class'=>'form-control last',
+                                                'placeholder'=>'핸드폰')) }}   
         <br>
         {{ Form::button(Lang::get('strings.register'), array('class'=>'btn btn-lg btn-primary btn-block', 'type'=>'submit')) }}
     {{ Form::close() }}

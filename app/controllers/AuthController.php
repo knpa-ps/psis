@@ -105,7 +105,10 @@ class AuthController extends BaseController {
                 'userRank' => 'R011',
                 'userName' => '',
                 'departmentName' => '',
-                'departmentId' => ''
+                'departmentId' => '',
+                'contact'=>'',
+                'contact_extension'=>'',
+                'contact_phone'=>''
             ), $data);
 
 
@@ -123,12 +126,18 @@ class AuthController extends BaseController {
         $data['userName'] = Input::get('user_name');
         $data['departmentId'] = Input::get('department_id');
         $data['deptDetail'] = Input::get('dept_detail');
-        
+        $data['contact'] = Input::get('contact');
+        $data['contact_extension'] = Input::get('contact_extension');
+        $data['contact_phone'] = Input::get('contact_phone');
+
         $accountNameLabel = Lang::get('labels.login_account_name');
         $passwordLabel = Lang::get('labels.login_password');
         $userRankLabel = Lang::get('labels.user_rank');
         $userNameLabel = Lang::get('labels.user_name');
         $departmentLabel = Lang::get('labels.department');
+        $contactLabel = '일반전화';
+        $contactExtLabel = '경비전화';
+        $contactPhoneLabel = '핸드폰';
 
         $rankCodes = Code::withCategory('H001');
 
@@ -168,7 +177,10 @@ class AuthController extends BaseController {
             'user_name' => $data['userName'],
             'user_rank' => $data['userRank'],
             'dept_detail' => $data['deptDetail'],
-            'dept_id' => $data['departmentId']
+            'dept_id' => $data['departmentId'],
+            'contact'=>$data['contact'],
+            'contact_extension'=>$data['contact_extension'],
+            'contact_phone'=>$data['contact_phone']
         ));
 
         return $this->showLogin(Lang::get('strings.registered'));

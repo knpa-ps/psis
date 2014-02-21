@@ -123,7 +123,12 @@ Route::group(array('before'=>'auth|menu'), function() {
 
         Route::group(array('prefix'=>'mob'), function(){
             Route::get('/', 'BgMobPayController@show');
-
+            
+            Route::group(array('before'=>'ajax'), function(){
+                
+                Route::post('/insert', 'BgMobPayController@insert');
+                Route::post('/edit', 'BgMobPayController@edit');
+            });
         });
 
         Route::group(array('prefix'=>'config'), function(){

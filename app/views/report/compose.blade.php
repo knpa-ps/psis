@@ -9,6 +9,17 @@
 			</div>
 		</div>
 		<div class="box-content">
+
+			<div class="controls">
+				<div class="btn-group" id="select_template">
+					<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">보고서 양식 <span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li><a href="#" data-value="1" >양식1(테두리 있음)</a></li>
+						<li><a href="#" data-value="2">양식2(테두리 없음)</a></li>
+					</ul>
+				</div>
+			</div>
+
 			<form class="form-horizontal" >
 				
 				<fieldset>
@@ -110,7 +121,7 @@ function OnStart()
     } else {
     	hasHwpCtrl = true;
     }
-	HwpCtrl.open("{{ url('static/misc/report.hwp') }}");
+	HwpCtrl.open("{{ url('static/misc/report1.hwp') }}");
 }
 var attachments = [];
 $(function(){
@@ -156,7 +167,19 @@ $(function(){
   		} else {
   			postReport();
   		}
+    });
 
+    $("#select_template .dropdown-menu a").click(function(){
+    	var type = $(this).data('value');
+    	HwpCtrl.Clear(1);
+    	if (type == 1)
+    	{
+			HwpCtrl.open("{{ url('static/misc/report1.hwp') }}");
+    	}
+    	else
+    	{
+			HwpCtrl.open("{{ url('static/misc/report2.hwp') }}");
+    	}
     });
 });
 

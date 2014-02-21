@@ -119,7 +119,7 @@
     {{HTML::script('static/js/jqBootstrapValidation.js')}}
 
     <script type="text/javascript">
-        $("#change-password-modal input,select,textarea").not("[type=submit]").jqBootstrapValidation(); 
+        $("#change-password-modal input, #change-password-modal select, #change-password-modal textarea").not("[type=submit]").jqBootstrapValidation(); 
         var baseUrl = '{{ url() }}/';
         @foreach ($notifications as $noty)
             noty({{ json_encode($noty) }});

@@ -89,7 +89,7 @@
 			
 			<OBJECT id="HwpCtrl" height="1200" width="100%" align="center" 
 							classid="CLSID:BD9C32DE-3155-4691-8972-097D53B10052">
-                
+
                 <param name="TOOLBAR_MENU" value="true">
                 <param name="TOOLBAR_STANDARD" value="true">
                 <param name="TOOLBAR_FORMAT" value="true">
@@ -97,7 +97,8 @@
                 <param name="TOOLBAR_TABLE" value="true">
                 <param name="TOOLBAR_IMAGE" value="true">
                 <param name="TOOLBAR_HEADERFOOTER" value="false">
-                <param name="SHOW_TOOLBAR" value="true">
+
+                <param name="SHOW_TOOLBAR" value="{{$report->closed?'false':'true'}}">
                 <div class="alert" >
                 	HwpCtrl이 설치되지 않아서 보고서를 조회할 수 없습니다.
                 </div>
@@ -151,6 +152,7 @@ $(function(){
 						$("#set_closed").toggleClass('active');
 						$("#edit_report").toggleClass('disabled');
 					}
+					window.location.reload();
 				}
 			});
 		});
