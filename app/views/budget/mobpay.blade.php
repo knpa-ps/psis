@@ -53,6 +53,7 @@
 					<div class="control-group pull-right">
 						<div class="controls">
 							<input type="submit" class="btn btn-primary" value="조회">
+							<input type="button" class="btn btn-info" value="다운로드" id="export">
 						</div>
 					</div>
 				</div>
@@ -522,6 +523,11 @@ $(function(){
 				}
 			});
 		});
+	});
+
+	$("#export").click(function(){
+		var params = $("#q_form").serialize();
+		window.open("{{ action('BgMobPayController@export') }}?"+params);
 	});
 });
 </script>

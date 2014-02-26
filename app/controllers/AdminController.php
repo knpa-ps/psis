@@ -296,4 +296,8 @@ class AdminController extends BaseController {
 
 		return json_encode(array('type'=>'success','layout'=>'topRight','text'=>Lang::get('strings.success')));
 	}
+
+	public function showMenus() {
+		
+	}
 }

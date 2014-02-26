@@ -85,6 +85,9 @@
 							<button type="button" class="btn btn-primary" id="q_form_submit">
 								@lang('strings.view')
 							</button>
+							<button type="button" class="btn btn-info" id="q_form_download">
+								다운로드
+							</button>
 						</div>
 					</div>
 				</div>
@@ -121,9 +124,6 @@
 
 			</p>
 			<table id="mealpay_table" class="datatable multi-selectable table table-striped table-hover table-bordered table-condensed">
-				<colgroup>
-					
-				</colgroup>
 				<thead>
 					<tr>
 						<th rowspan="2">번호</th>
@@ -131,7 +131,7 @@
 							일자
 						</th>
 						<th rowspan="2">
-							지방청
+							부대
 						</th>
 						<th rowspan="2">
 							행사명
@@ -158,6 +158,7 @@
 						<th rowspan="1">경찰관기동대<br>(2식 이상)</th>
 						<th rowspan="1">전의경부대<br>(지휘요원 포함)</th>
 					</tr>
+				</thead>
 				<tbody>
 					<tr>
 						<td class="center" colspan="100">
@@ -165,8 +166,6 @@
 						</td>
 					</tr>
 				</tbody>
-				</thead>
-
 			</table>
 		</div>
 	</div>
@@ -303,6 +302,9 @@
 	#mealpay_table tbody tr:first-child td {
 		background-color: antiquewhite;
 	}
+	#mealpay_table thead th {
+		white-space: nowrap;
+	}
 </style>
 @stop
 @section('scripts')
@@ -330,16 +332,12 @@ $(function(){
 				{
 					"aTargets": [2],
 					"mRender": function(data, type, full) {
-						var segments = data.split(':');
-						if (segments.length >= 3)
-						{
-							return segments[1];
-						}
-						else 
-						{
-							return data;
-						}
+						return $.trim(data.replace(/:/g, " "));
 					}
+				},
+				{
+					"aTargets": [1,2],
+					"sClass": "single-line"
 				}
 			],
 
@@ -435,6 +433,11 @@ $(function(){
 
 	$("#q_form_submit").click(function(){
 		oTable.fnDraw();
+	});
+
+	$("#q_form_download").click(function(){
+		var params = $("#q_form").serialize();
+		window.open("{{ action('BgMealPayController@export') }}?"+params);
 	});
 });
 </script>

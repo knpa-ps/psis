@@ -12,17 +12,15 @@ class DatabaseSeeder extends Seeder {
 	{
 		Eloquent::unguard();
 
-  //      	$this->call('GroupsTableSeeder');
+       	$this->call('GroupsTableSeeder');
 		// $this->call('UsersTableSeeder');
 
 		// $this->addTask('codes_categories');
 		// $this->addTask('codes');
 		// $this->addTask('configs');
-		// $this->addTask('menus');
+		$this->addTask('menus');
 		// $this->addTask('departments');
-		// $this->addTask('permissions');
-
-		$this->addTask('bg_mob_pays_interval');	
+		$this->addTask('permissions');
 
 		$this->readAndSeed();
 	}

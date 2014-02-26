@@ -87,4 +87,66 @@ class BgMealPayController extends BaseController {
 
 		return $this->service->delete($ids);
 	}
+
+	public function export() 
+	{
+		$user = Sentry::getUser();
+		if (!$user->hasAccess('budget.mealpay.read'))
+		{
+			return App::abort(404, 'unauthorized action');
+		}
+
+		$start = Input::get('q_date_start');
+		$end = Input::get('q_date_end');
+		$region = Input::get('q_region');
+		$groupByMonth = Input::get('q_monthly_sum');
+		$event = Input::get("q_event");
+
+		$query = $this->service->buildQuery($start, $end, $region, $event, $groupByMonth, $user->dept_id);
+		
+		$result = $query->get();
+		$objPHPExcel = PHPExcel_IOFactory::load(public_path().'/static/misc/export/mealpay.xlsx');
+
+		$activeSheet = $objPHPExcel->setActiveSheetIndex(0);
+
+		$viewType = $groupByMonth?'월별 합계':'원본';
+
+		$regionName = $region?Department::region($region)->dept_name:'전체';
+
+		$event = $event?$event:'없음';
+
+		// meta data
+		$activeSheet->setCellValue('B2', $start)
+					->setCellValue('C2', $end)
+					->setCellValue('F2', $viewType)
+					->setCellValue('I2', $regionName)
+					->setCellValue('L2', $event);
+
+		$rowNum = 6;
+		foreach ($result as $row) {
+			$col = 0;
+			foreach ($row as $key=>$data) {
+				if ($key == 'id') {
+					continue;
+				} else if ($key == 'dept_name') {
+					$data = trim(str_replace(':', ' ', $data));
+				}
+
+				$colString = PHPExcel_Cell::stringFromColumnIndex($col);
+				$activeSheet->setCellValue($colString.$rowNum, $data);
+				$col++;
+			}
+			$rowNum++;
+		}
+
+		$fileName = date('ymd')."_export";
+
+		// Redirect output to a client’s web browser (Excel2007)
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Disposition: attachment;filename="'.$fileName.'.xlsx"');
+		header('Cache-Control: max-age=0');
+
+		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');
+	}
 }

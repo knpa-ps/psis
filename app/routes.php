@@ -69,6 +69,7 @@ Route::group(array('before'=>'auth|menu'), function() {
         Route::get('/permissions', 'AdminController@showPermissions');
         Route::any('/users', 'AdminController@showUserList');
 
+        Route::get('/menus', 'AdminController@showMenus');
         
         Route::get('/user/new', 'AdminController@showUserDetail');
         Route::post('/user/new', 'AdminController@insertUser');
@@ -97,6 +98,8 @@ Route::group(array('before'=>'auth|menu'), function() {
 
     Route::group(array('prefix'=>'reports'), function(){
         Route::get('/list', 'ReportController@showList');
+        Route::get('/my', 'ReportController@showMyReports');
+        Route::get('/stats', 'ReportController@showStats');
         Route::get('/compose', 'ReportController@showComposeForm');
         Route::post('uploadAttachment', 'ReportController@uploadAttachments');
         Route::post('create', 'ReportController@insertReport');
@@ -111,7 +114,8 @@ Route::group(array('before'=>'auth|menu'), function() {
     Route::group(array('prefix'=>'budget'), function(){
         Route::group(array('prefix'=>'meal'), function(){
             Route::get('/', 'BgMealPayController@show');
-
+            Route::get('/export', 'BgMealPayController@export');
+            
             Route::group(array('before'=>'ajax'), function(){
                 Route::post('/create', 'BgMealPayController@create');
                 Route::post('/update', 'BgMealPayController@update');
@@ -122,13 +126,7 @@ Route::group(array('before'=>'auth|menu'), function() {
         });
 
         Route::group(array('prefix'=>'mob'), function(){
-            Route::get('/', 'BgMobPayController@show');
-            
-            Route::group(array('before'=>'ajax'), function(){
-                
-                Route::post('/insert', 'BgMobPayController@insert');
-                Route::post('/edit', 'BgMobPayController@edit');
-            });
+            Route::get('/', 'BgMobController@show');
         });
 
         Route::group(array('prefix'=>'config'), function(){
@@ -140,10 +138,6 @@ Route::group(array('before'=>'auth|menu'), function() {
                 Route::post('/deleteCloseDates', 'BgConfigController@deleteCloseDates');
             });
         });
-    });
-
-    Route::group(array('prefix'=>'escort'), function(){
-        Route::get('/inventory', 'EscortEquipController@showInventory');
     });
 
     Route::get('download', 'FileController@download');

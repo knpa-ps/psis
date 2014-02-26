@@ -187,7 +187,7 @@ $(function(){
 				type: "post",
 				data: params,
 				success: function(hid) {
-					window.location = "{{ action('ReportController@showReport') }}?id={{ $report->id }}&hid="+hid;
+				window.location = "{{ action('ReportController@showReport') }}?id={{ $report->id }}&hid="+hid;
 				}
 			});
 		});

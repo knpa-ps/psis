@@ -138,6 +138,11 @@ class ReportController extends BaseController {
 			$query->where('departments.full_path', 'like', '%'.$user->dept_id.'%');
 		}
 
+		if (Input::get('mine'))
+		{
+			$query->where('ps_reports.creator_id', $user->id);
+		}
+
 		return Datatables::of($query)->make();
 	}
 
@@ -226,13 +231,12 @@ class ReportController extends BaseController {
 
 		$rid = Input::get('rid');
 
-		$report = PSReport::find($rid)->with('user', 'user.department')->first();
+		$report = PSReport::where('id','=',$rid)->with('user', 'user.department')->first();
 
-		$currentUser = Sentry::getUser();
-		if (!$currentUser->hasAccess('admin')) 
+		if (!$user->hasAccess('admin')) 
 		{
 			$fullPath = $report->user->department->full_path;
-			if (strstr($fullPath, ":{$currentUser->dept_id}:") === FALSE)
+			if (strstr($fullPath, ":{$user->dept_id}:") === FALSE)
 			{
 				return App::abort(404, 'unauthorized action');
 			}
@@ -244,11 +248,32 @@ class ReportController extends BaseController {
 
 		$history = new PSReportHistory;
 		$history->report_id = $report->id;
-		$history->creator_id = $currentUser->id;
+		$history->creator_id = $user->id;
 		$history->content = $content;
 		$history->file_ids = implode(',', $files);
+
 		$history->save();
 		$report->touch();
 		return $history->id;
+	}
+
+	public function showMyReports() 
+	{
+		$user = Sentry::getUser();
+		if (!$user->hasAccess('reports.read')) {
+			return App::abort(404, 'unauthorized action');
+		}
+
+		return View::make('report.my', get_defined_vars());
+	}
+
+	public function showStats() 
+	{
+		$user = Sentry::getUser();
+		if (!$user->hasAccess('reports.admin')) {
+			return App::abort(404, 'unauthorized action');
+		}
+
+		return View::make('report.stats', get_defined_vars());
 	}
 }

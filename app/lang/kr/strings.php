@@ -91,7 +91,7 @@ return array(
     'no_configurable_permissions'=>'이 모듈에 대해서는 설정할 수 있는 권한이 없습니다.',
     'permissions_list'=>'권한 목록',
     'save'=>'저장',
-    'report_compose'=>'경비상황보고서 작성',
+    'report_compose'=>'경비속보 작성',
     'compose'=>'작성',
     'change_password' => '비밀번호 변경',
     'old_password' => '기존 비밀번호',
@@ -106,5 +106,5 @@ return array(
     'report_uploaded'=>'보고서 작성을 완료했습니다.',
     'need_title'=>'제목을 입력해주세요.',
     'select'=>'선택',
-    'report_list'=>'경비상황보고서'
+    'report_list'=>'경비속보'
 );
