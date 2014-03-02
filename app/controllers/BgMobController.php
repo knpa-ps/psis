@@ -30,8 +30,10 @@ class BgMobController extends BaseController {
 		{
 			return App::abort(404, 'unauthorized action');
 		}
-
-		return View::make('budget.mob.sit_stat');
+		$mobCodes = Code::withCategory('B002');
+		$rankCodes = Code::withCategory('H001');
+		
+		return View::make('budget.mob.sit_stat', get_defined_vars());
 	}
 
 	public function showDeptStat()
@@ -180,5 +182,87 @@ class BgMobController extends BaseController {
 
 		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 		$objWriter->save('php://output');
+	}
+
+	public function getSitStatData()
+	{
+		$user = Sentry::getUser();
+		if (!$user->hasAccess('budget.mob.read'))
+		{
+			return App::abort(404, 'unauthorized action');
+		}
+
+		$startMonth = Input::get('q_month_start');
+		$endMonth = Input::get('q_month_end');
+
+		$deptId = Input::get('q_dept_id');
+
+		$groupByRegion = Input::get('q_group_by_region');
+
+		$query = $this->service->getSitStatQuery($startMonth, $endMonth, $deptId, $groupByRegion);
+
+		$output = Datatables::of($query)->make(FALSE, FALSE);
+
+		return Response::json($output);
+	}
+
+	public function exportSitStat()
+	{
+		$user = Sentry::getUser();
+		if (!$user->hasAccess('budget.mob.read'))
+		{
+			return App::abort(404, 'unauthorized action');
+		}
+
+		$startMonth = Input::get('q_month_start');
+		$endMonth = Input::get('q_month_end');
+
+		$deptId = Input::get('q_dept_id');
+
+		$groupByRegion = Input::get('q_group_by_region');
+
+		$result = $this->service->getSitStatQuery($startMonth, $endMonth, $deptId, $groupByRegion)->get();
+
+		$objPHPExcel = PHPExcel_IOFactory::load(public_path().'/static/misc/export/mob_sit_stat.xlsx');
+
+		$activeSheet = $objPHPExcel->setActiveSheetIndex(0);
+
+		if ($deptId)
+		{
+			$dept = Department::where('id','=',$deptId)->first();
+			$deptName = $dept->full_name;
+		}
+		else
+		{
+			$deptName = '전체';
+		}
+
+		$activeSheet->setCellValue('B2', $startMonth)
+					->setCellValue('C2', $endMonth)
+					->setCellValue('F2', $deptName)
+					->setCellValue('I2', $groupByRegion?'지방청별 합계':'관서별');
+
+		$rowNum = 5;
+		foreach ($result as $row)
+		{
+			$colNum = 0;
+			foreach ($row as $key=>$col)
+			{
+				$colString = PHPExcel_Cell::stringFromColumnIndex($colNum);
+				$activeSheet->setCellValue($colString.$rowNum, $col);
+				$colNum++;
+			}
+			$rowNum++;
+		}
+
+		$fileName = date('ymd')."_export";
+
+		// Redirect output to a client’s web browser (Excel2007)
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Disposition: attachment;filename="'.$fileName.'.xlsx"');
+		header('Cache-Control: max-age=0');
+
+		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');		
 	}
 }

@@ -12,11 +12,6 @@
 			>
 				<a href="{{action('BgMobController@showSitStat')}}">상황별 동원인원</a>
 			</li>
-			<li 
-				{{ $currentAction=='BgMobController@showDeptStat'?'class="active"':'' }}
-			>
-				<a href="{{action('BgMobController@showDeptStat')}}">관서별 동원인원</a>
-			</li>
 		</ul>
 	</div>
 </div>

@@ -128,13 +128,17 @@ Route::group(array('before'=>'auth|menu'), function() {
         Route::group(array('prefix'=>'mob'), function(){
             Route::get('/payroll', 'BgMobController@show');
             Route::get('/payroll/export', 'BgMobController@exportPayroll');
-            
+
             Route::get('/stat/situation', 'BgMobController@showSitStat');
             Route::get('/stat/depts', 'BgMobController@showDeptStat');
+            Route::get('stat/situation/export', 'BgMobController@exportSitStat');
+            
             Route::group(array('before'=>'ajax'), function(){
                 Route::get('payroll/data', 'BgMobController@getPayrollData');
                 Route::post('payroll/insert', 'BgMobController@insertPayroll');
                 Route::post('payroll/delete', 'BgMobController@deletePayroll');
+
+                Route::get('stat/situation/data', 'BgMobController@getSitStatData');
             });
         });
 

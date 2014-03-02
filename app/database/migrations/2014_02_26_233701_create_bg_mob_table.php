@@ -26,6 +26,10 @@ class CreateBgMobTable extends Migration {
 			$table->smallInteger('actual');
 			$table->integer('creator_id')->unsigned();
 			$table->timestamps();
+
+			$table->index('mob_date');
+			$table->index('dept_id');
+			$table->index('mob_code');
 		});
 	}
 

@@ -229,6 +229,7 @@
 		<input type="text" class="input-mini" name="i_mob_end[]">
 	</td>
 	<td>
+		<input type="hidden" name="i_actual[]" value="0">
 		<input type="checkbox" name="i_actual[]" value="1" data-no-uniform="true">
 	</td>
 	<td>

@@ -2,6 +2,77 @@
 
 class BgMobService {
 	
+	public function getSitStatQuery($startMonth, $endMonth, $deptId, $groupByRegion)
+	{
+		$startDate = date('Y-m-01', strtotime($startMonth.'-01'));
+		$endDate = date('Y-m-t', strtotime($endMonth.'-01'));
+
+		$query = DB::table('bg_mob')
+					->leftJoin('departments','departments.id','=','bg_mob.dept_id');
+
+		$mobCodes = Code::withCategory('B002');
+
+		$selects = array(
+				DB::raw('DATE_FORMAT(mob_date, "%Y-%m") AS belong_month')
+			);
+
+		if ($groupByRegion)
+		{
+			$selects[] = 
+				DB::raw('TRIM(REPLACE(LEFT(departments.full_name, LOCATE(":", departments.full_name, 2)), ":", " ")) AS dept_name');
+		}
+		else
+		{
+			$selects[] = DB::raw('TRIM(REPLACE(departments.full_name, ":", " ")) AS dept_name');
+		}
+
+		foreach ($mobCodes as $key=>$code)
+		{
+			if (!$groupByRegion) 
+			{
+				$sql = 'SELECT COUNT(*) FROM bg_mob AS mob'.$key.'
+					WHERE mob'.$key.'.mob_code = "'.$code->code.'" AND 
+						mob'.$key.'.mob_date BETWEEN "'.$startDate.'" AND "'.$endDate.'" AND
+						mob'.$key.'.dept_id = bg_mob.dept_id';
+			}
+			else
+			{
+				$sql = 'SELECT COUNT(*) FROM bg_mob AS mob'.$key.'
+					LEFT JOIN departments AS d ON d.id = mob'.$key.'.dept_id
+					WHERE mob'.$key.'.mob_code = "'.$code->code.'" AND 
+						mob'.$key.'.mob_date BETWEEN "'.$startDate.'" AND "'.$endDate.'" AND
+						d.full_path LIKE CONCAT("%",LEFT(departments.full_path, LOCATE(":",departments.full_path,2)),"%")';
+			}
+
+			$selects[] = DB::raw('('.$sql.') AS c'.$key);
+		}
+
+		$selects[] = DB::raw('SUM(amount) AS amount');
+		$query->select($selects)
+				->where('mob_date', '>=', $startDate)
+				->where('mob_date', '<=', $endDate)
+				->groupBy(DB::raw('DATE_FORMAT(mob_date, "%Y-%m")'));
+
+		if ($deptId)
+		{
+			$query->where('departments.full_path', 'like', "%:$deptId:%");
+		}
+
+		if ($groupByRegion)
+		{
+			// $query->groupBy('dept_id');
+			$query->groupBy(DB::raw('LEFT(full_path, LOCATE(":",full_path,2))'));
+		}
+		else
+		{
+			$query->groupBy('dept_id');
+		}
+
+		$query->orderBy('departments.sort_order', 'asc');
+
+		return $query;
+	}
+
 	public function getPayrollQuery($start, $end, $deptId, $mobCode, $actual)
 	{
 		$query = DB::table('bg_mob')
