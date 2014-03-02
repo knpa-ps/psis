@@ -18,7 +18,17 @@
 	{
 		"key": "budget.mealpay.close_time",
 		"value": "18:00"
+	},
+	{
+		"key": "budget.extra_time_start",
+		"value": "22:00"
+	},
+	{
+		"key": "budget.extra_time_end",
+		"value": "06:00"
+	},
+	{
+		"key": "budget.extra_time_multiplier",
+		"value": "1.5"
 	}
-	
-
 ]

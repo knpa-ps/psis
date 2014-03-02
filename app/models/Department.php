@@ -42,4 +42,10 @@ class Department extends Eloquent {
 	{
 		return self::where('parent_id', '=', 0)->where('id', '!=', 1)->orderBy('sort_order','asc')->get();
 	}
+
+	public static function isAncestor($child, $ancestor)
+	{
+		$childPath = self::where('id', '=', $child)->first()->full_path;
+		return strpos($childPath, ":$ancestor:") != FALSE;
+	}
 }

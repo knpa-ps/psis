@@ -48,14 +48,8 @@
 </div>
 
 <div class="row-fluid">		
-	<div class="box span12">
-		<div class="box-header well" data-original-title>
-			<h2><i class="icon-th-list"></i> @lang('strings.report_list')</h2>
-			<div class="box-icon">
-				
-			</div>
-		</div>
-		<div class="box-content">
+	<div class="panel panel-default span12">
+		<div class="panel-body">
 			<table id="reports_table" class="datatable table table-striped table-hover table-bordered table-condensed">
 				<colgroup>
 					

@@ -35,6 +35,7 @@ class CreateCodesTable extends Migration {
 			$table->string('title', 100);
 			$table->text('group_ids');
 			$table->integer('sort_order');
+			$table->smallInteger('visible');
 			$table->unique('code');
 			$table->timestamps();
 			$table->softDeletes();

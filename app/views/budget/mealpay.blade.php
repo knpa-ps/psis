@@ -97,14 +97,8 @@
 </div>
 
 <div class="row-fluid">		
-	<div class="box span12">
-		<div class="box-header well" data-original-title>
-			<h2><i class="icon-th-list"></i> 동원급식비</h2>
-			<div class="box-icon">
-				
-			</div>
-		</div>
-		<div class="box-content">
+	<div class="panel panel-default span12">
+		<div class="panel-body">
 			<div class="datatable-controls">
 				<button class="btn select-all" data-toggle="button" data-target="reports_table">
 					<i class="icon-check"></i> @lang('strings.select_all')
@@ -295,14 +289,6 @@
 @section('styles')
 <style type="text/css">
 	#mealpay_table thead th {
-		vertical-align: middle;
-		text-align: center;
-		background-color: aliceblue;
-	}
-	#mealpay_table tbody tr:first-child td {
-		background-color: antiquewhite;
-	}
-	#mealpay_table thead th {
 		white-space: nowrap;
 	}
 </style>
@@ -315,8 +301,8 @@
 <script type="text/javascript">
 $(function(){
 	$("input,select,textarea").not("[type=submit]").jqBootstrapValidation(); 
-	var editableStart = "{{ $editableStart }}";
 	$(".datepicker").inputmask("y-m-d", {"placeholder":"yyyy/mm/dd"});
+	var editableStart = "{{ $editableStart }}";
 	
 	$("#use_date").datepicker("option", "minDate", new Date({{ strtotime($editableStart)*1000 }}));
 	var oTable = $("#mealpay_table").dataTable($.extend(dtOptions,{

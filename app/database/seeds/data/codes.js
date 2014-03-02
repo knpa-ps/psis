@@ -76,5 +76,37 @@
         "code": "R013",
         "title": "행정관",
         "sort_order": 13
+    },
+
+    {
+        "category_code": "B002",
+        "code": "S001",
+        "title": "집회관리",
+        "sort_order": 1
+    },
+    {
+        "category_code": "B002",
+        "code": "S002",
+        "title": "경호행사",
+        "sort_order": 2
+    },
+    {
+        "category_code": "B002",
+        "code": "S003",
+        "title": "혼잡경비",
+        "sort_order": 3
+    },
+    {
+        "category_code": "B002",
+        "code": "S004",
+        "title": "재난관리",
+        "sort_order": 4
+    },
+    {
+        "category_code": "B002",
+        "code": "S005",
+        "title": "훈련 등 기타",
+        "sort_order": 5
     }
+    
 ]

@@ -2,66 +2,63 @@
 
 @section('content')
 <div class="row-fluid">
-	<div class="box span12">
-		<div class="box-header well">
-			<h2>
-				<i class="icon-th-list"></i>
-				경비상황보고서
-			</h2>
+	<div class="span12 well well-small">
+		<div class="header">
+			<h4>옵션</h4>
 		</div>
-		<div class="box-content">
-			<div class="row-fluid">
-				<div class="span12">
-					@if ($user->hasAccess('reports.update'))
-					<button class="btn btn-primary {{ $report->closed?"disabled":"" }}" id="edit_report">
-						<i class="icon-edit icon-white"></i> 변경내역제출 
-					</button>
-					@endif
-					@if ($user->hasAccess('reports.close'))
-					<button class="btn {{ $report->closed?"active":"" }}" id="set_closed">
-						<i class="icon-lock"></i> 마감
-					</button>
-					@endif
-					<div class="btn-group">
-						<button class="btn dropdown-toggle" data-toggle="dropdown" type="button">
-							<i class="icon-th-list"></i> 변경내역조회 {{ '('.count($histories).')' }} 
-							<span class="caret"></span>
-						</button>
-						<ul class="dropdown-menu">
-							@foreach ($histories as $h)
-							@if ($h->id != $reportData->id)
-								<li>
-							@else
-								<li class="active">
-							@endif
-									<a href="{{ action('ReportController@showReport') }}?id={{ $report->id }}&hid={{ $h->id }}">
-										{{ $h->created_at }} {{ $h->user['user_name'] }}
-									</a>
-								</li>
-							@endforeach
-						</ul>
-					</div>
-					<div class="btn-group">
-						<button class="btn dropdown-toggle" data-toggle="dropdown" type="button">
-							<i class="icon-file"></i> 첨부파일 {{ '('.count($files).')' }}
-							 <span class="caret"></span>
-						</button>
-						<ul class="dropdown-menu">
-						@foreach ($files as $f)
-							<li>
-								<a href="{{ action('FileController@download') }}?id={{$f->id}}">
-									{{ $f->name }} [{{ round($f->size/1024) }} KB]
-								</a>
-							</li>
-						@endforeach
-						</ul>
-					</div>
-				</div>
-			</div>
+		@if ($user->hasAccess('reports.update'))
+		<button class="btn btn-primary {{ $report->closed?"disabled":"" }}" id="edit_report">
+			<i class="icon-edit icon-white"></i> 변경내역제출 
+		</button>
+		@endif
+		@if ($user->hasAccess('reports.close'))
+		<button class="btn {{ $report->closed?"active":"" }}" id="set_closed">
+			<i class="icon-lock"></i> 마감
+		</button>
+		@endif
+		<div class="btn-group">
+			<button class="btn dropdown-toggle" data-toggle="dropdown" type="button">
+				<i class="icon-th-list"></i> 변경내역조회 {{ '('.count($histories).')' }} 
+				<span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu">
+				@foreach ($histories as $h)
+				@if ($h->id != $reportData->id)
+					<li>
+				@else
+					<li class="active">
+				@endif
+						<a href="{{ action('ReportController@showReport') }}?id={{ $report->id }}&hid={{ $h->id }}">
+							{{ $h->created_at }} {{ $h->user['user_name'] }}
+						</a>
+					</li>
+				@endforeach
+			</ul>
+		</div>
+		<div class="btn-group">
+			<button class="btn dropdown-toggle" data-toggle="dropdown" type="button">
+				<i class="icon-file"></i> 첨부파일 {{ '('.count($files).')' }}
+				 <span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu">
+			@foreach ($files as $f)
+				<li>
+					<a href="{{ action('FileController@download') }}?id={{$f->id}}">
+						{{ $f->name }} [{{ round($f->size/1024) }} KB]
+					</a>
+				</li>
+			@endforeach
+			</ul>
+		</div>
+	</div>
+</div>
+<div class="row-fluid">
+	<div class="panel panel-default span12">
+		<div class="panel-body">
+
 			<div class="row-fluid">
 				<div class="page-header">
-					<h2>
-						{{ $report->title }}
+					<h2> {{ $report->title }}
 					</h2>
 				</div>
 			</div>

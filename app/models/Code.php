@@ -21,11 +21,11 @@ class Code extends Eloquent {
 	 */
 	public static function withCategory($categoryCode) 
 	{
-		return self::where('category_code', '=', $categoryCode)->get();
+		return self::where('category_code', '=', $categoryCode)->where('visible','=','1')->get();
 	}
 
 	public static function in($categoryCode)
 	{
-		return self::where('category_code', '=', $categoryCode)->get();
+		return self::where('category_code', '=', $categoryCode)->where('visible','=','1')->get();
 	}
 }

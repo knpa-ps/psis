@@ -118,32 +118,4 @@ function docReady(){
 
 	//chosen - improves select
 	$('[data-rel="chosen"],[rel="chosen"]').chosen();
-
-	//makes elements soratble, elements that sort need to have id attribute to save the result
-	$('.sortable').sortable({
-		revert:true,
-		cancel:'.btn,.box-content,.nav-header',
-		update:function(event,ui){
-			//line below gives the ids of elements, you can make ajax call here to save it to the database
-			//console.log($(this).sortable('toArray'));
-		}
-	});
-
-	//tooltip
-	$('[rel="tooltip"],[data-rel="tooltip"]').tooltip({"placement":"bottom",delay: { show: 400, hide: 200 }});
-
-	//popover
-	$('[rel="popover"],[data-rel="popover"]').popover();
-
-	$('.btn-close').click(function(e){
-		e.preventDefault();
-		$(this).parent().parent().parent().fadeOut();
-	});
-	$('.btn-minimize').click(function(e){
-		e.preventDefault();
-		var $target = $(this).parent().parent().next('.box-content');
-		if($target.is(':visible')) $('i',$(this)).removeClass('icon-chevron-up').addClass('icon-chevron-down');
-		else 					   $('i',$(this)).removeClass('icon-chevron-down').addClass('icon-chevron-up');
-		$target.slideToggle();
-	});
 }

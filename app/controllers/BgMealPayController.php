@@ -54,7 +54,11 @@ class BgMealPayController extends BaseController {
 		$event = Input::get("q_event");
 		$query = $this->service->buildQuery($start, $end, $region, $event, $groupByMonth, $user->dept_id);
 		
-		return Datatables::of($query)->make();
+		$output = Datatables::of($query)->make(FALSE, FALSE);
+		if (Input::get('iDisplayStart') == 0) {
+			$output['aaData'][0]['DT_RowClass'] = 'row-sum';
+		}
+		return Response::json($output);
 	}
 
 	public function create()

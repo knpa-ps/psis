@@ -87,22 +87,7 @@
     {{ HTML::script('static/js/jquery-migrate-1.2.1.min.js') }}
     <!-- jQuery UI -->
     {{ HTML::script('static/js/jquery-ui-1.8.21.custom.min.js') }}
-    <!-- transition / effect library -->
-    {{ HTML::script('static/js/bootstrap-transition.js') }}
-    <!-- alert enhancer library -->
-    {{ HTML::script('static/js/bootstrap-alert.js') }}
-    <!-- modal / dialog library -->
-    {{ HTML::script('static/js/bootstrap-modal.js') }}
-    <!-- custom dropdown library -->
-    {{ HTML::script('static/js/bootstrap-dropdown.js') }}
-    <!-- library for creating tabs -->
-    {{ HTML::script('static/js/bootstrap-tab.js') }}
-    <!-- library for advanced tooltip -->
-    {{ HTML::script('static/js/bootstrap-tooltip.js') }}
-    <!-- popover effect library -->
-    {{ HTML::script('static/js/bootstrap-popover.js') }}
-    <!-- button enhancer library -->
-    {{ HTML::script('static/js/bootstrap-button.js') }}
+    {{ HTML::script('static/js/bootstrap.min.js') }}
     <!-- library for cookie management -->
     {{ HTML::script('static/js/jquery.cookie.js') }}
     <!-- select or dropdown enhancer -->
@@ -116,7 +101,8 @@
     {{ HTML::script('static/js/bootbox.min.js') }}  
     {{ HTML::script('static/js/psis/app.js') }}
 
-    {{HTML::script('static/js/jqBootstrapValidation.js')}}
+    {{ HTML::script('static/js/jquery.inputmask.bundle.min.js') }}
+    {{ HTML::script('static/js/jqBootstrapValidation.js')}}
 
     <script type="text/javascript">
         $("#change-password-modal input, #change-password-modal select, #change-password-modal textarea").not("[type=submit]").jqBootstrapValidation(); 

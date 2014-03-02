@@ -126,7 +126,16 @@ Route::group(array('before'=>'auth|menu'), function() {
         });
 
         Route::group(array('prefix'=>'mob'), function(){
-            Route::get('/', 'BgMobController@show');
+            Route::get('/payroll', 'BgMobController@show');
+            Route::get('/payroll/export', 'BgMobController@exportPayroll');
+            
+            Route::get('/stat/situation', 'BgMobController@showSitStat');
+            Route::get('/stat/depts', 'BgMobController@showDeptStat');
+            Route::group(array('before'=>'ajax'), function(){
+                Route::get('payroll/data', 'BgMobController@getPayrollData');
+                Route::post('payroll/insert', 'BgMobController@insertPayroll');
+                Route::post('payroll/delete', 'BgMobController@deletePayroll');
+            });
         });
 
         Route::group(array('prefix'=>'config'), function(){

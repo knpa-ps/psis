@@ -70,14 +70,8 @@
 </div>
 
 <div class="row-fluid">		
-	<div class="box span12">
-		<div class="box-header well" data-original-title>
-			<h2><i class="icon-th-list"></i> @lang('strings.report_list')</h2>
-			<div class="box-icon">
-				
-			</div>
-		</div>
-		<div class="box-content">
+	<div class="panel panel-default span12">
+		<div class="panel-body">
 			@if ($user->hasAccess('reports.close'))
 				<div class="datatable-controls">
 					<button class="btn select-all" data-toggle="button" data-target="reports_table">

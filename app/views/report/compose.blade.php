@@ -1,24 +1,26 @@
 @extends('layouts.master')
 
 @section('content')
-<div class="row-fluid">		
-	<div class="box span12">
-		<div class="box-header well" data-original-title>
-			<h2><i class="icon-edit"></i> @lang('strings.report_compose')</h2>
-			<div class="box-icon">
-			</div>
-		</div>
-		<div class="box-content">
 
-			<div class="controls">
-				<div class="btn-group" id="select_template">
-					<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">보고서 양식 <span class="caret"></span></a>
-					<ul class="dropdown-menu">
-						<li><a href="#" data-value="1" >양식1(테두리 있음)</a></li>
-						<li><a href="#" data-value="2">양식2(테두리 없음)</a></li>
-					</ul>
-				</div>
-			</div>
+<div class="row-lfuid">
+	<div class="span12 well well-small">
+		<div class="header">
+			<h4>옵션</h4>
+		</div>
+
+		<div class="btn-group" id="select_template">
+			<button class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-book"></i> 보고서 양식 <span class="caret"></span></button>
+			<ul class="dropdown-menu">
+				<li><a href="#" data-value="1" >양식1 (테두리 있음)</a></li>
+				<li><a href="#" data-value="2">양식2 (테두리 없음)</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+<div class="row-fluid">		
+	<div class="panel panel-default span12">
+		<div class="panel-body">
 
 			<form class="form-horizontal" >
 				
