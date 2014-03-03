@@ -29,10 +29,11 @@
 						</label>
 						<div class="controls">
 							<div class="input-append">
-						        <input type="text" id="q_department" name="q_department" class="input-large"><button class="btn" type="button" id="dept-search"
-						            onclick="popup('{{action('DepartmentController@showDeptTree')}}', '', 500, 800)">
+						        <input type="text" id="q_department" disabled
+						        name="q_department" class="input-medium"><button class="btn" type="button" id="dept-search">
 						            @lang('strings.select')
 						        </button>
+						        <input type="hidden" name="q_dept_id">
 					        </div>
 						</div>
 					</div>
@@ -55,14 +56,8 @@
 </div>
 
 <div class="row-fluid">		
-	<div class="box span12">
-		<div class="box-header well" data-original-title>
-			<h2><i class="icon-th-list"></i> @lang('strings.report_list')</h2>
-			<div class="box-icon">
-				
-			</div>
-		</div>
-		<div class="box-content">
+	<div class="panel panel-default span12">
+		<div class="panel-body">
 			<ul class="nav nav-tabs" id="table_tabs">
 			  <li class="active"><a href="#indiv">개인별 사용통계</a></li>
 			  <li><a href="#dept">부서별 사용통계</a></li>
@@ -70,7 +65,7 @@
 			 
 			<div class="tab-content">
 				<div class="tab-pane active" id="indiv">
-			  		<table class="table table-condensed table-bordered table-striped table-hover">
+			  		<table id="stat_table1" class="table datatable table-condensed table-bordered table-striped table-hover">
 			  			<thead>
 			  				<tr>
 			  					<th>소속</th>
@@ -80,71 +75,11 @@
 			  				</tr>
 			  			</thead>
 			  			<tbody>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>순경</td>
-			  					<td>노민종</td>
-			  					<td>43</td>
-			  				</tr>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>순경</td>
-			  					<td>노민종</td>
-			  					<td>43</td>
-			  				</tr>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>순경</td>
-			  					<td>노민종</td>
-			  					<td>43</td>
-			  				</tr>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>순경</td>
-			  					<td>노민종</td>
-			  					<td>43</td>
-			  				</tr>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>순경</td>
-			  					<td>노민종</td>
-			  					<td>43</td>
-			  				</tr>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>순경</td>
-			  					<td>노민종</td>
-			  					<td>43</td>
-			  				</tr>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>순경</td>
-			  					<td>노민종</td>
-			  					<td>43</td>
-			  				</tr>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>순경</td>
-			  					<td>노민종</td>
-			  					<td>43</td>
-			  				</tr>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>순경</td>
-			  					<td>노민종</td>
-			  					<td>43</td>
-			  				</tr>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>순경</td>
-			  					<td>노민종</td>
-			  					<td>43</td>
-			  				</tr>
 			  			</tbody>
 			  		</table>
 				</div>
 				<div class="tab-pane" id="dept">
-			  		<table class="table table-condensed table-bordered table-striped table-hover">
+			  		<table id="stat_table2" class="table datatable table-condensed table-bordered table-striped table-hover">
 			  			<thead>
 			  				<tr>
 			  					<th>관서</th>
@@ -152,34 +87,6 @@
 			  				</tr>
 			  			</thead>
 			  			<tbody>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>43</td>
-			  				</tr>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>43</td>
-			  				</tr>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>43</td>
-			  				</tr>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>43</td>
-			  				</tr>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>43</td>
-			  				</tr>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>43</td>
-			  				</tr>
-			  				<tr>
-			  					<td>서울청 종로경찰서 경비계</td>
-			  					<td>43</td>
-			  				</tr>
 			  			</tbody>
 			  		</table>
 				</div>
@@ -193,12 +100,44 @@
 @stop
 
 @section('scripts')
+{{ HTML::script('static/js/jquery.dataTables.min.js') }}
+{{ HTML::script('static/js/psis/dataTables.plugins.js') }}
 <script type="text/javascript">
 $(document).ready(function(){
     $('#table_tabs a').click(function(e){
     	e.preventDefault();
     	$(this).tab('show');
     });
+
+	var oTable = $("#stat_table1").dataTable($.extend(dtOptions,{
+		"bProcessing": true,
+		"bServerSide": true,
+		"sAjaxSource": "{{ action('ReportController@getUserStats') }}",
+		"aoColumnDefs": [
+		],
+		"fnServerParams": function(aoData) {
+			var params = $("#q_form").serializeArray();
+			aoData = $.merge(aoData, params);
+		}
+	}));
+
+	var oTable2 = $("#stat_table2").dataTable($.extend(dtOptions,{
+		"bProcessing": true,
+		"bServerSide": true,
+		"sAjaxSource": "{{ action('ReportController@getDeptStats') }}",
+		"aoColumnDefs": [
+		],
+		"fnServerParams": function(aoData) {
+			var params = $("#q_form").serializeArray();
+			aoData = $.merge(aoData, params);
+		}
+	}));
+
+	$("#q_form_submit").click(function(){
+		oTable.fnDraw();
+		oTable2.fnDraw();
+		
+	});
 });
 </script>
 @stop

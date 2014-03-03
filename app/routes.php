@@ -108,6 +108,9 @@ Route::group(array('before'=>'auth|menu'), function() {
             Route::get('listData', 'ReportController@getReports');
             Route::post('setClosed', 'ReportController@setClosed');
             Route::post('edit', 'ReportController@editReport');
+
+            Route::get('stat/user', 'ReportController@getUserStats');
+            Route::get('stat/dept', 'ReportController@getDeptStats');
         });
     });
 

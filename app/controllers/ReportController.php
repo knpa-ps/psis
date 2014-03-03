@@ -276,4 +276,71 @@ class ReportController extends BaseController {
 
 		return View::make('report.stats', get_defined_vars());
 	}
+
+	public function getUserStats()
+	{
+		$start = Input::get('q_date_start');
+		$end = Input::get('q_date_end');
+		$deptId = Input::get('q_dept_id');
+
+		$query = DB::table('ps_reports')
+					->leftJoin('users','users.id','=','ps_reports.creator_id')
+					->leftJoin('departments','departments.id','=','users.dept_id')
+					->leftJoin('codes AS rank', function($query){
+						$query->on('rank.code','=','users.user_rank')
+							->where('rank.category_code', '=', 'H001');
+					})
+					->groupBy('creator_id')
+					->select(array(
+							DB::raw('TRIM(REPLACE(full_name,":"," ")) as dept_name'),
+							'rank.title',
+							'users.user_name',
+							DB::raw('COUNT(*) as report_count')
+						))
+					->where('ps_reports.created_at', '>=', $start)
+					->where('ps_reports.created_at', '<=', $end);
+
+		if ($deptId)
+		{
+			$query->where('departments.full_path','like',"%:$deptId:%");
+		}
+
+		if (!Sentry::getUser()->hasAccess('reports.admin'))
+		{
+			$query->where('departments.full_path','like',"%:".Sentry::getUser()->dept_id.":%");
+		}
+
+		return Datatables::of($query)->make();
+	}
+
+	public function getDeptStats()
+	{
+		$start = Input::get('q_date_start');
+		$end = Input::get('q_date_end');
+		$deptId = Input::get('q_dept_id');
+
+		$query = DB::table('ps_reports')
+					->leftJoin('users','users.id','=','ps_reports.creator_id')
+					->leftJoin('departments','departments.id','=','users.dept_id')
+					->groupBy('users.dept_id')
+					->select(array(
+							DB::raw('TRIM(REPLACE(full_name,":"," ")) as dept_name'),
+							DB::raw('COUNT(*) as report_count')
+						))
+					->where('ps_reports.created_at', '>=', $start)
+					->where('ps_reports.created_at', '<=', $end);
+
+		if ($deptId)
+		{
+			$query->where('departments.full_path','like',"%:$deptId:%");
+		}
+
+		if (!Sentry::getUser()->hasAccess('reports.admin'))
+		{
+			$query->where('departments.full_path','like',"%:".Sentry::getUser()->dept_id.":%");
+		}
+
+		return Datatables::of($query)->make();
+
+	}
 }
