@@ -10,7 +10,7 @@
 			<li 
 				{{ $currentAction=='BgMobController@showSitStat'?'class="active"':'' }}
 			>
-				<a href="{{action('BgMobController@showSitStat')}}">상황별 동원인원</a>
+				<a href="{{action('BgMobController@showSitStat')}}">상황별 통계</a>
 			</li>
 		</ul>
 	</div>

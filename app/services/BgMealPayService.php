@@ -1,159 +1,155 @@
 <?php 
 
 class BgMealPayService {
-
-	public function buildSumQuery($start, $end, $region, $event, $deptId)
+	
+	public function getSitStatQuery($startMonth, $endMonth, $deptId, $groupByRegion)
 	{
-		$sumQuery = DB::table('bg_meal_pays')->leftJoin('departments', 'departments.id','=','bg_meal_pays.dept_id')
-			->select(array(
-					DB::raw('0 as type'),
-					DB::raw('0 as sort_order'),
-					DB::raw('0 as id'),
-					DB::raw('"" as use_date'),
-					DB::raw('"합계" as dept_name'),
-					DB::raw('"" as event_name'),
-					DB::raw('sum( demo_cnt+escort_cnt+crowd_cnt+rescue_cnt+etc_cnt ) as sum1'),
-					DB::raw('sum(demo_cnt) as dc'),
-					DB::raw('sum(escort_cnt) as ec'),
-					DB::raw('sum(crowd_cnt) as cc '),
-					DB::raw('sum(rescue_cnt) as rc '),
-					DB::raw('sum(etc_cnt) as etc '),
-					DB::raw('sum(officer_cnt+officer2_cnt+troop_cnt) as sum2'),
-					DB::raw('sum(officer_cnt) as oc'),
-					DB::raw('sum(officer2_cnt) as o2c'),
-					DB::raw('sum(troop_cnt) as tcn'),
-					DB::raw("format(sum(officer_amt+officer2_amt+troop_amt),0) as amt")
-				));
+		$startDate = date('Y-m-01', strtotime($startMonth.'-01'));
+		$endDate = date('Y-m-t', strtotime($endMonth.'-01'));
 
-		if ($start)
-		{
-			$sumQuery->where('bg_meal_pays.use_date', '>=', $start);
-		}
+		$query = DB::table('bg_meal')
+					->leftJoin('departments','departments.id','=','bg_meal.dept_id');
 
-		if ($end)
-		{
-			$sumQuery->where('bg_meal_pays.use_date', '<=', $end);
-		}
+		$mobCodes = Code::withCategory('B002');
 
-		if (!Sentry::getUser()->hasAccess('budget.admin'))
+		$selects = array(
+				DB::raw('DATE_FORMAT(mob_date, "%Y-%m") AS belong_month')
+			);
+
+		if ($groupByRegion)
 		{
-			$sumQuery->where('departments.full_path', 'like', "%:$deptId:%");
+			$selects[] = 
+				DB::raw('TRIM(REPLACE(LEFT(departments.full_name, LOCATE(":", departments.full_name, 2)), ":", " ")) AS dept_name');
 		}
 		else
 		{
-			if ($region)
-			{
-				$sumQuery->where('departments.full_path', 'like', "%:$region:%");
-			}
+			$selects[] = DB::raw('TRIM(REPLACE(departments.full_name, ":", " ")) AS dept_name');
 		}
 
-		if ($event)
+		foreach ($mobCodes as $key=>$code)
 		{
-			$sumQuery->where('bg_meal_pays.event_name', 'like', "%$event%");
+			if (!$groupByRegion) 
+			{
+				$sql = 'SELECT SUM(count_officer+count_officer_troop+count_troop) FROM bg_meal AS mob'.$key.'
+					WHERE mob'.$key.'.mob_code = "'.$code->code.'" AND 
+						mob'.$key.'.mob_date BETWEEN DATE_FORMAT(bg_meal.mob_date, "%Y-%m-01") AND LAST_DAY(bg_meal.mob_date) AND
+						mob'.$key.'.dept_id = bg_meal.dept_id';
+			}
+			else
+			{
+				$sql = 'SELECT SUM(count_officer+count_officer_troop+count_troop) FROM bg_meal AS mob'.$key.'
+					LEFT JOIN departments AS d ON d.id = mob'.$key.'.dept_id
+					WHERE mob'.$key.'.mob_code = "'.$code->code.'" AND 
+						mob'.$key.'.mob_date BETWEEN DATE_FORMAT(bg_meal.mob_date, "%Y-%m-01") AND LAST_DAY(bg_meal.mob_date) AND
+						d.full_path LIKE CONCAT("%",LEFT(departments.full_path, LOCATE(":",departments.full_path,2)),"%")';
+			}
+
+			$selects[] = DB::raw('('.$sql.') AS c'.$key);
 		}
 
-		return $sumQuery;
+		$selects[] = DB::raw('SUM(count_officer) AS count_officer');
+		$selects[] = DB::raw('SUM(count_officer_troop) AS count_officer_troop');
+		$selects[] = DB::raw('SUM(count_troop) AS count_troop');
+		$selects[] = DB::raw('SUM(amount) AS amount');
+
+		$query->select($selects)
+				->where('mob_date', '>=', $startDate)
+				->where('mob_date', '<=', $endDate)
+				->groupBy(DB::raw('DATE_FORMAT(mob_date, "%Y-%m")'));
+
+		if ($deptId)
+		{
+			$query->where('departments.full_path', 'like', "%:$deptId:%");
+		}
+
+		if ($groupByRegion)
+		{
+			// $query->groupBy('dept_id');
+			$query->groupBy(DB::raw('LEFT(full_path, LOCATE(":",full_path,2))'));
+		}
+		else
+		{
+			$query->groupBy('dept_id');
+		}
+
+		$query->orderBy('departments.sort_order', 'asc');
+
+		return $query;
 	}
 
-	public function buildQuery($start, $end, $region, $event, $groupByMonth, $deptId)
+	public function getPayrollQuery($start, $end, $deptId, $mobCode)
 	{
-		$dataQuery = DB::table('bg_meal_pays')->leftJoin('departments', 'departments.id','=','bg_meal_pays.dept_id');
-		if ($groupByMonth)
-		{
-			$dataQuery->select(array(
-					DB::raw('1 as type'),
-					'departments.sort_order',
-					DB::raw('"" as id'),
-					DB::raw('date_format(bg_meal_pays.use_date, "%Y-%m")'),
-					DB::raw('departments.full_name'),
-					DB::raw('"" as event_name'),
-					DB::raw('sum( demo_cnt+escort_cnt+crowd_cnt+rescue_cnt+etc_cnt ) as sum1'),
-					DB::raw('sum(demo_cnt) as dc'),
-					DB::raw('sum(escort_cnt) as ec'),
-					DB::raw('sum(crowd_cnt) as cc '),
-					DB::raw('sum(rescue_cnt) as rc '),
-					DB::raw('sum(etc_cnt) as etc '),
-					DB::raw('sum(officer_cnt+officer2_cnt+troop_cnt) as sum2'),
-					DB::raw('sum(officer_cnt) as oc'),
-					DB::raw('sum(officer2_cnt) as o2c'),
-					DB::raw('sum(troop_cnt) as tcn'),
-					DB::raw("format(sum(officer_amt+officer2_amt+troop_amt),0) as amt")
-				))->groupBy(DB::raw('DATE_FORMAT(bg_meal_pays.use_date, "%y-%m")'))
-				->groupBy('bg_meal_pays.dept_id');
-		}
-		else
-		{
-			$dataQuery->select(array(
-					DB::raw('1 as type'),
-					'departments.sort_order',
-					'bg_meal_pays.id',
-					'bg_meal_pays.use_date',
-					'departments.full_name',
-					'bg_meal_pays.event_name',
-					DB::raw('demo_cnt+escort_cnt+crowd_cnt+rescue_cnt+etc_cnt as sum1'),
-					'demo_cnt',
-					'escort_cnt',
-					'crowd_cnt',
-					'rescue_cnt',
-					'etc_cnt',
-					DB::raw('officer_cnt+officer2_cnt+troop_cnt as sum2'),
-					'officer_cnt',
-					'officer2_cnt',
-					'troop_cnt',
-					DB::raw("format(officer_amt+officer2_amt+troop_amt,0) as amt")
-				));
-		}
+		$query = DB::table('bg_meal')
+					->leftJoin('departments', 'departments.id','=','bg_meal.dept_id')
+					->leftJoin('codes AS mobSit', function($query){
+						$query->on('mobSit.code','=','bg_meal.mob_code')
+							->where('mobSit.category_code', '=', 'B002');
+					});
 
-		if ($start)
-		{
-			$dataQuery->where('bg_meal_pays.use_date', '>=', $start);
-		}
-
-		if ($end)
-		{
-			$dataQuery->where('bg_meal_pays.use_date', '<=', $end);
-		}
-
-		if ($event)
-		{
-			$dataQuery->where('bg_meal_pays.event_name', 'like', "%$event%");
-		}
-
-		if (!Sentry::getUser()->hasAccess('budget.admin'))
-		{
-			$dataQuery->where('departments.full_path', 'like', "%:$deptId:%");
-		}
-		else
-		{
-			if ($region)
-			{
-				$dataQuery->where('departments.full_path', 'like', "%:$region:%");
-			}
-		}
-
-		$sumQuery = $this->buildSumQuery($start, $end, $region, $event, $deptId);
-		return DB::table(DB::raw('( ('.$sumQuery->toSql().') UNION ALL ('.$dataQuery->toSql().') ) AS tb'))
-		->setBindings(array_merge($sumQuery->getBindings(), $dataQuery->getBindings()))
-		->orderBy('type', 'asc')
-		->orderBy('use_date', 'desc')
-		->orderBy('sort_order', 'asc')
-		->select(array(
-				'id',
-				'use_date',
-				'dept_name',
+		$query->select(array(
+				'bg_meal.id',
+				'mob_date',
+				DB::raw('TRIM(REPLACE(departments.full_name, ":", " ")) AS dept_name'),
+				'mobSit.title',
 				'event_name',
-				'sum1',
-				'dc',
-				'ec',
-				'cc',
-				'rc',
-				'etc',
-				'sum2',
-				'oc',
-				'o2c',
-				'tcn',
-				'amt'
+				DB::raw('count_officer+count_officer_troop+count_troop as total'),
+				'count_officer',
+				'count_officer_troop',
+				'count_troop',
+				'amount'
 			));
+
+		$query->where('mob_date', '>=', $start)->where('mob_date', '<=', $end);
+
+		$user = Sentry::getUser();
+		if (!$user->hasAccess('budget.admin'))
+		{
+			$userDeptId = $user->dept_id;
+			$query->where('departments.full_path', 'like', "%$userDeptId%");
+		}
+
+		if ($deptId)
+		{
+			$query->where('departments.full_path', 'like', '%:'.$deptId.':%');
+		}
+
+		if ($mobCode)
+		{
+			$query->where('mob_code','=',$mobCode);
+		}
+
+		return $query;
+	}
+
+	public function insertPayroll($data)
+	{
+		$configs = PSConfig::category('budget.mealpay');
+		$editableStart = strtotime($this->getEditableDateStart());
+
+		$user = Sentry::getUser();
+
+		foreach ($data as $key=>$row)
+		{
+			if (!$user->hasAccess('budget.admin') && 
+				strtotime($row['mob_date']) < $editableStart) 
+			{
+				return -1;
+			}
+
+			if (!$user->hasAccess('budget.admin') &&
+				!Department::isAncestor($row['dept_id'], $user->dept_id))
+			{
+				return -2;
+			}
+
+			$data[$key]['amount'] = 
+				($row['count_officer']?$row['count_officer']:0)*$configs['budget.mealpay.officer_amt']+
+				($row['count_officer_troop']?$row['count_officer_troop']:0)*$configs['budget.mealpay.officer2_amt']+
+				($row['count_troop']?$row['count_troop']:0)*$configs['budget.mealpay.troop_amt'];
+		}
+
+		DB::table('bg_meal')->insert($data);
+		return 0;
 	}
 
 	public function getEditableDateStart()
@@ -199,31 +195,18 @@ class BgMealPayService {
 		return $closeDate;
 	}
 
-	public function delete($ids)
+	public function delete($ids) 
 	{
 		$editableStart = $this->getEditableDateStart();
-		$forbiddens = DB::table('bg_meal_pays')->whereIn('id', $ids)->where('use_date', '<', $editableStart)->get();
-		if (!Sentry::getUser()->isSuperUser() && count($forbiddens) > 0) 
+		
+		$forbiddens = DB::table('bg_meal')->whereIn('id', $ids)->where('mob_date', '<', $editableStart)->get();
+
+		if (!Sentry::getUser()->hasAccess('budget.admin') && count($forbiddens) > 0) 
 		{
 			return -1;
 		}
 
-		DB::table('bg_meal_pays')->whereIn('id', $ids)->delete();
-		return 0;
-	}
-
-	public function create($data)
-	{
-		$editableStart = $this->getEditableDateStart();
-		if (!Sentry::getUser()->isSuperUser() && strtotime($editableStart) > strtotime($data['use_date']))
-		{
-			return -1;
-		}
-		$configs = PSConfig::category('budget.mealpay');
-		$data['officer_amt'] = $configs['budget.mealpay.officer_amt']*$data['officer_cnt'];
-		$data['officer2_amt'] = $configs['budget.mealpay.officer2_amt']*$data['officer2_cnt'];
-		$data['troop_amt'] = $configs['budget.mealpay.troop_amt']*$data['troop_cnt'];
-		DB::table('bg_meal_pays')->insert($data);
+		DB::table('bg_meal')->whereIn('id', $ids)->delete();
 		return 0;
 	}
 }

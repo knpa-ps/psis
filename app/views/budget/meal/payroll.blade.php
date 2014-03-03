@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('content')
-@include('budget.mob.nav')
+@include('budget.meal.nav')
 
 <div class="row-fluid">
 	<div class="span12 well well-small">
@@ -40,12 +40,6 @@
 					@endforeach
 					</select>
 				</div>
-				<div class="input-group">
-					<label for="q_actual">
-						현업대상자
-					</label>
-					<input type="checkbox" name="q_actual">		
-				</div>
 				</div>
 			</div>
 			
@@ -61,13 +55,13 @@
 	</div>
 </div>
 
-<div class="row-fluid">
-	<div class="span12 panel panel-default">
+<div class="row-fluid">		
+	<div class="panel panel-default span12">
 		<div class="panel-body">
 
 			<div class="btn-toolbar">
 				<div class="btn-group">
-					<button class="btn select-all" data-toggle="button" data-target="mob_table">
+					<button class="btn select-all" data-toggle="button" data-target="mealpay_table">
 						<i class="icon-check"></i> @lang('strings.select_all')
 					</button>
 				</div>
@@ -83,42 +77,38 @@
 				</div>
 			</div>
 
-			<table id="mob_table" class="table table-condensed table-bordered table-striped table-hover datatable multi-selectable">
+			<p class="help-block well well-small">
+				※ 산출근거 단가<br>
+				경찰관: {{$configs['budget.mealpay.officer_amt']*1000}}원 / 경찰관 기동대(2식 이상): {{$configs['budget.mealpay.officer2_amt']*1000}}원 / 전의경부대(지휘요원 포함): {{$configs['budget.mealpay.troop_amt']*1000}}원 
+			</p>
+			<table id="mealpay_table" class="datatable multi-selectable table table-striped table-hover table-bordered table-condensed">
 				<thead>
 					<tr>
-						<th>
-							번호
+						<th rowspan="2">번호</th>
+						<th rowspan="2">
+							일자
 						</th>
-						<th>
-							소속
+						<th rowspan="2">
+							관서
 						</th>
-						<th>
-							계급
+						<th rowspan="2">
+							행사유형 
 						</th>
-						<th>
-							이름
+						<th rowspan="2">
+							행사명
 						</th>
-						<th>
-							동원일자
+						<th colspan="4">
+							급식인원 (명)
 						</th>
-						<th>
-							동원상황
+						<th rowspan="2">
+							소요액 (원)
 						</th>
-						<th>
-							동원상황개요
-						</th>
-						<th>
-							시작
-						</th>
-						<th>
-							종료
-						</th>
-						<th>
-							지급액 (천원)
-						</th>
-						<th>
-							현업대상자여부
-						</th>
+					</tr>
+					<tr>
+						<th rowspan="1">합계</th>
+						<th rowspan="1">경찰관</th>
+						<th rowspan="1">경찰관기동대<br>(2식 이상)</th>
+						<th rowspan="1">전의경부대<br>(지휘요원 포함)</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -129,7 +119,6 @@
 					</tr>
 				</tbody>
 			</table>
-
 		</div>
 	</div>
 </div>
@@ -137,7 +126,7 @@
 <div class="modal hide fade" id="modal_insert_form">
 	<div class="modal-header">
 		<a class="close" data-dismiss="modal">&times;</a>
-		<h3>경비동원수당 지급내역 입력</h3>
+		<h3>동원급식비 지급내역 입력</h3>
 	</div>
 	<div class="modal-body">
 		<div class="well well-small">
@@ -145,37 +134,37 @@
 				1. 현재 내역을 입력할 수 있는 날짜는 <strong>{{$editableStart}}</strong>부터입니다.
 			</p>
 			<p class="help-block">
-				2. 동원 시간이 하루를 넘길 시에는 24:00 기준으로 각각의 날짜로 나누어 입력해주세요.
+			※ 산출근거 단가<br>
+			경찰관: {{$configs['budget.mealpay.officer_amt']*1000}}원 / 경찰관 기동대(2식 이상): {{$configs['budget.mealpay.officer2_amt']*1000}}원 / 전의경부대(지휘요원 포함): {{$configs['budget.mealpay.troop_amt']*1000}}원 
 			</p>
 		</div>
 
 		<div class="btn-toolbar">
 			<button id="dept_select_all" class="btn" type="button">
-	            소속 일괄 선택
+	            부대 일괄 선택
 	        </button>
 
 	        <button class="btn btn-info pull-right" id="add_row"><i class="icon-plus"></i> 필드 추가</button>
 		</div>
+
 		<form id="insert_form" class="form form-inline">
 			<table id="insert_row_container" class="table table-bordered">
 
 				<thead>
 					<tr>
-						<th>소속</th>
-						<th>계급</th>
-						<th>이름</th>
+						<th>부대</th>
 						<th>동원일자</th>	
 						<th>동원상황</th>
-						<th>동원상황개요</th>
-						<th>시작</th>
-						<th>종료</th>
-						<th>현업대상자</th>
+						<th>행사명</th>
+						<th>경찰관</th>
+						<th>경찰관기동대<br>(2식이상)</th>
+						<th>전의경부대<br>(지휘요원포함)</th>
 						<th>삭제</th>
 					</tr>
 				</thead>
 				
 				<tbody>
-
+					
 				</tbody>
 			</table>
 		</form>
@@ -188,7 +177,6 @@
 
 <table class="hide">
 	<tbody id="insert_row_template">
-
 		<tr>
 			<td>
 				<div class="input-append">
@@ -199,16 +187,6 @@
 			        <input type="hidden" name="i_dept_id[]">
 		        </div>
 		    </td>
-		    <td>
-				<select name="i_rank[]" class="input-small">
-				@foreach ($rankCodes as $code) 
-					<option value="{{$code->code}}">{{$code->title}}</option>
-				@endforeach
-				</select>
-			</td>
-			<td>
-				<input type="text" name="i_name[]" class="input-mini">
-			</td>
 			<td>
 				<input type="text" name="i_date[]" class="input-small">
 			</td>
@@ -220,17 +198,16 @@
 				</select>
 			</td>
 			<td>
-				<input type="text" class="input-small" name="i_mob_summary[]">
+				<input type="text" class="input-small" name="i_event_name[]">
 			</td>
 			<td>
-				<input type="text" class="input-mini" name="i_mob_start[]">
+				<input type="text" class="input-mini" name="i_officer[]">
 			</td>
 			<td>
-				<input type="text" class="input-mini" name="i_mob_end[]">
+				<input type="text" class="input-mini" name="i_officer_troop[]">
 			</td>
 			<td>
-				<input type="hidden" name="i_actual[]" value="0">
-				<input type="checkbox" name="i_actual[]" value="1" data-no-uniform="true">
+				<input type="text" class="input-mini" name="i_troop[]">
 			</td>
 			<td>
 				<button type="button" class="del-row btn btn-danger">
@@ -258,14 +235,14 @@
 <script type="text/javascript" charset="utf-8">
 $(function(){
 	$(".datepicker").inputmask("y-m-d");
-	var oTable = $("#mob_table").dataTable($.extend(dtOptions,{
+	var oTable = $("#mealpay_table").dataTable($.extend(dtOptions,{
 			"bFilter": false,
 			"bProcessing": true,
 			"bServerSide": true,
-			"sAjaxSource": "{{ action('BgMobController@getPayrollData') }}",
+			"sAjaxSource": "{{ action('BgMealPayController@getPayrollData') }}",
 			"aoColumnDefs": [
 				{
-					"aTargets": [0,1,2,3,4,5,7,8,9],
+					"aTargets": [0,1,2],
 					"sClass": "single-line"
 				}
 			],
@@ -281,7 +258,7 @@ $(function(){
 
 	$("#q_form_export").click(function(){
 		var params = $("#q_form").serialize();
-		window.open("{{action('BgMobController@exportPayroll')}}?"+params);
+		window.open("{{action('BgMealPayController@exportPayroll')}}?"+params);
 	});
 
 	$("#btn_del").click(function() {
@@ -308,7 +285,7 @@ $(function(){
 			});
 
 			$.ajax({
-				url: "{{ action('BgMobController@deletePayroll') }}",
+				url: "{{ action('BgMealPayController@deletePayroll') }}",
 				contentType: 'application/json; charset=utf-8',
 				data: JSON.stringify(ids),
 				type: "post",
@@ -383,7 +360,7 @@ $(function(){
 		}
 
 		$.ajax({
-			url: "{{ action('BgMobController@insertPayroll') }}",
+			url: "{{ action('BgMealPayController@insertPayroll') }}",
 			type: "post",
 			data: params,
 			success: function(resp) {
@@ -394,14 +371,10 @@ $(function(){
 					noty({type:'success', layout: 'topRight', text: '완료되었습니다.'});
 					oTable.fnDraw();
 				} else if (resp == -1) {
-					noty({type:'error', layout: 'topRight', text: '시작시간이 종료시간보다 늦습니다.'});
-				} else if (resp == -2) {
 					noty({type:'error', layout: 'topRight', text: '이미 마감된 날짜에 대해서 입력할 수 없습니다.'});
-				} else if (resp == -3) {
+				} else if (resp == -2) {
 					noty({type:'error', layout: 'topRight', text: '해당 부서에 대한 권한이 없습니다.'});
 				}
-			}, error:function(er){
-				alert(er);
 			}
 		});
 	});

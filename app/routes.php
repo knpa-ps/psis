@@ -113,15 +113,16 @@ Route::group(array('before'=>'auth|menu'), function() {
 
     Route::group(array('prefix'=>'budget'), function(){
         Route::group(array('prefix'=>'meal'), function(){
-            Route::get('/', 'BgMealPayController@show');
-            Route::get('/export', 'BgMealPayController@export');
-            
+            Route::get('/payroll', 'BgMealPayController@show');
+            Route::get('/stat', 'BgMealPayController@showSitStat');
+            Route::get('/payroll/export', 'BgMealPayController@exportPayroll');
+            Route::get('/stat/export', 'BgMealPayController@exportSitStat');            
             Route::group(array('before'=>'ajax'), function(){
-                Route::post('/create', 'BgMealPayController@create');
-                Route::post('/update', 'BgMealPayController@update');
-                Route::post('/delete', 'BgMealPayController@delete');
-                Route::get('/read', 'BgMealPayController@read');
-                Route::post('/setClosed', 'BgMealPayController@setClosed');
+                Route::post('/payroll/insert', 'BgMealPayController@insertPayroll');
+                Route::post('/payroll/delete', 'BgMealPayController@deletePayroll');
+                Route::get('/payroll/data', 'BgMealPayController@getPayrollData');
+
+                Route::get('/stat/data', 'BgMealPayController@getSitStatData');
             });
         });
 
@@ -143,12 +144,14 @@ Route::group(array('before'=>'auth|menu'), function() {
         });
 
         Route::group(array('prefix'=>'config'), function(){
-            Route::any('/', 'BgConfigController@show');
+            Route::any('/meal', 'BgConfigController@show');
+            Route::any('/mob', 'BgConfigController@showMob');
 
             Route::group(array('before'=>'ajax'), function(){
                 Route::get('/readCloseDates', 'BgConfigController@readCloseDates');
                 Route::post('/createCloseDate', 'BgConfigController@createCloseDate');
                 Route::post('/deleteCloseDates', 'BgConfigController@deleteCloseDates');
+                Route::post('/updateMobCost', 'BgConfigController@updateMobCost');
             });
         });
     });

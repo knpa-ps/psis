@@ -11,11 +11,17 @@ class BgConfigController extends BaseController {
 
 	}
 
+	public function showMob()
+	{
+		$configs = PSConfig::category('budget');
+		$costs = DB::table('bg_mob_cost')->get();
+		return View::make('budget.config.mob', get_defined_vars());
+	}
+
 	public function show()
 	{
-
 		$configs = PSConfig::category('budget');
-        return View::make('budget.config', get_defined_vars());
+		return View::make('budget.config.mealpay', get_defined_vars());
 	}
 
 	public function createCloseDate()
@@ -23,7 +29,16 @@ class BgConfigController extends BaseController {
 		$bm = Input::get('bm');
 		$cd = Input::get('cd');
 
-		DB::table('bg_meal_pays_close_date')->insert(array(
+		if (Input::get('type') == 'mob')
+		{
+			$table = 'bg_mob_close_date';
+		}
+		else
+		{
+			$table = 'bg_meal_pays_close_date';
+		}
+
+		DB::table($table)->insert(array(
 				'belong_month'=>$bm.'-01',
 				'close_date'=>$cd
 			));
@@ -32,7 +47,21 @@ class BgConfigController extends BaseController {
 
 	public function readCloseDates()
 	{
-		$query = DB::table('bg_meal_pays_close_date')->select(array('id','belong_month', 'close_date'))->orderBy('belong_month','desc');
+
+		if (Input::get('type') == 'mob')
+		{
+			$table = 'bg_mob_close_date';
+		}
+		else
+		{
+			$table = 'bg_meal_pays_close_date';
+		}
+
+		$query = DB::table($table)
+		->select(array('id',
+			DB::raw('DATE_FORMAT(belong_month,"%Y-%m") as belong_month'), 
+			'close_date'))
+		->orderBy('belong_month','desc');
 		return Datatables::of($query)->make();
 	}
 
@@ -50,7 +79,38 @@ class BgConfigController extends BaseController {
 			return -1;
 		}
 
-		DB::table('bg_meal_pays_close_date')->whereIn('id', $ids)->delete();
+		if (Input::get('type') == 'mob')
+		{
+			$table = 'bg_mob_close_date';
+		}
+		else
+		{
+			$table = 'bg_meal_pays_close_date';
+		}
+
+		DB::table($table)->whereIn('id', $ids)->delete();
+		return 0;
+	}
+
+	public function updateMobCost()
+	{
+		$data = array();
+		foreach (Input::all() as $key=>$cost)
+		{
+			$explodes = explode('_', $key);
+			if (count($explodes)!=2){
+				continue;
+			}
+			$id = $explodes[1];
+			DB::table('bg_mob_cost')
+				->where('id','=',$id)
+				->update(
+					array(
+						'cost'=>$cost
+						)
+				);
+		}
+
 		return 0;
 	}
 }

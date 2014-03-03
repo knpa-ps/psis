@@ -32,7 +32,7 @@ class BgMobService {
 			{
 				$sql = 'SELECT COUNT(*) FROM bg_mob AS mob'.$key.'
 					WHERE mob'.$key.'.mob_code = "'.$code->code.'" AND 
-						mob'.$key.'.mob_date BETWEEN "'.$startDate.'" AND "'.$endDate.'" AND
+						mob'.$key.'.mob_date BETWEEN DATE_FORMAT(bg_mob.mob_date, "%Y-%m-01") AND LAST_DAY(bg_mob.mob_date) AND
 						mob'.$key.'.dept_id = bg_mob.dept_id';
 			}
 			else
@@ -40,7 +40,7 @@ class BgMobService {
 				$sql = 'SELECT COUNT(*) FROM bg_mob AS mob'.$key.'
 					LEFT JOIN departments AS d ON d.id = mob'.$key.'.dept_id
 					WHERE mob'.$key.'.mob_code = "'.$code->code.'" AND 
-						mob'.$key.'.mob_date BETWEEN "'.$startDate.'" AND "'.$endDate.'" AND
+						mob'.$key.'.mob_date BETWEEN DATE_FORMAT(bg_mob.mob_date, "%Y-%m-01") AND LAST_DAY(bg_mob.mob_date) AND
 						d.full_path LIKE CONCAT("%",LEFT(departments.full_path, LOCATE(":",departments.full_path,2)),"%")';
 			}
 
@@ -134,7 +134,6 @@ class BgMobService {
 
 		$user = Sentry::getUser();
 
-		$deptIds = array();
 		foreach ($data as $key=>$row)
 		{
 			$startTS = strtotime($row['start_time']);
@@ -228,7 +227,7 @@ class BgMobService {
 		
 		$forbiddens = DB::table('bg_mob')->whereIn('id', $ids)->where('mob_date', '<', $editableStart)->get();
 
-		if (!Sentry::getUser()->isSuperUser() && count($forbiddens) > 0) 
+		if (!Sentry::getUser()->hasAccess('budget.admin') && count($forbiddens) > 0) 
 		{
 			return -1;
 		}
