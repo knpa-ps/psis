@@ -24,6 +24,11 @@ class CreateDepartmentsTable extends Migration {
 				$table->smallInteger('is_terminal');
 				$table->integer('sort_order');
 				$table->timestamps();
+
+				$table->index('parent_id');
+				$table->index('full_path');
+				$table->index('is_alive');
+				$table->index('sort_order');
 			});
 		}
 	}

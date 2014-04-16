@@ -46,6 +46,6 @@ class Department extends Eloquent {
 	public static function isAncestor($child, $ancestor)
 	{
 		$childPath = self::where('id', '=', $child)->first()->full_path;
-		return strpos($childPath, ":$ancestor:") != FALSE;
+		return !(strpos($childPath, ":$ancestor:") === FALSE);
 	}
 }

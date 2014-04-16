@@ -26,6 +26,7 @@ App::error(function($e, $code){
 	} else {
 		switch ($code) {
 			case 404:
+			case 403:
 				$header = '권한 없음';
 				$message = '해당 작업에 대한 권한이 없습니다. 관리자에게 문의해주세요.';
 				return View::make('errors.error', array('header'=>$header,'message'=>$message));

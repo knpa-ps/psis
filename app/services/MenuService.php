@@ -2,6 +2,8 @@
 
 class MenuService {
 
+	public static $menus;
+
 	public function getActiveMenu()
 	{
 		return Menu::where('id', '=', Session::get('activeMenuId'))->first();
@@ -57,7 +59,7 @@ class MenuService {
 
 		$isSuperUser = $user->isSuperUser();
 
-		foreach (Menu::all() as $menu) 
+		foreach (Menu::orderBy('sort_order', 'asc')->get() as $menu) 
 		{
 			if ($this->isVisible($groupIds, $menu) || $isSuperUser)
 			{
@@ -67,7 +69,6 @@ class MenuService {
 
 		$activeMenuId = Session::get('activeMenuId');
 		$tree = $this->buildTree($filtered, 0, $activeMenuId);
-		
 		return $tree;
 	}
 

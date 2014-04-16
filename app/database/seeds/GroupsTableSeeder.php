@@ -62,6 +62,15 @@ class GroupsTableSeeder extends Seeder {
                 )
             ));
 
+            Sentry::createGroup(array(
+                'id'=>7,
+                'name'=> '지방청 관리자',
+                'permissions'=>array(
+                    'admin'=>1,
+                    'budget.*'=>1,
+                    'reports.*'=>1
+                )
+            ));
         }
         catch (Cartalyst\Sentry\Groups\NameRequiredException $e)
         {

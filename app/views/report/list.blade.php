@@ -43,13 +43,25 @@
 			</div>
 
 			<div class="row-fluid">
-				<div class="span12">
+				<div class="span6">
 					<div class="control-group">
 						<label for="q_title" class="control-label">
 							제목
 						</label>
 						<div class="controls">
 							<input type="text" id="q_title" name="q_title" class="input-xlarge">		
+						</div>
+					</div>		
+				</div>
+				<div class="span6">
+					<div class="control-group">
+						<label for="q_region" class="control-label">
+							조회유형
+						</label>
+						<div class="controls">
+							<label class="checkbox">
+								<input type="checkbox" value="1" name="q_region"> 지방청작성
+							</label>
 						</div>
 					</div>		
 				</div>
@@ -164,7 +176,7 @@ $(function(){
 				{
 					"aTargets": [2],
 					"mRender": function(data, type, full) {
-						return data?"<span style='color:red;'>마감</span>":"<span style='color:blue;'>수신</span>";
+						return data==1?"<span style='color:red;'>마감</span>":"<span style='color:blue;'>수신</span>";
 					}
 				},
 				{

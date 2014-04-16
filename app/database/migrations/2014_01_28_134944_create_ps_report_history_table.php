@@ -20,6 +20,9 @@ class CreatePsReportHistoryTable extends Migration {
 			$table->integer('report_id')->unsigned();
 			$table->softDeletes();
 			$table->timestamps();
+
+			$table->index('creator_id');
+			$table->index('report_id');
 		});
 	}
 

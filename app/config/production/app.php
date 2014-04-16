@@ -2,7 +2,7 @@
 
 return array(
 	
-	'uploadPath' => '/volume1/web/psis/uploads/',
+	'uploadPath' => '/volume2/services/web/psis/uploads/',
 	/*
 	|--------------------------------------------------------------------------
 	| Application Debug Mode

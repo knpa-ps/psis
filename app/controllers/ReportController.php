@@ -6,7 +6,7 @@ class ReportController extends BaseController {
 	{
 		$user = Sentry::getUser();
 		if (!$user->hasAccess('reports.create')) {
-			return App::abort(404, 'unauthorized action');
+			return App::abort(403, 'unauthorized action');
 		}
 
 		return View::make('report.compose');
@@ -16,7 +16,7 @@ class ReportController extends BaseController {
 	{
 		$user = Sentry::getUser();
 		if (!$user->hasAccess('reports.read')) {
-			return App::abort(404, 'unauthorized action');
+			return App::abort(403, 'unauthorized action');
 		}
 
 		return View::make('report.list', array('user'=>$user));
@@ -26,7 +26,7 @@ class ReportController extends BaseController {
 	{
 		$user = Sentry::getUser();
 		if (!$user->hasAccess('reports.create')) {
-			return App::abort(404, 'unauthorized action');
+			return App::abort(403, 'unauthorized action');
 		}
 
 		if (!empty($_FILES)) {
@@ -63,7 +63,7 @@ class ReportController extends BaseController {
 	{
 		$user = Sentry::getUser();
 		if (!$user->hasAccess('reports.create')) {
-			return App::abort(404, 'unauthorized action');
+			return App::abort(403, 'unauthorized action');
 		}
 
 		$title = Input::get('report-title');
@@ -96,7 +96,7 @@ class ReportController extends BaseController {
 	{
 		$user = Sentry::getUser();
 		if (!$user->hasAccess('reports.read')) {
-			return App::abort(404, 'unauthorized action');
+			return App::abort(403, 'unauthorized action');
 		}
 
 		$query = DB::table('ps_reports')
@@ -143,6 +143,10 @@ class ReportController extends BaseController {
 			$query->where('ps_reports.creator_id', $user->id);
 		}
 
+		if (Input::get('q_region')) {
+			$query->where('departments.depth', '=', 1);
+		}
+
 		return Datatables::of($query)->make();
 	}
 
@@ -150,7 +154,7 @@ class ReportController extends BaseController {
 	{
 		$user = Sentry::getUser();
 		if (!$user->hasAccess('reports.read')) {
-			return App::abort(404, 'unauthorized action');
+			return App::abort(403, 'unauthorized action');
 		}
 
 		$reportId = Input::get('id');
@@ -159,12 +163,12 @@ class ReportController extends BaseController {
 		$report = PSReport::where('id','=',$reportId)->with('user', 'user.department')->first();
 
 		$currentUser = Sentry::getUser();
-		if (!$currentUser->isSuperUser()) 
+		if (!$currentUser->hasAccess('reports.admin')) 
 		{
 			$fullPath = $report->user->department->full_path;
 			if (strstr($fullPath, ":{$currentUser->dept_id}:") === FALSE)
 			{
-				return App::abort(404, 'unauthorized action');
+				return App::abort(403, 'unauthorized action');
 			}
 		}
 
@@ -202,7 +206,7 @@ class ReportController extends BaseController {
 	{
 		$user = Sentry::getUser();
 		if (!$user->hasAccess('reports.close')) {
-			return App::abort(404, 'unauthorized action');
+			return App::abort(403, 'unauthorized action');
 		}
 
 		$closed = Input::get('closed');
@@ -223,7 +227,7 @@ class ReportController extends BaseController {
 	{
 		$user = Sentry::getUser();
 		if (!$user->hasAccess('reports.update')) {
-			return App::abort(404, 'unauthorized action');
+			return App::abort(403, 'unauthorized action');
 		}
 
 		$content = Input::get('content');
@@ -238,7 +242,7 @@ class ReportController extends BaseController {
 			$fullPath = $report->user->department->full_path;
 			if (strstr($fullPath, ":{$user->dept_id}:") === FALSE)
 			{
-				return App::abort(404, 'unauthorized action');
+				return App::abort(403, 'unauthorized action');
 			}
 		}
 
@@ -261,7 +265,7 @@ class ReportController extends BaseController {
 	{
 		$user = Sentry::getUser();
 		if (!$user->hasAccess('reports.read')) {
-			return App::abort(404, 'unauthorized action');
+			return App::abort(403, 'unauthorized action');
 		}
 
 		return View::make('report.my', get_defined_vars());
@@ -271,7 +275,7 @@ class ReportController extends BaseController {
 	{
 		$user = Sentry::getUser();
 		if (!$user->hasAccess('reports.admin')) {
-			return App::abort(404, 'unauthorized action');
+			return App::abort(403, 'unauthorized action');
 		}
 
 		return View::make('report.stats', get_defined_vars());
@@ -342,5 +346,38 @@ class ReportController extends BaseController {
 
 		return Datatables::of($query)->make();
 
+	}
+
+	public function copyReport() {
+
+		$user = Sentry::getUser();
+		if (!$user->hasAccess('reports.create')) {
+			return App::abort(403, 'unauthorized action');
+		}
+
+		$id = Input::get('id');
+		$hid = Input::get('hid');
+
+		$user = Sentry::getUser();
+		if (!$user->hasAccess('reports.create')) {
+			return App::abort(403, 'unauthorized action');
+		}
+		$report = PSReport::where('id','=',$id)->with('user', 'user.department')->first();
+
+		$currentUser = Sentry::getUser();
+		if (!$currentUser->hasAccess('reports.admin')) 
+		{
+			$fullPath = $report->user->department->full_path;
+			if (strstr($fullPath, ":{$currentUser->dept_id}:") === FALSE)
+			{
+				return App::abort(403, 'unauthorized action');
+			}
+		}
+
+		$reportData = $report->histories()->where('id', '=', $hid)->first();
+		if (!$reportData) {
+			return App::abort(404, 'page not found');
+		}
+		return View::make('report.compose', get_defined_vars());
 	}
 }

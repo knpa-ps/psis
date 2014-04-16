@@ -74,5 +74,6 @@
 .filetree span.file { background: url(../img/file.gif) 0 0 no-repeat; }
 
 .tree-text {
+	font-size: 15px;
 	cursor: pointer;
 }

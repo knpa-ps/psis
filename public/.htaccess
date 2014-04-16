@@ -10,6 +10,7 @@
 
     RewriteBase /psis/
 	# Handle Front Controller...
+    RewriteCond %{REQUEST_URI} !^/psis/static/.*$
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]

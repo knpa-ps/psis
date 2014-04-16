@@ -63,13 +63,15 @@ Route::group(array('before'=>'auth|menu'), function() {
 
     Route::group(array('before'=>'admin', 'prefix'=>'admin'), function(){
         Route::any('/', 'AdminController@showUserList');
-
+        Route::get('/adjustDepts', 'AdminController@adjustDepts');
         Route::get('/groups', 'AdminController@showGroupList');
 
         Route::get('/permissions', 'AdminController@showPermissions');
         Route::any('/users', 'AdminController@showUserList');
 
         Route::get('/menus', 'AdminController@showMenus');
+
+        Route::get('/depts', 'AdminController@showDepts');
         
         Route::get('/user/new', 'AdminController@showUserDetail');
         Route::post('/user/new', 'AdminController@insertUser');
@@ -77,6 +79,7 @@ Route::group(array('before'=>'auth|menu'), function() {
         Route::post('user/{user_id}', 'AdminController@updateUser');
 
         Route::group(array('before'=>'ajax'), function(){
+            Route::post('/users/set_groups', 'AdminController@setUserGroups');
             Route::get('/users/get', 'AdminController@getUsers');
             Route::get('groups/get', 'AdminController@getGroups');
             Route::post('groups/delete', 'AdminController@deleteGroup');
@@ -104,6 +107,7 @@ Route::group(array('before'=>'auth|menu'), function() {
         Route::post('uploadAttachment', 'ReportController@uploadAttachments');
         Route::post('create', 'ReportController@insertReport');
         Route::get('detail', 'ReportController@showReport');
+        Route::get('copy', 'ReportController@copyReport');
         Route::group(array('before'=>'ajax'), function(){
             Route::get('listData', 'ReportController@getReports');
             Route::post('setClosed', 'ReportController@setClosed');
@@ -162,3 +166,5 @@ Route::group(array('before'=>'auth|menu'), function() {
     Route::get('download', 'FileController@download');
 });
 
+Route::get('moveup', 'DepartmentController@moveUp');
+Route::get('adjust', 'DepartmentController@adjust');

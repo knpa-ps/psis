@@ -55,9 +55,9 @@ return array(
 		'mysql' => array(
 			'driver'    => 'mysql',
 			'host'      => 'localhost',
-			'database'  => 'psisdb',
+			'database'  => 'psis_db',
 			'username'  => 'root',
-			'password'  => 'neutrino123!',
+			'password'  => 'vhtkdgbrk',
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'    => '',

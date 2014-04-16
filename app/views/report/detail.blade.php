@@ -6,35 +6,11 @@
 		<div class="header">
 			<h4>옵션</h4>
 		</div>
-		@if ($user->hasAccess('reports.update'))
-		<button class="btn btn-primary {{ $report->closed?"disabled":"" }}" id="edit_report">
-			<i class="icon-edit icon-white"></i> 변경내역제출 
-		</button>
-		@endif
-		@if ($user->hasAccess('reports.close'))
-		<button class="btn {{ $report->closed?"active":"" }}" id="set_closed">
-			<i class="icon-lock"></i> 마감
-		</button>
-		@endif
-		<div class="btn-group">
-			<button class="btn dropdown-toggle" data-toggle="dropdown" type="button">
-				<i class="icon-th-list"></i> 변경내역조회 {{ '('.count($histories).')' }} 
-				<span class="caret"></span>
-			</button>
-			<ul class="dropdown-menu">
-				@foreach ($histories as $h)
-				@if ($h->id != $reportData->id)
-					<li>
-				@else
-					<li class="active">
-				@endif
-						<a href="{{ action('ReportController@showReport') }}?id={{ $report->id }}&hid={{ $h->id }}">
-							{{ $h->created_at }} {{ $h->user['user_name'] }}
-						</a>
-					</li>
-				@endforeach
-			</ul>
-		</div>
+
+		<a class="btn btn-primary" id="copy_report" href="{{ action('ReportController@copyReport') }}?id={{ $report->id }}&hid={{ $reportData->id }}">
+			<i class="icon-file"></i>
+			새로작성
+		</a>
 		<div class="btn-group">
 			<button class="btn dropdown-toggle" data-toggle="dropdown" type="button">
 				<i class="icon-file"></i> 첨부파일 {{ '('.count($files).')' }}
@@ -84,22 +60,27 @@
 				</div>
 			</div>
 			
-			<OBJECT id="HwpCtrl" height="1200" width="100%" align="center" 
+        
+			<div class="row-fluid">
+				<div class="span12" style="text-align: center;  " align="center">
+					<OBJECT id="HwpCtrl" height="800" width="700" align="center" 
 							classid="CLSID:BD9C32DE-3155-4691-8972-097D53B10052">
 
-                <param name="TOOLBAR_MENU" value="true">
-                <param name="TOOLBAR_STANDARD" value="true">
-                <param name="TOOLBAR_FORMAT" value="true">
-                <param name="TOOLBAR_DRAW" value="true">
-                <param name="TOOLBAR_TABLE" value="true">
-                <param name="TOOLBAR_IMAGE" value="true">
-                <param name="TOOLBAR_HEADERFOOTER" value="false">
+		                <param name="TOOLBAR_MENU" value="false">
+		                <param name="TOOLBAR_STANDARD" value="false">
+		                <param name="TOOLBAR_FORMAT" value="false">
+		                <param name="TOOLBAR_DRAW" value="false">
+		                <param name="TOOLBAR_TABLE" value="false">
+		                <param name="TOOLBAR_IMAGE" value="false">
+		                <param name="TOOLBAR_HEADERFOOTER" value="false">
 
-                <param name="SHOW_TOOLBAR" value="{{$report->closed?'false':'true'}}">
-                <div class="alert" >
-                	HwpCtrl이 설치되지 않아서 보고서를 조회할 수 없습니다.
-                </div>
-			</OBJECT>
+		                <param name="SHOW_TOOLBAR" value="false">
+		                <div class="alert" >
+		                	HwpCtrl이 설치되지 않아서 보고서를 조회할 수 없습니다.
+		                </div>
+					</OBJECT>
+				</div>
+			</div>
 
 		</div>
 	</div>
@@ -107,6 +88,15 @@
 <div class="hide" id="hwp_content">
 {{$reportData->content}}
 </div>
+@stop
+
+@section('styles')
+<style type="text/css" media="screen">
+#copy_report a {
+	text-decoration: none;
+	color:black;
+}	
+</style>
 @stop
 
 @section('scripts')

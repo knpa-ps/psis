@@ -2,6 +2,14 @@
 
 class AdminController extends BaseController {
 
+	public function __constrct()
+	{
+		if (!Sentry::getUser()->hasAccess('admin'))
+		{
+			return App::abort(404, "unauthorized action");
+		}
+	}
+
 	public function showGroupList()
 	{
 
@@ -17,6 +25,14 @@ class AdminController extends BaseController {
         }
         $data['codeSelectItems'] = $codeSelectItems;
 
+		// @todo
+		$groups = Group::where('id','!=',1);
+		if (!Sentry::getUser()->isSuperUser()) {
+			$groups->where('id', '!=', 2)->where('id', '!=', 4);
+		}
+
+		$data['groups'] = $groups->get();
+
         //default form value
         $data = array_merge(array(
                 'accountName' => '',
@@ -30,22 +46,35 @@ class AdminController extends BaseController {
 
 	public function getUsers()
 	{
-		$builder = User::table()->select(array(
-				'users.id',
-				'users.account_name',
-				'users.user_name',
-				'codes.title',
-				'departments.full_name',
-				'users.dept_detail',
-				'users.activated'
-			));
+		$user = Sentry::getUser();
+
+		$builder = User::table()
+					->select(array(
+							'users.id',
+							'users.account_name',
+							'users.user_name',
+							'codes.title',
+							'departments.full_name',
+							'users.dept_detail',
+							'users.activated'
+						));
+
+		if (!$user->isSuperUser())
+		{
+			if ($user->hasAccess('admin')) {
+				$region = Department::region($user->dept_id);
+				$builder->where('departments.full_path','like', "%:{$region->id}:%");
+			} else {
+				$builder->where('departments.full_path','like', "%:{$user->dept_id}:%");
+			}
+		}
 		
 		return Datatables::of($builder)->make();
 	}
 
 	public function showUserDetail($userId = null)
 	{
-        $codes = Code::in('H001');
+		$codes = Code::in('H001');
         $ranks = array();
         foreach ($codes as $code) {
             $ranks[$code->code] = $code->title;
@@ -54,16 +83,28 @@ class AdminController extends BaseController {
         if ($userId)
         {
 			$user = User::where('id', '=', $userId)->with('rank', 'groups', 'department')->first();
+			$cUser = Sentry::getUser();
+			$region = Department::region($cUser->dept_id);
+			if (!$cUser->isSuperUser() && !Department::isAncestor($user->dept_id, $region->id))
+			{
+				return App::abort(404, "unauthorized action");
+			}
         }
         else
         {
         	$user = new User;
         }
+		
+		// @todo
+		$groups = Group::where('id','!=',1);
+		if (!Sentry::getUser()->isSuperUser()) {
+			$groups->where('id', '!=', 2)->where('id', '!=', 4);
+		}
 
 		return View::make('admin.user-info', array(
 			'user'=>$user,
 			'ranks'=>$ranks,
-			'groups'=>Group::all()
+			'groups'=>$groups->get()
 		));
 	}
 
@@ -237,8 +278,12 @@ class AdminController extends BaseController {
 				'id',
 				'name',
 				'created_at'
-			));
-		
+			))->where('id','!=','1');
+		$user = Sentry::getUser();
+		if (!$user->isSuperUser()) {
+			$builder->where('id', '!=', 2)->where('id', '!=', 4);
+		}
+
 		return Datatables::of($builder)->make();
 	}
 
@@ -297,7 +342,104 @@ class AdminController extends BaseController {
 		return json_encode(array('type'=>'success','layout'=>'topRight','text'=>Lang::get('strings.success')));
 	}
 
-	public function showMenus() {
+	public function showMenus() 
+	{
+		return View::make('admin.tmp');
+	}
+
+	public function addDept()
+	{
+		$data = array('parent_id' => Input::get('parent_id'),'dept_name'=>Input::get('dept_name'),'is_alive'=>1);
+		DB::table('departments')->insert($data);
+		return '입력완료ㅋ';
+	}
+
+	public function adjustDepts()
+	{
+		/**
+		 * full path, full name, depth
+		 */
+		// 초기화
+		DB::table('departments')->update(array(
+			'full_path'=>DB::raw('CONCAT(":",id,":")'),
+			'full_name'=>DB::raw('dept_name'),
+			'depth'=>1
+			));
+
+		$maxDepth = Input::get('maxDepth');
+		$maxDepth = $maxDepth ? $maxDepth : 10;
+
+		for ($i=0; $i<$maxDepth; $i++)
+		{
+			DB::insert(DB::raw('INSERT INTO departments (id, full_path, full_name, depth)
+			SELECT 
+			id,
+			(
+				SELECT 
+				IF(parent_id=0 OR parent_id IS NULL,"",CONCAT(":",parent_id))
+				FROM departments AS b
+				WHERE b.id = TRIM(LEADING ":" FROM LEFT(sub.full_path, LOCATE(":",sub.full_path,2)-1))
+			) as newPath,
+			(
+				(SELECT IFNULL(CONCAT(dept_name, " "), "")
+					FROM departments
+					WHERE id = (SELECT 
+				parent_id
+				FROM departments AS b
+				WHERE b.id = TRIM(LEADING ":" FROM LEFT(sub.full_path, LOCATE(":",sub.full_path,2)-1))))
+			) as newName,
+			(
+				SELECT 
+				IF(parent_id=0 OR parent_id IS NULL,0,1)
+				FROM departments AS b
+				WHERE b.id = TRIM(LEADING ":" FROM LEFT(sub.full_path, LOCATE(":",sub.full_path,2)-1))
+			) as depthIncrement
+
+			FROM departments AS sub
+
+			ON DUPLICATE KEY UPDATE 
+				full_path = CONCAT(VALUES(full_path),departments.full_path),
+				full_name = CONCAT(VALUES(full_name),departments.full_name),
+				depth = departments.depth+VALUES(depth) '));
+		}
+
+		//is terminal
+		DB::insert(DB::raw('INSERT INTO departments
+							(id, is_terminal, is_alive)
+							SELECT
+							id, 
+							(SELECT
+							COUNT(*) = 0
+							FROM departments AS c
+							WHERE c.parent_id = p.id),
+							1
+							FROM departments p
+
+							ON DUPLICATE KEY UPDATE
+							is_terminal = values(is_terminal),
+							is_alive = values(is_alive)'));
+
+		//sort_order
+		DB::insert(DB::raw('UPDATE departments SET sort_order = id'));
+
+		return 'done';
+	}
+
+	public function setUserGroups() {
+		$userIds = Input::get('user_ids');
+		$groupIds = Input::get('groups_ids');
+
+		foreach ($userIds as $user) {
+			$user = User::find($user);
+			$user->groups()->sync($groupIds);
+			$user->save();
+		}
+
+		return '완료되었습니다';
+	}
+
+	public function showDepts() {
 		
+		return View::make('admin.depts');
 	}
 }

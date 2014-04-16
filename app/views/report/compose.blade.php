@@ -39,7 +39,7 @@
 							@lang('strings.report_content')
 						</label>
 						<div class="controls">
-							<OBJECT id="HwpCtrl" height="1200" width="100%" align="center" 
+							<OBJECT id="HwpCtrl" height="800" width="700" align="center" 
 							classid="CLSID:BD9C32DE-3155-4691-8972-097D53B10052">
                                 <param name="TOOLBAR_MENU" value="true">
                                 <param name="TOOLBAR_STANDARD" value="true">
@@ -68,7 +68,7 @@
 					
 					<div class="form-actions">
 						<button type="button" class="btn btn-primary" id="report-submit">
-							@lang('strings.compose')
+							제출	
 						</button>
 					</div>
 				</fieldset>
@@ -90,7 +90,9 @@
 		</div>
 	</div>
 </div>
-
+<div id="hwp_content" class="hide">
+	{{ isset($reportData)?$reportData->content:'' }}
+</div>
 @stop
 
 @section('styles')
@@ -123,7 +125,13 @@ function OnStart()
     } else {
     	hasHwpCtrl = true;
     }
-	HwpCtrl.open("{{ url('static/misc/report1.hwp') }}");
+	
+	@if (isset($reportData)) 
+        var data = $("#hwp_content").html();
+    	HwpCtrl.SetTextFile(data, "HWP", "");
+	@else
+		HwpCtrl.open("{{ url('static/misc/report1.hwp') }}");
+	@endif
 }
 var attachments = [];
 $(function(){

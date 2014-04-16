@@ -16,8 +16,8 @@ return array(
     'registered_at'=>'가입일시',
     'last_login'=>'마지막 로그인',
     'user_list'=>'사용자 목록',
-    'site_title' => '경비정보관리시스템',
-    'site_logo_text' => '경비정보관리시스템',
+    'site_title' => '경비경찰포탈',
+    'site_logo_text' => '경비경찰포탈',
     'login_wrong_password' => '비밀번호가 일치하지 않습니다.',
     'login_user_not_found' => '존재하지 않는 계정입니다.',
     'login_user_not_activated' => '아직 활성화되지 않은 계정입니다.',
@@ -56,8 +56,8 @@ return array(
 
     'warning'=>'경고',
     'no_js'=>'이 시스템을 이용하기 위해서는 자바스크립트가 활성화되어야 합니다.',
-    'footer_text'=>'<strong>문의사항</strong> 본청 경비국 경비3계 의경 최영우<br>
-            <strong>일반전화</strong> 02-3150-1170 / <strong>경비전화</strong> 7-1170',
+    'footer_text'=>'<strong>문의사항</strong> 본청 경비국 경비1계 의경 최영우<br>
+            <strong>일반전화</strong> 02-3150-1170 / <strong>경비전화</strong> 8-1170',
     'create'=>'추가',
     'create_user'=>'사용자 추가',
     'create_group'=>'그룹 추가',

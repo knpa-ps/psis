@@ -5,7 +5,7 @@
         "name": "경비속보",
         "action": "",
         "is_shortcut": 0,
-        "group_ids": "",
+        "group_ids": "2,3",
         "sort_order": 1
     },
     {
@@ -14,7 +14,7 @@
         "name": "경비속보조회",
         "action": "ReportController@showList",
         "is_shortcut": 0,
-        "group_ids": "",
+        "group_ids": "2,3",
         "sort_order": 2
     },
     {
@@ -23,7 +23,7 @@
         "name": "경비속보작성",
         "action": "ReportController@showComposeForm",
         "is_shortcut": 0,
-        "group_ids": "",
+        "group_ids": "2,3",
         "sort_order": 3
     },
     {
@@ -32,7 +32,7 @@
         "name": "작성속보조회",
         "action": "ReportController@showMyReports",
         "is_shortcut": 0,
-        "group_ids": "",
+        "group_ids": "2,3",
         "sort_order": 4
     },
     {
@@ -41,7 +41,7 @@
         "name": "경비속보통계",
         "action": "ReportController@showStats",
         "is_shortcut": 0,
-        "group_ids": "",
+        "group_ids": "2,3",
         "sort_order": 5
     },
     {
@@ -50,7 +50,7 @@
         "name": "경비예산",
         "action": "",
         "is_shortcut": 0,
-        "group_ids": "",
+        "group_ids": "4,5,6",
         "sort_order": 4
     },
     {
@@ -59,7 +59,7 @@
         "name": "동원급식비",
         "action": "BgMealPayController@show",
         "is_shortcut": 0,
-        "group_ids": "",
+        "group_ids": "4,5",
         "sort_order": 5
     },
     {
@@ -68,7 +68,7 @@
         "name": "경비동원수당",
         "action": "BgMobController@show",
         "is_shortcut": 0,
-        "group_ids": "",
+        "group_ids": "4,6",
         "sort_order": 6
     },
     {
@@ -77,7 +77,7 @@
         "name": "예산환경설정",
         "action": "BgConfigController@show",
         "is_shortcut": 0,
-        "group_ids": "",
+        "group_ids": "4",
         "sort_order": 7
     },
     {
@@ -86,7 +86,7 @@
         "name": "시스템관리",
         "action": "AdminController@showUserList",
         "is_shortcut": 0,
-        "group_ids": "1",
+        "group_ids": "7",
         "sort_order": 7
     },
     {
@@ -95,7 +95,7 @@
         "name": "사용자 관리",
         "action": "AdminController@showUserList",
         "is_shortcut": 0,
-        "group_ids": "1",
+        "group_ids": "7",
         "sort_order": 8
     },
     {

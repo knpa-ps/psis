@@ -28,6 +28,9 @@
 								<li><a href="#" data-value="0">@lang('strings.user_inactive')</a></li>
 							</ul>
 						</div>
+						<button class="btn" id="set_groups" data-toggle="modal" href="#groups_modal">
+							<i class="icon-user"></i> 그룹변경
+						</button>
 						<button class="btn btn-danger" id="delete-selected">
 							<i class="icon-trash icon-white"></i> @lang('strings.delete')
 						</button>
@@ -67,6 +70,41 @@
 	</div>
 </div>
 
+<div class="modal hide" id="groups_modal">
+	<div class="modal-header">
+		<a class="close" data-dismiss="modal">&times;</a>
+		<h3>사용자 그룹 변경</h3>
+	</div>
+	<div class="modal-body">
+		<form id="groups_form" class="form form-horizontal">
+			<div class="row-fluid">
+				<div class="span12">
+					<div class="control-group">
+						<label for="groups" class="control-label">
+							@lang('strings.groups')
+						</label>
+						<div class="controls">
+							@foreach ($groups as $group)
+							<label class="checkbox inline">
+								<div class="checker">
+									<span>
+										<input type="checkbox" name="groups_ids[]" value="{{$group->id}}" style="opacity: 0;">
+									</span>
+								</div> {{ $group->name }}
+						    </label>
+							@endforeach
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</form>
+	</div>
+	<div class="modal-footer">
+		<a href="#" id="set_groups_submit" class="btn btn-primary">확인</a>
+		<a href="#" class="btn" data-dismiss="modal">취소</a>
+	</div>
+</div>
 @stop
 
 @section('scripts')
@@ -101,7 +139,7 @@ $(document).ready(function(){
 					{
 						"aTargets": [6],
 						"mRender": function(data, type, full) {
-							return data?
+							return data==1?
 							"<span class='label label-success'>@lang('strings.user_active')</span>"
 							:
 							"<span class='label label-important'>@lang('strings.user_inactive')</span>";
@@ -177,6 +215,44 @@ $(document).ready(function(){
 					bootbox.alert(msg);
 				}
 				oTable.fnDraw();
+			},
+			error: function() {
+				bootbox.alert("@lang('strings.server_error')"
+					);
+			}
+		});
+	});
+
+	$("#set_groups_submit").click(function() {
+		var selected = fnGetSelected(oTable);
+
+		var form = $("#groups_form").serializeArray();		
+		if (selected.length == 0 || form.length == 0)
+		{
+			bootbox.alert("@lang('strings.no_selection')"
+				);
+			return;
+		}
+
+		var data = [];
+		selected.each(function(){
+			var uid = $(this).children().eq(0).text();
+			data.push({"name":"user_ids[]", "value":uid});
+		});
+
+		var params = $.merge(data, form);
+
+		$.ajax({
+			url: "{{ action('AdminController@setUserGroups') }}",
+			type: "post",
+			data: params,
+			success: function(msg) {
+				if (msg)
+				{
+					bootbox.alert(msg);
+				}
+				$("#groups_modal input[type=checkbox]").prop('checked', false);
+				$("#groups_modal").modal('hide');
 			},
 			error: function() {
 				bootbox.alert("@lang('strings.server_error')"

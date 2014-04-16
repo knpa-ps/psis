@@ -170,7 +170,13 @@ class AuthController extends BaseController {
             return $this->showRegisterForm($data);
         }
 
-        Sentry::register(array(
+        $deptId = $data['departmentId'];
+        if (Department::find($deptId)->depth == 1) {
+            $data['messages'] = array('부서를 하위 소속까지 정확히 선택해주세요. 지방청관리자 계정 생성은 8-1170으로 문의주시기 바랍니다.');
+            return $this->showRegisterForm($data);
+        }
+
+        $user = Sentry::register(array(
             'email' => $data['accountName'],
             'account_name' => $data['accountName'],
             'password' => $data['password'],
@@ -182,7 +188,15 @@ class AuthController extends BaseController {
             'contact_extension'=>$data['contact_extension'],
             'contact_phone'=>$data['contact_phone']
         ));
+        $user->groups()->detach();
+        //default groups
+        $defaults = Group::defaults()->get();
 
+        foreach ($defaults as $d) {
+            $user->groups()->attach($d->id);
+        }
+
+        $user->push();
         return $this->showLogin(Lang::get('strings.registered'));
     }
 

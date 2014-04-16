@@ -19,7 +19,7 @@ class BgMobService {
 		if ($groupByRegion)
 		{
 			$selects[] = 
-				DB::raw('TRIM(REPLACE(LEFT(departments.full_name, LOCATE(":", departments.full_name, 2)), ":", " ")) AS dept_name');
+				DB::raw('LEFT(departments.full_name, LOCATE(" ", departments.full_name, 2)) AS dept_name');
 		}
 		else
 		{
@@ -53,6 +53,13 @@ class BgMobService {
 				->where('mob_date', '<=', $endDate)
 				->groupBy(DB::raw('DATE_FORMAT(mob_date, "%Y-%m")'));
 
+		$user = Sentry::getUser();
+		if (!$user->hasAccess('budget.admin'))
+		{
+			$userDeptId = $user->dept_id;
+			$query->where('departments.full_path', 'like', "%$userDeptId%");
+		}
+		
 		if ($deptId)
 		{
 			$query->where('departments.full_path', 'like', "%:$deptId:%");

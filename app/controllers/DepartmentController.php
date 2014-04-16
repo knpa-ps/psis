@@ -30,4 +30,49 @@ class DepartmentController extends BaseController {
 
 		return json_encode($result);
 	}
+
+	public function moveUp() {
+		$deptId = Input::get('value');
+
+		$dept = Department::where('id', '=', $deptId)->first();
+
+		if (!$dept) {
+			return App::abort(400);
+		}
+
+		$toParentId = $dept->parent_id;
+
+		$children = DB::table('departments')->select(array('id'))->where('full_path', 'like', '%:'.$dept->id.':%')->get();
+		$fromIds = array($deptId);
+		foreach ($children as $c) $fromIds[] = $c->id;
+
+		DB::table('departments')
+			->whereIn('id', $fromIds)
+			->update(array('is_alive'=>0));
+
+		$data = array();
+		foreach ($fromIds as $f) {
+			$d['dept_id_from'] = $f;
+			$d['dept_id_to'] = $toParentId;
+			$data[] = $d;
+		}
+
+		$is_terminal = DB::table('departments')->where('parent_id','=',$toParentId)->where('is_alive','=',1)->count()==0;
+		DB::table('departments')->where('id','=',$toParentId)->update(array('is_terminal'=>$is_terminal));
+
+		DB::table('dept_adjust')->insert($data);
+	}
+
+	public function adjust() {
+		$result = DB::table('dept_adjust')->get();
+		DB::beginTransaction();
+		foreach ($result as $res) {
+			DB::table('users')->where('dept_id', '=', $res->dept_id_from)
+			->update(array('dept_id'=>$res->dept_id_to));
+		}
+		DB::commit();
+		echo '<pre>';
+		print_r($result);
+		echo '</pre>';
+	}
 }

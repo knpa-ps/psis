@@ -19,7 +19,7 @@ class BgMealPayService {
 		if ($groupByRegion)
 		{
 			$selects[] = 
-				DB::raw('TRIM(REPLACE(LEFT(departments.full_name, LOCATE(":", departments.full_name, 2)), ":", " ")) AS dept_name');
+				DB::raw('LEFT(departments.full_name, LOCATE(" ", departments.full_name, 2) ) AS dept_name');
 		}
 		else
 		{

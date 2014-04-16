@@ -3,7 +3,9 @@
 class HomeController extends BaseController {
 	public function showDashboard()
 	{
-        return View::make('main');
+		$menuService = new MenuService;
+		$menus = $menuService->getMenuTree();
+        return View::make('main',get_defined_vars());
 	}
 
 	public function setConfigs()
