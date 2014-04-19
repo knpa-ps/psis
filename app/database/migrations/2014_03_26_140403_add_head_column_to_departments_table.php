@@ -12,7 +12,7 @@ class AddHeadColumnToDepartmentsTable extends Migration {
 	public function up()
 	{
 		Schema::table('departments', function(Blueprint $table) {
-			$table->smallInteger('head');
+			$table->tinyInteger('is_head')->default(0);
 		});
 	}
 	/**
@@ -23,7 +23,7 @@ class AddHeadColumnToDepartmentsTable extends Migration {
 	public function down()
 	{
 		Schema::table('departments', function(Blueprint $table) {
-			$table->dropColumn('head');
+			$table->dropColumn('is_head');
 		});
 	}
 }

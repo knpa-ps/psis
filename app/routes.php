@@ -36,7 +36,7 @@ Route::group(array('before'=>'guest'), function(){
         'before' => 'csrf',
         'uses' => 'AuthController@doRegister'
     ));
-    Route::get('/register', 'AuthController@showRegisterForm');
+    Route::get('/register', 'AuthController@showRegistrationForm');
 });
 
 //부서검색 관련
@@ -63,7 +63,6 @@ Route::group(array('before'=>'auth|menu'), function() {
 
     Route::group(array('before'=>'admin', 'prefix'=>'admin'), function(){
         Route::any('/', 'AdminController@showUserList');
-        Route::get('/adjustDepts', 'AdminController@adjustDepts');
         Route::get('/groups', 'AdminController@showGroupList');
 
         Route::get('/permissions', 'AdminController@showPermissions');
@@ -165,6 +164,3 @@ Route::group(array('before'=>'auth|menu'), function() {
 
     Route::get('download', 'FileController@download');
 });
-
-Route::get('moveup', 'DepartmentController@moveUp');
-Route::get('adjust', 'DepartmentController@adjust');

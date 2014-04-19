@@ -108,7 +108,8 @@ Route::filter('csrf', function()
 /**
  * View Composers
  */
-View::composer('layouts.master', 'LayoutComposer');
+
+View::composer('parts.notification', 'NotificationComposer');
 
 Route::filter('menu', function(){
 

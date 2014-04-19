@@ -12,8 +12,9 @@ class AdminController extends BaseController {
 
 	public function showGroupList()
 	{
+		$groups = Group::paginate(3);
 
-		return View::make('admin.groups');
+		return View::make('admin.groups', array('groups'=>$groups));
 	}
 
 	public function showUserList($data = array())

@@ -102,7 +102,14 @@ $(function(){
 			"sDom": "t<'row-fluid'<'span12'i>><'row-fluid'<'span12'<'pull-right'p>>>",
 		}));
 
-	$("#dept_tree").jstree({ "plugins" : [ "themes", "html_data" ] });
+	$("#dept_tree").jstree({ 
+		"plugins" : [ "themes", "html_data", "dnd" ],
+		"core" : {
+	      "check_callback" : function (operation, node, node_parent, node_position, more) {
+	      }
+	    }
+
+	});
 
 });
 </script>

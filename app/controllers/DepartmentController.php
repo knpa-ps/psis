@@ -64,15 +64,6 @@ class DepartmentController extends BaseController {
 	}
 
 	public function adjust() {
-		$result = DB::table('dept_adjust')->get();
-		DB::beginTransaction();
-		foreach ($result as $res) {
-			DB::table('users')->where('dept_id', '=', $res->dept_id_from)
-			->update(array('dept_id'=>$res->dept_id_to));
-		}
-		DB::commit();
-		echo '<pre>';
-		print_r($result);
-		echo '</pre>';
+		
 	}
 }

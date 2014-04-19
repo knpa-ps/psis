@@ -12,13 +12,6 @@
 */
 
 ClassLoader::addDirectories(array(
-
-	app_path().'/commands',
-	app_path().'/controllers',
-	app_path().'/models',
-	app_path().'/database/seeds',
-	app_path().'/services',
-	app_path().'/libraries/PHPExcel'
 ));
 
 /*
@@ -80,3 +73,43 @@ App::down(function()
 */
 
 require app_path().'/filters.php';
+
+
+/**
+ * gnuboard 링크 주소
+ * @param type $bo_table 
+ * @param type $wr_id 
+ * @return type
+ */
+if (!function_exists('board_url')) {
+	function board_url($bo_table, $wr_id = null) {
+		$params = array();
+		$params['bo_table'] = $bo_table;
+		if ($wr_id != null) {
+			$params['wr_id'] = $wr_id;
+		}
+
+		$url = Config::get('app.gnuboard_base_url').'?'.http_build_query($params);
+
+		return $url;
+	}
+}
+
+/**
+ * 문자열을 자른다. 만약 $len보다 짧으면 안 자름
+ * @param string $str 원본 문자열
+ * @param int $len 최대 길이
+ * @param string $suffix 말줄임표
+ * @return string 잘린 문자열
+ */
+if (!function_exists('cut_str')) {
+	function cut_str($str, $len, $suffix = '...') {
+		$charset = 'UTF-8';
+
+		if(mb_strlen($str, $charset) > $len) {
+		  $str = mb_substr($str, 0, $len, $charset) . $suffix;
+		}
+
+		return $str;
+	}
+}

@@ -1,7 +1,8 @@
 <?php 
 
 return array(
-
+    'notice'=>'공지사항',
+    
     'account_name' => '계정',
     'login_password' => '비밀번호',
     'login_remember' => '자동 로그인',

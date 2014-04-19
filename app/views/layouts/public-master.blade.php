@@ -6,41 +6,43 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<title>
-	    @if (empty($title))
-	        @lang('strings.site_title')
-	    @else
-	        {{ $title }} :: @lang('strings.site_title')
-	    @endif
+	<title> 
+		@lang('strings.site_title') :: 
+		{{ $title or '' }} 
 	</title>
 
-	{{ HTML::style('assets/css/bootstrap.min.css') }}
-	{{ HTML::style('assets/css/common.css') }}
-	{{ HTML::script('assets/js/vendor/respond.min.js') }}
-
-
-    @section('style')
+	{{ HTML::style('static/vendor/bootstrap/css/bootstrap.min.css') }}
+	{{ HTML::style('static/css/public.css') }}
+    <!--[if lt IE 9]>
+        {{ HTML::script('static/vendor/html5shiv/html5shiv.js') }}
+        {{ HTML::script('static/vendor/respond/respond.min.js') }}
+    <![endif]-->
+	<link rel="shortcut icon" href="{{ url('static/img/favicon.ico') }}?v=2">
+    @section('styles')
     @show
 </head>
 <body>
 
+@section('header')
+@show
+
 <div class="container">
-	@section('content-header')
-	@show
     @yield('content')
-    @section('content-footer')
-	@show
 </div>
 
-{{ HTML::script('assets/js/vendor/jquery-1.10.1.min.js') }}
-{{ HTML::script('assets/js/vendor/bootstrap.min.js') }}
-{{ HTML::script('assets/js/vendor/modernizr-2.6.2.min.js') }}
-{{ HTML::script('assets/js/vendor/jquery.placeholder.js') }}
-{{ HTML::script('assets/js/common.js') }}
-{{ HTML::script('assets/js/plugins.js') }}
+@include('parts.public-footer')
 
-@section('script')
+{{ HTML::script('static/vendor/jquery/jquery-1.10.2.min.js') }}
+{{ HTML::script('static/vendor/jquery/jquery-migrate-1.2.1.min.js') }}
+{{ HTML::script('static/vendor/bootstrap/js/bootstrap.min.js') }}
+{{ HTML::script('static/vendor/placeholder/jquery.placeholder.js') }}
+{{ HTML::script('static/js/app.js') }}
+
+@section('scripts')
 
 @show
+
+@include('parts.notification')
+
 </body>
 </html>

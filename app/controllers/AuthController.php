@@ -1,98 +1,88 @@
 <?php
 
 class AuthController extends BaseController {
+    private static $test;
 
-	public function showLogin($message = '', $loginAttempts = 0)
-	{
-        $attemptsLimit = Config::get('cartalyst/sentry::throttling.attempt_limit');
+	public function showLogin() {
+        $boardService = new BoardService;
+        $writes = $boardService->getLastest('notice', 5, 15);
 
-        if ($loginAttempts > 0) {
-           $message .= '\n\n'.Lang::get('strings.login_attempts_alert', array('limit'=>$attemptsLimit, 'attempts'=>$loginAttempts));
-        }
+        $data = array(
+                'writes' => $writes
+            );
 
-        return View::make('auth/login', array('message'=>$message));
+        return View::make('auth.login', $data);
 	}
 
-    public function doLogin()
-    {
-        $accountName = Input::get('account_name');
+    public function doLogin() {
+        $accountName = Input::get('account');
         $password = Input::get('password');
-        $remember = Input::get('remember') == TRUE;
+        $remember = Input::get('remember') == 1;
 
-        $accountNameLabel = Lang::get('labels.login_account_name');
-        $passwordLabel = Lang::get('labels.login_password');
-
-        $validator = Validator::make(array(
-                $accountNameLabel => $accountName,
-                $passwordLabel => $password
-            ),
+        $validator = Validator::make(Input::all(),
             array(
-                $accountNameLabel => 'required|alpha_dash|between:4,30',
-                $passwordLabel => 'required'
+                'account' => 'required|alpha_dash|between:4,255',
+                'password' => 'required|between:8,255'
             )
         );
 
         if ($validator->fails()) {
             $messages = $validator->messages()->all();
-            return $this->showLogin($messages[0], 0);
+            Log::error('login input validation failed. ');
+            Session::flash('message', Lang::get('error.invalid_input'));
+            return Redirect::action('AuthController@showLogin');
         }
 
-        $attempts = 0;
-        try
-        {
-            $throttle = Sentry::findThrottlerByUserLogin($accountName);
+        $message = '';
+
+        try {
+            
             $credentials = array(
                 'account_name' => $accountName,
                 'password'     => $password
             );
 
             $user = Sentry::authenticate($credentials, $remember);
-            Sentry::login($user, false);
+
+            Sentry::login($user, $remember);
+
+            Log::info('logged in: '.$accountName);
+
             return Redirect::to('/');
-        }
-        catch (Cartalyst\Sentry\Users\WrongPasswordException $e)
-        {
-            $message = Lang::get('strings.login_wrong_password');
-            if (isset($throttle) && !$throttle->isSuspended()) {
-                $throttle->addLoginAttempt();
 
-                $attempts = $throttle->getLoginAttempts();
-                $attemptLimit = Config::get('cartalyst/sentry::throttling.attempt_limit');
+        } catch (Cartalyst\Sentry\Users\WrongPasswordException $e) {
 
-                if ($attemptLimit <= $attempts) {
-                    $throttle->suspend();
-                    $throttle->clearLoginAttempts();
-                    $attempts = 0;
-                    $message = Lang::get('strings.login_attempts_reached_limit');
-                }
-            }
+            Log::error('login failed. '.$e->getMessage());
+            $message = Lang::get('error.wrong_password');
+
+        } catch (Cartalyst\Sentry\Users\UserNotFoundException $e) {
+
+            Log::error('login failed. '.$e->getMessage());
+            $message = Lang::get('error.user_not_found');
+
+        } catch (Cartalyst\Sentry\Users\UserNotActivatedException $e) {
+
+            Log::error('login failed. '.$e->getMessage());
+            $message = Lang::get('error.user_not_activated');
+
         }
-        catch (Cartalyst\Sentry\Users\UserNotFoundException $e)
-        {
-            $message = Lang::get('strings.login_user_not_found');
-        }
-        catch (Cartalyst\Sentry\Users\UserNotActivatedException $e)
-        {
-            $message = Lang::get('strings.login_user_not_activated');
-        }
-        // The following is only required if throttle is enabled
-        catch (Cartalyst\Sentry\Throttling\UserSuspendedException $e)
-        {
-            $message = Lang::get('strings.login_user_suspended');
-        }
-        catch (Cartalyst\Sentry\Throttling\UserBannedException $e)
-        {
-            $message = Lang::get('strings.login_user_banned');
-        }
-        return $this->showLogin($message, $attempts);
+
+        Session::flash('message', $message);
+
+        return Redirect::action('AuthController@showLogin');
     }
 
     public function doLogout() {
+        
+        $accountName = Sentry::getUser()->account_name;
         Sentry::logout();
-        return Redirect::to('/');
+
+        Log::info('logged out: '.$accountName);
+
+        return Redirect::action('AuthController@showLogin');
     }
 
-    public function showRegisterForm($data = array()) {
+    public function showRegistrationForm($data = array()) {
         $codes = Code::in('H001');
         $codeSelectItems = array();
         foreach ($codes as $code) {

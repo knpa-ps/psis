@@ -1,6 +1,7 @@
 <?php
 
 return array(
+	'gnuboard_base_url' => isset($_SERVER['HTTP_HOST'])?'http://'.$_SERVER['HTTP_HOST'].'/gnuboard/bbs/board.php':'',
 
 	'uploadPath' => '/Users/projet6634/Sites/uploads/',
 
