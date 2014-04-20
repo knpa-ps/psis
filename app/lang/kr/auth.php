@@ -11,5 +11,22 @@ return array(
     'th_notice_title' => '제목',
     'th_notice_date' => '날짜',
     'registration_success' => '회원가입이 완료되었습니다.\n관리자의 승인 후 사용하실 수 있습니다.',
-    'duplicate_account' => '이미 존재하는 계정입니다. 다시 입력해주세요'
+    'duplicate_account' => '이미 존재하는 계정입니다. 다시 입력해주세요',
+    't_register'=>'회원가입',
+    'lb_basicinfo'=>'기본정보',
+    'lb_rankname'=>'계급/이름',
+    'lb_password_confirm'=>'비밀번호 확인',
+    'lb_office'=>'관서',
+    'lb_contact'=>'연락처',
+    'lb_general'=>'일반',
+    'lb_guard'=>'경비',
+    'lb_cellphone'=>'핸드폰',
+    'lb_system_purpose'=>'시스템 사용목적',
+    'system_purpose_detail'=>'사용할 시스템을 선택해주세요. 해당 지방청 관리자 또는 본청 관리자의 승인 후 사용하실 수 있습니다.',
+    'lb_guard_news'=>'경비속보',
+    'lb_not_in_use'=>'미사용',
+    'lb_general_user'=>'일반 사용자',
+    'lb_division_manager'=>'분임관리자',
+    'lb_guard_budget_manage'=>'경비예산관리',
+    'btn_register_request'=>'가입신청'
 );
