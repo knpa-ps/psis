@@ -2,6 +2,11 @@
 
 class AdminController extends BaseController {
 
+
+	public function conflictTest2() {
+		
+	}
+
 	public function __constrct()
 	{
 		if (!Sentry::getUser()->hasAccess('admin'))
