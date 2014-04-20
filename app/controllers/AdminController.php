@@ -2,8 +2,7 @@
 
 class AdminController extends BaseController {
 
-
-	public function conflictTest2() {
+	public function conflictTest() {
 		
 	}
 
