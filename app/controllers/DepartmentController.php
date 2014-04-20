@@ -2,33 +2,37 @@
 
 class DepartmentController extends BaseController {
 
-	public function showDeptTree() {
-		$title = Lang::get('strings.title_dept_list');
-		return View::make('dept/dept_list', array('title'=>$title));
+	private $service;
+
+	public function __construct() {
+		$this->service = new DepartmentService;
 	}
 
-	public function getChildren() {
-		$root = Input::get('root');
+	public function getTreeNodes() {
+		$parentId = Input::get('id');
 
-		if ($root == 'source') {
-			$depts = Department::children(0);
-		} else {
-			$depts = Department::children($root);
-		}
+		$depts = $this->service->getAliveChildren($parentId === '#' ? null : $parentId);
 
-		$result = array();
+		$nodes = array();
 
-		foreach ($depts as $dept) 
-		{
-			$result[] = array(
-					'text'=>$dept->dept_name,
-					'hasChildren'=>$dept->is_terminal == 0,
-					'id'=>$dept->id,
-					'data'=>$dept->parseFullName()
+		foreach ($depts as $dept) {
+			$nodes[] = array(
+					'id' => $dept->id,
+					'text' => $dept->dept_name,
+					'children' => $dept->is_terminal?array():true,
+					'li_attr' => array( 
+						'data-full-name' => $dept->full_name,
+						'data-selectable' => $dept->is_selectable
+						)
 				);
 		}
 
-		return json_encode($result);
+		return $nodes;
+	}
+
+	public function showDeptTree() {
+		$title = Lang::get('strings.title_dept_list');
+		return View::make('dept/dept_list', array('title'=>$title));
 	}
 
 	public function moveUp() {

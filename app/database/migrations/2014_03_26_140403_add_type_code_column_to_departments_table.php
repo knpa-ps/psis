@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class AddHeadColumnToDepartmentsTable extends Migration {
+class AddTypeCodeColumnToDepartmentsTable extends Migration {
 	/**
 	 * Run the migrations.
 	 *
@@ -12,7 +12,7 @@ class AddHeadColumnToDepartmentsTable extends Migration {
 	public function up()
 	{
 		Schema::table('departments', function(Blueprint $table) {
-			$table->tinyInteger('is_head')->default(0);
+			$table->string('type_code', 4)->index();
 		});
 	}
 	/**
@@ -23,7 +23,7 @@ class AddHeadColumnToDepartmentsTable extends Migration {
 	public function down()
 	{
 		Schema::table('departments', function(Blueprint $table) {
-			$table->dropColumn('is_head');
+			$table->dropColumn('type_code');
 		});
 	}
 }

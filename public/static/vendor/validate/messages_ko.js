@@ -20,6 +20,7 @@
 		rangelength: $.validator.format("문자 길이가 {0} 에서 {1} 사이의 값을 입력하세요."),
 		range: $.validator.format("{0} 에서 {1} 사이의 값을 입력하세요."),
 		max: $.validator.format("{0} 이하의 값을 입력하세요."),
-		min: $.validator.format("{0} 이상의 값을 입력하세요.")
+		min: $.validator.format("{0} 이상의 값을 입력하세요."),
+		alphanumeric: "알파벳, 숫자, 그리고 언더바(_)만 사용 가능합니다."
 	});
 }(jQuery));

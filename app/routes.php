@@ -164,3 +164,11 @@ Route::group(array('before'=>'auth|menu'), function() {
 
     Route::get('download', 'FileController@download');
 });
+
+Route::group(array('before'=>'ajax', 'prefix'=>'ajax'), function() {
+    Route::post('dept_select_tree', function() {
+        return View::make('widget.dept-selector-tree', Input::all());
+    });
+
+    Route::any('dept_tree', 'DepartmentController@getTreeNodes');
+});

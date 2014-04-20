@@ -14,6 +14,10 @@ class Code extends Eloquent {
 		return $this->belongsTo('CodeCategory', 'category_code', 'category_code');
 	}
 
+	public function scopeVisible($query) {
+		return $query->where('visible', '=', 1);
+	}
+
 	/**
 	 * @deprecated use in($categoryCode)
 	 * @param  [type] $categoryCode

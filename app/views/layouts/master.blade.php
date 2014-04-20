@@ -9,7 +9,7 @@
     </title>
 
     <!-- The styles -->
-    {{ HTML::style('static/vendor/bootstrap/css/bootstrap.min.css') }}
+    {{ HTML::style('static/vendor/bootstrap/css/bootstrap-yeti.min.css') }}
     {{ HTML::style('static/css/app.css') }}
     <link rel="shortcut icon" type="image/x-icon" href="{{ url('static/img/favicon.ico') }}">
     <!-- The HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -20,6 +20,9 @@
 
     @section('styles')
     @show
+    
+    {{ HTML::script('static/vendor/jquery/jquery-1.10.2.min.js') }}
+    {{ HTML::script('static/vendor/jquery/jquery-migrate-1.2.1.min.js') }}
 </head>
 <body>
 
@@ -57,8 +60,6 @@
     </div>
 </footer>
 
-{{ HTML::script('static/vendor/jquery/jquery-1.10.2.min.js') }}
-{{ HTML::script('static/vendor/jquery/jquery-migrate-1.2.1.min.js') }}
 {{ HTML::script('static/vendor/bootstrap/js/bootstrap.min.js') }}
 {{ HTML::script('static/js/app.js') }}
 

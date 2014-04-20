@@ -70,8 +70,11 @@ class Department extends Eloquent {
 	 * 지방청 목록
 	 * @return Collection<Dpeartment> 지방청들 
 	 */
-	public function scopeRegions()
-	{
-		return self::where('parent_id', '=', 0)->orderBy('sort_order','asc')->get();
+	public function scopeRegions($query) {
+		return $query->where('parent_id', '=', 0);
+	}
+
+	public function scopeAlive($query) {
+		return $query->where('is_alive', '=', 1);
 	}
 }

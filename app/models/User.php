@@ -1,9 +1,6 @@
 <?php
 
-class User extends Eloquent {
-	protected $guarded = array();
-
-	public static $rules = array();
+class User extends Cartalyst\Sentry\Users\Eloquent\User {
 
 	public function rank()
 	{

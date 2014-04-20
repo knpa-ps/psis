@@ -1,15 +1,9 @@
 @extends('layouts.public-master')
 
 @section('content')
-
-<div class="row">
-    <div class="col-xs-12" id="logo_container">
-        <img src="{{ url('static/img/login_logo.png') }}" alt="logo" height="400">
-    </div>
-</div>
-
 <div class="row" id="content_container">
     <div class="col-xs-4 col-xs-offset-2">
+
         <div class="panel panel-default" id="login_panel">
             <div class="panel-heading">
                 <h3 class="panel-title"> @lang('auth.t_portal') </h3>

@@ -1,12 +1,6 @@
-#logo_container {
-	text-align: center;
-	padding-top: 70px;
-}
-#content_container {
-	margin-top: 40px;
-}
+
 #content_container .panel-body {
-	height: 300px;
+	height: 330px;
 }
 #notice_container {
 	height: 179px

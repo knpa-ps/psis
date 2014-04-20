@@ -1,7 +1,33 @@
+/**
+ * 부서선택 인풋 관련 {{{
+ */ 
+.form-horizontal .dept-selector .dept-name {
+  cursor: pointer;
+}
+.form-horizontal .dept-selector .form-control-feedback {
+  color:black;
+  right: 0;
+}
+.form-horizontal .dept-selector .form-control-feedback:hover {
+  color:red;
+}
+/** }}} */
+
+form label.error {
+  color: red;
+}
+#logo_container {
+  text-align: center;
+  margin-top: 70px;
+  margin-bottom: 40px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background: url('../img/login_logo_background.png') repeat-x;
+}
+
 .placeholder { color: #aaa; }
 
 body {
-  background: url('../img/login_background.jpg') center no-repeat;
   font-family: "맑은 고딕","Malgun Gothic","나눔고딕",NanumGothic,"돋움",dotum,"Georgia Pro",Arial !important;
 }
 

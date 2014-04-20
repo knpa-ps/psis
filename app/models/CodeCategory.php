@@ -13,4 +13,7 @@ class CodeCategory extends Eloquent {
         return $this->hasMany('Code', 'category_code', 'category_code');
     }
 
+    public function scopeOfName($query, $name) {
+    	return $query->where('category_code', '=', $name);
+    }
 }

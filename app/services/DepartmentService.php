@@ -2,6 +2,26 @@
 
 class DepartmentService extends BaseService {
 
+	public function getAliveChildren($parentId = null) {
+		
+		if ($parentId === null) {
+
+			$depts = Department::regions()->alive();
+
+		} else {
+
+			$parent = Department::find($parentId);
+
+			if ($parent === null) {
+				throw new Exception('department does not exists with id='.$parentId);
+			}
+
+			$depts = $parent->children()->alive();
+		}
+
+		return $depts->orderBy('sort_order', 'asc')->get();
+	}
+
 	/**
 	 * 부서의 depth, full path, terminal 등 부서 계층에 관련된 정보들을 조정한다.
 	 * @param int 이 부서의 하위부서들에 대한 계층 정보를 조정한다.

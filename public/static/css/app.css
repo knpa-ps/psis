@@ -1,3 +1,22 @@
+/**
+ * 부서선택 인풋 관련 {{{
+ */ 
+.form-horizontal .dept-selector .dept-name {
+  cursor: pointer;
+}
+.form-horizontal .dept-selector .form-control-feedback {
+  right: 0;
+  color:black;
+}
+.form-horizontal .dept-selector .form-control-feedback:hover {
+  color:red;
+}
+/** }}} */
+
+form label.error {
+  color: red;
+}
+
 .placeholder { color: #aaa; }
 
 body {
