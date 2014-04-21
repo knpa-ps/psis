@@ -45,7 +45,7 @@
                         {{ Form::submit(Lang::get('auth.btn_login'), array('class'=>'btn btn-lg btn-success btn-block')) }}
 
                         <a id="register_btn" 
-                        href="{{ action('AuthController@showRegistrationForm') }}" 
+                        href="{{ action('AuthController@displayRegistrationForm') }}" 
                         class="btn btn-lg btn-info btn-block"> @lang('auth.btn_register') </a>
                     </fieldset>
                 {{ Form::close() }}

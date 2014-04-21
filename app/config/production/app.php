@@ -3,7 +3,6 @@
 return array(
 	'gnuboard_base_url' => isset($_SERVER['HTTP_HOST'])?'http://'.$_SERVER['HTTP_HOST'].'/gnuboard/bbs/board.php':'',
 	
-	'uploadPath' => '/volume2/services/web/psis/uploads/',
 	/*
 	|--------------------------------------------------------------------------
 	| Application Debug Mode
@@ -112,7 +111,7 @@ return array(
 
         'Way\Generators\GeneratorsServiceProvider',
         'Cartalyst\Sentry\SentryServiceProvider',
-        'Bllim\Datatables\DatatablesServiceProvider',
+        'Chumper\Datatable\DatatableServiceProvider'
 
     ),
 
@@ -180,7 +179,7 @@ return array(
 		'Validator'       => 'Illuminate\Support\Facades\Validator',
 		'View'            => 'Illuminate\Support\Facades\View',
         'Sentry' 		  => 'Cartalyst\Sentry\Facades\Laravel\Sentry',
-        'Datatables'      => 'Bllim\Datatables\Datatables',
+        'Datatable'	      => 'Chumper\Datatable\Facades\DatatableFacade'
     ),
 
 );

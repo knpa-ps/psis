@@ -1,3 +1,20 @@
+.toolbar-table {
+  margin-bottom: 10px;
+}
+
+.dropdown.dropdown-hover:hover .dropdown-menu {
+    display: block;
+}
+.glyphicon {
+  margin-top: 3px;
+}
+.black {
+  color:black;
+}
+#container {
+  margin-top: 60px;
+}
+
 /**
  * 부서선택 인풋 관련 {{{
  */ 
@@ -18,6 +35,16 @@ form label.error {
 }
 
 .placeholder { color: #aaa; }
+
+#footer {
+  margin-top: 50px;
+  padding-top: 30px;
+  border-top: 1px solid #666;
+}
+
+#footer {
+  color: black;
+}
 
 body {
   font-family: "맑은 고딕","Malgun Gothic","나눔고딕",NanumGothic,"돋움",dotum,"Georgia Pro",Arial !important;
@@ -86,7 +113,6 @@ body {
 .navbar .navbar-nav .open .dropdown-menu {
   position: absolute;
   float: left;
-  background-color: #fff;
   border: 1px solid #ccc;
   border: 1px solid rgba(0, 0, 0, .15);
   border-width: 0 1px 1px;

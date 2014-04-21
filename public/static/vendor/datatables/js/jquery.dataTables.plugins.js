@@ -1,8 +1,7 @@
 var dtOptions = {
-		"bSort": false,
-		"bAutoWidth":false,
-		"iDisplayLength":25,
-		"sDom": "<'row-fluid'<'span6'l><'span6'<'pull-right'f>>r>t<'row-fluid'<'span12'i>><'row-fluid'<'span12'<'pull-right'p>>>",
+		"bAutoWidth": false,
+		"iDisplayLength": 25,
+		"sDom": "<'row'<'col-xs-6'l><'col-xs-6'<'pull-right'f>>r>t<'row'<'col-xs-12'i>><'row'<'col-xs-12'<'pull-right'p>>>",
 		"sPaginationType": "bootstrap",
 		"oLanguage": {
 			"oPaginate": {
@@ -23,23 +22,23 @@ var dtOptions = {
 		}
 };
 
-$(document).on('click', '.datatable.multi-selectable tbody tr', function(){
+$(".datatable.multi-selectable").on('click', 'tbody tr', function(){
     $(this).toggleClass('row-selected');
 });
-$(document).on('click', '.datatable.single-selectable tbody tr', function(){
+
+$(".datatable.single-selectable").on('click', 'tbody tr', function(){
     if ( $(this).hasClass('row-selected') ) {
         $(this).removeClass('row-selected');
-    }
-    else {
+    } else {
         $(this).closest('.datatable.single-selectable').find('tr.row-selected').removeClass('row-selected');
         $(this).addClass('row-selected');
     }
 });
 
-function fnGetSelected( oTableLocal )
-{
+function fnGetSelected( oTableLocal ) {
     return oTableLocal.$('tr.row-selected');
 }
+
 //additional functions for data table
 $.fn.dataTableExt.oApi.fnPagingInfo = function ( oSettings )
 {
@@ -53,6 +52,7 @@ $.fn.dataTableExt.oApi.fnPagingInfo = function ( oSettings )
 		"iTotalPages":    Math.ceil( oSettings.fnRecordsDisplay() / oSettings._iDisplayLength )
 	};
 }
+
 $.extend( $.fn.dataTableExt.oPagination, {
 	"bootstrap": {
 		"fnInit": function( oSettings, nPaging, fnDraw ) {
@@ -65,9 +65,9 @@ $.extend( $.fn.dataTableExt.oPagination, {
 			};
 
 			$(nPaging).addClass('pagination').append(
-				'<ul>'+
-					'<li class="prev disabled"><a href="#">&larr; '+oLang.sPrevious+'</a></li>'+
-					'<li class="next disabled"><a href="#">'+oLang.sNext+' &rarr; </a></li>'+
+				'<ul class="pagination">'+
+					'<li class="prev disabled"><a href="#">«</a></li>'+
+					'<li class="next disabled"><a href="#">»</a></li>'+
 				'</ul>'
 			);
 			var els = $('a', nPaging);

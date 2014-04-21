@@ -2,6 +2,11 @@
 
 class UserController extends BaseController {
 
+	public function showProfile() {
+
+		return View::make('user.profile');
+	}
+
 	public function isUniqueAccountName()
 	{
 		$account = Input::get('value');

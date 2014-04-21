@@ -7,8 +7,8 @@
 		"laravel/framework": "4.1.*",
         "way/generators": "dev-master",
         "cartalyst/sentry": "2.0.*",
-        "bllim/datatables" : "*",
-        "codeplex/phpexcel": "dev-master"
+        "codeplex/phpexcel": "dev-master",
+        "chumper/datatable": "2.*"
 	},
 	"autoload": {
 		"classmap": [

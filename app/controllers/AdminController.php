@@ -2,16 +2,68 @@
 
 class AdminController extends BaseController {
 
-	public function conflictTest() {
-		
+	public function displayDashboard() {
+		return View::make('admin.dashboard');
 	}
 
-	public function __constrct()
-	{
-		if (!Sentry::getUser()->hasAccess('admin'))
-		{
-			return App::abort(404, "unauthorized action");
-		}
+	public function displayMenuTree() {
+		$groups = Group::all();
+		return View::make('admin.menus', array('groups'=>$groups));
+	}
+
+	public function displayUserGroups() {
+		$groups = Group::with('users')->paginate(15);
+
+		return View::make('admin.groups', array('groups'=>$groups));
+	}
+
+	/**
+	 * 그룹 목록 데이터 가져오기
+	 */
+	public function getUserGroupsData() {
+
+	}
+
+	/**
+	 * 그룹 생성
+	 */
+	public function insertUserGroup() {
+
+	}
+
+	/**
+	 * 그룹 삭제
+	 */
+	public function deleteUserGroup() {
+
+	}
+
+	/**
+	 * 그룹 정보 수정
+	 */
+	public function editUserGroup() {
+
+	}
+
+	/**
+	 * 그룹 소속 사용자 목록 데이터 가져오기
+	 */
+	public function getUserGroupUsersData() {
+
+	}
+
+	/**
+	 * 그룹에 사용자 추가
+	 */
+	public function addUsersToUserGroup() {
+
+	}
+
+	/**
+	 * 그룹에서 사용자 제거
+	 */
+	public function removeUsersFromUserGroup() {
+
 	}
 
 	public function showGroupList()
@@ -345,11 +397,6 @@ class AdminController extends BaseController {
 		}
 
 		return json_encode(array('type'=>'success','layout'=>'topRight','text'=>Lang::get('strings.success')));
-	}
-
-	public function showMenus() 
-	{
-		return View::make('admin.tmp');
 	}
 
 	public function addDept()

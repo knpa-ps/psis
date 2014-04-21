@@ -21,16 +21,18 @@ App::after(function($request, $response)
 });
 
 App::error(function($e, $code){
+
 	if (Request::ajax()) {
-		return Response::make($e->getMessage(), $code); 
+
+		return Response::make($e->getMessage(), $code);
 	} else {
-		switch ($code) {
-			case 404:
-			case 403:
-				$header = '권한 없음';
-				$message = '해당 작업에 대한 권한이 없습니다. 관리자에게 문의해주세요.';
-				return View::make('errors.error', array('header'=>$header,'message'=>$message));
-		}
+		// TODO
+		// switch ($code) {
+		// 	case 403:
+		// 		$header = '권한 없음';
+		// 		$message = '해당 작업에 대한 권한이 없습니다. 관리자에게 문의해주세요.';
+		// 		return View::make('errors.error', array('header'=>$header,'message'=>$message));
+		// }
 	}
 });
 
@@ -52,22 +54,7 @@ Route::filter('auth', function()
 
 Route::filter('ajax', function()
 {
-	if (!Request::ajax()) return App::abort(403, 'Unauthorized Action');
-});
-
-Route::filter('admin', function()
-{
-	try 
-	{
-		if (!Sentry::getUser()->hasAccess('admin'))
-		{
-			return App::abort(403, 'Unauthorized Action');
-		}
-	}
-	catch (Cartalyst\Sentry\UserNotFoundException $e)
-	{
-	    return Redirect::to('/');
-	}
+	if (!Request::ajax()) return App::abort(400);
 });
 
 /*
@@ -110,15 +97,16 @@ Route::filter('csrf', function()
  */
 
 View::composer('parts.notification', 'NotificationComposer');
+View::composer('widget.sidebar-profile', 'SidebarProfileComposer');
+View::composer('layouts.master', 'MenuComposer');
+
+Route::filter('permission', function($route, $request, $permission) {
+	if (!Sentry::hasAccess($permission)) {
+		return App::abort(403);
+	}
+});
 
 Route::filter('menu', function(){
-
-	$action = Route::currentRouteAction();
-	$routes = explode('@', $action);
-	$method = $routes[1];
-	if (substr($method, 0, 4) == 'show')
-	{
-		$menuService = new MenuService;
-		$menuService->setActiveMenu($action);
-	}
+	$service = new MenuService;
+	$service->activateMenuByUrl(Request::path());
 });

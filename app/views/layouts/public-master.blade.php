@@ -8,8 +8,9 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
 	<title> 
-		@lang('strings.site_title') :: 
-		{{ $title or '' }} 
+		@lang('global.t_portal') 
+		:: 
+		{{ $title or '' }}
 	</title>
 
 	{{ HTML::style('static/vendor/bootstrap/css/bootstrap-yeti.min.css') }}

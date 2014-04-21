@@ -3,7 +3,7 @@
 class AuthController extends BaseController {
     private static $test;
 
-	public function showLogin() {
+	public function displayLogin() {
         $boardService = new BoardService;
         $writes = $boardService->getLastest('notice', 5, 15);
 
@@ -30,7 +30,7 @@ class AuthController extends BaseController {
             $messages = $validator->messages()->all();
             Log::error('login input validation failed. ');
             Session::flash('message', Lang::get('error.invalid_input'));
-            return Redirect::action('AuthController@showLogin');
+            return Redirect::action('AuthController@displayLogin');
         }
 
         $message = '';
@@ -69,7 +69,7 @@ class AuthController extends BaseController {
 
         Session::flash('message', $message);
 
-        return Redirect::action('AuthController@showLogin');
+        return Redirect::action('AuthController@displayLogin');
     }
 
     public function doLogout() {
@@ -78,11 +78,12 @@ class AuthController extends BaseController {
         Sentry::logout();
 
         Log::info('logged out: '.$accountName);
+        Session::flash('message', Lang::get('auth.logged_out'));
 
-        return Redirect::action('AuthController@showLogin');
+        return Redirect::action('AuthController@displayLogin');
     }
 
-    public function showRegistrationForm($form = array()) {
+    public function displayRegistrationForm($form = array()) {
         $codes = CodeCategory::ofName('H001')->first()->codes()->visible()->get();
 
         $userRanks = array();
@@ -125,7 +126,7 @@ class AuthController extends BaseController {
         if ($validator->fails()) {
             Log::error('registration input validation failed. ');
             Session::flash('message', Lang::get('error.invalid_input'));
-            return $this->showRegistrationForm($form);
+            return $this->displayRegistrationForm($form);
         }
 
         // do register
@@ -143,15 +144,15 @@ class AuthController extends BaseController {
                     break;
             }
 
-            return $this->showRegistrationForm($form);
+            return $this->displayRegistrationForm($form);
         }
 
         // success!
         Session::flash('message', Lang::get('auth.registration_success'));
-        return Redirect::action('AuthController@showLogin');
+        return Redirect::action('AuthController@displayLogin');
     }
 
-    public function showChangePassword() 
+    public function displayChangePassword() 
     {
 
     }

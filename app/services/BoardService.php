@@ -1,7 +1,7 @@
 <?php 
 
 class BoardService {
-
+	
 	public function getLastest($board, $count = 5, $subjectLength = 20) {
 
 		$table = 'g5_write_'.$board;

@@ -29,8 +29,19 @@ $(function() {
 		}
 		popup(url, 900, 800);
 	});
+
+	$("#logout").on('click', function() {
+		if (!confirm('로그아웃 하시겠습니까?')) {
+			return;
+		}
+
+		redirect(base_url+"/logout");
+	});
 });
 
+$( document ).ajaxError(function( event, jqxhr, settings, exception ) {
+	alert('서버에서 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.');
+});
 
 // dept-selector
 $(function() {
