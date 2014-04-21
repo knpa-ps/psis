@@ -14,7 +14,9 @@
     <div class="col-xs-8 col-xs-offset-2">
         <div class="panel panel-default" id="register_panel">
             <div class="panel-heading">
-                <h4 class="panel-title">회원가입</h4>
+                <h4 class="panel-title">
+                    @lang('auth.t_register')
+                </h4>
             </div>
             <div class="panel-body">
                 {{ Form::open(array('action'=>'AuthController@doRegister', 
@@ -25,12 +27,16 @@
                                     'novalidate'=>'')) }}
 
                 <fieldset>
-                    <legend><h5><span class="glyphicon glyphicon-user"></span> 기본정보</h5></legend>
+                    <legend><h5><span class="glyphicon glyphicon-user"></span>
+                        @lang('auth.lb_basicinfo')
+                    </h5></legend>
                     
                     <div class="row">
                         <!-- 계정, 계급/이름 -->
                         <div class="form-group col-xs-6">
-                            <label for="account_name" class="col-xs-4 control-label">계정</label>
+                            <label for="account_name" class="col-xs-4 control-label">
+                                @lang('auth.lb_account')
+                            </label>
                             <div class="col-xs-8">
                                 
                                 {{ Form::text('account_name', $form['account_name'], array(
@@ -43,7 +49,9 @@
                         </div>
                         
                         <div class="form-group col-xs-6">
-                            <label for="user_name" class="col-xs-4 control-label">계급/이름</label>
+                            <label for="user_name" class="col-xs-4 control-label">
+                                @lang('auth.lb_rankname')
+                            </label>
                             <div class="col-xs-4">
                                 {{ Form::select('user_rank', $userRanks, null, array(
                                     'class'=>'form-control',
@@ -61,7 +69,9 @@
                     <div class="row">
                         <!-- 비밀번호, 비밀번호 확인 -->
                         <div class="form-group col-xs-6">
-                            <label for="password" class="col-xs-4 control-label">비밀번호</label>
+                            <label for="password" class="col-xs-4 control-label">
+                                @lang('auth.lb_password')
+                            </label>
                             <div class="col-xs-8">
                                 {{ Form::password('password', array(
                                     'class'=>'form-control',
@@ -71,7 +81,9 @@
                         </div>
 
                         <div class="form-group col-xs-6">
-                            <label for="account_name" class="col-xs-4 control-label">비밀번호 확인</label>
+                            <label for="account_name" class="col-xs-4 control-label">
+                                @lang('auth.lb_password_confirm')
+                            </label>
                             <div class="col-xs-8">
                                {{ Form::password('password_confirmation', array(
                                     'class'=>'form-control',
@@ -84,7 +96,9 @@
                     <div class="row">
                         <!-- 부서 -->
                         <div class="form-group col-xs-6">
-                            <label for="dept_id" class="col-xs-4 control-label">관서</label>
+                            <label for="dept_id" class="col-xs-4 control-label">
+                                @lang('auth.lb_office')
+                            </label>
                             <div class="col-xs-8">
                                 {{ View::make('widget.dept-selector', array('id'=>'dept_id')) }}
                             </div>
@@ -94,11 +108,15 @@
                 </fieldset>
 
                 <fieldset>
-                    <legend><h5><span class="glyphicon glyphicon-phone"></span> 연락처</h5></legend>
+                    <legend><h5><span class="glyphicon glyphicon-phone"></span>
+                        @lang('auth.lb_contact')
+                    </h5></legend>
 
                     <!-- 연락처 -->
                     <div class="form-group col-xs-4">
-                        <label for="contact" class="col-xs-4 control-label">일반</label>
+                        <label for="contact" class="col-xs-4 control-label">
+                            @lang('auth.lb_general')
+                        </label>
                         <div class="col-xs-8">
                             {{ Form::text('contact', $form['contact'], array(
                                 'class'=>'form-control',
@@ -108,7 +126,9 @@
                     </div>
 
                     <div class="form-group col-xs-4">
-                        <label for="contact_extension" class="col-xs-4 control-label">경비</label>
+                        <label for="contact_extension" class="col-xs-4 control-label">
+                            @lang('auth.lb_guard')
+                        </label>
                         <div class="col-xs-8">
                             {{ Form::text('contact_extension', $form['contact_extension'], array(
                                 'class'=>'form-control',
@@ -118,7 +138,9 @@
                     </div>
 
                     <div class="form-group col-xs-4">
-                        <label for="contact_phone" class="col-xs-4 control-label">핸드폰</label>
+                        <label for="contact_phone" class="col-xs-4 control-label">
+                            @lang('auth.lb_cellphone')
+                        </label>
                         <div class="col-xs-8">
                             {{ Form::text('contact_phone', $form['contact_phone'], array(
                                 'class'=>'form-control',
@@ -130,54 +152,69 @@
                 </fieldset> 
 
                 <fieldset>
-                    <legend><h5><span class="glyphicon glyphicon-tasks"></span> 시스템 사용목적
-                    <small>사용할 시스템을 선택해주세요. 해당 지방청 관리자 또는 본청 관리자의 승인 후 사용하실 수 있습니다.</small> </h5></legend>
+                    <legend><h5><span class="glyphicon glyphicon-tasks"></span> 
+                        @lang('auth.lb_system_purpose')
+                    <small>
+                        @lang('auth.system_purpose_detail')
+                    </small> </h5></legend>
 
                     <div class="form-group col-xs-6">
-                        <label class="col-xs-4 control-label">경비속보</label>
+                        <label class="col-xs-4 control-label">
+                            @lang('auth.lb_guard_news')
+                        </label>
                         <div class="col-xs-8">
                             <div class="radio">
                                 <label>
-                                    <input type="radio" value="none" name="groups[report]" checked> 미사용
+                                    <input type="radio" value="none" name="groups[report]" checked>
+                                    @lang('auth.lb_not_in_use')
                                 </label>
                             </div>
                             <div class="radio">
                                 <label>
-                                    <input type="radio" value="user" name="groups[report]"> 일반 사용자
+                                    <input type="radio" value="user" name="groups[report]">
+                                    @lang('auth.lb_general_user')
                                 </label>
                             </div>
                             <div class="radio">
                                 <label>
-                                    <input type="radio" value="admin" name="groups[report]"> 분임관리자
+                                    <input type="radio" value="admin" name="groups[report]">
+                                    @lang('auth.lb_division_manager')
                                 </label>
                             </div>
                         </div>
                     </div>
 
                     <div class="form-group col-xs-6">
-                        <label class="col-xs-4 control-label">경비예산관리</label>
+                        <label class="col-xs-4 control-label">
+                            @lang('auth.lb_guard_budget_manage')
+                        </label>
                         <div class="col-xs-8">
                             <div class="radio">
                                 <label>
-                                    <input type="radio" value="none" name="groups[budget]" checked> 미사용
+                                    <input type="radio" value="none" name="groups[budget]" checked>
+                                    @lang('auth.lb_not_in_use')
                                 </label>
                             </div>
                             <div class="radio">
                                 <label>
-                                    <input type="radio" value="user" name="groups[budget]"> 일반 사용자
+                                    <input type="radio" value="user" name="groups[budget]">
+                                    @lang('auth.lb_general_user')
                                 </label>
                             </div>
                             <div class="radio">
                                 <label>
-                                    <input type="radio" value="admin" name="groups[budget]"> 분임관리자
+                                    <input type="radio" value="admin" name="groups[budget]">
+                                    @lang('auth.lb_division_manager')
                                 </label>
                             </div>
                         </div>
                     </div>
 
                 </fieldset> 
-
-                <input type="submit" value="가입신청" class="btn btn-lg btn-block btn-primary">
+                
+                <button type="submit" class="btn btn-lg btn-block btn-primary">
+                    @lang('auth.btn_register_request')                    
+                </button>
 
                 {{ Form::close() }}
             </div>
