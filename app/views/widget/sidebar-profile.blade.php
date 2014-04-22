@@ -1,7 +1,7 @@
 <div class="row">
 	<div class="col-xs-12 well">
 		<p class="">
-			<a href="{{ action('UserController@showProfile') }}" class="black">
+			<a href="{{ action('UserController@displayProfile') }}" class="black">
 			<span class="glyphicon glyphicon-user"></span> {{ $user->rank->title or '' }} <b>{{ $user->user_name or '' }}</b>
 			</a>
 		</p>

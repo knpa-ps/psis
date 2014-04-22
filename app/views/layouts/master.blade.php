@@ -9,12 +9,12 @@
         :: 
         {{ $title or '' }}
     </title>
-
+    
     {{ HTML::style('static/vendor/bootstrap/css/bootstrap-yeti.min.css') }}
     {{ HTML::style('static/css/app.css') }}
     {{ HTML::style('static/vendor/bootstrap-modal/css/bootstrap-modal-bs3patch.css') }}
     {{ HTML::style('static/vendor/bootstrap-modal/css/bootstrap-modal.css') }}
-
+    
     <!--[if lt IE 9]>
         {{ HTML::script('static/vendor/html5shiv/html5shiv.js') }}
         {{ HTML::script('static/vendor/respond/respond.min.js') }}

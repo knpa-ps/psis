@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreatePsReportTempTable extends Migration {
+class CreateModUserTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,16 +12,17 @@ class CreatePsReportTempTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('ps_reports_temp', function(Blueprint $table) {
+		Schema::create('mod_user', function(Blueprint $table)
+		{
 			$table->increments('id');
-			$table->string('title', 1024);
-			$table->text('content');
-			$table->integer('creator_id')->unsigned();
+			$table->integer('user_id')->unsigned();
+			$table->string('user_name',20);
+			$table->string('user_rank',10);
+			$table->integer('dept_id');
 			$table->timestamps();
-
-			$table->index('creator_id');
 		});
 	}
+
 
 	/**
 	 * Reverse the migrations.
@@ -30,7 +31,7 @@ class CreatePsReportTempTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('ps_report_temp');
+		Schema::drop('mod_user');
 	}
 
 }
