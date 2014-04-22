@@ -41,10 +41,32 @@ class UserController extends BaseController {
 	}
 
 	public function displayPasswordMod() {
-		return View::make('user.password-mod');
+		$user = Sentry::getuser();
+		return View::make('user.password-mod',array('user'=>$user));
 	}
 
-	public function displayDropout() {
-		return View::make('user.dropout');
+	public function passwordMod() {
+
+		try
+		{
+		    $user = Sentry::getuser();
+
+		    if($user->checkPassword(Input::get('existing_pw')))
+		    {
+		        $user->password = Input::get('new_pw');
+				$user->save();	
+				Session::flash('message', '비밀번호가 변경되었습니다.');
+				return Redirect::action('UserController@displayPasswordMod');
+		    }
+		    else
+		    {
+		        Session::flash('message', '비밀번호가 틀렸습니다.');
+				return Redirect::action('UserController@displayPasswordMod');
+		    }
+		}
+		catch (Cartalyst\Sentry\Users\UserNotFoundException $e)
+		{
+		    echo 'User was not found.';
+		}
 	}
 }

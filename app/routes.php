@@ -38,7 +38,6 @@ Route::group(array('before'=>'auth'), function() {
 
     Route::get('/report', array('uses'=>'HomeController@displayDashboard'));    
     Route::get('/report/list', array('uses'=>'HomeController@displayDashboard'));
-    Route::get('/user/change_password', array('uses'=>'HomeController@displayDashboard'));
 
     Route::get('logout', 'AuthController@doLogout');
 
