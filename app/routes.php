@@ -70,13 +70,6 @@ Route::group(array('before'=>'auth'), function() {
 
         Route::resource('menu', 'MenuController');
     });
-
-    Route::group(array('prefix'=>'user'), function(){
-        Route::get('profile', array('uses'=>'UserController@showProfile'));
-        Route::get('profile_edit', 'UserController@showProfileEdit');
-        Route::post('contact_mod', 'UserController@contactMod');
-    });
-
 });
 
 /**
@@ -89,3 +82,4 @@ Route::group(array('before'=>'ajax', 'prefix'=>'ajax'), function() {
     Route::any('dept_tree', 'DepartmentController@getTreeNodes');
 });
 
+include('routes/users.php');
