@@ -4,59 +4,27 @@ class UserController extends BaseController {
 
 	public function showProfile() {
 
-		return View::make('user.profile');
+		$user = Sentry::getuser();
+		$groups = $user->groups;
+		return View::make('user.profile',array('user'=>$user, 'groups'=>$groups ));
 	}
 
-	public function isUniqueAccountName()
-	{
-		$account = Input::get('value');
-        $accountNameLabel = Lang::get('labels.login_account_name');
-        $validator = Validator::make(array(
-	        	$accountNameLabel => $account
-		    ),
-		    array(
-		        $accountNameLabel => 'unique:users,account_name'
-		    )
-		);
+	public function showProfileEdit() {
+		$codes = CodeCategory::ofName('H001')->first()->codes()->visible()->get();
 
-        $result = array("value"=>$account);
-
-		if ($validator->fails())
-		{
-			$result['valid'] = 0;
-			$result['message'] = $validator->messages()->first($accountNameLabel);
-		}
-		else
-		{
-			$result['valid'] = 1;
-			$result['message'] = '';
-		}
-
-		return json_encode($result);
+        $userRanks = array();
+        foreach ($codes as $code) {
+            $userRanks[$code->code] = $code->title;
+        }
+        $data['userRanks'] = $userRanks;
+		return View::make('user.profile_edit',$data);
 	}
 
-	public function changePassword()
-	{
-		$oldPw = Input::get('old_password');
-		$newPw = Input::get('password');
-
-		$validator = Validator::make(Input::all(),
-			array(
-				'old_password'=>'required',
-				'password'=>'required|min:8|confirmed'
-			));
-
-		if ($validator->fails()) {
-			return -1;
-		} 
-
-		if (!Sentry::checkPassword($oldPw)) {
-			return -2;
-		}
-
-		$user = Sentry::getUser();
-		$user->password = $newPw;
+	public function contactMod() {
+		$user = Sentry::getuser();
+		$user->contact = $contact;
+		$user->contact_extension = $contact_extension; 
+		$user->contact_phone = $contact_phone;
 		$user->save();
-		return 0;
 	}
 }
