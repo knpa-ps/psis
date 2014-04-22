@@ -16,7 +16,15 @@
       @endforeach
       </ul>
       <ul class="nav navbar-nav navbar-right">
-
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <span class="glyphicon glyphicon-user"></span> <b class="caret"></b>
+          </a>
+          <ul class="dropdown-menu">
+            <li><a href="{{ action('UserController@showProfile') }}"><span class="glyphicon glyphicon-exclamation-sign"></span> 내 정보</a></li>
+            <li><a href="#" id="logout"><span class="glyphicon glyphicon-log-out"></span> 로그아웃</a></li>
+          </ul>
+        </li>
       </ul>
     </div><!--/.nav-collapse -->
   </div>

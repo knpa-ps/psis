@@ -21,7 +21,14 @@ class AdminController extends BaseController {
 	 * 그룹 목록 데이터 가져오기
 	 */
 	public function getUserGroupsData() {
-
+		return Datatable::collection(Group::with('users')->get(array('id','name','key')))
+        ->showColumns('id', 'name', 'key')
+        ->addColumn('users_count', function($model) {
+        	return $model->users()->count();
+        })
+        ->searchColumns('name')
+        ->orderColumns('id')
+        ->make();
 	}
 
 	/**
@@ -35,7 +42,24 @@ class AdminController extends BaseController {
 	 * 그룹 삭제
 	 */
 	public function deleteUserGroup() {
+		
+		$group = Group::find(Input::get('group_id'));
 
+		if ($group === null) {
+			return App::abort(400);
+		}
+
+		$inputIds = Input::json();
+		
+		DB::beginTransaction();
+
+		foreach ($inputIds as $id) {
+			$group->users()->detach($id);
+		}
+
+		DB::commit();
+
+		return array('result'=>0, 'message'=>trans('global.done'));
 	}
 
 	/**
@@ -46,10 +70,28 @@ class AdminController extends BaseController {
 	}
 
 	/**
+	 * 사용자 선택 modal 출력
+	 */
+	public function displayUsersSelectModal() {
+		return View::make('widget.user-selector');
+	}
+
+	/**
 	 * 그룹 소속 사용자 목록 데이터 가져오기
 	 */
 	public function getUserGroupUsersData() {
-
+		return Datatable::query(Group::with('users')->where('id', '=', Input::get('group'))->first()->users())
+        ->showColumns('id', 'user_name')
+        ->addColumn('dept_full_name', function($model) {
+    		$dept = Department::find($model->dept_id);
+    		if ($dept === null) {
+    			return '';
+    		}
+        	return $dept->full_name;
+        })
+        ->searchColumns('name')
+        ->orderColumns('name')
+        ->make();
 	}
 
 	/**

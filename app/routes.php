@@ -60,7 +60,8 @@ Route::group(array('before'=>'auth'), function() {
             Route::post('groups/delete', 'AdminController@deleteUserGroup');
             Route::post('groups/edit', 'AdminController@editUserGroup');
 
-            Route::get('groups/users', 'AdminController@getUserGroupUsersData');
+            Route::get('groups/users', 'AdminController@displayUsersSelectModal');
+            Route::get('groups/users/data', 'AdminController@getUserGroupUsersData');
             Route::post('groups/users/add', 'AdminController@addUsersToUserGroup');
             Route::post('groups/users/remove', 'AdminController@removeUsersFromUserGroup');
 

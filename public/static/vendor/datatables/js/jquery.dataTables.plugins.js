@@ -1,7 +1,9 @@
-var dtOptions = {
+var dt_default = {
+		"bStateSave": true,
 		"bAutoWidth": false,
-		"iDisplayLength": 25,
-		"sDom": "<'row'<'col-xs-6'l><'col-xs-6'<'pull-right'f>>r>t<'row'<'col-xs-12'i>><'row'<'col-xs-12'<'pull-right'p>>>",
+		"iDisplayLength": 20,
+		"bLengthChange": false,
+		"sDom": "<'row'<'col-xs-7'f><'col-xs-5'<'pull-right'i>>>tr<'row'<'col-xs-12'<'pull-right'p>>>",
 		"sPaginationType": "bootstrap",
 		"oLanguage": {
 			"oPaginate": {
@@ -14,29 +16,63 @@ var dtOptions = {
 			"sZeroRecords": "자료가 없습니다.",
 			"sLengthMenu": "페이지당 _MENU_ 개 출력",
 			"sInfoEmpty": "",
-			"sInfo": "총 _TOTAL_개 중 _START_~_END_",
-			"sInfoFiltered": " - 전체 _MAX_개",
+			"sInfo": "자료 개수 : _TOTAL_",
+			"sInfoFiltered": "/ _MAX_",
 			"sLoadingRecords": "자료를 가져오는 중입니다...",
-			"sProcessing": "자료를 가져오는 중입니다...",
+			"sProcessing": "<img src='"+base_url+"/static/img/throbber.gif' /> 자료를 가져오는 중입니다..",
 			"sSearch": "결과 내 검색:"
+		},
+		"bServerSide": false,
+		"bProcessing": true,
+		"fnInitComplete": function() {
+			$(".dataTables_filter input").addClass('input-sm');
 		}
-};
+	};
+function dt_get_options(options) {
+	if (!options) {
+		return $.extend({}, dt_default);	
+	}
+	return $.extend({}, dt_default, options);
+}
 
-$(".datatable.multi-selectable").on('click', 'tbody tr', function(){
-    $(this).toggleClass('row-selected');
+$("table.multi-selectable").on('click', 'tbody tr', function(){
+    $(this).toggleClass('row-selected warning');
 });
 
-$(".datatable.single-selectable").on('click', 'tbody tr', function(){
+$("table.single-selectable").on('click', 'tbody tr', function(){
     if ( $(this).hasClass('row-selected') ) {
-        $(this).removeClass('row-selected');
+        $(this).removeClass('row-selected warning');
     } else {
-        $(this).closest('.datatable.single-selectable').find('tr.row-selected').removeClass('row-selected');
-        $(this).addClass('row-selected');
+        $(this).closest('table.single-selectable').find('tr.row-selected').removeClass('row-selected warning');
+        $(this).addClass('row-selected warning');
     }
+});
+
+$(".select-all").on('click', function() {
+	var checked = !$(this).hasClass('active');
+	var target_table_id = $(this).data('target');
+	var target_rows = $("#"+target_table_id+" tbody tr");
+	var icon = $(this).find('span.glyphicon');
+	if (checked) {
+		icon.addClass('glyphicon-check').removeClass('glyphicon-unchecked');
+		target_rows.addClass('row-selected warning');
+	} else {
+		icon.addClass('glyphicon-unchecked').removeClass('glyphicon-check');
+		target_rows.removeClass('row-selected warning');
+	}
 });
 
 function fnGetSelected( oTableLocal ) {
     return oTableLocal.$('tr.row-selected');
+}
+function fnGetSelectedIds(oTableLocal, idIdx) {
+	var selected = fnGetSelected(oTableLocal);
+	var ids = [];
+	selected.each(function() {
+		var data = oTableLocal.fnGetData(this);
+		ids.push(data[0]);
+	});
+	return ids;
 }
 
 //additional functions for data table
@@ -128,3 +164,45 @@ $.extend( $.fn.dataTableExt.oPagination, {
 		}
 	}
 });
+
+$.fn.dataTableExt.oApi.fnReloadAjax = function ( oSettings, sNewSource, fnCallback, bStandingRedraw )
+{
+    if ( typeof sNewSource != 'undefined' && sNewSource != null )
+    {
+        oSettings.sAjaxSource = sNewSource;
+    }
+    this.oApi._fnProcessingDisplay( oSettings, true );
+    var that = this;
+    var iStart = oSettings._iDisplayStart;
+      
+    oSettings.fnServerData( oSettings.sAjaxSource, [], function(json) {
+        /* Clear the old information from the table */
+        that.oApi._fnClearTable( oSettings );
+          
+        /* Got the data - add it to the table */
+        var aData =  (oSettings.sAjaxDataProp !== "") ?
+            that.oApi._fnGetObjectDataFn( oSettings.sAjaxDataProp )( json ) : json;
+          
+        for ( var i=0 ; i<json.aaData.length ; i++ )
+        {
+            that.oApi._fnAddData( oSettings, json.aaData[i] );
+        }
+          
+        oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+        that.fnDraw();
+          
+        if ( typeof bStandingRedraw != 'undefined' && bStandingRedraw === true )
+        {
+            oSettings._iDisplayStart = iStart;
+            that.fnDraw( false );
+        }
+          
+        that.oApi._fnProcessingDisplay( oSettings, false );
+          
+        /* Callback user function - for event handlers etc */
+        if ( typeof fnCallback == 'function' && fnCallback != null )
+        {
+            fnCallback( oSettings );
+        }
+    }, oSettings );
+}
