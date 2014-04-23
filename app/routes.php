@@ -63,7 +63,10 @@ Route::group(array('before'=>'auth'), function() {
             Route::get('groups/users/data', 'AdminController@getUserGroupUsersData');
             Route::post('groups/users/add', 'AdminController@addUsersToUserGroup');
             Route::post('groups/users/remove', 'AdminController@removeUsersFromUserGroup');
-
+            // 권한 관리
+            Route::get('permission', 'AdminController@displayPermissionMng');
+            Route::post('permission/get', 'AdminController@getPermission');
+            Route::post('permission/save', 'AdminController@savePermission');
 
         });
 

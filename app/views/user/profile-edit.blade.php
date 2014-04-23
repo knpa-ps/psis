@@ -30,7 +30,7 @@
 						</div>
 						<div class="form-group">
 							<div class="col-xs-4 col-xs-offset-2">
-								<button type="button" class="btn btn-primary btn-sm" id="save_request">변경신청</button>
+								<button type="button" class="btn btn-primary btn-xs" id="save_request">변경신청</button>
 							</div>
 						</div>
 					</fieldset>

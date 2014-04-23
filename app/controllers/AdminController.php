@@ -1,7 +1,45 @@
 <?php
 
 class AdminController extends BaseController {
+	public function savePermission() {
+		$keys = Input::get('permission_keys');
+		$groupId = Input::get('group_id');
+		$group = Group::find($groupId);
 
+		if ($group === null) {
+			return App::abort(400);
+		}
+
+		$permissions = array();
+		foreach ($keys as $key) {
+			$permissions[$key] = 1;
+		}
+
+		$group->permissions = $permissions;
+
+		if (!$group->save()) {
+			return App::abort(500);
+		}
+
+		return "변경사항이 저장되었습니다.";
+	}
+	public function getPermission(){
+		$groupId = Input::get('id');
+		$group = Group::find($groupId);
+
+		if ($group === null) {
+			return App::abort(400);
+		}
+
+		$permissions = Permission::all();
+		
+		return View::make('admin.permission-list', array('permissions'=>$permissions, 'group'=>$group));
+	}
+	public function displayPermissionMng() {
+		$user = Sentry::getuser();
+		$groups = Group::all();
+		return View::make('admin.permissionmng', array('user'=>$user, 'groups'=>$groups));
+	}
 	public function displayDashboard() {
 		return View::make('admin.dashboard');
 	}
