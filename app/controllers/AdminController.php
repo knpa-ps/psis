@@ -1,7 +1,45 @@
 <?php
 
 class AdminController extends BaseController {
+	public function savePermission() {
+		$keys = Input::get('permission_keys');
+		$groupId = Input::get('group_id');
+		$group = Group::find($groupId);
 
+		if ($group === null) {
+			return App::abort(400);
+		}
+
+		$permissions = array();
+		foreach ($keys as $key) {
+			$permissions[$key] = 1;
+		}
+
+		$group->permissions = $permissions;
+
+		if (!$group->save()) {
+			return App::abort(500);
+		}
+
+		return "변경사항이 저장되었습니다.";
+	}
+	public function getPermission(){
+		$groupId = Input::get('id');
+		$group = Group::find($groupId);
+
+		if ($group === null) {
+			return App::abort(400);
+		}
+
+		$permissions = Permission::all();
+		
+		return View::make('admin.permission-list', array('permissions'=>$permissions, 'group'=>$group));
+	}
+	public function displayPermissionMng() {
+		$user = Sentry::getuser();
+		$groups = Group::all();
+		return View::make('admin.permissionmng', array('user'=>$user, 'groups'=>$groups));
+	}
 	public function displayDashboard() {
 		return View::make('admin.dashboard');
 	}
@@ -42,24 +80,6 @@ class AdminController extends BaseController {
 	 * 그룹 삭제
 	 */
 	public function deleteUserGroup() {
-		
-		$group = Group::find(Input::get('group_id'));
-
-		if ($group === null) {
-			return App::abort(400);
-		}
-
-		$inputIds = Input::json();
-		
-		DB::beginTransaction();
-
-		foreach ($inputIds as $id) {
-			$group->users()->detach($id);
-		}
-
-		DB::commit();
-
-		return array('result'=>0, 'message'=>trans('global.done'));
 	}
 
 	/**
@@ -73,7 +93,44 @@ class AdminController extends BaseController {
 	 * 사용자 선택 modal 출력
 	 */
 	public function displayUsersSelectModal() {
-		return View::make('widget.user-selector');
+		$groupId = Input::get('group_id');
+
+		return View::make('widget.user-selector', get_defined_vars());
+	}
+
+	// 전체 사용자 목록 데이터 가져오기
+	public function getUserAll() {
+		$excludeGroupId = Input::get('group_id');
+		$group = Group::with('users')->find($excludeGroupId);
+
+		if ($group === null) {
+			return App::abort(400);
+		}
+
+		$excludeUserIds = array(-1);
+		foreach ($group->users as $user) {
+			$excludeUserIds[] = $user->id;
+		}
+
+		return Datatable::query(User::with('department')->whereNotIn('id', $excludeUserIds))
+		->showColumns('id', 'user_name')
+		->addColumn('dept_name', function($model) {
+			return $model->department->full_name;
+		})
+		->searchColumns('user_name', 'dept_name')
+		->orderColumns('id')
+		->make();
+	}
+
+
+
+	// 그룹생성 modal 출력
+	public function displayGroupCreateModal() {
+		return View::make('widget.group-creator');
+	}
+	//그룹 수정 modal 출력
+	public function displayGroupModifyModal($group_id) {
+		return View::make('widget.group-modifier', array('id'=>$group_id) );
 	}
 
 	/**
@@ -98,13 +155,39 @@ class AdminController extends BaseController {
 	 * 그룹에 사용자 추가
 	 */
 	public function addUsersToUserGroup() {
-
+		$group_id = Input::get('group_id');
+		$user_ids = Input::get('users');
+		if(!$user_ids){
+			return "추가할 사용자를 선택하세요.";
+		}
+		foreach ($user_ids as $user_id) {
+			User::find($user_id)->groups()->attach($group_id);
+		}
+		return "선택한 사용자가 해당 그룹에 추가되었습니다.";
 	}
 
 	/**
 	 * 그룹에서 사용자 제거
 	 */
 	public function removeUsersFromUserGroup() {
+		
+		$group = Group::find(Input::get('group_id'));
+
+		if ($group === null) {
+			return App::abort(400);
+		}
+
+		$inputIds = Input::json();
+		
+		DB::beginTransaction();
+
+		foreach ($inputIds as $id) {
+			$group->users()->detach($id);
+		}
+
+		DB::commit();
+
+		return array('result'=>0, 'message'=>trans('global.done'));
 
 	}
 
@@ -410,13 +493,30 @@ class AdminController extends BaseController {
 		return Lang::get('strings.success');
 	}
 
-	public function createGroup()
+	public function createUserGroup()
 	{
 		$gname = Input::get('groupName');
+		$key = Input::get('key');
 		Sentry::createGroup(array(
-			'name'=>$gname
+			'name'=>$gname,
+			'key'=>$key
 			));
-		return Lang::get('strings.success');
+		return Redirect::to('admin/groups')->with('message', Lang::get('strings.success'));
+	}
+
+	public function modifyUsergroup() {
+		$gname = Input::get('groupName');
+		$key = Input::get('key');
+
+		$group = Sentry::findGroupById(Input::get('group_id'));
+		$group->name = $gname;
+		$group->key = $key;
+		if($group->save()){
+			return Redirect::to('admin/groups')->with('message', Lang::get('strings.success'));	
+		}
+		else{
+			return Redirect::to('admin/groups')->with('message', Lang::get('strings.server_error'));	
+		}
 	}
 
 	public function updatePermissions()

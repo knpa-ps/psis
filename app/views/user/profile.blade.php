@@ -85,30 +85,6 @@
 				</div>
 			</div>
 		</div>
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<h3 class="panel-title pull-left">
-					<strong>권한그룹</strong>
-				</h3>
-				<div class="clearfix"></div>
-			</div>
-			<div class="panel-body">
-				<div class="btn-toolbar" role="toolbar">
-					<div class="btn-group pull-right">
-						<button id="group_mod" class="btn btn-primary btn-sm">
-							<span class="glyphicon glyphicon-edit"></span>변경신청
-						</button>
-					</div>		
-				</div>
-				<ul class="list-group col-xs-4">
-			   		@foreach($groups as $group)
-			  			<li class="list-group-item">
-			  				{{$group->name}}
-			  			</li> 
-			  		@endforeach
-				</ul>
-			</div>
-		</div>
 	</div>
 @stop
 
