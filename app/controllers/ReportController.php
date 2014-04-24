@@ -2,6 +2,51 @@
 
 class ReportController extends BaseController {
 
+	private $service;
+
+	public function __construct() {
+		$this->service = new PSReportService;
+	}
+
+	/**
+	 * 대쉬보드를 구현하기 위해 일단 만들어 놨는데 아직 대쉬보드에 뭐가 들어가야 할지 몰라서
+	 * 그냥 경비속보 조회 목록으로 Redirect 함
+	 */
+	public function displayDashboard() {
+		return Redirect::action('ReportController@displayList');
+	}
+
+	public function displayComposeForm() {
+
+	}
+
+	public function displayList() {
+
+		$data['input'] = Input::all();
+		// page는 laravel pagination에서 알아서 핸들하도록 unset
+		unset($data['input']['page']);
+
+		// start, end 가 설정되지 않았거나 start가 end보다 이후인 경우, 또는 날짜가 이상해서
+		// strtotime으로 인식이 안되는 경우 기본적으로 오늘~한달 전으로 조회 날짜를 설정한다
+		if (!Input::get('start') || !Input::get('end') 
+			|| strtotime(Input::get('start')) > strtotime(Input::get('end'))) {
+			$data['input']['start'] = date('Y-m-d', strtotime('-1 month'));
+			$data['input']['end'] = date('Y-m-d');
+		}
+
+		$data['reports'] = $this->service->getReportListQuery($data['input']);
+
+		$reportId = Input::get('rid');
+		if ($reportId) {
+			$data['report'] = PSReport::find($reportId);
+			if ($data['report'] === null) {
+				return App::abort(404);
+			}
+		}
+
+		return View::make('report.list', $data);
+	}
+
 	public function showComposeForm()
 	{
 		$user = Sentry::getUser();

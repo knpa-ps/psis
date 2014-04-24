@@ -1,6 +1,6 @@
 <?php 
 
-Route::group(array('prefix'=>'user'), function(){
+Route::group(array('prefix'=>'user', 'before'=>'auth'), function(){
     Route::get('profile', array('uses'=>'UserController@displayProfile'));
     Route::get('profile_edit', 'UserController@displayProfileEdit');
     Route::post('contact_mod', 'UserController@contactMod');

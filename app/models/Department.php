@@ -2,6 +2,10 @@
 
 class Department extends Eloquent {
 
+	const TYPE_HEAD = 'D001';
+	const TYPE_REGION = 'D002';
+	const TYPE_OFFICE = 'D003';
+
 	protected $table = 'departments';
 
 	protected $guarded = array();

@@ -101,7 +101,8 @@ View::composer('widget.sidebar-profile', 'SidebarProfileComposer');
 View::composer('layouts.master', 'MenuComposer');
 
 Route::filter('permission', function($route, $request, $permission) {
-	if (!Sentry::hasAccess($permission)) {
+
+	if (!Sentry::getUser()->hasAccess($permission)) {
 		return App::abort(403);
 	}
 });

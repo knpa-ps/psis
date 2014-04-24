@@ -63,8 +63,6 @@ Route::group(array('before'=>'auth'), function() {
             Route::get('groups/users/data', 'AdminController@getUserGroupUsersData');
             Route::post('groups/users/add', 'AdminController@addUsersToUserGroup');
             Route::post('groups/users/remove', 'AdminController@removeUsersFromUserGroup');
-
-
         });
 
         Route::resource('menu', 'MenuController');
@@ -75,10 +73,14 @@ Route::group(array('before'=>'auth'), function() {
  *  조직도 조회 관련 ajax methods 
  */
 Route::group(array('before'=>'ajax', 'prefix'=>'ajax'), function() {
+    
     Route::post('dept_select_tree', function() {
         return View::make('widget.dept-selector-tree', Input::all());
     });
+
     Route::any('dept_tree', 'DepartmentController@getTreeNodes');
+
 });
 
 include('routes/users.php');
+include('routes/reports.php');
