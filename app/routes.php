@@ -55,11 +55,15 @@ Route::group(array('before'=>'auth'), function() {
             Route::get('groups', 'AdminController@displayUserGroups');
 
             Route::get('groups/data', 'AdminController@getUserGroupsData');
+            Route::get('groups/create_modal', 'AdminController@displayGroupCreateModal');
+            Route::get('groups/modify_modal/{group_id}', 'AdminController@displayGroupModifyModal');
             Route::post('groups/create', 'AdminController@createUserGroup');
+            Route::post('groups/modify', 'AdminController@modifyUserGroup');
             Route::post('groups/delete', 'AdminController@deleteUserGroup');
             Route::post('groups/edit', 'AdminController@editUserGroup');
 
-            Route::get('groups/users', 'AdminController@displayUsersSelectModal');
+            Route::post('groups/users', 'AdminController@displayUsersSelectModal');
+            Route::get('groups/users/all', 'AdminController@getUserAll');
             Route::get('groups/users/data', 'AdminController@getUserGroupUsersData');
             Route::post('groups/users/add', 'AdminController@addUsersToUserGroup');
             Route::post('groups/users/remove', 'AdminController@removeUsersFromUserGroup');

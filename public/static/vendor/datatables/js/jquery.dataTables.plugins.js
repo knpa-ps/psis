@@ -35,30 +35,30 @@ function dt_get_options(options) {
 	return $.extend({}, dt_default, options);
 }
 
-$("table.multi-selectable").on('click', 'tbody tr', function(){
-    $(this).toggleClass('row-selected warning');
+$(document).on('click', 'table.multi-selectable tbody tr', function(){
+    $(this).toggleClass('row-selected info');
 });
 
-$("table.single-selectable").on('click', 'tbody tr', function(){
+$(document).on('click', 'table.single-selectable tbody tr', function(){
     if ( $(this).hasClass('row-selected') ) {
-        $(this).removeClass('row-selected warning');
+        $(this).removeClass('row-selected info');
     } else {
-        $(this).closest('table.single-selectable').find('tr.row-selected').removeClass('row-selected warning');
-        $(this).addClass('row-selected warning');
+        $(this).closest('table.single-selectable').find('tr.row-selected').removeClass('row-selected info');
+        $(this).addClass('row-selected info');
     }
 });
 
-$(".select-all").on('click', function() {
+$(document).on('click', '.select-all', function() {
 	var checked = !$(this).hasClass('active');
 	var target_table_id = $(this).data('target');
 	var target_rows = $("#"+target_table_id+" tbody tr");
 	var icon = $(this).find('span.glyphicon');
 	if (checked) {
 		icon.addClass('glyphicon-check').removeClass('glyphicon-unchecked');
-		target_rows.addClass('row-selected warning');
+		target_rows.addClass('row-selected info');
 	} else {
 		icon.addClass('glyphicon-unchecked').removeClass('glyphicon-check');
-		target_rows.removeClass('row-selected warning');
+		target_rows.removeClass('row-selected info');
 	}
 });
 

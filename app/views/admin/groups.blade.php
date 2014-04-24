@@ -13,6 +13,9 @@
 			<div class="panel-body">
 				<div class="btn-toolbar toolbar-table" role="toolbar">
 					<div class="btn-group pull-right">
+						<button id="modify_group_btn" class="btn btn-info btn-xs">
+							<span class="glyphicon glyphicon-pencil"></span> 그룹수정
+						</button>
 						<button id="create_group_btn" class="btn btn-primary btn-xs">
 							<span class="glyphicon glyphicon-plus"></span> 그룹생성
 						</button>
@@ -68,6 +71,30 @@
 var usersTable = null;
 
 $(function () { 
+	var sel_group = null;
+	$("#modify_group_btn").click(function(){
+		if(!sel_group){
+			alert("수정할 그룹을 선택하세요");
+		}
+		else{
+			$("body").modalmanager('loading');
+			var $modal = $("#ajax_modal");
+			$modal.load(base_url+"/admin/groups/modify_modal/"+sel_group, null, function() {
+				$modal.modal({
+					modalOverflow: true
+				});
+			});
+		}
+	});
+	$("#create_group_btn").click(function(){
+		$("body").modalmanager('loading');
+		var $modal = $("#ajax_modal");
+		$modal.load(base_url+"/admin/groups/create_modal", null, function() {
+			$modal.modal({
+				modalOverflow: true
+			});
+		});
+	});
 	var groupsTable = $("#groups_table").dataTable(dt_get_options({
 		"sAjaxSource": base_url+"/admin/groups/data",
 		"bServerSide": true,
@@ -82,6 +109,9 @@ $(function () {
 
 	groupsTable.on('click', '.show-detail', function() {
 		var group_id = $(this).data('id');
+		
+		sel_group = group_id;
+
 		$("#selected_group_id").val(group_id);
 		reload_users(group_id);
 	});
@@ -97,11 +127,17 @@ $(function () {
 
 		$("body").modalmanager('loading');
 		var $modal = $("#ajax_modal");
-		$modal.load(base_url+"/admin/groups/users", null, function() {
+		$modal.load(base_url+"/admin/groups/users",  { group_id: group_id }, function() {
 			$modal.modal({
 				modalOverflow: true
 			});
 		});
+	});
+
+	$("#ajax_modal").on('users_added.psis', function(e) {
+		groupsTable.fnDraw();
+		var group_id = $("#selected_group_id").val();
+		reload_users(group_id);
 	});
 
 	$("#remove_users_btn").click(function() {
@@ -118,7 +154,7 @@ $(function () {
 		}
 
 		$.ajax({
-			url: base_url+"/admin/groups/delete?group_id="+group_id,
+			url: base_url+"/admin/groups/users/remove?group_id="+group_id,
 			type: "post",
 			contentType: 'application/json; charset=utf-8',
 			dataType: 'json',
