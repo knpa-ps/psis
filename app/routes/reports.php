@@ -6,4 +6,5 @@ Route::group(array('prefix'=>'reports', 'before'=>'auth'), function(){
     Route::get('/create', array('before'=>'permission:report.create', 'uses'=>'ReportController@displayComposeForm'));
 	Route::get('/list', array('before'=>'permission:report.read', 'uses'=>'ReportController@displayList'));
 	
+	Route::post('/delete', 'ReportController@deleteReport');
 });

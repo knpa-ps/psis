@@ -1,10 +1,22 @@
 @extends('layouts.master')
 
 @section('content')
+
+
 {{-- 속보 목록 --}}
 <div class="row">
 	<div class="col-xs-12">
 		<div class="well">
+
+			{{-- 속보 내용 조회 --}}
+			@if (isset($report))
+			<div class="row">
+				<div class="col-xs-12">
+				@include('report.content', array('report'=>$report, 'permissions'=>$permissions))
+				</div>
+			</div>
+			@endif
+
 			<div class="toolbar-table row">
 				<div class="col-xs-6">
 					<form method="GET" class="form-inline" role="form">
@@ -30,6 +42,7 @@
 					</div>
 				</div>
 			</div>
+
 			<div id="advanced_search_container" class="panel panel-primary hide">
 				<div class="panel-heading">
 					<h3 class="panel-title pull-left"><strong>상세 검색</strong></h3>
@@ -101,49 +114,72 @@
 					</form>
 				</div>
 			</div>
-
-			<table class="table table-condensed table-striped table-hover table-bordered" id="reports_table">
-				<colgroup>
-					<col>
-					<col>
-					<col style="width: 200px;">
-					<col style="width: 80px;">
-					<col style="width: 120px;">
-				</colgroup>
-				<thead>
-					<tr class="bg-info">
-						<th style="min-width:40px;">번호</th>
-						<th>제목</th>
-						<th>작성처</th>
-						<th>작성자</th>
-						<th>작성 시간</th>
-					</tr>
-				</thead>
-				<tbody>
-				@if (count($reports) == 0)
-					<tr>
-						<td colspan="5">
-							<p align="center">조회된 속보가 없습니다.</p>
-						</td>
-					</tr>
-				@else
-					@foreach ($reports as $r)
-						<tr>
-							<td>{{ $r->id }}</td>
-							<td>{{ $r->title }}</td>
-							<td>{{ $r->department->full_name }}</td>
-							<td>{{ $r->user->user_name }}</td>
-							<td>{{ $r->created_at->format('Y-m-d h:i') }}</td>
-						</tr>
-					@endforeach
-				@endif
-				</tbody>
-			</table>
-
-			<div class="pull-right">
-				{{ $reports->appends($input)->links() }}
+				
+			<div class="row">
+				<div class="col-xs-12">
+					<table class="table table-condensed table-striped table-hover table-bordered" id="reports_table">
+						<colgroup>
+							<col>
+							<col>
+							<col style="width: 200px;">
+							<col style="width: 80px;">
+							<col style="width: 120px;">
+						</colgroup>
+						<thead>
+							<tr class="bg-info">
+								<th style="min-width:40px;">번호</th>
+								<th>제목</th>
+								<th>작성처</th>
+								<th>작성자</th>
+								<th>작성 시간</th>
+							</tr>
+						</thead>
+						<tbody>
+						@if (count($reports) == 0)
+							<tr>
+								<td colspan="5">
+									<p align="center">조회된 속보가 없습니다.</p>
+								</td>
+							</tr>
+						@else
+							@foreach ($reports as $r)
+								<tr>
+									<td>{{ $r->id }}</td>
+									<td>
+										@if ($r->is_new)
+											<span class="label label-danger">New</span>
+										@endif 
+										@if ($r->is_updated)
+											<span class="label label-info">Update</span>
+										@endif
+										<a href="{{ url('reports/list?'.http_build_query(array_merge($input, array('rid'=>$r->id)))) }}"
+										class="{{ $r->has_read ? 'black' : 'text-primary' }}">
+											{{ str_limit($r->title, 35) }}
+										</a>
+									</td>
+									<td>{{ $r->department->full_name }}</td>
+									<td>{{ $r->user->user_name }}</td>
+									<td>{{ $r->created_at->format('Y-m-d h:i') }}</td>
+								</tr>
+							@endforeach
+						@endif
+						</tbody>
+					</table>
+				</div>
 			</div>
-			<div class="clearfix"></div>
+
+
+			<div class="row">
+				<div class="col-xs-4">
+					<h3 id="reports-info">총 {{ $total }}개</h3>
+				</div>
+				<div class="col-xs-8">
+					<div class="pull-right">
+						{{ $reports->appends($input)->links() }}
+					</div>
+					<div class="clearfix"></div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -155,8 +191,11 @@
 #advanced_search_container {
 	position: absolute;
 	top: 50px;
+	z-index: 1000;
 }
-
+#reports-info {
+	font-size: 14px;
+}
 </style>
 @stop
 

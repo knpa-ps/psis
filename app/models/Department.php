@@ -63,7 +63,7 @@ class Department extends Eloquent {
 	public function region() {
 		$paths = explode(':', trim($this->full_path, ':'));
 
-		if (count($paths == 0)) {
+		if (count($paths)==0) {
 			return null;
 		}
 
