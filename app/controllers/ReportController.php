@@ -20,6 +20,14 @@ class ReportController extends BaseController {
 
 	}
 
+	public function displayEditForm() {
+
+	}
+
+	public function editReport() {
+		
+	}
+
 	public function displayList() {
 
 		$user = Sentry::getUser();

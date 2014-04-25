@@ -11,4 +11,8 @@ class PSReportHistory extends Eloquent {
 	public function report() {
 		return $this->belongsTo('PSReport', 'report_id', 'id');
 	}
+
+	public function scopeLastest($query) {
+		return $query->orderBy('created_at', 'desc')->take(1);
+	}
 }

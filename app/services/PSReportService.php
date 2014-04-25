@@ -62,7 +62,7 @@ class PSReportService extends BaseService {
 	}
 
 	public function readAndGetReport($user, $reportId) {
-		$report = PSReport::find($reportId);
+		$report = PSReport::with('histories')->find($reportId);
 		if ($report === null) {
 			throw new Exception('no report data found with id='.$reportId, 404);
 		}
