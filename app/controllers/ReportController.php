@@ -22,6 +22,8 @@ class ReportController extends BaseController {
 
 	public function displayList() {
 
+		$user = Sentry::getUser();
+
 		$data['input'] = Input::all();
 		// page는 laravel pagination에서 알아서 핸들하도록 unset
 		unset($data['input']['page']);
@@ -34,17 +36,55 @@ class ReportController extends BaseController {
 			$data['input']['end'] = date('Y-m-d');
 		}
 
-		$data['reports'] = $this->service->getReportListQuery($data['input']);
+		// report list 가져오기
+		$reportsQuery = $this->service->getReportListQuery(User::find(211), $data['input']);
+		$data['total'] = $reportsQuery->count();
+		$data['reports'] = $reportsQuery->paginate(15);
 
 		$reportId = Input::get('rid');
 		if ($reportId) {
-			$data['report'] = PSReport::find($reportId);
-			if ($data['report'] === null) {
-				return App::abort(404);
+			try {
+				$data['report'] = $this->service->readAndGetReport($user, $reportId);
+				$data['permissions'] = $this->service->getPermissions($user, $data['report']);
+
+				// 읽기 권한이 없으면 403
+				if (!$data['permissions']['read']) {
+					return App::abort(403);
+				}
+
+			} catch (Exception $e) {
+				return App::abort($e->getCode());
 			}
+
 		}
 
 		return View::make('report.list', $data);
+	}
+
+	public function deleteReport() {
+		$reportId = Input::get('rid');
+
+		$user = Sentry::getUser();
+		$report = PSReport::find($reportId);
+
+		if ($report === null) {
+			return App::abort(400);
+		}
+
+		try {
+			$this->service->deleteReport($user, $report);
+		} catch (Exception $e) {
+			if ($e->getCode() == -1) {
+				return array('result' => -1, 'message'=>'해당 속보를 삭제할 권한이 없습니다');
+			} else {
+				return App::abort($e->getCode());
+			}
+		}
+
+		return array(
+				'result' => 0,
+				'message' => '삭제되었습니다'
+			);
 	}
 
 	public function showComposeForm()

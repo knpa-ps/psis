@@ -63,7 +63,7 @@ class Department extends Eloquent {
 	public function region() {
 		$paths = explode(':', trim($this->full_path, ':'));
 
-		if (count($paths == 0)) {
+		if (count($paths)==0) {
 			return null;
 		}
 
@@ -75,7 +75,7 @@ class Department extends Eloquent {
 	 * @return Collection<Dpeartment> 지방청들 
 	 */
 	public function scopeRegions($query) {
-		return $query->where('parent_id', '=', 0);
+		return $query->whereNull('parent_id');
 	}
 
 	public function scopeAlive($query) {
