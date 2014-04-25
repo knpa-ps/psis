@@ -47,7 +47,8 @@ Route::group(array('before'=>'auth'), function() {
     Route::group(array('before'=>'permission:superuser'), function() {
         Route::group(array('prefix'=>'admin'), function() {
             Route::get('/', 'AdminController@displayDashboard');
-
+            // 부서 관리
+            Route::get('dept', 'AdminController@displayDeptTree');
             // 메뉴 관리
             Route::get('menu', array('uses'=>'AdminController@displayMenuTree'));
 

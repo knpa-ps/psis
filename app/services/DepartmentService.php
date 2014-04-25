@@ -28,17 +28,35 @@ class DepartmentService extends BaseService {
 	 */
 	public function adjustHierarchy($parentId = null) {
 		
+		DB::beginTransaction();
+
 		if ($parentId === null) {
 			$dept = null;
 		} else {
-			$dept = Department::find($parentId);
+			$dept = Department::with('children')->find($parentId);
 
 			if ($dept === null) {
 				throw new Exception('department does not exists with id='.$deptId);
 			}
-		}
 
-		DB::beginTransaction();
+			if ($parent_id == null) {
+				$dept->full_path = ":{$dept->id}:";
+				$dept->full_name = $dept->dept_name;
+				$dept->depth = 1;
+			} else {
+				$parent = $dept->parent()->first();
+				$dept->full_path = rtrim($parent->full_path, ':').":{$dept->id}:";
+				$dept->full_name = trim($parent->full_name." {$dept->dept_name}");
+				$dept->depth = $parent->depth+1;
+			}
+
+			$dept->is_terminal = $dept->children()->alive()->count() == 0;
+
+			if (!$dept->save()) {
+				throw new Exception('failed to update department data. '.$child);
+			}
+
+		}
 
 		$this->doAdjustHierarchy($dept);
 
@@ -48,13 +66,10 @@ class DepartmentService extends BaseService {
 	private function doAdjustHierarchy(Department $parent = null) {
 
 		if ($parent === null) {
-			$parent = Department::whereNull('parent_id')->first();
-			if ($parent === null) {
-				throw new Exception('root department does not exist.');
-			}
+			$children = Department::regions()->get();
+		} else {
+			$children = $parent->children()->with('children')->get();
 		}
-
-		$children = $parent->children()->with('children')->get();
 
 		// break point : 하위 부서가 없으면 break
 		foreach ($children as $child) {
@@ -64,7 +79,7 @@ class DepartmentService extends BaseService {
 			$child->full_name = trim($parent->full_name." {$child->dept_name}");
 			$child->depth = $parent->depth+1;
 
-			$child->is_terminal = $child->children()->where('is_alive', '=', 1)->count() == 0;
+			$child->is_terminal = $child->children()->alive()->count() == 0;
 
 			if (!$child->save()) {
 				throw new Exception('failed to update department data. '.$child);

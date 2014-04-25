@@ -1,116 +1,116 @@
 @extends('layouts.master')
 
-@section('content')
+@section('styles')
+<style>
+#detail_table th, td{
+	width : 50%;
+}
+</style>
 
-<div class="row-fluid">
-	<div class="span4 panel panel-default" id="tree_container">
-		<div class="panel-heading">
-			<h4>조직도</h4>
-		</div>
-		<div class="panel-body">
-			<div id="dept_tree">
-				<ul>
-					<li>Root 1
-					<ul>
-						<li>Child 1</li>
-						<li>Child 2</li>
-						<li>Child 3</li>
-						<li>Child 4</li>
-						<li>Child 5</li>
-					</ul></li>
-					<li>Root 2</li>
-					<li>Root 3</li>
-				</ul>
+@stop
+@section('content')
+<div class="row">
+	<div class="col-xs-6">
+		<div class="panel panel-default" id="dept_tree_panel">
+			<div class="panel-heading">
+				<div class="panel-title"><b>조직도</b></div>
+			</div>
+			<div class="panel-body">
+				<div id="dept_tree">
+					
+				</div>
 			</div>
 		</div>
 	</div>
-	<div class="span8 panel panel-default" id="info_container">
-		<div class="panel-heading">
-			<h4>관서 정보</h4>
-		</div>
-		<div class="panel-body">
-			<div class="row-fluid">
-				<div class="span12">
-					<table class="table table-hover">
-						<tbody>
-							<tr>
-								<th>관서명</th>
-								<td><a href="#" id="dept_name"></a></td>
-							</tr>
-							<tr>
-								<th>전체 관서명</th>
-								<td><span id="dept_full_name"></span></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
+	<div class="col-xs-6">
+		<div class="panel panel-default" id="detail_panel">
+			<div class="panel-heading">
+				<div class="panel-title"><b>세부정보</b></div>
 			</div>
+			<div class="panel-body">
+				<table class="table table-striped" id="detail_table">
+					<tr>
+						<th><b>부서 이름</b></th>
+						<td id="dept_name"></td>
+					</tr>
+					<tr>
+						<th>&nbsp</th>
+						<td id="full_name"></td>
+					</tr>
+					<tr>
+						<th>Selectable</th>
+						<td id="selectable"></td>
+					</tr>
+					<tr>
+						<th>type_code</th>
+						<td id="type_code"></td>
+					</tr>
+					<tr>
+						<th>is_alive</th>
+						<td id="is_alive"></td>
+					</tr>
+				</table>
+				<div id="user_table">
+					{{ View::make('datatable.template', array(
+						'id'=>'users_table',
+						'columns'=>array('이름', '연락처'),
+						'class'=>'multi-selectable'
+					)) }}
+				</div>
 
-			<div class="row-fluid">
-				<div class="span6">
-					<h4>구성원</h4>
-				</div>
-				<div class="span6">
-					<button id="move_users" class="btn btn-small pull-right btn-primary"><i class="icon-share-alt"></i> 부서이동</button>
-				</div>
-			</div>
-
-			<div class="row-fluid">
-				<div class="span12">
-					<table class="table table-striped table-condensed table-bordered" id="dept_users_table">
-						<thead>
-							<tr>
-								<th>계급</th>
-								<th>이름</th>
-							</tr>
-						</thead>
-						<tbody>
-						</tbody>
-					</table>
-				</div>
 			</div>
 		</div>
 	</div>
 </div>
-
-@stop
-
-@section('styles')
-{{ HTML::style('assets/css/jquery.treeview.css') }}
-{{ HTML::style('static/vendor/bootstrap-editable/css/bootstrap-editable.css') }}
-{{ HTML::style('static/vendor/jstree/themes/default/style.min.css')  }}
-<style type="text/css" media="screen">
-#move_users {
-	margin-bottom: 10px;
-}
-
-</style>
 @stop
 
 @section('scripts')
-{{ HTML::script('static/js/jquery.dataTables.min.js') }}
-{{ HTML::script('static/js/psis/dataTables.plugins.js') }}
-{{ HTML::script('static/vendor/bootstrap-editable/js/bootstrap-editable.min.js') }}
+<!-- Load Datatable Plugin -->
+{{ HTML::script('static/vendor/datatables/js/jquery.dataTables.min.js') }}
+{{ HTML::script('static/vendor/datatables/js/jquery.dataTables.plugins.js') }}
+<!-- Load jstree Plugin -->
+{{ HTML::style('static/vendor/jstree/themes/default/style.min.css') }}
 {{ HTML::script('static/vendor/jstree/jstree.min.js') }}
 
 <script type="text/javascript">
-$.fn.editable.defaults.mode = 'inline';
-$(function(){
-	var oTable = $("#dept_users_table").dataTable($.extend(dtOptions,{
-			"bFilter": false,
-			"bLengthChange": false,
-			"sDom": "t<'row-fluid'<'span12'i>><'row-fluid'<'span12'<'pull-right'p>>>",
-		}));
+$(function() {
+	$("#detail_table").on('select.dept-selector', function(e, data){
+		$("#dept_name").text(data.dept_name);
+		$("#full_name").text(data.full_name);
+		$("#selectable").text(data.selectable);
 
-	$("#dept_tree").jstree({ 
-		"plugins" : [ "themes", "html_data", "dnd" ],
-		"core" : {
-	      "check_callback" : function (operation, node, node_parent, node_position, more) {
-	      }
-	    }
+	})
+	$("#dept_tree")
+	.on('activate_node.jstree', function(e, data) {
 
+		if (!data.node.li_attr["data-selectable"]) {
+			$("#dept_tree").jstree('toggle_node', data.node);
+			return;
+		}
+
+		var extras = {
+			dept_id: data.node.id,
+			dept_name: data.node.text,
+			full_name: data.node.li_attr["data-full-name"],
+			selectable : data.node.li_attr["data-selectable"]
+		};
+		// fire select event!
+		$("#detail_table").trigger('select.dept-selector', [ extras ]);
+	})
+	.jstree({
+		core: {
+			animation: 0,
+			check_callback: true,
+			themes: { stripes: true },
+			data: {
+				url: "{{ url('ajax/dept_tree') }}",
+				data: function (node) {
+					return { id: node.id }
+				}
+			}
+		},
+		plugins: [ "dnd", "wholerow" ]
 	});
-
 });
 </script>
 @stop

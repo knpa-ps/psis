@@ -1,6 +1,9 @@
 <?php
 
 class AdminController extends BaseController {
+	public function displayDeptTree() {
+		return View::make('admin.depts');
+	}
 	public function savePermission() {
 		$keys = Input::get('permission_keys');
 		$groupId = Input::get('group_id');

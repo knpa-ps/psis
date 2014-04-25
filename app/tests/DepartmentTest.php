@@ -83,16 +83,4 @@ class DepartmentTest extends TestCase {
 		$this->assertTrue(!$ancestor->isAncestor(9));
 	}
 
-	public function testSetHead() {
-		DepartmentService::setHead(3);
-		DepartmentService::setHead(2);
-		$dept = Department::find(2);
-		$this->assertTrue($dept->is_head === 1);
-		$dept2 = Department::find(3);
-		$this->assertTrue($dept2->is_head === 0);
-
-		DepartmentService::setHead(4);
-		$dept = Department::find(4);
-		$this->assertTrue($dept->is_head === 1);
-	}
 }

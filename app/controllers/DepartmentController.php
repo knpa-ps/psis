@@ -21,6 +21,8 @@ class DepartmentController extends BaseController {
 					'text' => $dept->dept_name,
 					'children' => $dept->is_terminal?array():true,
 					'li_attr' => array( 
+						'data-is-alive' => $dept->is_alive,
+						'data-type-code' => $dept->type_code,
 						'data-full-name' => $dept->full_name,
 						'data-selectable' => $dept->is_selectable
 						)
