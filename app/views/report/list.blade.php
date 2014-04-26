@@ -148,8 +148,7 @@
 									<td>
 										@if ($r->is_new)
 											<span class="label label-danger">New</span>
-										@endif 
-										@if ($r->is_updated)
+										@elseif ($r->is_updated)
 											<span class="label label-info">Update</span>
 										@endif
 										<a href="{{ url('reports/list?'.http_build_query(array_merge($input, array('rid'=>$r->id)))) }}"
@@ -190,7 +189,6 @@
 <style type="text/css" media="screen">
 #advanced_search_container {
 	position: absolute;
-	top: 50px;
 	z-index: 1000;
 }
 #reports-info {
@@ -206,7 +204,10 @@
 <script type="text/javascript">
 $(function() {
 	$("#advanced_search_toggle").click(function() {
+		var bottom = $(this).offset().bottom;
+
 		$("#advanced_search_container").toggleClass('hide');
+		$("#advanced_search_container").css('top', bottom);
 	});
 	$("#advanced_search_container .close").click(function() {
 		$("#advanced_search_container").addClass('hide');

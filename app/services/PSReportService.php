@@ -202,4 +202,22 @@ class PSReportService extends BaseService {
 
 		return $report;
 	}
+
+	/**
+	 * 임시저장
+	 * @param User $user 
+	 * @param string $title 
+	 * @param string $content 
+	 * @return PSReportDraft
+	 */
+	public function saveDraft($user, $title, $content) {
+		$draft = new PSReportDraft;
+		$draft->user_id = $user->id;
+		$draft->title = $title;
+		$draft->content = $content;
+		if (!$draft->save()) {
+			throw new Exception('db failed', 400);
+		}
+		return $draft;
+	}
 }

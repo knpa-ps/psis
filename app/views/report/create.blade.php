@@ -34,7 +34,7 @@
 			<div class="col-xs-10">
 				<input type="hidden" id="hwpctrl_content" value="{{ isset($report)?$report->histories()->lastest()->first()->content:'' }}">
 				<input type="hidden" id="report_compose_mode" value="{{ $mode  }}">
-				<object id="HwpCtrl" height="800" width="100%" align="center" classid="CLSID:BD9C32DE-3155-4691-8972-097D53B10052">
+				<object id="HwpCtrl" height="800" width="100%" align="center" classid="clsid:BD9C32DE-3155-4691-8972-097D53B10052">
 	                <param name="TOOLBAR_MENU" value="true">
 	                <param name="TOOLBAR_STANDARD" value="true">
 	                <param name="TOOLBAR_FORMAT" value="true">
@@ -56,8 +56,24 @@
 					<button type="button" class="btn btn-primary btn-block" id="report_submit">
 						<small><span class="glyphicon glyphicon-ok"></span> 제출</small>
 					</button>
-					<button type="button" class="btn btn-default btn-block">
+					<button type="button" class="btn btn-info btn-block" id="report_save_draft">
+						<small><span class="glyphicon glyphicon-floppy-disk"></span> 임시저장</small>
+					</button>
+					@if ($user->isSuperUser())
+					<button type="button" class="btn btn-success btn-block" id="report_create_template">
+						<small><span class="glyphicon glyphicon-floppy-disk"></span> 속보양식저장</small>
+					</button>
+					@endif
+					<button type="button" class="btn btn-default btn-block" onclick="window.history.back()">
 						<small><span class="glyphicon glyphicon-remove"></span> 취소</small>
+					</button>
+				</div>
+				<div class="btn-group-vertical report-toolbar">
+					<button class="btn btn-block btn-default" id="select_report_template_btn">
+						<small><span class="glyphicon glyphicon-book"></span> 속보양식선택</small>
+					</button>
+					<button class="btn btn-block btn-default" id="select_report_drafts_btn">
+						<small><span class="glyphicon glyphicon-folder-open"></span> 불러오기</small>
 					</button>
 				</div>
 			</div>
@@ -114,6 +130,10 @@ $(function() {
 		var mode = $("#report_compose_mode").val();
 
 		var title = $("#report_title").val();
+		if (!title) {
+			alert('제목을 입력해주세요');
+			return;
+		}
 		var content = vHwpCtrl.GetTextFile("HWP", "");
 		var params = {
 			title: title,
@@ -144,6 +164,61 @@ $(function() {
 			}
 		});
 	});
+
+	$("#report_save_draft").click(function() {
+
+		var title = $("#report_title").val();
+		var content = vHwpCtrl.GetTextFile("HWP", "");
+		var params = {
+			title: title,
+			content: content
+		};
+
+		$.ajax({
+			url: base_url+"/reports/drafts/save",
+			type: "post",
+			data: params,
+			success: function(res) {
+				alert(res.message);
+			}
+		});
+	});
+
+	$("#select_report_template_btn").click(function() {
+		popup(base_url+"/reports/templates", 300, 400);
+	});
+
+	$("#select_report_drafts_btn").click(function() {
+		popup(base_url+"/reports/drafts", 600, 800);
+	});
+
+	$("#report_create_template").click(function() {
+
+		var title = $("#report_title").val();
+		var content = vHwpCtrl.GetTextFile("HWP", "");
+		var params = {
+			title: title,
+			content: content
+		};
+
+		$.ajax({
+			url: base_url+"/reports/templates/save",
+			type: "post",
+			data: params,
+			success: function(res) {
+				alert(res.message);
+			}
+		});
+	});
 });
+
+function onTemplateSelected(template) {
+	vHwpCtrl.SetTextFile(template.content, "HWP", "");
+}
+
+function onDraftSelected(draft) {
+	$("#report_title").val(draft.title);
+	vHwpCtrl.SetTextFile(draft.content, "HWP", "");
+}
 </script>
 @stop

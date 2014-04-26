@@ -68,6 +68,7 @@
 </div>
 
 @section('styles')
+@parent
 <style type="text/css" media="screen">
 	#report_title {
 		margin-top: 0;
@@ -80,6 +81,7 @@
 @stop
 
 @section('scripts')
+@parent
 {{ HTML::script('static/js/hwpctrl.js') }}
 <script type="text/javascript">
 
@@ -87,7 +89,11 @@ $(function() {
 
     if (initHwpCtrl()) {
         var data = $("#hwpctrl_content").val();
-    	vHwpCtrl.SetTextFile(data, "HWP", "");
+
+    	vHwpCtrl.SetTextFile(data, "HWP", "속보를 불러올 수 없습니다.");
+        vHwpCtrl.EditMode = 0;
+		vHwpCtrl.SetToolBar(3, "FileSaveAs");
+		vHwpCtrl.SetToolBar(3, 1);
     }
 
 	$("#report_delete").click(function(){

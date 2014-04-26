@@ -14,7 +14,7 @@ class CreatePsReportHistoryTable extends Migration {
 	{
 		Schema::create('ps_reports_history', function(Blueprint $table) {
 			$table->increments('id');
-			$table->text('content');
+			$table->longText('content');
 			$table->text('file_ids');
 			$table->integer('creator_id')->unsigned();
 			$table->integer('report_id')->unsigned();

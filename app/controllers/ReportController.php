@@ -36,6 +36,7 @@ class ReportController extends BaseController {
 			$data['report'] = $report;
 		} 
 
+		$data['user'] = $user;
 		return View::make('report.create', $data);
 	}
 
@@ -53,7 +54,7 @@ class ReportController extends BaseController {
 				return App::abort(403);
 			}
 		}
-		
+		$data['user'] = $user;
 		$data['report'] = $report;
 		$data['mode'] = 'edit';
 		return View::make('report.create', $data);
@@ -133,7 +134,7 @@ class ReportController extends BaseController {
 		return array(
 			'result'=>0,
 			'message'=>'제출되었습니다',
-			'url' => action('ReportController@displayList').'?rid='.$report->id
+			'url' => action('ReportController@displayList').'?rid='.$reportId
 		);	
 	}
 
@@ -161,5 +162,71 @@ class ReportController extends BaseController {
 				'result' => 0,
 				'message' => '삭제되었습니다'
 		);
+	}
+
+	public function saveDraft() {
+		$title = Input::get('title');
+		$content = Input::get('content');
+		$user = Sentry::getUser();
+
+		try {
+			$this->service->saveDraft($user, $title, $content);
+		} catch (Exception $e) {
+			return App::abort($e->getCode(), $e->getMessage());
+		}
+		
+		return array('message'=>'임시저장되었습니다.');
+	}
+
+	public function displayDraftsList() {
+		$user = Sentry::getUser();
+
+		$drafts = PSReportDraft::where('user_id', '=', $user->id)
+		->orderBy('created_at', 'desc')->paginate(10);
+
+		$data['drafts'] = $drafts;
+
+		return View::make('report.select-drafts', $data);
+	}
+
+	public function getDraft($id) {
+		return PSReportDraft::find($id);
+	}
+
+	public function deleteDraft() {
+		$id = Input::get('id');
+		$user = Sentry::getUser();
+		$draft = PSReportDraft::find($id);
+		if (!$draft || (!$user->isSuperUser() && $draft->user_id != $user->id)) {
+			return App::abort(400);
+		}
+		$draft->delete();
+	}
+
+	public function displayTemplatesList() {
+		$data['templates'] = PSReportTemplate::all();
+		return View::make('report.select-templates', $data);
+	}
+
+	public function getTemplate($id) {
+		return PSReportTemplate::find($id);
+	}
+
+	public function saveTemplate() {
+		$template = new PSReportTemplate;
+		$template->name = Input::get('title');
+		$template->content = Input::get('content');
+		$template->save();
+		return array('message'=>'저장되었습니다');
+	}
+
+	public function deleteTemplate() {
+		$id = Input::get('id');
+		$user = Sentry::getUser();
+		$template = PSReportTemplate::find($id);
+		if (!$template || !$user->isSuperUser()) {
+			return App::abort(400);
+		}
+		$template->delete();
 	}
 }

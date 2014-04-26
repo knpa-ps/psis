@@ -40,7 +40,7 @@ function InitToolBarJS()	// 툴바 보여주기
 	vHwpCtrl.ReplaceAction("FileSaveAs", "HwpCtrlFileSaveAs");
 	vHwpCtrl.ReplaceAction("FileOpen", "HwpCtrlFileOpen");
  
-	vHwpCtrl.SetToolBar(3, "FileNew, FileSave, FileSaveAs, FileOpen");
+	vHwpCtrl.SetToolBar(3, "FileSaveAs, FileOpen");
 	vHwpCtrl.SetToolBar(3, 1);
 	vHwpCtrl.ShowToolBar(true);
 }

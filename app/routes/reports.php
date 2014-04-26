@@ -11,4 +11,14 @@ Route::group(array('prefix'=>'reports', 'before'=>'auth'), function(){
     Route::post('/create', 'ReportController@createReport');
     Route::post('/edit', 'ReportController@editReport');
 	Route::post('/delete', 'ReportController@deleteReport');
+
+	Route::get('/drafts', 'ReportController@displayDraftsList');
+	Route::get('/drafts/{id}', 'ReportController@getDraft')->where('id', '[0-9]+');
+	Route::post('/drafts/save', 'ReportController@saveDraft');
+	Route::post('/drafts/delete', 'ReportController@deleteDraft');
+
+	Route::get('/templates', 'ReportController@displayTemplatesList');
+	Route::get('/templates/{id}', 'ReportController@getTemplate')->where('id', '[0-9]+');
+	Route::post('/templates/save', 'ReportController@saveTemplate');
+	Route::post('/templates/delete', 'ReportController@deleteTemplate');
 });
