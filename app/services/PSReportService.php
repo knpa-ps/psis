@@ -122,6 +122,11 @@ class PSReportService extends BaseService {
 				);
 	}
 
+	/**
+	 * 속보를 삭제한다. 속보 변경 내역도 모두 삭제함
+	 * @param User $user 
+	 * @param PSReport $report 
+	 */
 	public function deleteReport($user, $report) {
 		$permissions = $this->getPermissions($user, $report);
 		if (!$permissions['delete']) {
@@ -132,5 +137,69 @@ class PSReportService extends BaseService {
 		$report->histories()->delete();
 		$report->delete();
 		DB::commit();
+	}
+
+	/**
+	 * 새 속보를 생성한다
+	 * @param User $user creator
+	 * @param string $title title
+	 * @param string $content hwpctrl content string
+	 * @return PSReport 생성된 속보 모델
+	 */
+	public function createReport($user, $title, $content) {
+		DB::beginTransaction();
+		$report = new PSReport;
+		$report->title = $title;
+		$report->creator_id = $user->id;
+		$report->dept_id = $user->department->id;
+		if (!$report->save()) {
+			throw new Exception('db failed: report couldnt be saved');
+		}
+
+		$history = new PSReportHistory;
+		$history->report_id = $report->id;
+		$history->creator_id = $user->id;
+		$history->content = $content;
+
+		if (!$history->save()) {
+			throw new Exception('db failed: history cannot be saved');
+		}
+
+		DB::commit();
+
+		return $report;
+	}
+
+	/**
+	 * 속보를 수정하여 history를 추가한다.
+	 * @param User $user creator
+	 * @param int $reportId repot id
+	 * @param string $title 
+	 * @param string $content 
+	 * @return PSReport
+	 */
+	public function editReport($user, $reportId, $title, $content) {
+		$report = PSReport::find($reportId);
+		if ($report === null) {
+			throw new Exception('no report data with id='.$reportId, 400);
+		}
+
+		DB::beginTransaction();
+		$report->title = $title;
+		if (!$report->save()) {
+			throw new Exception('db failed: report couldnt be saved');
+		}
+
+		$history = new PSReportHistory;
+		$history->report_id = $report->id;
+		$history->creator_id = $user->id;
+		$history->content = $content;
+		if (!$history->save()) {
+			throw new Exception('db failed: history cannot be saved');
+		}
+
+		DB::commit();
+
+		return $report;
 	}
 }
