@@ -9,6 +9,18 @@ class DepartmentTest extends TestCase {
 
 		$depts = array(
 				array(
+					'id' => 12,
+					'is_alive'=>1,
+					'parent_id' => null,
+					'dept_name' => 'root2'
+					),
+				array(
+					'id' => 113,
+					'is_alive'=>1,
+					'parent_id' => 12,
+					'dept_name' => '본청2',
+					),
+				array(
 					'id' => 11,
 					'is_alive'=>1,
 					'parent_id' => null,
@@ -72,7 +84,8 @@ class DepartmentTest extends TestCase {
 			);
 
 		Department::insert($depts);
-		DepartmentService::adjustHierarchy();
+		$service = new DepartmentService;
+		$service->adjustHierarchy();
 	}
 
 	public function testIsAncestor()
@@ -83,4 +96,9 @@ class DepartmentTest extends TestCase {
 		$this->assertTrue(!$ancestor->isAncestor(9));
 	}
 
+	public function testAdjustPosition() {
+
+		$service = new DepartmentService;
+		$service->adjustPositions();
+	}
 }
