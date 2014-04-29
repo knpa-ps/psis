@@ -26,9 +26,10 @@ $( document ).ajaxError(function( event, jqxhr, settings, exception ) {
 		alert('서버에서 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.');
 });
 
+var $modal;
 // dept-selector
 $(function() {
-	var $modal = $("#ajax_modal");
+	$modal = $("#ajax_modal");
 
 	$(".dept-selector-clear").on('click', function() {
 		$(this).siblings(".dept-name").val("");
@@ -38,7 +39,6 @@ $(function() {
 
 	// dept-selector modal 띄우기
 	$(".dept-name").on('click', function() {
-
 		$("body").modalmanager('loading');
 
 		var container_id = $(this).parent().prop('id');

@@ -26,13 +26,7 @@ App::error(function($e, $code){
 
 		return Response::make($e->getMessage(), $code);
 	} else {
-		// TODO
-		// switch ($code) {
-		// 	case 403:
-		// 		$header = '권한 없음';
-		// 		$message = '해당 작업에 대한 권한이 없습니다. 관리자에게 문의해주세요.';
-		// 		return View::make('errors.error', array('header'=>$header,'message'=>$message));
-		// }
+
 	}
 });
 
@@ -110,4 +104,19 @@ Route::filter('permission', function($route, $request, $permission) {
 Route::filter('menu', function(){
 	$service = new MenuService;
 	$service->activateMenuByUrl(Request::path());
+});
+
+
+Route::filter('migrate', function() {
+	// user migration filter from v1.0 to 2.0
+	if (Sentry::check()) {
+		$user = Sentry::getUser();
+		$migrationDate = '2014-04-28';
+		if (strtotime($user->created_at->toDateTimeString()) < strtotime($migrationDate)) {
+			// if not migrated, redirect to migration form page
+			if (DB::table('user_migrations')->where('user_id', '=', $user->id)->count() == 0) {
+				return Redirect::to('/migrate');
+			}
+		}
+	}
 });

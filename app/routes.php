@@ -34,7 +34,9 @@ Route::when('*', 'menu', array('GET'));
 
 // private
 Route::group(array('before'=>'auth'), function() {
-    Route::get('/', array('uses'=>'HomeController@displayDashboard'));
+    Route::get('/', array('uses'=>'HomeController@displayDashboard', 'before'=>'migrate'));
+
+    Route::any('/migrate', array('uses'=>'HomeController@migrateV2'));
 
     Route::get('/report', array('uses'=>'HomeController@displayDashboard'));    
     Route::get('/report/list', array('uses'=>'HomeController@displayDashboard'));
@@ -59,3 +61,4 @@ Route::group(array('before'=>'ajax', 'prefix'=>'ajax'), function() {
 include('routes/users.php');
 include('routes/reports.php');
 include('routes/admin.php');
+include('routes/budgets.php');

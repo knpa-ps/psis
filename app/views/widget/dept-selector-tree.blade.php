@@ -42,7 +42,7 @@ $(function() {
 				}
 			}
 		},
-		plugins: [ "dnd", "wholerow" ]
+		plugins: [ "wholerow" ]
 	});
 });
 </script>
