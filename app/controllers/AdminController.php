@@ -2,7 +2,13 @@
 
 class AdminController extends BaseController {
 	public function displayDeptTree() {
-		return View::make('admin.depts');
+		$codes = Code::where('category_code','H002')->get();
+
+		$typeCodes = array();
+        foreach ($codes as $code) {
+            $typeCodes[$code->code] = $code->title;
+        }
+		return View::make('admin.depts', array('typeCodes'=>$typeCodes));
 	}
 	public function savePermission() {
 		$keys = Input::get('permission_keys');

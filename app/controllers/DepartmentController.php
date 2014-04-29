@@ -8,6 +8,18 @@ class DepartmentController extends BaseController {
 		$this->service = new DepartmentService;
 	}
 
+	public function getData() {
+		$id = Input::get('id');
+		$dept = Department::find($id);
+		$details = array(
+			'dept_name' => $dept->dept_name,
+			'full_name' => $dept->full_name,
+			'selectable' => $dept->is_selectable,
+			'type_code' => $dept->type_code,
+			'is_alive' => $dept->is_alive
+			);
+		return $details; 
+	}
 	public function getTreeNodes() {
 		$parentId = Input::get('id');
 
@@ -69,14 +81,58 @@ class DepartmentController extends BaseController {
 	}
 
 	public function delete() {
-
+		$id=Input::get('id');
+		$dept=Department::find($id);
+		$dept->is_alive = 0;
+		$dept->save();
 	}
 
 	public function create() {
+		$new = new Department;
+		$new->parent_id = Input::get('parent_id');
+		$new->depth = 0;
+		$new->dept_name = Input::get('name');
+		$new->full_path = '';
+		$new->full_name = '';
+		$new->is_alive = 1;
+		$new->is_terminal = 0;
+		$new->sort_order = Department::where('parent_id','=',$new->parent_id)->count();
 
+		$new->save();
+
+		$this->service->adjustHierarchy($new->parent_id ? $new->parent_id : null);
+		
+		return $new;
+	}
+
+	public function rename() {
+		$id=Input::get('id');
+		$dept = Department::find($id);
+		$dept->dept_name = Input::get('name');
+		$dept->save();
+		$this->service->adjustHierarchy($id ? $id : null);
 	}
 
 	public function update() {
+		$id = Input::get('id');
+		
+		$selectable = Input::get('selectable');
+		$childSelectable = Input::get('child_selectable');
+		$typeCode = Input::get('type_code');
+		$childType = Input::get('child_type');
 
+		$dept = Department::where('children')->find($id);
+		$dept->is_selectable = $selectable == 1 ? 1 : 0;
+		$dept->type_code = $typeCode;
+
+		if($childSelectable==1) {
+
+		}
+		
+		if($childType==1){
+
+		}
+
+		$dept->save();
 	}
 }

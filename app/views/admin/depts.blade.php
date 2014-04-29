@@ -1,11 +1,6 @@
 @extends('layouts.master')
 
 @section('styles')
-<style>
-#detail_table th, td{
-	width : 50%;
-}
-</style>
 
 @stop
 @section('content')
@@ -32,28 +27,49 @@
 				<div class="panel-title"><b>세부정보</b></div>
 			</div>
 			<div class="panel-body">
-				<table class="table table-striped" id="detail_table">
-					<tr>
-						<th><b>부서 이름</b></th>
-						<td id="dept_name"></td>
-					</tr>
-					<tr>
-						<th>full name</th>
-						<td id="full_name"></td>
-					</tr>
-					<tr>
-						<th>Selectable</th>
-						<td id="selectable"></td>
-					</tr>
-					<tr>
-						<th>type_code</th>
-						<td id="type_code"></td>
-					</tr>
-					<tr>
-						<th>is_alive</th>
-						<td id="is_alive"></td>
-					</tr>
-				</table>
+				<form id="mod_detail" class="form-horizontal" role='form'>
+					<fieldset>
+							
+						<table class="table table-striped" id="detail_table">
+							<tbody>
+								<tr>
+									<th style="width:25%;"><b>부서 이름</b></th>
+									<td colspan="3" id="dept_name"></td>
+								</tr>
+								<tr>
+									<th>full name</th>
+									<td id="full_name"></td>
+								</tr>
+								<tr>
+									<div class="form-group">
+										<th>Selectable</th>
+										<td style="width:45%;"><input id="selectable" type="checkbox" name="selectable" value="1"></td>
+										<th>하위부서까지</th>
+										<td><input type="checkbox" name="child_selectable" value="1"></td>
+									</div>
+								</tr>
+								<tr>
+									<div class="form-group">
+										<th>type_code</th>
+										<td>
+											<div class="select-type">
+												{{ Form::select('type_code', $typeCodes, null , array('id'=>'type_code')) }}
+											</div>
+									    </td>
+										<th>하위부서까지</th>
+										<td><input type="checkbox" name="child_type" value="1"></td>
+									</div>
+								</tr>
+								<tr>
+									<th>is_alive</th>
+									<td colspan="3" id="is_alive"></td>
+								</tr>
+							</tbody>
+						</table>
+						<input type="button" value="저장" class="btn btn-primary btn-xs pull-right" id="save_detail">
+					</fieldset>
+				</form>
+				<br>
 				<div id="user_table">
 					{{ View::make('datatable.template', array(
 						'id'=>'users_table',
@@ -78,18 +94,55 @@
 
 <script type="text/javascript">
 $(function() {
+	var selected_id = null;
+
+	$("#save_detail").on('click', function(){
+		if(!selected_id){
+			alert("수정할 부서를 선택하세요");
+			return;
+		}
+
+		var params = $("#mod_detail").serializeArray();
+		params.push({ 'name' : 'id', 'value' : selected_id });
+
+		$.ajax({
+			url: base_url+"/admin/depts/update",
+			type : "post",
+			data : params,
+			success : function(){
+				alert('변경사항이 저장되었습니다.');
+			}
+		});
+	})
 	$("#detail_table").on('select.dept-selector', function(e, data){
 		$("#dept_name").text(data.dept_name);
 		$("#full_name").text(data.full_name);
-		$("#selectable").text(data.selectable);
+		if(data.selectable==1){
+			$("#selectable").attr('checked', true);
+		}
+		else{
+			$("#selectable").attr('checked', false);	
+		}
+		$("div.select-type select").val(data.type_code);
+		$("#is_alive").text(data.is_alive);
 
 	});
 	$("#dept_tree")
 	.on('activate_node.jstree', function(e, data) {
 
-		// TODO : 일요일에 여기서부터
 		// fire select event!
-		$("#detail_table").trigger('select.dept-selector', [ extras ]);
+		selected_id = data.node.id;
+		var id = { 'id' : selected_id };
+
+		$.ajax({
+			url : base_url+"/admin/depts/data",
+			type : "post",
+			data : id,
+			success : function(response){
+				$("#detail_table").trigger('select.dept-selector', response);
+			}
+		});
+		
 	})
 	.on('move_node.jstree', function(e, data) {
 
@@ -105,10 +158,29 @@ $(function() {
 		});
 	})
 	.on('create_node.jstree', function(e, data) {
-
+		//DB에 추가하기
+		$.ajax({
+			url : base_url+"/admin/depts/create",
+			type:"post",
+			data: 	{ 'parent_id' : data.parent ,
+					  'name' : data.node.text
+					},
+			success: function(d) {
+				data.instance.set_id(data.node, d.id);
+			}, 
+			error: function() {
+				data.instance.refresh();
+			}
+		});
 	})
 	.on('rename_node.jstree', function(e, data) {
-
+		$.ajax({
+			url : base_url+"/admin/depts/rename",
+			type : "post",
+			data :  { 'id' : data.node.id,
+					  'name' : data.node.text
+					}
+		})
 	})
 	.on('delete_node.jstree', function (e, data) {
 
@@ -147,7 +219,7 @@ $(function() {
 							var inst = $.jstree.reference(data.reference),
 								obj = inst.get_node(data.reference);
 							inst.create_node(obj, {}, "last", function (new_node) {
-								setTimeout(function () { inst.edit(new_node); },0);
+								setTimeout(function () { inst.edit(new_node);},0);
 							});
 						}
 					}

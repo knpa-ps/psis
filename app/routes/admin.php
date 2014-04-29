@@ -10,8 +10,10 @@ Route::group(array('before'=>'auth|permission:superuser'), function() {
         Route::get('depts', 'AdminController@displayDeptTree');
         Route::post('depts/move', 'DepartmentController@move');
         Route::post('depts/delete', 'DepartmentController@delete');
+        Route::post('depts/rename', 'DepartmentController@rename');
         Route::post('depts/update', 'DepartmentController@update');
         Route::post('depts/create', 'DepartmentController@create');
+        Route::post('depts/data', 'DepartmentController@getData');
 
         Route::get('depts/adjust-positions', 'DepartmentController@adjustPositions');
         Route::get('depts/adjust-hierarchy', 'DepartmentController@adjustHierarchy');
