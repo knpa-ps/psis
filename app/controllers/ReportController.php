@@ -77,7 +77,7 @@ class ReportController extends BaseController {
 		}
 
 		// report list 가져오기
-		$reportsQuery = $this->service->getReportListQuery(User::find(211), $data['input']);
+		$reportsQuery = $this->service->getReportListQuery($user, $data['input']);
 		$data['total'] = $reportsQuery->count();
 		$data['reports'] = $reportsQuery->paginate(15);
 
