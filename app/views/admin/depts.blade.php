@@ -165,8 +165,9 @@ $(function() {
 			data: 	{ 'parent_id' : data.parent ,
 					  'name' : data.node.text
 					},
-			success: function(d) {
-				data.instance.set_id(data.node, d.id);
+			success: function(id) {
+				data.instance.set_id(data.node, id);
+				data.instance.edit(data.node);
 			}, 
 			error: function() {
 				data.instance.refresh();
@@ -219,7 +220,7 @@ $(function() {
 							var inst = $.jstree.reference(data.reference),
 								obj = inst.get_node(data.reference);
 							inst.create_node(obj, {}, "last", function (new_node) {
-								setTimeout(function () { inst.edit(new_node);},0);
+								
 							});
 						}
 					}

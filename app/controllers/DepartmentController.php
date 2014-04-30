@@ -96,13 +96,14 @@ class DepartmentController extends BaseController {
 		$new->full_name = '';
 		$new->is_alive = 1;
 		$new->is_terminal = 0;
+		$new->type_code = 'D003';
 		$new->sort_order = Department::where('parent_id','=',$new->parent_id)->count();
 
 		$new->save();
 
-		$this->service->adjustHierarchy($new->parent_id ? $new->parent_id : null);
+		$this->service->adjustHierarchy($new->id);
 		
-		return $new;
+		return $new->id;
 	}
 
 	public function rename() {
