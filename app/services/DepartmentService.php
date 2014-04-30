@@ -1,6 +1,38 @@
 <?php 
 
 class DepartmentService extends BaseService {
+	public function detailUpdate($id, $selectable, $childSelectable, $typeCode, $childType){
+		$dept = Department::find($id);
+		if ($dept === null) {
+			throw new Exception('department does not exists with id='.$id);
+		}
+
+		$dept->is_selectable = $selectable;
+		$dept->type_code = $typeCode;
+		if(!$dept->save()){
+			throw new Exception('failed to update department data. '.$dept);
+		}
+
+
+		if($childSelectable==1) {
+			if($selectable==1) {
+				Department::where('full_path', 'like', $dept->full_path.'%' )->update(array(
+					'is_selectable' => 1
+				));	
+			}
+			else {
+				Department::where('full_path', 'like', $dept->full_path.'%' )->update(array(
+					'is_selectable' => 0
+				));		
+			}
+		}
+		
+		if($childType==1){
+			Department::where('full_path', 'like', $dept->full_path.'%')->update(array(
+				'type_code' => $typeCode
+			));
+		}
+	}
 
 	public function getAliveChildren($parentId = null) {
 		

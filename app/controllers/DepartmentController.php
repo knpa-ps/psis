@@ -115,24 +115,11 @@ class DepartmentController extends BaseController {
 
 	public function update() {
 		$id = Input::get('id');
-		
-		$selectable = Input::get('selectable');
-		$childSelectable = Input::get('child_selectable');
+		$selectable = Input::get('selectable') == 1 ? 1 : 0 ;
+		$childSelectable = Input::get('child_selectable') == 1 ? 1 : 0 ;
 		$typeCode = Input::get('type_code');
-		$childType = Input::get('child_type');
+		$childType = Input::get('child_type') == 1 ? 1 : 0 ;
 
-		$dept = Department::where('children')->find($id);
-		$dept->is_selectable = $selectable == 1 ? 1 : 0;
-		$dept->type_code = $typeCode;
-
-		if($childSelectable==1) {
-
-		}
-		
-		if($childType==1){
-
-		}
-
-		$dept->save();
+		$this->service->detailUpdate($id, $selectable, $childSelectable, $typeCode, $childType);
 	}
 }
