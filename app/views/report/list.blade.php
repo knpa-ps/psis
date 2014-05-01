@@ -158,7 +158,7 @@
 									</td>
 									<td>{{ $r->department->full_name }}</td>
 									<td>{{ $r->user->user_name }}</td>
-									<td>{{ $r->created_at->format('Y-m-d h:i') }}</td>
+									<td>{{ $r->created_at->format('Y-m-d H:i') }}</td>
 								</tr>
 							@endforeach
 						@endif

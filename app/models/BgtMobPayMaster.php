@@ -2,7 +2,6 @@
 
 class BgtMobPayMaster extends \Eloquent {
 	protected $table = 'bgt_mobpay_masters';
-	protected $fillable = [];
 
 	public function details() {
 		return $this->hasMany('BgtMobPayDetail', 'master_id', 'id');

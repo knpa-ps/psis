@@ -40,11 +40,11 @@ class PSReport extends Eloquent {
 
 	public function getIsNewAttribute() {
 		$now = Carbon::now();
-		return $now->diffInDays($this->created_at) <= 1;
+		return $now->diffInHours($this->created_at) <= 1;
 	}
 
 	public function getIsUpdatedAttribute() {
 		$now = Carbon::now();
-		return $now->diffInDays($this->updated_at) <= 1;
+		return $now->diffInHours($this->updated_at) <= 1;
 	}
 }

@@ -14,7 +14,7 @@ class MenuComposer {
 
 		$activeMenu = Menu::active()->first();
 
-		if ($activeMenu->type == Menu::ID_HIDDEN_ROOT) {
+		if ($activeMenu != null && $activeMenu->type == Menu::ID_HIDDEN_ROOT) {
 			$menus['sidebar'] = $service->getMenuTree(Menu::ID_HIDDEN_ROOT);
 		} else {
 			$menus['sidebar'] = $menus['navbar'];

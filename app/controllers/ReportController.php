@@ -13,7 +13,7 @@ class ReportController extends BaseController {
 	 * 그냥 경비속보 조회 목록으로 Redirect 함
 	 */
 	public function displayDashboard() {
-		return Redirect::action('ReportController@displayList');
+		return View::make('report.dashboard');
 	}
 
 	public function displayComposeForm() {

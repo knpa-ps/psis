@@ -2,7 +2,6 @@
 
 class BgtMobPayDetail extends \Eloquent {
 	protected $table = 'bgt_mobpay_details';
-	protected $fillable = [];
 
 	public function department() {
 		return $this->belongsTo('Department', 'dept_id', 'id');

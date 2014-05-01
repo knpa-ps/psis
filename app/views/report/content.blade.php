@@ -13,7 +13,7 @@
 								<small>작성자</small> {{ $report->user->user_name }}
 							</div>
 							<div class="col-xs-4">
-								<small>작성시간</small> {{ $report->created_at->format('Y-m-d h:i') }}
+								<small>작성시간</small> {{ $report->created_at->format('Y-m-d H:i') }}
 							</div>
 						</div>
 					</h3>

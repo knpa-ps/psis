@@ -2,7 +2,6 @@
 
 class BgtMealCost extends \Eloquent {
 	protected $table = 'bgt_meal_costs';
-	protected $fillable = [];
 
 	public function department() {
 		return $this->belongsTo('Department', 'dept_id' , 'id');
