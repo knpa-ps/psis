@@ -104,7 +104,7 @@ class PSReportService extends BaseService {
 			break;
 			case Department::TYPE_REGION:
 				// 지방청이면 해당 지방청의 모든 속보 조회 가능
-				$user->department->region()->isAncestor($report->dept_id)?1:0;
+				$readable = $user->department->region()->isAncestor($report->dept_id)?1:0;
 			break;
 			case Department::TYPE_OFFICE:
 				// 일반 관서면 자기 부서 또는 하위부서가 쓴 것들에 대해 조회 가능
