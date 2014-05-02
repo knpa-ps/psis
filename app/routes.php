@@ -62,4 +62,3 @@ include('routes/users.php');
 include('routes/reports.php');
 include('routes/admin.php');
 include('routes/budgets.php');
-include('routes/manage.php');
