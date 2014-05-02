@@ -32,7 +32,7 @@
 		</div>
 		<div class="row">
 			<div class="col-xs-10">
-				<input type="hidden" id="hwpctrl_content" value="{{ isset($report)?$report->histories()->lastest()->first()->content:'' }}">
+				<input type="hidden" id="hwpctrl_content" value="{{ isset($report)?$report->histories()->lastest()->first()->content:(isset($template)?$template->content:'') }}">
 				<input type="hidden" id="report_compose_mode" value="{{ $mode  }}">
 				<object id="HwpCtrl" height="800" width="100%" align="center" classid="clsid:BD9C32DE-3155-4691-8972-097D53B10052">
 	                <param name="TOOLBAR_MENU" value="true">

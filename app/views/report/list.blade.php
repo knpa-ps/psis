@@ -151,7 +151,7 @@
 										@elseif ($r->is_updated)
 											<span class="label label-info">Update</span>
 										@endif
-										<a href="{{ url('reports/list?'.http_build_query(array_merge($input, array('rid'=>$r->id)))) }}"
+										<a href="{{ url('reports/list?'.http_build_query(array_merge($input, array('rid'=>$r->id, 'page'=>Input::get('page'))))) }}"
 										class="{{ $r->has_read ? 'black' : 'text-primary' }}">
 											{{ str_limit($r->title, 35) }}
 										</a>

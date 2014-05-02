@@ -37,7 +37,8 @@ class ReportController extends BaseController {
 		
 			$data['report'] = $report;
 		} 
-
+		$template = PSReportTemplate::where('is_default','=',1)->first();
+		$data['template'] = $template;
 		$data['user'] = $user;
 
 		return View::make('report.create', $data);

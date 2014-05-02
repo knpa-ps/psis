@@ -37,3 +37,4 @@ class Menu extends Eloquent {
 		return !empty($result);
 	}
 }
+
