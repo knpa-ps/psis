@@ -2,6 +2,63 @@
 
 class PSReportService extends BaseService {
 
+	private function getScopeDept($user) {
+		$deptType = $user->department->type_code;
+		if (!$user->isSuperUser() && $deptType != Department::TYPE_HEAD) {
+			// 사용자의 관서 종류에 따라 조회 범위 설정
+			if ($deptType == Department::TYPE_REGION) {
+				return $user->department->region();
+			} else {
+				return $user->department;
+			}
+		}
+		return null;
+	}
+
+	public function getAdjacentIds($user, $reportId, $params) {
+		$current = PSReport::find($reportId);
+		// date filtering
+		$reports = PSReport::with('department', 'user', 'reads')
+							->where('created_at', '>=', $params['start'])
+							->where('created_at', '<=', date('Y-m-d',strtotime('+1 day', strtotime($params['end']))));
+
+		$scope = $this->getScopeDept($user);
+		if ($scope) {
+			
+			$reports->whereHas('department', function($q) use ($scope) {
+				$q->where('full_path', 'like', "{$scope->full_path}%");
+			});
+		}
+
+		
+		// 제목
+		if (isset($params['q']) && trim($params['q'])) {
+			$reports->where('title', 'like', "%{$params['q']}%");
+		}
+
+		// 지방청 작성 속보만 조회
+		if (isset($params['o_region']) && $params['o_region']) {
+			$reports->whereHas('department', function($q) {
+				$q->where('type_code', '=', Department::TYPE_REGION);
+			});
+		}
+
+		// 관서 필터링
+		if (isset($params['dept_id']) && $params['dept_id']) {
+			$deptId = $params['dept_id'];
+			$reports->whereHas('department', function($q) use ($deptId) {
+				$q->where('full_path', 'like', "%:{$deptId}:%");
+			});
+		}
+
+		$nextQuery = clone $reports;
+		$next = $nextQuery->where('id', '>', $current->id)->orderBy('id', 'asc')->first();
+	 	$prevQuery = clone $reports;
+	 	$prev = $prevQuery->where('id', '<', $current->id)->orderBy('id', 'desc')->first();
+
+	 	return compact('prev', 'next');
+	}
+
 	/**
 	 * $user의 입장에서 조회가능한 속보 목록에 대한 query builder를 가져온다.
 	 * (필수)
@@ -23,17 +80,11 @@ class PSReportService extends BaseService {
 							->where('created_at', '>=', $params['start'])
 							->where('created_at', '<=', date('Y-m-d',strtotime('+1 day', strtotime($params['end']))));
 
-		$deptType = $user->department->type_code;
-		if (!$user->isSuperUser() && $deptType != Department::TYPE_HEAD) {
-			// 사용자의 관서 종류에 따라 조회 범위 설정
-			if ($deptType == Department::TYPE_REGION) {
-				$scopeDeptId = $user->department->region()->id;
-			} else {
-				$scopeDeptId = $user->department->id;
-			}
-
-			$reports->whereHas('department', function($q) use ($scopeDeptId) {
-				$q->where('full_path', 'like', "%:{$scopeDeptId}:%");
+		$scope = $this->getScopeDept($user);
+		if ($scope) {
+			
+			$reports->whereHas('department', function($q) use ($scope) {
+				$q->where('full_path', 'like', "{$scope->full_path}%");
 			});
 		}
 
@@ -84,7 +135,7 @@ class PSReportService extends BaseService {
 	 * @param User $user 
 	 * @param PSReport $report 
 	 * @return array 권한
-	 */
+	**/
 	public function getPermissions($user, $report) {
 		// super user 이면 걍 다 ㅇㅋ
 		// 자기가 쓴거면 조회 수정,삭제 가능
@@ -219,5 +270,14 @@ class PSReportService extends BaseService {
 			throw new Exception('db failed', 400);
 		}
 		return $draft;
+	}
+	public function searchPrevNext($reports, $rid) {
+		$thisindex = 0;
+		foreach ($reports as $report) {
+			if($report->id == $rid) {
+				return $thisindex;
+			}
+			$index++;
+		}
 	}
 }

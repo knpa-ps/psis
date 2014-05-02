@@ -62,6 +62,24 @@
 						</button>
 					@endif
 				</div>
+				<div class="btn-group report-toolbar btn-group-justified">
+
+					@if ($prev_id)
+						<a href="{{ url('reports/list?rid='.$prev_id) }}" type="button" class="btn btn-default">
+					@else
+						<a href="#" type="button" class="btn disabled btn-default">
+					@endif
+	
+			  		<small><span class="glyphicon glyphicon-chevron-left"></span>이전</small></a>
+
+			  		@if ($next_id)
+						<a href="{{ url('reports/list?rid='.$next_id) }}" type="button" class="btn btn-default">
+					@else
+						<a href="#" type="button" class="btn disabled btn-default">
+					@endif
+
+			    	<small>다음<span class="glyphicon glyphicon-chevron-right"></span></small></a>
+				</div>
 			</div>
 		</div>
 	</div>
