@@ -2,6 +2,39 @@
 
 class ManageController extends \BaseController {
 
+	public function activateUser(){
+		$selectedId = Input::get("selected");
+		$checked = Input::get("checked");
+
+		if($selectedId == null) {
+			return "사용자가 선택되지 않았습니다.";
+		}
+
+		$user = User::find($selectedId);
+		$user->activated = $checked;
+		
+		if($user->save()){
+			if($checked){
+				return "해당 사용자의 계정이 활성화되었습니다.";
+			} else {
+				return "해당 사용자의 계정이 비활성화되었습니다.";
+			}
+		}
+	}
+	public function getUserDataDetail(){
+		$user = User::find(Input::get("id"));
+
+		$data = array();
+		$data["activated"] = $user->activated;
+		$data["email"] = $user->email;
+		$data["name"] = $user->user_name;
+		$data["rank"] = $user->rank->title;
+		$data["dept"] = $user->department->full_name;
+		$data["createdAt"] = $user->created_at;
+
+		return $data;
+
+	}
 	public function displayDashboard() {
 
 		return View::make('manage.dashboard');
