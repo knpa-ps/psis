@@ -13,7 +13,8 @@
 			<div class="panel-body">
 				{{ View::make('datatable.template', array(
 						'id'=>'users_table',
-						'columns'=>array('계정', '이름', '관서')
+						'class' => 'single-selectable',
+						'columns'=>array('ID','계정', '이름', '관서')
 				)) }}		
 			</div>
 		</div>
@@ -64,17 +65,17 @@
 {{ HTML::script('static/vendor/datatables/js/jquery.dataTables.plugins.js') }}
 <script type="text/javascript">
 $(function(){
+
 	var usersTable = $("#users_table").dataTable(dt_get_options({
 		"sAjaxSource": base_url+"/manage/data",
-		"bServerSide": true,
-		"aoColumnDefs": [ {
-	      "aTargets": [ 1 ],
-	      "mRender": function ( data, type, full ) {
-
-	        return '<a href="#" class="show-detail" data-id="'+full[0]+'">'+data+'</a>';
-	      }
-	    } ]
+		"bServerSide": true
 	}));
+
+	$("#users_table tbody").on('click', 'tr td', function() {
+		var id = $(this).parent().find('td').eq(0).text();
+		alert(id);
+	});
+
 });
 </script>
 @stop

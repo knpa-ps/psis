@@ -16,10 +16,10 @@ class ManageController extends \BaseController {
 		return Datatable::query(DB::table('users')
 			->join('departments', 'users.dept_id','=','departments.id')
 			->where('full_path','like',"{$dept->full_path}%")
-			->select('email', 'user_name', 'full_name'))
-        ->showColumns('email', 'user_name', 'full_name')
+			->select('users.id','email', 'user_name', 'full_name'))
+        ->showColumns('id','email', 'user_name', 'full_name')
         ->searchColumns('email','user_name')
-        ->orderColumns('full_name')
+        ->orderColumns('id')
         ->make();
 	}
 }
