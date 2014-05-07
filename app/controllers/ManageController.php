@@ -2,6 +2,48 @@
 
 class ManageController extends \BaseController {
 
+	public function modifyData() {
+		$userId = Input::get('id');
+		$user = User::find($userId);
+		$modData = ModUser::where('user_id','=',$userId)->orderBy('created_at', 'desc')->first();
+		
+		$new = array();
+
+		if($modData==null){
+			return App::abort(400);
+		}
+
+		
+
+		DB::transaction(function() {
+
+			$user->user_name = $modData->user_name;
+			$user->user_rank = $modData->user_rank;
+			$user->dept_id = $modData->dept_id;
+
+			$modData->approved = 1;
+			$modData->save();
+
+			if($user->save()){
+				return "해당 유저의 정보가 수정되었습니다.";
+			}
+		});
+	}
+	public function getModifyData() {
+		$userId = Input::get('id');
+		$modData = ModUser::where('user_id','=',$userId)->orderBy('created_at', 'desc')->first();
+		$new = array();
+		if($modData==null){
+			return 0;
+		}
+		$new["created_at"] = $modData->created_at;
+		$new["name"] = $modData->user_name;
+		$new["rank"] = Code::where('code','=',$modData->user_rank)->first()->title;
+		$new["dept"] = Department::where('id','=',$modData->dept_id)->first()->full_name;
+
+		return $new;
+	}
+
 	public function activateUser(){
 		$selectedId = Input::get("selected");
 		$checked = Input::get("checked");
@@ -12,7 +54,7 @@ class ManageController extends \BaseController {
 
 		$user = User::find($selectedId);
 		$user->activated = $checked;
-		
+
 		if($user->save()){
 			if($checked){
 				return "해당 사용자의 계정이 활성화되었습니다.";
@@ -21,6 +63,8 @@ class ManageController extends \BaseController {
 			}
 		}
 	}
+
+
 	public function getUserDataDetail(){
 		$user = User::find(Input::get("id"));
 
