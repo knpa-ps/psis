@@ -5,7 +5,7 @@
 <div class="row">
 	<div class="col-xs-12">
 		<div class="well well-small">
-			<form class="form-horizontal" id="data_table_form">
+			<form class="form-horizontal" id="data_table_form" action="{{action('UserController@index')}}">
 
 				<div class="row">
 					<div class="row col-xs-12">
@@ -14,7 +14,7 @@
 								사용자 그룹
 							</label>
 							<div class="col-xs-8">
-								{{ Form::select('user_group', $manageGroups, null, array('class' => 'form-control input-sm', 'id' => 'user_group') )}}
+								{{ Form::select('group', $manageGroups, null, array('class' => 'form-control input-sm', 'id' => 'user_group') )}}
 							</div>
 						</div>
 						<div class="form-group col-xs-6">
@@ -22,24 +22,26 @@
 								활성화 여부
 							</label>
 							<div class="col-xs-8">
-								{{ Form::select('active', array('1'=>'활성화', '0'=>'비활성화','all'=> '전체'), 'all', array('class'=>'form-control input-sm', 'id'=>'active')  ) }}
+								{{ Form::select('active', array('1'=>'활성화', '0'=>'비활성화','all' => '전체'), 'all' , array('class'=>'form-control input-sm', 'id'=>'active')  ) }}
 							</div>
 						</div>
 					</div>
 					<div class="row col-xs-12">
 						<div class="form-group col-xs-6">
-							<label for="event_name" class="control-label col-xs-4">
+							<label for="account_name" class="control-label col-xs-4">
 								계정/이름
 							</label>
 							<div class="col-xs-8">
-								<input type="text" class="input-sm form-control" id="event_name" name="event_name">
+								<input type="text" class="input-sm form-control" id="account_name" name="account_name">
 							</div>
 						</div>
 						<div class="form-group col-xs-6">
-							<label for="requested" class="control-label col-xs-4">정보수정 요청자</label>
+							<label for="use_code" class="control-label col-xs-4">
+								정보 수정 신청자
+							</label>
 							<div class="col-xs-8">
-								<input type="checkbox" name="requested" id="requested" value="1">
-							</div>							
+								{{ Form::select('modify_requested', array('1'=>'신청자', 'all' => '전체'), 'all' , array('class'=>'form-control input-sm', 'id'=>'modify_requested')  ) }}
+							</div>					
 						</div>
 					</div>
 				</div>

@@ -71,6 +71,12 @@ class UserController extends BaseController {
 	}
 
 
+	// ManagerService class를 불러온다
+
+	public function __construct() {
+		$this->mngService = new ManagerService;
+	}
+
 	/**
 	 * Display a listing of the resource.
 	 * GET /manager/users
@@ -80,37 +86,30 @@ class UserController extends BaseController {
 	public function index()
 	{
 		$user = Sentry::getUser();
+		$params = Input::all();
+		$userId = $user->id;
+		//초기 사용자그룹 선택되는거 만들어줘야함.
+		//Input::get('group')이 처음엔 없으니까 $params['group']에 초기값을 넣어줘야함.
+		$initSelectedGroup = Group::whereHas('users', function($q) use($userId) {
+			$q->where('id','=',$userId);
+		})->where('key','like','%.admin')->first();
 
-		$depts = Department::where('full_path','like',$user->department->first()->full_path.'%')->get();
-		
-		$users = array();
-		foreach ($depts as $d) {
-			if(count($d->members()->get())!==0 ){
-				$members = $d->members()->get();
-				foreach ($members as $m) {
-					$users[] = $m;
-				}
+		if($initSelectedGroup){
+			if(!isset($params['group'])){
+				$params['group'] = substr($initSelectedGroup->key, 0, strlen($initSelectedGroup->key)-6 );
 			}
 		}
-		var_dump((object) $users);
 
-		$data['users'] = User::paginate(15);
+		$users = $this->mngService->getUserListQuery($params, $user);
 
+		$data['users'] = $users->paginate(15);
 		$userGroups = $user->groups;
-		$userGroupsIds = array();
-		
 
 		foreach ($userGroups as $g) {
-			$userGroupsIds[] = $g->id;
-		}
-		//경비속보 분임관리자임
-		if(in_array(9,$userGroupsIds)){
-			$data['manageGroups']['report'] = "경비속보 사용자";
-		}
-
-		//경비예산 분임관리자임
-		if(in_array(11,$userGroupsIds)){
-			$data['manageGroups']['budget'] = "경비예산 사용자";
+			if(substr($g->key, -5)==="admin"){
+				$manageGroup = substr($g->key, 0, strlen($g->key)-6 );
+				$data['manageGroups'][$manageGroup] = mb_substr($g->name, 0, mb_strlen($g->name)-8);
+			}
 		}
 
 		return View::make('manager.users', $data);
