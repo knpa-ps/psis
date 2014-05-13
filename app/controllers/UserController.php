@@ -121,8 +121,10 @@ class UserController extends BaseController {
 	 *
 	 * @return Response
 	 */
-	public function create($form=array())
+	public function create()
 	{
+		$mngUser = Sentry::getUser();
+
 		$codes = CodeCategory::ofName('H001')->first()->codes()->visible()->get();
 
         $userRanks = array();
@@ -131,21 +133,22 @@ class UserController extends BaseController {
         }
 
         //default form value
-        $form = array_merge(array(
+        $form = array(
                 'account_name' => '',
-                'user_rank' => 'R011',
+                'user_rank' => '',
                 'user_name' => '',
                 'dept_name' => '',
                 'dept_id' => '',
                 'contact'=>'',
                 'contact_extension'=>'',
                 'contact_phone'=>''
-            ), $form);
+            );	
 
         $data['form'] = $form;
         $data['userRanks'] = $userRanks;
-		
-		return View::make('manager.users-detail',$data);
+        $data['mngDeptId'] = $mngUser->dept_id;
+
+		return View::make('manager.user-create',$data);
 	}
 
 	/**
@@ -156,7 +159,25 @@ class UserController extends BaseController {
 	 */
 	public function store()
 	{
-		//
+		$form = Input::all();
+		try {
+
+            $this->mngService->register($form);
+
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+
+            switch ($e->getCode()) {
+                case -1: // account_name 없음
+                    Session::flash('message', Lang::get('auth.duplicate_account'));
+                    break;
+            }
+
+            return $this->create();
+        }
+
+        // success!
+        return Redirect::action('UserController@index')->with('message', '새 사용자 계정이 생성되었습니다.');
 	}
 
 	/**
@@ -168,9 +189,7 @@ class UserController extends BaseController {
 	 */
 	public function show($id)
 	{
-		$data['user'] = User::find($id);
-
-		return View::make('manager.users-detail', $data);
+		
 	}
 
 	/**
@@ -182,9 +201,23 @@ class UserController extends BaseController {
 	 */
 	public function edit($id)
 	{
-		$data['user'] = User::find($id);
-		
-		return View::make('manager.users-detail', $data);
+		$mngUser = Sentry::getUser();
+
+		$codes = CodeCategory::ofName('H001')->first()->codes()->visible()->get();
+
+        $userRanks = array();
+        foreach ($codes as $code) {
+            $userRanks[$code->code] = $code->title;
+        }
+        $user = User::find($id);
+
+        $data['form'] = $user;
+        $data['form']['userDept'] = $user->department;
+        $data['userRanks'] = $userRanks;
+        $data['status'] = $user->activated;
+        $data['mngDeptId'] = $mngUser->dept_id;
+
+		return View::make('manager.users-detail',$data);
 	}
 
 	/**
@@ -196,7 +229,33 @@ class UserController extends BaseController {
 	 */
 	public function update($id)
 	{
-		//
+		$user = User::find($id);
+
+		if(!isset($user)){
+			return App::abort(400);
+		}
+
+		$form = Input::all();
+		//If password input is null, keep origin password
+		if($form['password']){
+			$user->password = $form['password'];
+		}
+
+		$user->user_name = $form['user_name'];
+		$user->user_rank = $form['user_rank'];
+		$user->dept_id = $form['dept_id'];
+		$user->contact = $form['contact'];
+		$user->contact_extension = $form['contact_extension'];
+		$user->contact_phone = $form['contact_phone'];
+		$user->activated = $form['status'];
+
+
+		//변경한 정보 저장
+		if(!$user->save()){
+			return App::abort(500);
+		}
+		return Redirect::action('UserController@index')->with('message', '입력한 정보가 저장되었습니다.');
+
 	}
 
 	/**

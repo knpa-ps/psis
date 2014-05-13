@@ -7,4 +7,8 @@ class ManagerController extends \BaseController {
 
 		return View::make('manager.dashboard', $data);
 	}
+
+	public function displayUserListToModify(){
+		return View::make('manager.to-modify');
+	}
 }

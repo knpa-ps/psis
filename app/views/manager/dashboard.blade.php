@@ -10,7 +10,7 @@
 				<h3 class="panel-title pull-left">
 					<b>계정 정보 수정 요청 목록</b>
 				</h3>
-				<span class="label pull-right label-default">more</span>
+				<a href="{{URL::to('manager/users')}}" class="label label-primary pull-right">더보기</a>
 				<div class="clearfix"></div>
 			</div>
 			<div class="panel-body">
@@ -18,26 +18,33 @@
 					<thead>
 						<tr>
 							<th>
-								name
+								계정
 							</th>
 							<th>
-								created_at
+								이름
 							</th>
 							<th>
-								status
+								계급
 							</th>
 							<th>
-								action
+								부서
+							</th>
+							<th>
+								정보수정 요청시간
 							</th>
 						</tr>
 					</thead>
 					<tbody>
 						@foreach($mods as $m)
 							<tr>
+								<td><a href="#">{{$m->user->email}}</a></td>
 								<td>{{$m->user->user_name}}</td>
-								<td>{{ $m->created_at->format('Y.m.d H:i') }}</td>
-								<td>{{ $m->approved }}</td>
-								<td><a href="#">자세히</a></td>
+								<td>{{ $m->user->rank->title }}</td>
+								<td>{{ $m->user->department->full_name}}</td>
+								<td>
+									{{ $m->created_at }} 
+									<a href="#showModified" class="label label-primary pull-right">수정하기</a>
+								</td>
 							</tr>
 						@endforeach
 					</tbody>

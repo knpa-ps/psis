@@ -16,12 +16,12 @@
         <div class="panel panel-default" id="register_panel">
             <div class="panel-heading">
                 <h4 class="panel-title">
-                    <strong>회원정보 수정</strong>
+                    <strong>회원 추가</strong>
                 </h4>
             </div>
             <div class="panel-body">
-                {{ Form::open(array('url'=>url('manager/users/'.$form["id"]), 
-                                    'method'=>'put',
+                {{ Form::open(array('url'=>url('manager/users'), 
+                                    'method'=>'post',
                                     'id'=>'modify_userdata_form', 
                                     'role'=>'form',
                                     'class'=>'form-horizontal',
@@ -42,7 +42,6 @@
                                 {{ Form::text('account_name', $form['account_name'], array(
                                     'class'=>'form-control',
                                     'id'=>'account_name',
-                                    'disabled'
                                 )) }}
 
                             </div>
@@ -100,7 +99,7 @@
                                 @lang('auth.lb_office')
                             </label>
                             <div class="col-xs-8">
-                                {{ View::make('widget.dept-selector', array('id'=>'dept_id', 'default'=>$form['userDept']))->with('mngDeptId', $mngDeptId) }}
+                                {{ View::make('widget.dept-selector', array('id'=>'dept_id'))->with('mngDeptId', $mngDeptId) }}
                             </div>
                             
                         </div>
@@ -150,7 +149,63 @@
                     </div>                    
 
                 </fieldset> 
+                <fieldset>
+                    <legend><h5><span class="glyphicon glyphicon-tasks"></span> 
+                        @lang('auth.lb_system_purpose') </h5></legend>
 
+                    <div class="form-group col-xs-6">
+                        <label class="col-xs-4 control-label">
+                            @lang('auth.lb_guard_news')
+                        </label>
+                        <div class="col-xs-8">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="none" name="groups[report]">
+                                    @lang('auth.lb_not_in_use')
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="user" name="groups[report]" checked>
+                                    @lang('auth.lb_general_user')
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="admin" name="groups[report]">
+                                    @lang('auth.lb_division_manager')
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-xs-6">
+                        <label class="col-xs-4 control-label">
+                            @lang('auth.lb_guard_budget_manage')
+                        </label>
+                        <div class="col-xs-8">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="none" name="groups[budget]">
+                                    @lang('auth.lb_not_in_use')
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="user" name="groups[budget]" checked>
+                                    @lang('auth.lb_general_user')
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="admin" name="groups[budget]">
+                                    @lang('auth.lb_division_manager')
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                </fieldset> 
                 <fieldset>
                     <legend><h5><span class="glyphicon glyphicon-off"></span> 
                         계정 활성화 상태</h5></legend>
@@ -162,13 +217,13 @@
                         <div class="col-xs-8">
                             <div class="radio">
                                 <label>
-                                    <input type="radio" value="1" name="status" <?php if($status) echo "checked"; ?> >
+                                    <input type="radio" value="1" name="status" checked>
                                     활성화
                                 </label>
                             </div>
                             <div class="radio">
                                 <label>
-                                    <input type="radio" value="0" name="status" <?php if(!$status) echo "checked"; ?>>
+                                    <input type="radio" value="0" name="status">
                                     비활성화
                                 </label>
                             </div>
@@ -207,7 +262,7 @@ $(function(){
                 maxlength: 10
             },
             password: {
-                required: false,
+                required: true,
                 rangelength: [8, 255]
             },
             password_confirmation: {

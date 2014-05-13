@@ -6,7 +6,6 @@
 	<div class="col-xs-12">
 		<div class="well well-small">
 			<form class="form-horizontal" id="data_table_form" action="{{action('UserController@index')}}">
-
 				<div class="row">
 					<div class="row col-xs-12">
 						<div class="form-group col-xs-6">
@@ -35,14 +34,6 @@
 								<input type="text" class="input-sm form-control" id="account_name" name="account_name">
 							</div>
 						</div>
-						<div class="form-group col-xs-6">
-							<label for="use_code" class="control-label col-xs-4">
-								정보 수정 신청자
-							</label>
-							<div class="col-xs-8">
-								{{ Form::select('modify_requested', array('1'=>'신청자', 'all' => '전체'), 'all' , array('class'=>'form-control input-sm', 'id'=>'modify_requested')  ) }}
-							</div>					
-						</div>
 					</div>
 				</div>
 
@@ -63,8 +54,15 @@
 <div class="row">
 	<div class="col-xs-12">
 		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">
+					<strong>사용자 목록</strong>
+				</h3>
+			</div>
 			<div class="panel-body">
-				<a href="{{ url('manager/users/create') }}">create</a>
+				<div class="btn-toolbar toolbar-table" role="toolbar">
+					<a href="{{ url('manager/users/create') }}" class="btn btn-primary pull-right btn-xs">사용자 추가 <span class="glyphicon glyphicon-plus"></span></a>
+				</div>
 				<table class="table table-condensed table-bordered table-hover table-striped" id="users_table">
 					<thead>
 						<tr>
@@ -83,7 +81,7 @@
 						@foreach ($users as $u)
 						<tr>
 							<td>{{ $u->id }}</td>
-							<td><a href="{{ url('manager/users/'.$u->id) }}">{{ $u->account_name }}</a></td>
+							<td><a href="{{ url('manager/users/'.$u->id.'/edit') }}">{{ $u->account_name }}</a></td>
 							<td>{{ $u->user_name }}</td>
 							<td>{{ $u->rank->title }}</td>
 							<td>{{ $u->department->full_name }}</td>
