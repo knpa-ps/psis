@@ -10,7 +10,7 @@
 				<h3 class="panel-title pull-left">
 					<b>계정 정보 수정 요청 목록</b>
 				</h3>
-				<a href="{{URL::to('manager/users')}}" class="label label-primary pull-right">더보기</a>
+				<a href="{{URL::to('manager/modify')}}" class="label label-primary pull-right">더보기</a>
 				<div class="clearfix"></div>
 			</div>
 			<div class="panel-body">
@@ -41,10 +41,7 @@
 								<td>{{$m->user->user_name}}</td>
 								<td>{{ $m->user->rank->title }}</td>
 								<td>{{ $m->user->department->full_name}}</td>
-								<td>
-									{{ $m->created_at }} 
-									<a href="#showModified" class="label label-primary pull-right">수정하기</a>
-								</td>
+								<td>{{ $m->created_at }}</td>
 							</tr>
 						@endforeach
 					</tbody>
