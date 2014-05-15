@@ -1,13 +1,6 @@
 <?php
 
-class EqCategoryController extends BaseController {
-
-	private $service;
-
-	public function __construct() {
-		$this->service = new EqService;
-	}
-
+class EqCategoryController extends EquipController {
 	/**
 	 * Display a listing of the resource.
 	 *
