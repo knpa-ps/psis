@@ -111,7 +111,8 @@ return array(
 
         'Way\Generators\GeneratorsServiceProvider',
         'Cartalyst\Sentry\SentryServiceProvider',
-        'Chumper\Datatable\DatatableServiceProvider'
+        'Chumper\Datatable\DatatableServiceProvider',
+        'Baum\BaumServiceProvider'
 
     ),
 
