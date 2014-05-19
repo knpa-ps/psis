@@ -65,7 +65,7 @@
 				<div class="btn-group-vertical report-toolbar">
 
 					@if ($next_id)
-						<a href="{{ url('reports/list?rid='.$next_id) }}" type="button" class="btn btn-default">
+						<a href="{{ url('reports/list?'.http_build_query(array_merge($input, array('rid'=>$next_id, 'page'=>Input::get('page'))))) }}" type="button" class="btn btn-default">
 					@else
 						<a href="#" type="button" class="btn disabled btn-default">
 					@endif
@@ -73,7 +73,7 @@
 			    	<small><span class="glyphicon glyphicon-chevron-up"></span> 다음글</small></a>
 
 					@if ($prev_id)
-						<a href="{{ url('reports/list?rid='.$prev_id) }}" type="button" class="btn btn-default">
+						<a href="{{ url('reports/list?'.http_build_query(array_merge($input, array('rid'=>$prev_id, 'page'=>Input::get('page'))))) }}" type="button" class="btn btn-default">
 					@else
 						<a href="#" type="button" class="btn disabled btn-default">
 					@endif
