@@ -15,7 +15,9 @@ class ReportController extends BaseController {
 	public function displayDashboard() {
 		return View::make('report.dashboard');
 	}
-
+	/*
+	경비속보 작성
+	*/
 	public function displayComposeForm() {
 
 		$user = Sentry::getUser();
@@ -35,9 +37,12 @@ class ReportController extends BaseController {
 		
 			$data['report'] = $report;
 		} 
-
+		$template = PSReportTemplate::where('is_default','=',1)->first();
+		$data['template'] = $template;
 		$data['user'] = $user;
+
 		return View::make('report.create', $data);
+
 	}
 
 	public function displayEditForm() {
@@ -82,8 +87,20 @@ class ReportController extends BaseController {
 		$data['reports'] = $reportsQuery->paginate(15);
 
 		$reportId = Input::get('rid');
+
 		if ($reportId) {
 			try {
+				$adjacents = $this->service->getAdjacentIds($user, $reportId, $data['input']);
+				if($adjacents['prev'])	{
+					$data['prev_id'] = $adjacents['prev']->id;
+				} else {
+					$data['prev_id'] = null;
+				}
+				if($adjacents['next'])	{
+					$data['next_id'] = $adjacents['next']->id;
+				} else {
+					$data['next_id'] = null;
+				}
 				$data['report'] = $this->service->readAndGetReport($user, $reportId);
 				$data['permissions'] = $this->service->getPermissions($user, $data['report']);
 
@@ -97,7 +114,6 @@ class ReportController extends BaseController {
 			}
 
 		}
-
 		return View::make('report.list', $data);
 	}
 
@@ -218,15 +234,5 @@ class ReportController extends BaseController {
 		$template->content = Input::get('content');
 		$template->save();
 		return array('message'=>'저장되었습니다');
-	}
-
-	public function deleteTemplate() {
-		$id = Input::get('id');
-		$user = Sentry::getUser();
-		$template = PSReportTemplate::find($id);
-		if (!$template || !$user->isSuperUser()) {
-			return App::abort(400);
-		}
-		$template->delete();
 	}
 }

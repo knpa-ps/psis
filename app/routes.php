@@ -38,8 +38,8 @@ Route::group(array('before'=>'auth'), function() {
 
     Route::any('/migrate', array('uses'=>'HomeController@migrateV2'));
 
-    Route::get('/report', array('uses'=>'HomeController@displayDashboard'));    
-    Route::get('/report/list', array('uses'=>'HomeController@displayDashboard'));
+    Route::get('/reports', array('uses'=>'HomeController@displayDashboard'));    
+    Route::get('/reports/list', array('uses'=>'HomeController@displayDashboard'));
 
     Route::get('logout', 'AuthController@doLogout');
 
