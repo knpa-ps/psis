@@ -98,7 +98,11 @@ class EqCategoryController extends EquipController {
 	 */
 	public function destroy($id)
 	{
-		EqCategory::find($id)->delete();	
+		$c = EqCategory::find($id);	
+		if ($c->items->count() > 0) {
+			return array('result'=>-1, 'message'=>'귀속된 장비 항목이 있는 분류는 삭제할 수 없습니다.');
+		}
+		$c->delete();
 		return array('result'=>0,'message'=>'삭제되었습니다.');
 	}
 

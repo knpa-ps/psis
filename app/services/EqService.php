@@ -13,10 +13,11 @@ class EqService extends BaseService {
 						->orderBy('name', 'asc');
 
 		$visibleDomainIds = $this->getVisibleDomains($user)->fetch('id')->toArray();
-		if (count($visibleDomainIds) > 0) {
-			$query->whereIn('domain_id', $visibleDomainIds);
+		if (count($visibleDomainIds) == 0) {
+			$visibleDomainIds[] = -1;
 		}
 
+		$query->whereIn('domain_id', $visibleDomainIds);
 		return $query;
 	}	
 
@@ -26,4 +27,17 @@ class EqService extends BaseService {
 		});
 	}
 
+	public function getVisibleItemsQuery(User $user) {
+
+		$visibleCategoryIds = $this->getVisibleCategoriesQuery($user)->lists('id');
+
+		if (count($visibleCategoryIds) == 0) {
+			$visibleCategoryIds[] = -1;
+		}
+
+		$query = EqItem::whereIn('category_id', $visibleCategoryIds)
+						->orderBy('category_id', 'asc')
+						->orderBy('name', 'asc');
+		return $query;
+	}
 }

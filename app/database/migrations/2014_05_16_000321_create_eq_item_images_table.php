@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateEqItemDetailsTable extends Migration {
+class CreateEqItemImagesTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,12 +12,10 @@ class CreateEqItemDetailsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('eq_item_details', function(Blueprint $table) {
+		Schema::create('eq_item_images', function(Blueprint $table) {
 			$table->increments('id');
 			$table->integer('item_id')->unsigned()->index();
-			$table->string('title');
-			$table->longText('content');
-			$table->integer('creator_id')->unsigned();
+			$table->text('url');
 			$table->timestamps();
 		});
 	}
@@ -30,7 +28,7 @@ class CreateEqItemDetailsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('eq_item_details');
+		Schema::drop('eq_item_images');
 	}
 
 }

@@ -18,6 +18,7 @@ class CreateEqItemsTable extends Migration {
 			$table->string('name');
 			$table->string('standard');
 			$table->string('unit');
+			$table->tinyInteger('is_active');
 			$table->smallInteger('persist_years')->unsigned();
 			$table->timestamps();
 		});
