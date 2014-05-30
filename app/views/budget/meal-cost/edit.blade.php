@@ -6,11 +6,11 @@
 		<h4>동원급식비 자료 수정</h4>
 		<div class="well well-sm">
 			<div class="row">
-				<span class="col-xs-4">
-					<strong>예산집행관서</strong> / {{ $user->department->full_name }}	
+				<span class="col-xs-8">
+					<strong>예산집행관서</strong> / {{ $master->creator->department->full_name }}	
 				</span>
 				<span class="col-xs-4">
-					<strong>자료입력자</strong> / {{ $user->user_name }}
+					<strong>자료입력자</strong> / {{ $master->creator->user_name }}
 				</span>
 			</div>
 		</div>

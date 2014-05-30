@@ -83,7 +83,7 @@
 	<div class="col-xs-12">
 		{{ View::make('datatable.template', array(
 			'id'=>'data_table', 
-			'columns'=>array('번호', '집행일자', '집행관서', '상황구분', '행사명', '지급구분', '식수인원', '집행액 (원)','')
+			'columns'=>array('번호', '집행일자', '집행관서', '상황구분', '행사명', '지급구분', '식수인원', '집행액 (원)','    ')
 		)) }}
 	</div>
 </div>
