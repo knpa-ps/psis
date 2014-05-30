@@ -51,6 +51,9 @@ class BgtMealCostController extends \BaseController {
         ->addColumn('amount', function($model) {
         	return number_format($model->meal_amount);
         })
+        ->addColumn('revise_delete', function($model) {
+        	return '<a href="'.url('budgets/meal-cost').'/'.$model->id.'/edit">'."수정".'</a>';
+        })
         ->make();
 	}
 
@@ -109,7 +112,20 @@ class BgtMealCostController extends \BaseController {
 	 */
 	public function edit($id)
 	{
-		//
+		$master = BgtMealCost::find($id);
+		if ($master == null) {
+			return App::abort(404);
+		}
+
+		$user = Sentry::getUser();
+
+		$permissions = $this->service->getPermissions($user, $master);
+
+		if(!$permissions['update']) {
+			return App::abort(403);
+		}
+
+		return View::make('budget.meal-cost.edit', compact('user', 'master'));
 	}
 
 	/**
@@ -121,7 +137,18 @@ class BgtMealCostController extends \BaseController {
 	 */
 	public function update($id)
 	{
-		//
+		$input = Input::all();
+		try {
+			$this->service->update($id, $input);
+		} catch (Exception $e) {
+			Log::error($e->getMessage());
+			return App::abort($e->getCode());
+		}
+		return array(
+				'result'=>0,
+				'message'=>'수정되었습니다.',
+				'url'=>url('budgets/meal-cost')
+		);
 	}
 
 	/**
@@ -133,6 +160,13 @@ class BgtMealCostController extends \BaseController {
 	 */
 	public function destroy($id)
 	{
-		//
+		$todelete = BgtMealCost::find($id);
+		if($todelete->delete()){
+			return array(
+				'result'=>0,
+				'message'=>'삭제되었습니다.',
+				'url'=>url('budgets/meal-cost')
+			);
+		}
 	}
 }

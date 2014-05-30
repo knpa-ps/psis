@@ -7,7 +7,7 @@ $defaultDeptId = isset($default['id']) ? $default['id'] : '';
 $inputClass = isset($inputClass) ? $inputClass : '';
 ?>
 
-<div class="has-feedback dept-selector {{ $class }}" id="{{ $id }}_container">
+<div class="has-feedback dept-selector {{ $class }}" id="{{ $id }}_container" <?php echo (isset($mngDeptId))? 'mngdeptid='.$mngDeptId : ''; ?> >
 
     <input type="text" readonly="readonly" class="form-control dept-name {{ $inputClass }}" 
     name="{{ $id }}_display" id="{{ $id }}_display" value="{{ $defaultDeptName }}">

@@ -42,9 +42,12 @@ $(function() {
 		$("body").modalmanager('loading');
 
 		var container_id = $(this).parent().prop('id');
-
+		var mng_dept_id = $(this).parent().attr('mngdeptid');
 		var data = {
-			container_id: container_id
+			container_id: container_id,
+		};
+		if (typeof mng_dept_id != 'undefined') {
+			data.mngDeptId = mng_dept_id;
 		};
 
 		$modal.load(base_url+"/ajax/dept_select_tree", data, function() {

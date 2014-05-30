@@ -22,11 +22,13 @@ class DepartmentController extends BaseController {
 	}
 	public function getTreeNodes() {
 		$parentId = Input::get('id');
+		$mngDeptId = Input::get('mngDeptId');
 
 		$depts = $this->service->getAliveChildren($parentId === '#' ? null : $parentId);
 
 		$nodes = array();
 
+		$i = 0;
 		foreach ($depts as $dept) {
 			$nodes[] = array(
 					'id' => $dept->id,
@@ -39,8 +41,16 @@ class DepartmentController extends BaseController {
 						'data-selectable' => $dept->is_selectable
 						)
 				);
+			if(isset($mngDeptId)){
+				$mngFullPath = Department::find($mngDeptId)->full_path;
+				if(strpos($dept->full_path, $mngFullPath) === false){
+					$nodes[$i]['li_attr']['data-selectable'] = 0;
+				}
+			}
+			$i++;
 		}
-
+		//사용자 관리 메뉴에서는 하위부서만 선택할 수 있게 한다.
+		
 		return $nodes;
 	}
 

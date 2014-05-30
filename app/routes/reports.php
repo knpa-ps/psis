@@ -2,9 +2,9 @@
 
 Route::group(array('prefix'=>'reports', 'before'=>'auth'), function(){
 
-    Route::get('/', array('before'=>'permission:report.read', 'uses'=>'ReportController@displayDashboard'));
-    Route::get('/create', array('before'=>'permission:report.create', 'uses'=>'ReportController@displayComposeForm'));
-	Route::get('/list', array('before'=>'permission:report.read', 'uses'=>'ReportController@displayList'));
+    Route::get('/', array('before'=>'permission:reports.read', 'uses'=>'ReportController@displayDashboard'));
+    Route::get('/create', array('before'=>'permission:reports.create', 'uses'=>'ReportController@displayComposeForm'));
+	Route::get('/list', array('before'=>'permission:reports.read', 'uses'=>'ReportController@displayList'));
 	
     Route::get('/edit', 'ReportController@displayEditForm');
 

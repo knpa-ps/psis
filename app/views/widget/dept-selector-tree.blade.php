@@ -12,6 +12,7 @@
 {{ HTML::script('static/vendor/jstree/jstree.min.js') }}
 
 <script type="text/javascript">
+
 $(function() {
 	$("#dept_tree_{{ $container_id }}")
 	.on('activate_node.jstree', function(e, data) {
@@ -38,11 +39,13 @@ $(function() {
 			data: {
 				url: "{{ url('ajax/dept_tree') }}",
 				data: function (node) {
-					return { id: node.id }
+					return { id: node.id <?php echo (isset($mngDeptId))? ',mngDeptId :'.$mngDeptId : '' ?> };
 				}
 			}
 		},
+
 		plugins: [ "wholerow" ]
 	});
 });
+
 </script>

@@ -19,6 +19,19 @@ class BgtMealCostService extends BaseService {
 		DB::commit();
 	}	
 
+	public function update($id, $data) {
+		DB::beginTransaction();
+			$cost = BgtMealCost::find($id);
+			$cost->use_date = $data['use_date'];
+			$cost->use_code = $data['use_code'];
+			$cost->sit_code = $data['sit_code'];
+			$cost->event_name = $data['event_name'];
+			$cost->meal_count = $data['meal_count'];
+			$cost->meal_amount = $data['meal_amount'];
+			$cost->save();
+		DB::commit();
+	}	
+
 	public function getDataQuery($user, $params) {
 
 		$query = BgtMealCost::where('use_date', '>=', $params['start'])
