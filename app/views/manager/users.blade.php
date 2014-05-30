@@ -71,9 +71,9 @@
 							</th>
 							<th>계정</th>
 							<th>이름</th>
-							<th>rank</th>
-							<th>dept</th>
-							<th>status</th>
+							<th>계급</th>
+							<th>관서</th>
+							<th>계정 상태</th>
 
 						</tr>
 					</thead>
@@ -85,12 +85,11 @@
 							<td>{{ $u->user_name }}</td>
 							<td>{{ $u->rank->title }}</td>
 							<td>{{ $u->department->full_name }}</td>
-							<td>{{ $u->activated?'active':'inactive' }}</td>
+							<td>{{ $u->activated?'활성화':'비활성화' }}</td>
 						</tr>
 						@endforeach
 					</tbody>
 				</table>
-
 				{{ $users->links() }}
 			</div>
 		</div>

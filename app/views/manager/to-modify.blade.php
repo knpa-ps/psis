@@ -26,8 +26,8 @@
 					<tbody>
 						@foreach ($mods as $m)
 							<tr>
-								<td>{{$m->user->account_name}}</td>
-								<td><a href="#" id="{{$m->id}}" class="show-detail">{{$m->user->user_name}}</a></td>
+								<td><a href="#" id="{{$m->id}}" class="show-detail">{{$m->user->account_name}}</a></td>
+								<td>{{$m->user->user_name}}</td>
 								<td>{{$m->created_at}}</td>
 							</tr>	
 						@endforeach
@@ -46,23 +46,23 @@
 				<table class="table table-striped" id="requested_content">
 					<tr>
 						<th></th>
-						<th>기존정보</th>
-						<th>변경요청</th>
+						<th style="width:45%;">기존정보</th>
+						<th style="width:45%;">변경요청</th>
 					</tr>
 					<tr>
 						<th>이름</th>
-						<td>기존이름</td>
-						<td>새이름</td>
+						<td id="oldname"></td>
+						<td id="newname"></td>
 					</tr>
 					<tr>
 						<th>계급</th>
-						<td>기존계급</td>
-						<td>계애급</td>
+						<td id="oldrank"></td>
+						<td id="newrank"></td>
 					</tr>
 					<tr>
 						<th>관서</th>
-						<td>기존관서</td>
-						<td>과안서</td>
+						<td id="olddept"></td>
+						<td id="newdept"></td>
 					</tr>
 				</table>
 				
@@ -76,6 +76,37 @@
 @stop
 @section('scripts')
 <script type="text/javascript">
-	
+$(function(){
+	//현재 선택된 수정요청의 id가 저장된 변수
+	var selected_id;
+	//수정요청 목록에서 클릭 시 우측에 기존/변경 정보 나타나게 함
+	$('.show-detail').on('click', function(){
+		selected_id = this.id;
+		$.ajax({
+			url : base_url+"/manager/showmodified/"+this.id,
+			type : 'get',
+			success : function(res){
+				$("#oldname").text(res.oldname);
+				$("#oldrank").text(res.oldrank);
+				$("#olddept").text(res.olddept);
+				$("#newname").text(res.newname);
+				$("#newrank").text(res.newrank);
+				$("#newdept").text(res.newdept);
+			}
+		});
+	});
+
+	//승인 버튼 누르면 저장
+	$("#approve").on('click', function(){
+		$.ajax({
+			url : base_url+"/manager/savemodified/"+selected_id,
+			type : 'post',
+			success : function(res){
+				alert(res);
+				location.reload();
+			}
+		});
+	});
+});
 </script>
 @stop

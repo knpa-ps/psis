@@ -244,11 +244,11 @@ class UserController extends BaseController {
 		$user->user_name = $form['user_name'];
 		$user->user_rank = $form['user_rank'];
 		$user->dept_id = $form['dept_id'];
+
 		$user->contact = $form['contact'];
 		$user->contact_extension = $form['contact_extension'];
 		$user->contact_phone = $form['contact_phone'];
 		$user->activated = $form['status'];
-
 
 		//변경한 정보 저장
 		if(!$user->save()){

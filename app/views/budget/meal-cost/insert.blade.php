@@ -1,4 +1,4 @@
-@extends('budget.mob-pay.base')
+@extends('budget.meal-cost.base')
 
 @section('tab-content')
 <div class="row">

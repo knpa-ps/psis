@@ -150,7 +150,6 @@
                     </div>                    
 
                 </fieldset> 
-
                 <fieldset>
                     <legend><h5><span class="glyphicon glyphicon-off"></span> 
                         계정 활성화 상태</h5></legend>

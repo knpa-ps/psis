@@ -37,7 +37,7 @@
 					<tbody>
 						@foreach($mods as $m)
 							<tr>
-								<td><a href="#">{{$m->user->email}}</a></td>
+								<td><a href="{{URL::to('manager/modify')}}">{{$m->user->email}}</a></td>
 								<td>{{$m->user->user_name}}</td>
 								<td>{{ $m->user->rank->title }}</td>
 								<td>{{ $m->user->department->full_name}}</td>

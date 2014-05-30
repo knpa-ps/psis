@@ -2,7 +2,15 @@
 
 class ManagerService extends BaseService {
 
-	function getUserListQuery($params, $user){
+	public function getModifyRequestsList($fullPath){
+		return ModUser::whereHas('user', function($q) use($fullPath) {
+			$q->whereHas('department',function($q2) use($fullPath) {
+				$q2->where('full_path','like',$fullPath.'%');
+			});
+		})->where('approved','=','0')->orderBy('id','desc')->get();
+	}
+
+	public function getUserListQuery($params, $user){
 
 		//현재 로그인한 계정의 부서보다 하위 부서 필터
 		$fullPath = $user->department->full_path;
@@ -17,7 +25,7 @@ class ManagerService extends BaseService {
 				$q->where('key', 'like', "{$params['group']}%");
 			});
 		}
-		//이건 되네 근데 조회한 이후에 셀렉트 유지되도록 하자
+		//조회한 이후에 셀렉트 유지되도록 수정필요
 
 		//활성화 필터
 		//$params['activate'] 값은 1 / 0 / all (활성화/비활성화/전체)
