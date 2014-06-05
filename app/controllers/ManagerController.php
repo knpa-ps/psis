@@ -10,8 +10,12 @@ class ManagerController extends \BaseController {
 
 		$user = Sentry::getUser();
 		$fullPath = $user->department->full_path;
-
-		$data['mods'] = $this->service->getModifyRequestsList($fullPath);
+		
+		if($user->isSuperUser()){
+			$data['mods'] = ModUser::where('approved','=','0')->orderBy('id','desc')->get();
+		} else {
+			$data['mods'] = $this->service->getModifyRequestsList($fullPath);
+		}
 
 		return View::make('manager.dashboard', $data);
 	}
@@ -20,8 +24,12 @@ class ManagerController extends \BaseController {
 
 		$user = Sentry::getUser();
 		$fullPath = $user->department->full_path;
-		
-		$data['mods'] = $this->service->getModifyRequestsList($fullPath);
+
+		if($user->isSuperUser()){
+			$data['mods'] = ModUser::where('approved','=','0')->orderBy('id','desc')->get();
+		} else {
+			$data['mods'] = $this->service->getModifyRequestsList($fullPath);
+		}
 
 		return View::make('manager.to-modify', $data);
 	}

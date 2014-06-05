@@ -9,19 +9,12 @@ class ManagerService extends BaseService {
 			});
 		})->where('approved','=','0')->orderBy('id','desc')->get();
 	}
-
-	public function getUserListQuery($params, $user){
-
-		//현재 로그인한 계정의 부서보다 하위 부서 필터
-		$fullPath = $user->department->full_path;
-		$users = User::whereHas('department', function($q) use ($fullPath) {
-			$q->where('full_path','like',"{$fullPath}%");
-		});
+	public function getFilteredUserListQuery($params){
 
 		// 사용자 그룹 필터
 		// report, budget 등 선택한 부서 key 앞부분이 $params['group']에 들어있음.
 		if(isset($params['group'])){
-			$users->whereHas('groups', function($q) use ($params) {
+			$users = User::whereHas('groups', function($q) use ($params) {
 				$q->where('key', 'like', "{$params['group']}%");
 			});
 		}
@@ -42,6 +35,20 @@ class ManagerService extends BaseService {
 				$users->where('user_name','like','%'.$params['account_name'].'%')->orWhere('email','like','%'.$params['account_name'].'%');
 			}
 		}
+
+		return $users;
+
+	}
+
+	public function getLowerUserListQuery($users){
+
+		$user = Sentry::getUser();
+		//현재 로그인한 계정의 부서보다 하위 부서 필터
+		$fullPath = $user->department->full_path;
+
+		$users->whereHas('department', function($q) use ($fullPath) {
+			$q->where('full_path','like',"{$fullPath}%");
+		});
 
 		return $users;
 	}
