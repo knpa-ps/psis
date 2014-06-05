@@ -35,33 +35,6 @@ function dt_get_options(options) {
 	return $.extend({}, dt_default, options);
 }
 
-$(document).on('click', 'table.multi-selectable tbody tr', function(){
-    $(this).toggleClass('row-selected info');
-});
-
-$(document).on('click', 'table.single-selectable tbody tr', function(){
-    if ( $(this).hasClass('row-selected') ) {
-        $(this).removeClass('row-selected info');
-    } else {
-        $(this).closest('table.single-selectable').find('tr.row-selected').removeClass('row-selected info');
-        $(this).addClass('row-selected info');
-    }
-});
-
-$(document).on('click', '.select-all', function() {
-	var checked = !$(this).hasClass('active');
-	var target_table_id = $(this).data('target');
-	var target_rows = $("#"+target_table_id+" tbody tr");
-	var icon = $(this).find('span.glyphicon');
-	if (checked) {
-		icon.addClass('glyphicon-check').removeClass('glyphicon-unchecked');
-		target_rows.addClass('row-selected info');
-	} else {
-		icon.addClass('glyphicon-unchecked').removeClass('glyphicon-check');
-		target_rows.removeClass('row-selected info');
-	}
-});
-
 function fnGetSelected( oTableLocal ) {
     return oTableLocal.$('tr.row-selected');
 }
