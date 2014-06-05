@@ -64,3 +64,4 @@ include('routes/admin.php');
 include('routes/budgets.php');
 include('routes/eq.php');
 include('routes/upload.php');
+include('routes/manager.php');

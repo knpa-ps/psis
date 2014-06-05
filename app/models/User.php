@@ -17,6 +17,9 @@ class User extends Cartalyst\Sentry\Users\Eloquent\User {
 		return $this->belongsToMany('Group', 'users_groups', 'user_id', 'group_id');
 	}
 
+	public function modifyRequests(){
+		return $this->hasMany('ModUser');
+	}
 	public static function table()
 	{
 		return DB::table('users')->leftJoin('codes', function($query){

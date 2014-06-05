@@ -70,14 +70,6 @@
 					</fieldset>
 				</form>
 				<br>
-				<div id="user_table">
-					{{ View::make('datatable.template', array(
-						'id'=>'users_table',
-						'columns'=>array('이름', '연락처'),
-						'class'=>'multi-selectable'
-					)) }}
-				</div>
-
 			</div>
 		</div>
 	</div>

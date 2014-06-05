@@ -10,4 +10,14 @@ class ModUser extends Eloquent {
 	{
 		return $this->belongsTo('User','user_id','id');
 	}
+
+	public function rank()
+	{
+		return $this->belongsTo('Code', 'user_rank', 'code')->where('category_code', '=', 'H001');
+	}
+
+	public function department()
+	{
+		return $this->belongsTo('Department', 'dept_id', 'id');
+	}
 }
