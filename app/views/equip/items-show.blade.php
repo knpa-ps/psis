@@ -168,6 +168,7 @@ $(function() {
 		var id = $(this).data('id');
 		popup("equips/"+id+"/details", 800, 900);
 	});
+	
 	$("#delete_btn").click(function() {
 		if (!confirm('삭제하시겠습니까?')) {
 			return;

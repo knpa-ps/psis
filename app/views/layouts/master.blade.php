@@ -10,7 +10,7 @@
     <div class="container" id="container">
         <div class="row">
 
-            <div class="col-xs-2">
+            <div class="col-xs-2 hidden-print">
                 @include('parts.sidebar')
                 @section('sidebar')
                 @show
