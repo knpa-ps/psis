@@ -12,4 +12,7 @@ class EquipController extends BaseController {
 		return View::make('equip.items');
 	}
 
+	public function displayDashboard() {
+		return View::make('equip.dashboard');
+	}
 }

@@ -1,6 +1,9 @@
 <?php 
 
 Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
+
+	Route::get('/', 'EquipController@displayDashboard');
+
 	Route::group(array('before'=>'permission:eq.admin'), function() {
 		Route::resource('/categories', 'EqCategoryController');
 	});

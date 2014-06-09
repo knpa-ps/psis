@@ -168,7 +168,7 @@ $(function() {
 		var id = $(this).data('id');
 		popup("equips/"+id+"/details", 800, 900);
 	});
-	
+
 	$("#delete_btn").click(function() {
 		if (!confirm('삭제하시겠습니까?')) {
 			return;
@@ -192,7 +192,6 @@ $(function() {
 @stop
 
 @section('styles')
-
 {{ HTML::style('static/vendor/fancybox/jquery.fancybox.css?v=2.1.5') }}
 {{ HTML::style('static/vendor/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5"') }}
 {{ HTML::style('static/vendor/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7"') }}
