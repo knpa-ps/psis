@@ -100,9 +100,16 @@ class UserController extends BaseController {
 			}
 		}
 
-		$users = $this->mngService->getUserListQuery($params, $user);
+		$filteredList = $this->mngService->getFilteredUserListQuery($params);
+
+		if($user->IsSuperUser()){
+			$users = $filteredList;
+		} else {
+			$users = $this->mngService->getLowerUserListQuery($filteredList);	
+		}
 
 		$data['users'] = $users->paginate(15);
+
 		$userGroups = $user->groups;
 
 		foreach ($userGroups as $g) {
