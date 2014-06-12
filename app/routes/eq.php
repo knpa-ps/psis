@@ -9,5 +9,9 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	});
 	
 	Route::resource('/items', 'EqItemController');
-	Route::resource('/items/{id}/details', 'EqItemController@showDetails');
+	Route::get('/items/{itemId}/details', 'EqItemController@displayDetailsList');
+	Route::get('/items/{itemId}/detail/{id}', 'EqItemController@displayExtraInfo');
+	Route::get('/items/{itemId}/new_detail', 'EqItemController@displayDetailForm');
+	Route::post('/items/{itemId}/new_detail', 'EqItemController@doPost');
+	Route::delete('/items/{itemId}/detail/{id}', 'EqItemController@deletePost');
 });

@@ -59,7 +59,7 @@
 					<button type="button" class="btn btn-info btn-block" id="report_save_draft">
 						<small><span class="glyphicon glyphicon-floppy-disk"></span> 임시저장</small>
 					</button>
-					@if ($user->isSuperUser())
+					@if ($user->isSuperUser() or $user->hasAccess('addReportForm'))
 					<button type="button" class="btn btn-success btn-block" id="report_create_template">
 						<small><span class="glyphicon glyphicon-floppy-disk"></span> 속보양식저장</small>
 					</button>

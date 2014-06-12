@@ -7,6 +7,53 @@ class EqItemController extends EquipController {
 	 *
 	 * @return Response
 	 */
+	public function deletePost($itemId, $id){
+		$detail = EqItemDetail::find($id);
+		if($detail->delete()){
+			return array(
+				'result'=>0,
+				'message'=>'삭제되었습니다.',
+				'url'=>url('equips/items/'.$itemId.'/details')
+			);
+		}
+	}
+	public function displayExtraInfo($itemId,$id){
+		$detail = EqItemDetail::find($id);
+		$data = compact('detail');
+		$data['itemId'] = $detail->item_id;
+		$data['id'] = $id;
+		return View::make('equip.item-detail',$data);
+	}
+	public function displayDetailsList($itemId){
+		$details = EqItemDetail::where('item_id','=',$itemId)->get();
+		$data = compact('details');
+		$data['itemId'] = $itemId;
+		return View::make('equip.items-details-list',$data);
+	}
+	public function displayDetailForm($itemId){
+		$user = Sentry::getUser();
+		$data = compact('user');
+		$data['itemId'] = $itemId;
+		return View::make('equip.item-detail-new', $data);
+	}
+
+	public function doPost($itemId){
+		$input = Input::all();
+		$user = Sentry::getUser();
+
+		$detail = new EqItemDetail;
+		$detail->title = $input['title'];
+		$detail->content = $input['input_body'];
+		$detail->item_id = $itemId;
+		$detail->creator_id = $user->id;
+		if(!$detail->save()){
+			App::abort(400);
+		}
+
+		Session::flash('message', '저장되었습니다.');
+		return Redirect::action('EqItemController@displayDetailsList', $itemId);
+	}
+
 	public function index()
 	{
 		$user = Sentry::getUser();
@@ -91,7 +138,7 @@ class EqItemController extends EquipController {
 	public function showInventories($id) {
 	}
 
-	/**
+	/**http://localhost/psis/equips/inventories
 	 * Show the form for editing the specified resource.
 	 *
 	 * @param  int  $id

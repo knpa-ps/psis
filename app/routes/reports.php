@@ -21,4 +21,5 @@ Route::group(array('prefix'=>'reports', 'before'=>'auth'), function(){
 	Route::get('/templates/{id}', 'ReportController@getTemplate')->where('id', '[0-9]+');
 	Route::post('/templates/save', 'ReportController@saveTemplate');
 	Route::post('/templates/delete', 'ReportController@deleteTemplate');
+	Route::post('/templates/set_default', 'ReportController@setDefault');
 });

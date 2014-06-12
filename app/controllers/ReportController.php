@@ -235,4 +235,20 @@ class ReportController extends BaseController {
 		$template->save();
 		return array('message'=>'저장되었습니다');
 	}
+	public function deleteTemplate() {
+		$id = Input::get('id');
+		$template = PSReportTemplate::find($id);
+		$template->delete();
+	}
+	public function setDefault() {
+		$id = Input::get('id');
+		$template = PSReportTemplate::find($id);
+
+		//모든 양식의 is_default를 0으로 만듬
+		DB::table('ps_report_templates')->update(array('is_default' => 0));
+
+		$template->is_default = 1;
+		$template->save();
+
+	}
 }
