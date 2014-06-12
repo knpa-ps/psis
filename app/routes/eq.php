@@ -11,6 +11,7 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::resource('/items', 'EqItemController');
 	Route::get('items/{id}/data', 'EqItemController@getData');
 	Route::resource('/inventories', 'EqInventoryController');
+	Route::post('/inventories/create/get_items_in_category', 'EqInventoryController@getItemsInCategory');
 	
 	Route::get('/items/{itemId}/details', 'EqItemController@displayDetailsList');
 	Route::get('/items/{itemId}/detail/{id}', 'EqItemController@displayExtraInfo');

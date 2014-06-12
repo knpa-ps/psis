@@ -5,6 +5,12 @@
 	<div class="col-xs-12">
 		<div class="panel panel-default">
 			<div class="panel-body">
+				<div class="toolbar-table">
+					<a href="{{url('equips/inventories/create')}}" class="btn btn-info btn-xs pull-right">
+						<span class="glyphicon glyphicon-plus"></span> 보유장비추가
+					</a>	
+					<div class="clearfix"></div>
+				</div>
 				<table class="table table-condensed table-bordered table-striped table-hover" id="data_table">
 					<thead>
 						<tr>
@@ -26,6 +32,9 @@
 							<th>
 								보유량 (개)
 							</th>
+							<th>
+								작업
+							</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -35,7 +44,7 @@
 									{{ $i->item->category->name or '' }}
 								</td>
 								<td>
-									{{ $i->item->name or '' }}
+									<a href="{{ url('equips/items/'.$i->item->id) }}">{{ $i->item->name or '' }}</a>
 								</td>
 								<td>
 									{{ $i->model_name }}
@@ -48,6 +57,14 @@
 								</td>
 								<td>
 									{{ number_format($i->count) }}
+								</td>
+								<td>
+									<a id="{{ $i->id }}" href="#" class="delete label label-danger pull-right">
+										<span class="glyphicon glyphicon-trash"></span> 삭제
+									</a>
+									<a id="{{ $i->id }}" href="{{url('equips/inventories/'.$i->id.'/edit')}}" class="update label label-success pull-right">
+										<span class="glyphicon glyphicon-pencil"></span> 수정
+									</a>
 								</td>
 							</tr>
 						@endforeach
@@ -65,6 +82,20 @@
 $(function() {
 	$("#data_table").DataTable({
 
+	});
+
+	$(".delete").on('click', function(){
+		if(!confirm('정말 삭제하시겠습니까?')){
+			return;
+		}
+		$.ajax({
+			url: base_url+"/equips/inventories/"+this.id,
+			method : 'delete',
+			success : function(res) {
+				alert(res);
+				window.location.reload();
+			}
+		});
 	});
 });
 </script>

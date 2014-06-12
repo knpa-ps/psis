@@ -32,7 +32,7 @@ class EqItemController extends EquipController {
 		$detail->title = $input['title'];
 		$detail->content = $input['input_body'];
 		if(!$detail->update()){
-			App::abort(400);
+			return App::abort(400);
 		}
 		Session::flash('message', '수정되었습니다');
 		return Redirect::action('EqItemController@displayExtraInfo', array('itemId'=>$itemId, 'id'=>$id));
@@ -67,7 +67,7 @@ class EqItemController extends EquipController {
 		$detail->item_id = $itemId;
 		$detail->creator_id = $user->id;
 		if(!$detail->save()){
-			App::abort(400);
+			return App::abort(400);
 		}
 
 		Session::flash('message', '저장되었습니다.');

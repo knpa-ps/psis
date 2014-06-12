@@ -8,6 +8,11 @@ class EqInventoryController extends BaseController {
 		$this->service = new EqService;
 	}
 
+	public function getItemsInCategory() {
+		$categoryId = Input::get('id');
+		$items = EqItem::where('category_id','=',$categoryId)->get();
+		return $items;
+	}
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -27,7 +32,8 @@ class EqInventoryController extends BaseController {
 	 */
 	public function create()
 	{
-        return View::make('eqinventories.create');
+		$data['categories'] = EqCategory::all();
+        return View::make('equip.inventories-add', $data);
 	}
 
 	/**
@@ -37,7 +43,21 @@ class EqInventoryController extends BaseController {
 	 */
 	public function store()
 	{
-		//
+		$data = Input::all();
+		$user = Sentry::getUser();
+
+		$inventory = new EqInventory;
+		$inventory->item_id = $data['item'];
+		$inventory->dept_id = $user['dept_id'];
+		$inventory->count = $data['count'];
+		$inventory->model_name = $data['model_name'];
+		$inventory->acq_date = $data['acquired_date'];
+		$inventory->acq_route = $data['acquired_route'];
+		if(!$inventory->save()){
+			return App::abort(400);
+		}
+		Session::flash('message', '저장되었습니다');
+		return Redirect::action('EqInventoryController@index');
 	}
 
 	/**
@@ -59,7 +79,9 @@ class EqInventoryController extends BaseController {
 	 */
 	public function edit($id)
 	{
-        return View::make('eqinventories.edit');
+		$data['categories'] = EqCategory::all();
+		$data['inventory'] = EqInventory::find($id);
+        return View::make('equip.inventories-edit',$data);
 	}
 
 	/**
@@ -70,7 +92,19 @@ class EqInventoryController extends BaseController {
 	 */
 	public function update($id)
 	{
-		//
+		$data = Input::all();
+
+		$inventory = EqInventory::find($id);
+		$inventory->item_id = $data['item'];
+		$inventory->count = $data['count'];
+		$inventory->model_name = $data['model_name'];
+		$inventory->acq_date = $data['acquired_date'];
+		$inventory->acq_route = $data['acquired_route'];
+		if(!$inventory->update()){
+			return App::abort(400);
+		}
+		Session::flash('message', '수정되었습니다.');
+		return Redirect::action('EqInventoryController@index');
 	}
 
 	/**
@@ -81,7 +115,12 @@ class EqInventoryController extends BaseController {
 	 */
 	public function destroy($id)
 	{
-		//
+		$inventory = EqInventory::find($id);
+		if($inventory->delete()){
+			return '삭제되었습니다.';
+		} else {
+			App::abort(500);
+		}
 	}
 
 }
