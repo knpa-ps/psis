@@ -10,11 +10,30 @@ class EqItemController extends EquipController {
 	public function index()
 	{
 		$user = Sentry::getUser();
-		
-		$data['categories'] = $this->service->getVisibleCategoriesQuery($user)->get();
+
+		$data['domains'] = $this->service->getVisibleDomains($user);
+
+		if (count($data['domains']) == 0) {
+			return App::abort(403);
+		}
+
+		$domainId = Input::get('domain');
+
+		if (!$domainId) {
+			$domainId = $data['domains'][0]->id;
+		}
+
+		if (!$user->hasAccess(EqDomain::find($domainId)->permission)) {
+			return App::abort(403);
+		}
+
 		$data['user'] = $user;
-		$data['items'] = $this->service->getVisibleItemsQuery($user)->paginate(15);
-		
+
+		$data['items'] =  EqItem::whereHas('category', function($q) use ($domainId) {
+									$q->where('domain_id', '=', $domainId);
+								})->orderBy('category_id', 'asc')->orderBy('name', 'asc')->get();
+
+		$data['domainId'] = $domainId;
         return View::make('equip.items', $data);
 	}
 
@@ -180,5 +199,32 @@ class EqItemController extends EquipController {
 		return array('message'=>'삭제되었습니다.', 'result'=>0);
 	}
 
+	public function getData($id) {
 
+		$parentId = Input::get('parent');
+
+		if (!$parentId) {
+			$depts = Department::regions()->get();
+		} else {
+			$parent = Department::find($parentId);
+			if (!$parent) {
+				return App::abort(400);
+			}
+			$depts = $parent->children()->get();
+		}
+
+		$data = array();
+		foreach ($depts as $dept) {
+			$row[0] = $dept->id;
+			$row[1] = $dept->full_name;
+			$row[2] = 0;//TODO
+			$row[3] = EqInventory::whereHas('department', function($q) use ($dept) {
+							$q->where('full_path', 'like', $dept->full_path.'%');
+						})->sum('count');
+			$row[4] = 0;
+			$data[] = $row;
+		}
+
+		return array('data'=>$data);		
+	}
 }

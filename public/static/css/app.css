@@ -1,3 +1,7 @@
+tbody tr.group>td.group-cell {
+  background-color: #d9edf7;
+  font-weight: bold;
+}
 .dataTables_processing {
   position: absolute;
   top: 50%;

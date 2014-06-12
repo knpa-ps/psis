@@ -6,7 +6,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					<strong>장비상세정보</strong>
+				 	<a href="{{url('equips/items?domain='.$item->category->domain->id)}}"><span class="glyphicon glyphicon-chevron-left"></span></a> <strong>장비상세정보</strong>
 				</h3>
 			</div>
 
@@ -19,12 +19,14 @@
 					</div>
 					
 					<div class="col-xs-6">
-						<a href="{{url('equips/items/'.$item->id.'/edit')}}" class="btn btn-xs btn-success pull-right">
-							<span class="glyphicon glyphicon-edit"></span> 수정
-						</a>
-						<a href="#" class="btn btn-xs btn-danger pull-right" id="delete_btn"> 
-							<span class="glyphicon glyphicon-trash"></span> 삭제
-						</a>
+						<div class="pull-right">
+							<a href="{{url('equips/items/'.$item->id.'/edit')}}" class="btn btn-xs btn-success">
+								<span class="glyphicon glyphicon-edit"></span> 수정
+							</a>
+							<a href="#" class="btn btn-xs btn-danger" id="delete_btn"> 
+								<span class="glyphicon glyphicon-trash"></span> 삭제
+							</a>
+						</div>
 					</div>
 				</div>
 				<div class="row">
@@ -125,26 +127,49 @@
 					</div>
 				</div>{{-- 기본정보 끝 --}}
 
-				{{-- 보유내역 --}}
-				<div class="row">
+				<div class="row" id="data_container">
 					<div class="col-xs-12">
-						<ul class="nav nav-tabs">
-							
-							<li class="active">
-								<a href="#inv_dept">
-									관서별 보유현황
-								</a>
-							</li>
+						<h4>보급/보유현황</h4>
+						
+						<div class="well well-sm">
+							<form class="form-inline">
+								<div class="form-group">
+									<label for="year">조회연도</label>
+									<input type="text" class="input-sm form-control" id="year" name="year" placeholder="yyyy" 
+									value="{{date('Y')}}">
+								</div>
+								<button type="button" id="data_view" class="btn-xs btn btn-primary">조회</button>
+								<div class="pull-right">
+									<button type="button" class="btn btn-info btn-xs">보급내역</button>
+									<button type="button" class="btn btn-info btn-xs">보유현황</button>
+								</div>
+							</form>
+						</div>
 
-							<li>
-								<a href="#inv_region">
-									지방청별 보유현황
-								</a>
-							</li>
-
-						</ul>
-
-
+						<table class="table table-condensed table-striped table-hover table-bordered" id="data_table">
+							<thead>
+								<tr>
+									<th>
+										DEPT ID (NOT VISIBLE)
+									</th>
+									<th>
+										관서명
+									</th>
+									<th>
+										보급수량(A)
+									</th>
+									<th>
+										보유수량(B)
+									</th>
+									<th>
+										차이(A-B)
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								
+							</tbody>
+						</table>
 					</div>
 				</div>
 			</div>
@@ -158,8 +183,16 @@
 {{ HTML::script('static/vendor/fancybox/jquery.fancybox.js?v=2.1.5.js') }}
 {{ HTML::script('static/vendor/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5') }}
 {{ HTML::script('static/vendor/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7') }}
+{{ HTML::dataTables() }}
 <script type="text/javascript">
+var dataTable;
+
 $(function() {
+
+	$("#data_view").click(function() {
+		loadData(null);
+	});
+
 	$(".fancybox").fancybox({
 		openEffect	: 'none',
 		closeEffect	: 'none'
@@ -187,7 +220,33 @@ $(function() {
 			}
 		});
 	});
+
+	dataTable = $("#data_table").DataTable({
+		autoWidth: true,
+		processing: true,
+		searching: false,
+		ordering: false,
+		lengthChange: false,
+		paging: false,
+		ajax: url("equips/items/{{$item->id}}/data"),
+		columnDefs: [
+			{ targets:0, visible: false },
+			{ 
+				targets:1,
+				render: function (data, type, full, meta) {
+					return '<a href="#" onclick="loadData('+full[0]+')">'+data+'</a>';
+				}
+			}
+		]
+	});
 });
+function loadData(parentId) {
+
+	var year = $("#year").val();
+	if (year.mat)
+
+	dataTable.ajax.url(url("equips/items/{{$item->id}}/data?parent="+parentId)).load();
+}
 </script>
 @stop
 

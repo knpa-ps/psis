@@ -2,6 +2,20 @@
 
 class EqService extends BaseService {
 
+	public function getScopeDept(User $user) {
+		if (!$user->isSuperUser() && $user->department->type_code != Department::TYPE_HEAD) {
+			// 사용자의 관서 종류에 따라 조회 범위 설정
+			if ($user->department->type_code == Department::TYPE_REGION) {
+				$scopeRootDept = $user->department->region();
+			} else {
+				$scopeRootDept = $user->department;
+			}
+			return $scopeRootDept;
+		} else {
+			return null;
+		}
+	}
+
 	/**
 	 * 사용자에게 허용된 도메인의 카테고리들을 가져온다
 	 * @param User $user 
@@ -39,5 +53,22 @@ class EqService extends BaseService {
 						->orderBy('category_id', 'asc')
 						->orderBy('name', 'asc');
 		return $query;
+	}
+
+	public function getInventoriesQuery(User $user) {
+		$query = EqInventory::getQuery();
+
+		$scope = $this->getScopeDept($user);
+
+		if ($scope) {
+			$query->where('full_path', 'like', $scope->full_path.'%');
+		}
+
+		return $query;
+	}
+
+	public function getItems($domainId) {
+
+
 	}
 }

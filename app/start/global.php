@@ -114,4 +114,8 @@ if (!function_exists('cut_str')) {
 	}
 }
 
-
+HTML::macro('dataTables', function() {
+	return HTML::style('static/vendor/datatables/1.10/css/jquery.dataTables.min.css').
+	HTML::script('static/vendor/datatables/1.10/js/jquery.dataTables.min.js').
+	HTML::script('static/js/jquery.dataTables.custom.js');
+});
