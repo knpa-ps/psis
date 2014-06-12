@@ -145,13 +145,15 @@
 								</div>
 							</form>
 						</div>
-
 						<table class="table table-condensed table-striped table-hover table-bordered" id="data_table">
+							<colgroup>
+								<col class="col-xs-4">
+								<col class="col-xs-3">
+								<col class="col-xs-3">
+								<col class="col-xs-2">
+							</colgroup>
 							<thead>
 								<tr>
-									<th>
-										DEPT ID (NOT VISIBLE)
-									</th>
 									<th>
 										관서명
 									</th>
@@ -229,23 +231,35 @@ $(function() {
 		lengthChange: false,
 		paging: false,
 		ajax: url("equips/items/{{$item->id}}/data"),
-		columnDefs: [
-			{ targets:0, visible: false },
+		columns: [
 			{ 
-				targets:1,
-				render: function (data, type, full, meta) {
-					return '<a href="#" onclick="loadData('+full[0]+')">'+data+'</a>';
+				data: "dept.full_name",
+				render: function (data, type, row, meta) {
+					if (type != 'display') {
+						return data;
+					}
+
+					if (row.dept.is_terminal) {
+						return data;
+					} else {
+						return '<a href="#data_table" onclick="loadData('+row.dept.id+')">'+data+'</a>'
+					}
+
 				}
-			}
+			},
+			{ data: "supplies" },
+			{ data: "inventories" },
+			{ data: "difference" }
 		]
 	});
 });
 function loadData(parentId) {
 
-	var year = $("#year").val();
-	if (year.mat)
+	parentId = parentId || "";
 
-	dataTable.ajax.url(url("equips/items/{{$item->id}}/data?parent="+parentId)).load();
+	var year = $("#year").val();
+
+	dataTable.ajax.url(url("equips/items/{{$item->id}}/data?parent="+parentId+"&year="+year)).load();
 }
 </script>
 @stop

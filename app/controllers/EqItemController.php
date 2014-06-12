@@ -1,4 +1,5 @@
 <?php
+use Carbon\Carbon;
 
 class EqItemController extends EquipController {
 
@@ -267,30 +268,90 @@ class EqItemController extends EquipController {
 	}
 
 	public function getData($id) {
+		$year = Input::get('year');
+
+		$validator = Validator::make(Input::all(), array(
+				'year'=>'integer|min:1990|max:2100',
+				'parent'=>'integer|min:0'
+			));
+
+		if ($validator->fails()) {
+			return App::abort(400);
+		}
+
+		if (!$year) {
+			$year = date('Y');
+		}
+
+		$start = date('Y-01-01', strtotime($year.'-01-01'));
+		$end = date('Y-12-t', strtotime($start));
 
 		$parentId = Input::get('parent');
 
 		if (!$parentId) {
-			$depts = Department::regions()->get();
+			
+			$user = Sentry::getUser();
+
+			if ($user->isSuperUser() || $user->department->type_code == Department::TYPE_HEAD) {
+				$depts = Department::regions()->get();
+			} else if ($user->department->type_code == Department::TYPE_REGION) {
+				$depts = array($user->department->region());
+			} else {
+				$depts = array($user->department);
+			}
+
 		} else {
 			$parent = Department::find($parentId);
 			if (!$parent) {
 				return App::abort(400);
 			}
 			$depts = $parent->children()->get();
+
+			$data = array(
+					array(
+						'dept'=> (object) array(
+								'id'=>$parent->parent_id, 
+								'full_name'=>'...', 
+								'is_terminal'=>false, 
+								'parent_id'=>$parent->parent_id
+							),
+						'supplies'=>'',
+						'inventories'=>'',
+						'difference'=>'',
+						'row_type'=>0,
+						)
+				);
 		}
 
-		$data = array();
 		foreach ($depts as $dept) {
-			$row[0] = $dept->id;
-			$row[1] = $dept->full_name;
-			$row[2] = 0;//TODO
-			$row[3] = EqInventory::whereHas('department', function($q) use ($dept) {
+			$row['dept'] = $dept->toArray();
+			$row['supplies'] = 0;//TODO
+
+			$inventories = EqInventory::whereHas('department', function($q) use ($dept) {
 							$q->where('full_path', 'like', $dept->full_path.'%');
-						})->sum('count');
-			$row[4] = 0;
+						})->where('acq_date', '>=', $start)->where('acq_date', '<=', $end)
+						->sum('count');
+
+			$row['inventories'] = number_format($inventories);
+			$row['difference'] = $row['supplies']-$row['inventories'];
+			$row['row_type'] = 1;
 			$data[] = $row;
 		}
+
+		$sum = array(
+				'dept' => (object) array('id'=>'', 'full_name'=>'합계', 'is_terminal'=>true),
+				'supplies' => 0,
+				'inventories' => 0,
+				'difference' => 0,
+				'row_type' => 2
+			);
+		foreach ($data as $row) {
+			$sum['supplies'] += $row['supplies'];
+			$sum['inventories'] += $row['inventories'];
+			$sum['difference'] += $row['difference'];
+		}
+
+		$data[] = $sum;
 
 		return array('data'=>$data);		
 	}
