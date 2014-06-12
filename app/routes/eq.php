@@ -14,4 +14,6 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::get('/items/{itemId}/new_detail', 'EqItemController@displayDetailForm');
 	Route::post('/items/{itemId}/new_detail', 'EqItemController@doPost');
 	Route::delete('/items/{itemId}/detail/{id}', 'EqItemController@deletePost');
+	Route::get('items/{itemId}/detail/{id}/update', 'EqItemController@displayUpdatePostForm');
+	Route::post('/items/{itemId}/detail/{id}/update', 'EqItemController@updatePost');
 });

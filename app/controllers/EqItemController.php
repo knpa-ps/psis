@@ -17,6 +17,26 @@ class EqItemController extends EquipController {
 			);
 		}
 	}
+	public function displayUpdatePostForm($itemId,$id){
+		$detail = EqItemDetail::find($id);
+		$data['creator_name'] = $detail->creator->user_name;
+		$data['itemId'] = $itemId;
+		$data['id'] = $id;
+		$data['title'] = $detail->title;
+		$data['content'] = $detail->content;
+		return View::make('equip.item-detail-update', $data);
+	}
+	public function UpdatePost($itemId,$id){
+		$input = Input::all();
+		$detail = EqItemDetail::find($id);
+		$detail->title = $input['title'];
+		$detail->content = $input['input_body'];
+		if(!$detail->update()){
+			App::abort(400);
+		}
+		Session::flash('message', '수정되었습니다');
+		return Redirect::action('EqItemController@displayExtraInfo', array('itemId'=>$itemId, 'id'=>$id));
+	}
 	public function displayExtraInfo($itemId,$id){
 		$detail = EqItemDetail::find($id);
 		$data = compact('detail');
