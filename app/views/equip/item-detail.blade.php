@@ -26,9 +26,9 @@ img {
 	<div class="col-xs-12">
 		<div class="row">
 			<div class="btn-group pull-right">
-				<!-- <a href="#" class="btn btn-xs btn-default" style="margin-right: 8px;">
+				<a href="{{url('/equips/items/'.$itemId.'/detail/'.$id.'/update')}}" class="btn btn-xs btn-default" style="margin-right: 8px;">
 					<span class="glyphicon glyphicon-pencil"> 수정</span>
-				</a> -->
+				</a>
 				<button class="delete btn btn-xs btn-default" style="margin-right: 8px;">
 					<span class="glyphicon glyphicon-remove"> 삭제</span>
 				</button>
@@ -45,9 +45,9 @@ img {
 		<hr>
 		<div class="row">
 			<div class="btn-group pull-right" style="margin-bottom: 10px;">
-				<!-- <a href="#" class="btn btn-xs btn-default" style="margin-right: 8px;">
+				<a href="{{url('/equips/items/'.$itemId.'/detail/'.$id.'/update')}}" class="btn btn-xs btn-default" style="margin-right: 8px;">
 					<span class="glyphicon glyphicon-pencil"> 수정</span>
-				</a> -->
+				</a>
 				<button class="delete btn btn-xs btn-default" style="margin-right: 8px;">
 					<span class="glyphicon glyphicon-remove"> 삭제</span>
 				</button>
