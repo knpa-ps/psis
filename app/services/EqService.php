@@ -56,7 +56,7 @@ class EqService extends BaseService {
 	}
 
 	public function getInventoriesQuery(User $user) {
-		$query = EqInventory::getQuery();
+		$query = EqInventory::query();
 
 		$scope = $this->getScopeDept($user);
 
