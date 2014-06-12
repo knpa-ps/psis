@@ -29,4 +29,25 @@ class UploadController extends BaseController {
 
 		return View::make('upload-result', array('result'=>$result));
 	}
+
+	public function imageCkeditor() {
+		$validator = Validator::make(Input::all(), array(
+				'upload'=>'required|image'
+			));
+
+		if ($validator->fails()) {
+			return "<script type='text/javascript'>window.parent.CKEDITOR.tools.callFunction('".Input::get('CKEditorFuncNum')."', '', '업로드 실패')</script>";
+		}
+
+		$fileName = str_random(40).'.'.Input::file('upload')->getClientOriginalExtension();
+		$filePath = public_path('uploads/'.$fileName);
+		
+		Image::make(Input::file('upload')->getRealPath())
+				->resize(800, 800, true, false)
+				->save($filePath);
+
+		$url = url('uploads/'.$fileName);
+
+		return "<script type='text/javascript'>window.parent.CKEDITOR.tools.callFunction('".Input::get('CKEditorFuncNum')."', '$url', '업로드 성공')</script>";
+	}
 }

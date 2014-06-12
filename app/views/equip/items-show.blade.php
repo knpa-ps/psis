@@ -198,8 +198,8 @@ $(function() {
 		closeEffect	: 'none'
 	});
 	$("#item_detail_btn").click(function() {
-		var id = $(this).data('id');
-		popup("equips/"+id+"/details", 800, 900);
+		var id = $(this).attr('data-item-id');
+		popup(id+"/details", 800, 900);
 	});
 
 	$("#delete_btn").click(function() {
