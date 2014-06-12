@@ -9,7 +9,8 @@ class EqSupplyController extends BaseController {
 	 */
 	public function index()
 	{
-        return View::make('eqsupplies.index');
+		
+        return View::make('equip.supplies-index');
 	}
 
 	/**

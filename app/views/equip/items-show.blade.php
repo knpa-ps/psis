@@ -117,7 +117,7 @@
 							<tbody>
 								@foreach ($item->details()->orderBy('created_at', 'desc')->take(5)->get() as $detail)
 								<tr>
-									<td> {{$detail->title}} </td>
+									<td> <a href="#" class="detail-title" data-id="{{$detail->id}}" data-item-id="{{$item->id}}">{{$detail->title}}</a> </td>
 									<td> {{$detail->created_at->format('Y-m-d')}} </td>
 								</tr>
 								@endforeach
@@ -190,6 +190,12 @@
 var dataTable;
 
 $(function() {
+
+	$(".detail-title").click(function() {
+		var detailId = $(this).data('id');
+		var itemId = $(this).data('item-id');
+		popup(itemId+"/detail/"+detailId, 800, 900);
+	});
 
 	$("#data_view").click(function() {
 		loadData(null);

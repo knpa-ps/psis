@@ -1,0 +1,1 @@
+supplies-show.blade
