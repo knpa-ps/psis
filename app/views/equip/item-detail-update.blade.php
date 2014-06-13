@@ -5,6 +5,7 @@ body {
 	background : #fff;
 }	
 </style>
+{{ HTML::style('static/vendor/uploadify/uploadify.css') }}
 @stop
 @section('body')
 <div class="col-xs-12">
@@ -31,6 +32,23 @@ body {
 							<textarea name="input_body" id="input_body" cols="80" rows="10">{{$content}}</textarea>
 						</td>
 					</tr>
+					<tr>
+						<th>파일 첨부</th>
+						<td><input type="file" name="file_upload" id="file_upload" /></td><br>
+					</tr>
+					<tr>
+						<th>기존 첨부파일</th>
+						<td>
+							@foreach($files as $f)
+								<div class="alert alert-info">
+									<button id="{{$f->id}}" type="button" class="close removefile" data-dismiss="alert" aria-hidden="true">&times;</button>
+									<span class="glyphicon glyphicon-floppy-disk"></span> {{$f->file_name}}<br>
+								</div>
+							@endforeach
+						</td>
+					</tr>
+					<input type="hidden" name="file_to_delete" id="file_to_delete" />
+					<input type="hidden" name="files" id="files" value="" />
 				</table>
 				<div class="text-center">
 					<div class="btn-group">
@@ -46,11 +64,28 @@ body {
 @section('scripts')
 {{ HTML::script('static/vendor/ckeditor/ckeditor.js') }}
 {{ HTML::script('static/vendor/validate/jquery.validate.min.js') }}
+{{ HTML::script('static/vendor/uploadify/jquery.uploadify.min.js')}}
 <script>
 CKEDITOR.replace( 'input_body', {
 	filebrowserUploadUrl : "{{url('/upload/image/ckeditor')}}"
 });
 $(function() {
+	var attachedFiles = [];
+	var fileToDelete = [];
+	$('.removefile').on('click',function(){
+		fileToDelete.push(this.id);
+		$('#file_to_delete').val(JSON.stringify(fileToDelete));
+	});
+	$('#file_upload').uploadify({
+        'swf'      : url('static/vendor/uploadify/uploadify.swf'),
+        'uploader' : url('static/vendor/uploadify/uploadify.php'),
+        'onUploadSuccess' : function(file, data, response)  {
+        	attachedFiles.push(data);
+        	$("#files").val(JSON.stringify(attachedFiles));
+        },
+        removeCompleted:false
+    });
+
 	$("#update_detail_form").validate({
 		rules: {
 			title : {

@@ -8,6 +8,13 @@ class EqItemController extends EquipController {
 	 *
 	 * @return Response
 	 */
+	public function deleteDetailFile($fileId){
+		$file = EqItemDetailFile::find($fileId);
+		if(!$file->delete()){
+			return App::abort(400);
+		}
+		return "삭제되었습니다.";
+	}
 	public function deletePost($itemId, $id){
 		$detail = EqItemDetail::find($id);
 		if($detail->delete()){
@@ -25,26 +32,54 @@ class EqItemController extends EquipController {
 		$data['id'] = $id;
 		$data['title'] = $detail->title;
 		$data['content'] = $detail->content;
+		$files = EqItemDetailFile::where('detail_id','=',$id)->get();
+		$data['files'] = $files;
+
 		return View::make('equip.item-detail-update', $data);
 	}
 	public function UpdatePost($itemId,$id){
 		$input = Input::all();
+		$files = json_decode($input['files']);
+		
+		DB::beginTransaction();
+
+		$fileToDelete = json_decode($input['file_to_delete']);
+		foreach ($fileToDelete as $d) {
+			$file = EqItemDetailFile::find($d);
+			if(!$file->delete()){
+				return App::abort(400);
+			}
+		}
 		$detail = EqItemDetail::find($id);
 		$detail->title = $input['title'];
 		$detail->content = $input['input_body'];
 		if(!$detail->update()){
 			return App::abort(400);
 		}
+
+		foreach ($files as $fileName) {
+			$detailFile = new EqItemDetailFile;
+			$detailFile->detail_id = $detail->id;
+			$detailFile->file_name = $fileName;
+			if(!$detailFile->save()){
+				return App::abort(400);
+			}
+		}
+
+		DB::commit();
 		Session::flash('message', '수정되었습니다');
 		return Redirect::action('EqItemController@displayExtraInfo', array('itemId'=>$itemId, 'id'=>$id));
 	}
+
 	public function displayExtraInfo($itemId,$id){
 		$detail = EqItemDetail::find($id);
 		$data = compact('detail');
-		$data['itemId'] = $detail->item_id;
-		$data['id'] = $id;
+
+		$files = EqItemDetailFile::where('detail_id','=',$id)->get();
+		$data['files'] = $files;
 		return View::make('equip.item-detail',$data);
 	}
+
 	public function displayDetailsList($itemId){
 		$details = EqItemDetail::where('item_id','=',$itemId)->get();
 		$data = compact('details');
@@ -59,17 +94,33 @@ class EqItemController extends EquipController {
 	}
 
 	public function doPost($itemId){
+	
 		$input = Input::all();
 		$user = Sentry::getUser();
+		$files = json_decode($input['files']);
+
+		DB::beginTransaction();		
 
 		$detail = new EqItemDetail;
 		$detail->title = $input['title'];
 		$detail->content = $input['input_body'];
 		$detail->item_id = $itemId;
 		$detail->creator_id = $user->id;
+
 		if(!$detail->save()){
 			return App::abort(400);
 		}
+
+		foreach ($files as $fileName) {
+			$detailFile = new EqItemDetailFile;
+			$detailFile->detail_id = $detail->id;
+			$detailFile->file_name = $fileName;
+			if(!$detailFile->save()){
+				return App::abort(400);
+			}
+		}
+
+		DB::commit();
 
 		Session::flash('message', '저장되었습니다.');
 		return Redirect::action('EqItemController@displayDetailsList', $itemId);
