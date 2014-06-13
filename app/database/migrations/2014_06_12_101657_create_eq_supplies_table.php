@@ -14,7 +14,15 @@ class CreateEqSuppliesTable extends Migration {
 	{
 		Schema::create('eq_supplies', function(Blueprint $table) {
 			$table->increments('id');
-			
+			$table->integer('supply_dept_id')->unsigned()->index();
+			$table->integer('creator_id')->unsigned()->index();
+			$table->integer('item_id')->unsigned()->index();
+
+			$table->date('supply_date')->index();
+
+			$table->string('title');
+			$table->text('description');
+
 			$table->timestamps();
 		});
 	}

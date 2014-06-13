@@ -12,7 +12,6 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::get('items/{id}/data', 'EqItemController@getData');
 	Route::resource('/inventories', 'EqInventoryController');
 	Route::post('/inventories/create/get_items_in_category', 'EqInventoryController@getItemsInCategory');
-	
 	Route::get('/items/{itemId}/details', 'EqItemController@displayDetailsList');
 	Route::get('/items/{itemId}/detail/{id}', 'EqItemController@displayExtraInfo');
 	Route::get('/items/{itemId}/new_detail', 'EqItemController@displayDetailForm');
@@ -20,4 +19,8 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::delete('/items/{itemId}/detail/{id}', 'EqItemController@deletePost');
 	Route::get('items/{itemId}/detail/{id}/update', 'EqItemController@displayUpdatePostForm');
 	Route::post('/items/{itemId}/detail/{id}/update', 'EqItemController@updatePost');
+});
+
+Route::group(array('prefix'=>'equips/supplies', 'before'=>'auth'), function() {
+	
 });
