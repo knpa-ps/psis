@@ -40,16 +40,20 @@ class EqItemController extends EquipController {
 	public function UpdatePost($itemId,$id){
 		$input = Input::all();
 		$files = json_decode($input['files']);
+		$fileToDelete = json_decode($input['file_to_delete']);
 		
 		DB::beginTransaction();
 
-		$fileToDelete = json_decode($input['file_to_delete']);
-		foreach ($fileToDelete as $d) {
-			$file = EqItemDetailFile::find($d);
-			if(!$file->delete()){
-				return App::abort(400);
+
+		if(!count($fileToDelete) == 0){
+			foreach ($fileToDelete as $d) {
+				$file = EqItemDetailFile::find($d);
+				if(!$file->delete()){
+					return App::abort(400);
+				}
 			}
 		}
+	
 		$detail = EqItemDetail::find($id);
 		$detail->title = $input['title'];
 		$detail->content = $input['input_body'];
@@ -57,12 +61,14 @@ class EqItemController extends EquipController {
 			return App::abort(400);
 		}
 
-		foreach ($files as $fileName) {
-			$detailFile = new EqItemDetailFile;
-			$detailFile->detail_id = $detail->id;
-			$detailFile->file_name = $fileName;
-			if(!$detailFile->save()){
-				return App::abort(400);
+		if(!count($files) == 0){
+			foreach ($files as $fileName) {
+				$detailFile = new EqItemDetailFile;
+				$detailFile->detail_id = $detail->id;
+				$detailFile->file_name = $fileName;
+				if(!$detailFile->save()){
+					return App::abort(400);
+				}
 			}
 		}
 
