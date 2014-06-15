@@ -119,3 +119,11 @@ HTML::macro('dataTables', function() {
 	HTML::script('static/vendor/datatables/1.10/js/jquery.dataTables.min.js').
 	HTML::script('static/js/jquery.dataTables.custom.js');
 });
+
+
+HTML::macro('datepicker', function() {
+	return HTML::style('static/vendor/bootstrap-datepicker/css/datepicker3.css').
+		HTML::script('static/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js').
+		HTML::script('static/vendor/bootstrap-datepicker/js/locales/bootstrap-datepicker.kr.js').
+		HTML::script('static/vendor/bootstrap-datepicker/js/defaults.js');
+});

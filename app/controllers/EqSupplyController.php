@@ -9,8 +9,39 @@ class EqSupplyController extends BaseController {
 	 */
 	public function index()
 	{
-		
-        return View::make('equip.supplies-index');
+		$start = Input::get('start');
+		$end = Input::get('end');
+
+		$validator = Validator::make(Input::all(), array(
+				'start'=>'date',
+				'end'=>'date'
+			));
+
+		if ($validator->fails()) {
+			return App::abort(400);
+		}
+
+		if (!$start) {
+			$start = date('Y-m-d', strtotime('-1 year'));
+		}
+
+		if (!$end) {
+			$end = date('Y-m-d');
+		}
+
+		$itemName = Input::get('item_name');
+
+		$query = EqSupply::where('supply_date', '>=', $start)->where('supply_date', '<=', $end);
+
+		if ($itemName) {
+			$query->whereHas('item', function($q) use ($itemName) {
+				$q->where('name', 'like', "%$itemName%");
+			});
+		}
+
+		$data = $query->paginate(15);
+
+        return View::make('equip.supplies-index', get_defined_vars());
 	}
 
 	/**
@@ -20,7 +51,8 @@ class EqSupplyController extends BaseController {
 	 */
 	public function create()
 	{
-        return View::make('eqsupplies.create');
+		
+        return View::make('equip.supplies-create');
 	}
 
 	/**
@@ -41,7 +73,14 @@ class EqSupplyController extends BaseController {
 	 */
 	public function show($id)
 	{
-        return View::make('eqsupplies.show');
+		$supply = EqSupply::find($id);
+		if (!$supply) {
+			return App::abort(404);
+		}
+
+
+
+        return View::make('equip.supplies-show', get_defined_vars());
 	}
 
 	/**
@@ -74,7 +113,14 @@ class EqSupplyController extends BaseController {
 	 */
 	public function destroy($id)
 	{
-		//
+		$s = EqSupply::find($id);
+		if (!$s) {
+			return App::abort(404);
+		}
+
+		$s->details()->delete();
+		$s->delete();
+		return Redirect::to('equips/supplies');
 	}
 
 }

@@ -90,14 +90,8 @@
 
 @stop
 
-@section('styles')
-{{ HTML::style('static/vendor/bootstrap-datepicker/css/datepicker3.css') }}
-@stop
-
 @section('scripts')
-{{ HTML::script('static/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js') }}
-{{ HTML::script('static/vendor/bootstrap-datepicker/js/locales/bootstrap-datepicker.kr.js') }}
-{{ HTML::script('static/vendor/bootstrap-datepicker/js/defaults.js') }}
+{{ HTML::datepicker() }}
 {{ HTML::script('static/vendor/datatables/js/jquery.dataTables.min.js') }}
 {{ HTML::script('static/vendor/datatables/js/jquery.dataTables.plugins.js') }}
 <script type="text/javascript">
