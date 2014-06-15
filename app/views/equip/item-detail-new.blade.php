@@ -5,6 +5,7 @@ body {
 	background : #fff;
 }	
 </style>
+{{ HTML::style('static/vendor/uploadify/uploadify.css') }}
 @stop
 @section('body')
 <div class="col-xs-12">
@@ -12,6 +13,7 @@ body {
 	<div class="col-xs-12">
 		<div class="row">
 			<form action="{{url('/equips/items/'.$itemId.'/new_detail')}}" method="post" name="new_detail_form" id="new_detail_form" role="form" class="form-horizontal" novalidate>
+
 				<table class="table table-striped">
 					<colgroup>
 						<col class="col-xs-2">
@@ -31,6 +33,11 @@ body {
 							<textarea name="input_body" id="input_body" cols="80" rows="10"></textarea>
 						</td>
 					</tr>
+					<tr>
+						<th>파일 첨부</th>
+						<td><input type="file" name="file_upload" id="file_upload" /></td><br>
+					</tr>
+					<input type="hidden" name="files" id="files" value="" />
 				</table>
 				<div class="text-center">
 					<div class="btn-group">
@@ -46,11 +53,23 @@ body {
 @section('scripts')
 {{ HTML::script('static/vendor/ckeditor/ckeditor.js') }}
 {{ HTML::script('static/vendor/validate/jquery.validate.min.js') }}
+{{ HTML::script('static/vendor/uploadify/jquery.uploadify.min.js')}}
 <script>
 CKEDITOR.replace( 'input_body', {
 	filebrowserUploadUrl : "{{url('/upload/image/ckeditor')}}"
 });
 $(function() {
+	var attachedFiles = [];
+	$('#file_upload').uploadify({
+        'swf'      : url('static/vendor/uploadify/uploadify.swf'),
+        'uploader' : url('static/vendor/uploadify/uploadify.php'),
+        'onUploadSuccess' : function(file, data, response)  {
+        	attachedFiles.push(data);
+        	$("#files").val(JSON.stringify(attachedFiles));
+        },
+        removeCompleted:false
+    });
+
 	$("#new_detail_form").validate({
 		rules: {
 			title : {
@@ -58,6 +77,6 @@ $(function() {
 			}
 		}
 	});
-})
+});
 </script>
 @stop

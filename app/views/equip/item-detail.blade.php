@@ -13,9 +13,9 @@ img {
 @stop
 @section('body')
 <div class="col-xs-12">
-	<h3><b>{{ EqItem::find($itemId)->name}} 장비상세정보 - 기타정보</b></h3>
+	<h3><b>{{ EqItem::find($detail->item_id)->name}} 장비상세정보 - 기타정보</b></h3>
 	<div class="btn-group pull-right" style="margin-bottom: 20px;">
-		<a href="{{URL::to('/equips/items/'.$itemId.'/new_detail')}}" class="btn btn-primary btn-xs">
+		<a href="{{URL::to('/equips/items/'.$detail->item_id.'/new_detail')}}" class="btn btn-primary btn-xs">
 			<span class="glyphicon glyphicon-pencil"> 글쓰기</span>
 		</a>
 		<div class="clearfix"></div>
@@ -26,13 +26,13 @@ img {
 	<div class="col-xs-12">
 		<div class="row">
 			<div class="btn-group pull-right">
-				<a href="{{url('/equips/items/'.$itemId.'/detail/'.$id.'/update')}}" class="btn btn-xs btn-default" style="margin-right: 8px;">
+				<a href="{{url('/equips/items/'.$detail->item_id.'/detail/'.$detail->id.'/update')}}" class="btn btn-xs btn-default" style="margin-right: 8px;">
 					<span class="glyphicon glyphicon-pencil"> 수정</span>
 				</a>
 				<button class="delete btn btn-xs btn-default" style="margin-right: 8px;">
 					<span class="glyphicon glyphicon-remove"> 삭제</span>
 				</button>
-				<a href="{{URL::to('/equips/items/'.$itemId.'/details')}}" class="btn btn-xs btn-default">
+				<a href="{{URL::to('/equips/items/'.$detail->item_id.'/details')}}" class="btn btn-xs btn-default">
 					<span class="glyphicon glyphicon-list"> 목록</span>
 				</a>
 			</div>	
@@ -44,14 +44,20 @@ img {
 		</div>
 		<hr>
 		<div class="row">
+			<span><b>첨부파일</b></span><br>
+			@foreach($files as $f)
+				<span class="glyphicon glyphicon-floppy-disk"></span><a href="{{url('/uploads/'.$f->file_name)}}">{{$f->file_name}}</a><br>
+			@endforeach
+		</div>
+		<div class="row">
 			<div class="btn-group pull-right" style="margin-bottom: 10px;">
-				<a href="{{url('/equips/items/'.$itemId.'/detail/'.$id.'/update')}}" class="btn btn-xs btn-default" style="margin-right: 8px;">
+				<a href="{{url('/equips/items/'.$detail->item_id.'/detail/'.$detail->id.'/update')}}" class="btn btn-xs btn-default" style="margin-right: 8px;">
 					<span class="glyphicon glyphicon-pencil"> 수정</span>
 				</a>
 				<button class="delete btn btn-xs btn-default" style="margin-right: 8px;">
 					<span class="glyphicon glyphicon-remove"> 삭제</span>
 				</button>
-				<a href="{{URL::to('/equips/items/'.$itemId.'/details')}}" class="btn btn-xs btn-default">
+				<a href="{{URL::to('/equips/items/'.$detail->item_id.'/details')}}" class="btn btn-xs btn-default">
 					<span class="glyphicon glyphicon-list"> 목록</span>
 				</a>
 			</div>	
@@ -68,7 +74,7 @@ $(function(){
 			return;
 		}
 		$.ajax({
-			url : base_url+"/equips/items/"+{{ $itemId }}+"/detail/"+{{$id}},
+			url : base_url+"/equips/items/"+{{ $detail->item_id }}+"/detail/"+{{$detail->id}},
 			type : "DELETE",
 			success: function(response){
 				alert(response.message);
