@@ -42,7 +42,7 @@
 							<div class="carousel-inner">
 								@if ($item->images->count() == 0) 
 									<div class="item active">
-										<img src="{{ url('/static/img/no_image_available_big.png') }}" alt="" />
+										<img src="{{ url('/static/img/no_image_available_big.gif') }}" alt="" />
 									</div>
 								@else
 									@foreach ($item->images as $idx=>$i)

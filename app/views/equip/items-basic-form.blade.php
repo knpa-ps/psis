@@ -109,15 +109,14 @@
 <div class="hide" id="image_field_template">
 	@include('equip.items-image-preview')
 </div>
+
 <iframe id="iframe_upload" name="iframe_upload" src="" style="width:0;height:0;border:0px solid #fff;"></iframe> 
 @stop
-
 @section('scripts')
 {{ HTML::script('static/vendor/jquery.form.js') }}
 {{ HTML::script('static/vendor/validate/jquery.validate.min.js') }}
 {{ HTML::script('static/vendor/validate/additional-methods.min.js') }}
 {{ HTML::script('static/vendor/validate/messages_ko.js') }}
-
 <script type="text/javascript">
 $(function() {
 	$("#submit_btn").click(function() {

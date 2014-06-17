@@ -117,12 +117,14 @@ class EqItemController extends EquipController {
 			return App::abort(400);
 		}
 
-		foreach ($files as $fileName) {
-			$detailFile = new EqItemDetailFile;
-			$detailFile->detail_id = $detail->id;
-			$detailFile->file_name = $fileName;
-			if(!$detailFile->save()){
-				return App::abort(400);
+		if($files){
+			foreach ($files as $fileName) {
+				$detailFile = new EqItemDetailFile;
+				$detailFile->detail_id = $detail->id;
+				$detailFile->file_name = $fileName;
+				if(!$detailFile->save()){
+					return App::abort(400);
+				}
 			}
 		}
 

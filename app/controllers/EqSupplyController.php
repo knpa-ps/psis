@@ -51,8 +51,10 @@ class EqSupplyController extends BaseController {
 	 */
 	public function create()
 	{
-		
-        return View::make('equip.supplies-create');
+		$items = EqItem::all();
+		$data = compact('items');
+		$data['mode'] = 'create';
+        return View::make('equip.supplies-create',$data);
 	}
 
 	/**
@@ -62,7 +64,23 @@ class EqSupplyController extends BaseController {
 	 */
 	public function store()
 	{
-		//
+		$data = Input::all();
+		$user = Sentry::getUser();
+
+		$supply = new EqSupply;
+
+		$supply->supply_dept_id = $user->dept_id;
+		$supply->creator_id = $user->id;
+		$supply->item_id = $data['item'];
+		$supply->title = $data['title'];
+		$supply->supply_date = $data['supply_date'];
+
+		if(!$supply->save()){
+			App::abort(500);
+		}
+
+		return Redirect::to('equips/supplies');
+
 	}
 
 	/**
