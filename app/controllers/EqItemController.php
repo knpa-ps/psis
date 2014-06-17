@@ -285,12 +285,14 @@ class EqItemController extends EquipController {
 		$item->images()->delete();
 
 		$images = Input::get('item_images');
-		foreach ($images as $url) {
-			$img = new EqItemImage;
-			$img->item_id = $item->id;
-			$img->url = $url;
-			if (!$img->save()) {
-				return App::abort(400);
+		if($images){
+			foreach ($images as $url) {
+				$img = new EqItemImage;
+				$img->item_id = $item->id;
+				$img->url = $url;
+				if (!$img->save()) {
+					return App::abort(400);
+				}
 			}
 		}
 
