@@ -21,8 +21,26 @@ class EqInventoryController extends BaseController {
 	public function index()
 	{
 		$user = Sentry::getUser();
+		$data = array();
+
+
+		$sum = 0;
 		$inventories = $this->service->getInventoriesQuery($user)->get();
-        return View::make('equip.inventories-index', get_defined_vars());
+		foreach ($inventories as $i) {
+			$supplies = $i->supplies;
+			if(sizeof($supplies)!==0){
+				foreach ($supplies as $s) {
+					$sum += $s->details->sum('count');
+					$data['sum'][$i->id] = $sum;
+				}
+			} else {
+				$data['sum'][$i->id] = $sum;				
+			}
+			$sum=0;
+		}
+	
+		$data['inventories'] = $inventories;
+        return View::make('equip.inventories-index', $data);
 	}
 
 	/**

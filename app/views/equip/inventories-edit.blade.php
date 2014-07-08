@@ -41,7 +41,7 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="model_name" class="control-label col-xs-2">모델명</label>
+								<label for="model_name" class="control-label col-xs-2">제조업체</label>
 								<div class="col-xs-10">
 									<input type="text" class="form-control input-sm" name="model_name" id="model_name" value="{{$inventory->model_name}}">
 								</div>
@@ -59,7 +59,7 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="count" class="control-label col-xs-2">보유량</label>
+								<label for="count" class="control-label col-xs-2">취득수량</label>
 								<div class="col-xs-10">
 									<input type="text" class="form-control input-sm" name="count" value="{{$inventory->count}}">
 								</div>

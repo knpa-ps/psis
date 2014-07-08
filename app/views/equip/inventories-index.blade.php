@@ -7,7 +7,7 @@
 			<div class="panel-body">
 				<div class="toolbar-table">
 					<a href="{{url('equips/inventories/create')}}" class="btn btn-info btn-xs pull-right">
-						<span class="glyphicon glyphicon-plus"></span> 보유장비추가
+						<span class="glyphicon glyphicon-plus"></span> 취득장비추가
 					</a>	
 					<div class="clearfix"></div>
 				</div>
@@ -21,7 +21,7 @@
 								장비명
 							</th>
 							<th>
-								모델명
+								제조업체명
 							</th>
 							<th>
 								취득시기
@@ -30,7 +30,13 @@
 								취득경로
 							</th>
 							<th>
-								보유량 (개)
+								취득수량 (개)
+							</th>
+							<th>
+								보급수량 (개)
+							</th>
+							<th>
+								보유수량 (개)
 							</th>
 							<th>
 								작업
@@ -57,6 +63,12 @@
 								</td>
 								<td>
 									{{ number_format($i->count) }}
+								</td>
+								<td>
+									{{ number_format($sum[$i->id]) }}
+								</td>
+								<td>
+									{{ number_format($i->count-$sum[$i->id]) }}
 								</td>
 								<td>
 									<a id="{{ $i->id }}" href="#" class="delete label label-danger pull-right">

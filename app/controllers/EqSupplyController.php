@@ -2,6 +2,52 @@
 
 class EqSupplyController extends BaseController {
 
+	public function getClassifiers(){
+		$itemId = Input::get('item_id');
+		$inventories = EqInventory::where('item_id','=',$itemId)->get();
+		$res = array();
+		if(sizeof($inventories)!==0){
+			$options = '';
+			foreach ($inventories as $i) {
+				$options = $options.'<option value="'.$i->id.'">'.$i->model_name.' ('.$i->acq_date.')</option>';
+			}
+			$res['body'] = $options;
+			$res['code'] = 1;
+			return $res;
+		} else {
+			$res['code'] = 0;
+			$res['body'] = "보유한 장비가 없어 보급할 수 없습니다.";
+			return $res;
+		}
+	}
+
+	public function removeSupply($id,$detailId){
+		$detail = EqSupplyDetail::find($detailId);
+		$supply = EqSupply::find($id);
+
+		if(!$detail->delete()){
+			return App::abort(500);
+		}
+		$data['sum'] = number_format($supply->details->sum('count'));
+		
+		return $data;
+	}
+	public function addSupply($id){
+		$formData = Input::all();
+		$supply = EqSupply::find($id);
+
+		$detail = new EqSupplyDetail;
+		$detail->count = $formData['count'];
+		$detail->supply_id = $id;
+		$detail->target_dept_id = $formData['dept_id'];
+		if(!$detail->save()){
+			return App::abort(500);
+		}
+		$toTableRow = '<tr> <td>'.$detail->department->full_name.'</td><td>'.number_format($detail->count)."</td><td><a href='#' id='".$detail->id."' class='remove label label-danger'>삭제</a></td></tr>";
+		$data['row'] = $toTableRow;
+		$data['sum'] = number_format($supply->details->sum('count'));
+		return $data;
+	}
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -51,7 +97,7 @@ class EqSupplyController extends BaseController {
 	 */
 	public function create()
 	{
-		$items = EqItem::all();
+		$items = EqItem::has('inventories')->get();
 		$data = compact('items');
 		$data['mode'] = 'create';
         return View::make('equip.supplies-create',$data);
@@ -74,12 +120,13 @@ class EqSupplyController extends BaseController {
 		$supply->item_id = $data['item'];
 		$supply->title = $data['title'];
 		$supply->supply_date = $data['supply_date'];
+		$supply->inventory_id = $data['classifier'];
 
 		if(!$supply->save()){
 			App::abort(500);
 		}
 
-		return Redirect::to('equips/supplies');
+		return Redirect::to('equips/supplies/'.$supply->id);
 
 	}
 
@@ -109,7 +156,7 @@ class EqSupplyController extends BaseController {
 	 */
 	public function edit($id)
 	{
-        return View::make('eqsupplies.edit');
+        return View::make('equip.supplies-create');
 	}
 
 	/**

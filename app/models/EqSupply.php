@@ -23,4 +23,7 @@ class EqSupply extends Eloquent {
 	public function item() {
 		return $this->belongsTo('EqItem', 'item_id', 'id');
 	}
+	public function inventory() {
+		return $this->belongsTo('EqInventory', 'inventory_id', 'id');
+	}
 }

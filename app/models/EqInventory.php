@@ -14,4 +14,8 @@ class EqInventory extends Eloquent {
 	public function department() {
 		return $this->belongsTo('Department', 'dept_id', 'id');
 	}
+
+	public function supplies() {
+		return $this->hasMany('EqSupply', 'inventory_id', 'id');
+	}
 }

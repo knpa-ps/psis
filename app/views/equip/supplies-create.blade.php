@@ -35,6 +35,15 @@
 							</div>
 						</div>
 						<div class="form-group">
+							<label for="classifier" class="control-label col-xs-2">취득구분</label>
+							<div class="col-xs-10">
+								<select name="classifier" id="classifier" class="form-control">
+									<!-- 장비를 선택하면 해당 장비의 취득시기/제조업체 출력-->
+
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
 							<label for="title" class="control-label col-xs-2">보급내역</label>
 							<div class="col-xs-10">
 								<input type="text" class="form-control input-sm" name="title" id="title" value="{{ $supply->title or '' }}">
@@ -46,28 +55,7 @@
 								<input type="text" class="form-control input-datepicker input-sm" name="supply_date" id="supply_date" value="{{ $supply->supply_date or ''}}">
 							</div>
 						</div>
-						<legend>
-							<h4>부서별 수량</h4>
-						</legend>
-						<div class="form-group">
-						<!-- 부서 -->
-                            <label for="target_dept" class="control-label col-xs-2">대상부서</label>
-                            <div class="col-xs-10">
-                                {{ View::make('widget.dept-selector', array('id'=>'target_dept')) }}
-                            </div>			
-						</div>
-						<div class="form-group">
-							<label for="count" class="control-label col-xs-2">수량</label>
-							<div class="col-xs-10">
-								<input type="text" id="count" class="form-control input-sm">
-							</div>
-						</div>
-						<div class="col-xs-12">
-							<button class="btn btn-xs btn-info pull-right">
-								<span class="glyphicon glyphicon-plus"> 보급부서추가</span>
-							</button>
-							<div class="clearfix"></div>
-						</div>
+
 						<button class="btn btn-lg btn-block btn-primary" type="submit" >제출</button>
 					</fieldset>
 				{{ Form::close() }}
@@ -87,11 +75,44 @@
 {{ HTML::script('static/vendor/bootstrap-datepicker/js/defaults.js') }}
 
 <script type="text/javascript">
+$(function(){
+
+	// Load initial selected equip's classifiers.
+	$.ajax({
+		url : base_url+'/equips/supplies/create/get_classifiers',
+		type : 'post',
+		data : { 'item_id' : $("#item_name").children(":selected").attr("value") },
+		success : function(res){
+			if(res.code===1){
+				$("#classifier").html(res.body);
+			} else {
+				alert(res.body);
+			}
+		}
+	});
+	// Load selected equip's classifiers.
+	$("#item_name").on("change",function(){
+		$.ajax({
+			url : base_url+'/equips/supplies/create/get_classifiers',
+			type : 'post',
+			data : { 'item_id' : $(this).children(":selected").attr("value") },
+			success : function(res){
+				if(res.code===1){
+					$("#classifier").html(res.body);
+				} else {
+					alert(res.body);
+				}
+			}
+		});
+	});
 	$("#supply_form").validate({
 		rules: {
 			item_name: {
 				required: true,
 				maxlength: 255
+			},
+			classifier: {
+				required: true
 			},
 			description: {
 				maxlength: 255
@@ -102,5 +123,6 @@
 			}
 		}
 	});
+})
 </script>
 @stop

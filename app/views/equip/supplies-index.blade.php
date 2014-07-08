@@ -70,6 +70,9 @@
 								보급내역
 							</th>
 							<th>
+								취득구분 (제조사/취득일)
+							</th>
+							<th>
 								보급일자
 							</th>
 							<th>
@@ -92,6 +95,9 @@
 								</td>
 								<td>
 									<a href="{{url('equips/supplies/'.$row->id)}}">{{ $row->title }}</a>
+								</td>
+								<td>
+									{{ $row->inventory->model_name.' / '.$row->inventory->acq_date }}
 								</td>
 								<td>
 									{{ $row->supply_date }}
