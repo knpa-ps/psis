@@ -53,8 +53,18 @@
 				</div>
 		
 				<div class="toolbar-table">
-					<a href="{{url('equips/supplies/create')}}" class="btn-xs pull-right btn btn-info"><span class="glyphicon glyphicon-plus"></span> 보급내역추가</a>
-					<div class="clearfix"></div>
+					<form action="{{url('equips/supplies/create')}}">
+						<label style="margin-top: 9px; text-align: center;" for="item_to_supply" class="control-label col-xs-1">장비선택</label>
+						<div class="col-xs-9">
+							<select name="item" id="item_to_supply" class="form-control">
+								@foreach($items as $i)
+									<option value="{{$i->id}}">{{$i->name}} ({{$i->maker_name}})</option>
+								@endforeach
+							</select>
+						</div>
+						<button type="submit" style="margin-top: 3px;" class="col-xs-2 btn-xs pull-right btn btn-info"><span class="glyphicon glyphicon-plus"></span> 보급하기</button>
+						<div class="clearfix"></div>
+					</form>
 				</div>
 
 				<table class="table table-condensed table-bordered table-hover table-striped" id="data_table">
@@ -65,9 +75,6 @@
 							</th>
 							<th>
 								장비명
-							</th>
-							<th>
-								보급내역
 							</th>
 							<th>
 								취득구분 (제조사/취득일)
@@ -84,33 +91,30 @@
 						</tr>
 					</thead>
 					<tbody>
-					@if (count($data) > 0) 
-						@foreach ($data as $row)
-							<tr data-id="{{$row->id}}">
+					@if (count($supplies) > 0) 
+						@foreach ($supplies as $supply)
+							<tr data-id="{{$supply->id}}">
 								<td>
-									{{ $row->id }}
+									{{ $supply->id }}
 								</td>
 								<td>
-									{{ $row->item->name }}
+									<a href="{{ url('equips/supplies/'.$supply->id)}}">{{ $supply->item->name }}</a>
 								</td>
 								<td>
-									<a href="{{url('equips/supplies/'.$row->id)}}">{{ $row->title }}</a>
+									{{ $supply->item->maker_name.' / '.$supply->item->acquired_date }}
 								</td>
 								<td>
-									{{ $row->inventory->model_name.' / '.$row->inventory->acq_date }}
+									{{ $supply->supplied_date }}
 								</td>
 								<td>
-									{{ $row->supply_date }}
+									{{ number_format($supply->children->sum('count')) }}
 								</td>
 								<td>
-									{{ number_format($row->details->sum('count')) }}
-								</td>
-								<td>
-									<a href="{{ url('equips/supplies/'.$row->id.'/edit') }}" class="btn btn-xs btn-info btn-edit">
+									<a href="{{ url('equips/supplies/'.$supply->id.'/edit') }}" class="btn btn-xs btn-info btn-edit">
 										<span class="glyphicon glyphicon-edit"></span> 수정
 									</a>
 									{{ Form::open(array(
-											'url'=>url('equips/supplies/'.$row->id),
+											'url'=>url('equips/supplies/'.$supply->id),
 											'method'=>'delete',
 											'class'=>'form-delete'
 										)) }}
@@ -123,14 +127,14 @@
 						@endforeach
 					@else
 						<tr>
-							<td colspan="6">
+							<td colspan="7">
 								내역이 없습니다.
 							</td>
 						</tr>
 					@endif
 					</tbody>
 				</table>
-				{{ $data->links() }}
+				{{ $supplies->links() }}
 			</div>
 		</div>
 	</div>
@@ -153,6 +157,8 @@ $(function() {
 	$(".form-delete").submit(function() {
 		return confirm('정말 삭제하시겠습니까?');
 	});
+
+	$("")
 });
 </script>
 @stop

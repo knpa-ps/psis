@@ -15,6 +15,9 @@
 					<thead>
 						<tr>
 							<th>
+								번호
+							</th>
+							<th>
 								분류
 							</th>
 							<th>
@@ -27,16 +30,13 @@
 								취득시기
 							</th>
 							<th>
-								취득경로
-							</th>
-							<th>
 								취득수량 (개)
 							</th>
 							<th>
 								보급수량 (개)
 							</th>
 							<th>
-								보유수량 (개)
+								잔여수량 (개)
 							</th>
 							<th>
 								작업
@@ -44,31 +44,31 @@
 						</tr>
 					</thead>
 					<tbody>
-						@foreach ($inventories as $i)
+						@foreach ($items as $i)
 							<tr>
 								<td>
-									{{ $i->item->category->name or '' }}
+									{{ $i->id or '' }}
 								</td>
 								<td>
-									<a href="{{ url('equips/items/'.$i->item->id) }}">{{ $i->item->name or '' }}</a>
+									{{ $i->category->name or '' }}
 								</td>
 								<td>
-									{{ $i->model_name }}
+									<a href="{{ url('equips/items/'.$i->id) }}">{{ $i->name or '' }}</a>
 								</td>
 								<td>
-									{{ $i->acq_date }}
+									{{ $i->maker_name or '' }}
 								</td>
 								<td>
-									{{ $i->acq_route }}
+									{{ $i->acquired_date or ''}}
 								</td>
 								<td>
-									{{ number_format($i->count) }}
+									{{ $acquired_count[$i->id] or '' }}
 								</td>
 								<td>
-									{{ number_format($sum[$i->id]) }}
+									{{ $supplied_count[$i->id] or '' }}
 								</td>
 								<td>
-									{{ number_format($i->count-$sum[$i->id]) }}
+									{{ $remaining_count[$i->id] or '' }}
 								</td>
 								<td>
 									<a id="{{ $i->id }}" href="#" class="delete label label-danger pull-right">

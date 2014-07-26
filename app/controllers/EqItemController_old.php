@@ -245,11 +245,10 @@ class EqItemController extends EquipController {
 		if ($item == null) {
 			return App::abort(404);
 		}
-		$types = EqItemType::where('item_id','=',$id)->get();
 
-		$data['item'] = $item;
-		$data['types'] = $types;
-		return View::make('equip.items-show-new', $data);
+
+		$data = compact('item');
+		return View::make('equip.items-show', $data);
 	}
 
 	public function showInventories($id) {
@@ -350,7 +349,7 @@ class EqItemController extends EquipController {
 
 	public function getData($id) {
 		$year = Input::get('year');
-		$types = EqItemType::where('item_id','=',$id)->get();
+
 		$validator = Validator::make(Input::all(), array(
 				'year'=>'integer|min:1990|max:2100',
 				'parent'=>'integer|min:0'
@@ -369,58 +368,71 @@ class EqItemController extends EquipController {
 
 		$parentId = Input::get('parent');
 
-		if (!$parentId || $parentId == 1) {
+		if (!$parentId) {
 			
 			$user = Sentry::getUser();
-			$managingNode = $user->supplyNode;
-			$nodes = EqSupplyManagerNode::where('parent_id','=',$managingNode->id)->get();
+
+			if ($user->isSuperUser() || $user->department->type_code == Department::TYPE_HEAD) {
+				$depts = Department::regions()->get();
+			} else if ($user->department->type_code == Department::TYPE_REGION) {
+				$depts = array($user->department->region());
+			} else {
+				$depts = array($user->department);
+			}
 
 		} else {
-			$parent = EqSupplyManagerNode::find($parentId);
+			$parent = Department::find($parentId);
 			if (!$parent) {
 				return App::abort(400);
 			}
-			$nodes = $parent->children()->get();
-			if ($parent->parent) {
-				# code...
-			}
+			$depts = $parent->children()->get();
 
-			$row = array(
-						'node'=> (object) array(
-							'id'=>$parent->parent_id, 
-							'node_name'=>'...', 
-							'is_terminal'=>false, 
-							'parent_id'=>$parent->parent_id
-						));	
-			$row['sum_row'] = '';
-			foreach ($types as $t) {
-				$row[$t->type_name]='';
-			}
-			$row['row_type']=0;
-			$data[] = $row;
+			$data = array(
+					array(
+						'dept'=> (object) array(
+								'id'=>$parent->parent_id, 
+								'full_name'=>'...', 
+								'is_terminal'=>false, 
+								'parent_id'=>$parent->parent_id
+							),
+						'supplies'=>'',
+						'inventories'=>'',
+						'difference'=>'',
+						'row_type'=>0,
+						)
+				);
 		}
-		$row = array(
-						'node'=> (object) array(
-							'node_name'=>'계', 
-							'is_terminal'=>true, 
-						));	
-			$row['sum_row'] = '77';
-			foreach ($types as $t) {
-				$row[$t->type_name]='8';
-			}
-			$row['row_type']=0;
-			$data[] = $row;
-		foreach ($nodes as $node) {
-			
 
-			$row['node'] = $node->toArray();
-			$row['sum_row'] = 100;
-			foreach ($types as $t) {
-			$row[$t->type_name] = 3;
-			}
+		foreach ($depts as $dept) {
+			$row['dept'] = $dept->toArray();
+			$row['supplies'] = 0;//TODO
+
+			// $inventories = EqInventory::whereHas('department', function($q) use ($dept) {
+			// 				$q->where('full_path', 'like', $dept->full_path.'%');
+			// 			})->where('acq_date', '>=', $start)->where('acq_date', '<=', $end)
+			// 			->sum('count');
+			$inventories = 607;
+
+			$row['inventories'] = number_format($inventories);
+			$row['difference'] = $row['supplies']-$row['inventories'];
 			$row['row_type'] = 1;
 			$data[] = $row;
 		}
+
+		$sum = array(
+				'dept' => (object) array('id'=>'', 'full_name'=>'합계', 'is_terminal'=>true),
+				'supplies' => 0,
+				'inventories' => 0,
+				'difference' => 0,
+				'row_type' => 2
+			);
+		foreach ($data as $row) {
+			$sum['supplies'] += $row['supplies'];
+			$sum['inventories'] += $row['inventories'];
+			$sum['difference'] += $row['difference'];
+		}
+
+		$data[] = $sum;
 
 		return array('data'=>$data);		
 	}

@@ -6,7 +6,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					<strong>보유장비추가</strong>
+					<strong>장비취득등록</strong>
 				</h3>
 			</div>
 
@@ -41,33 +41,32 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="model_name" class="control-label col-xs-2">제조업체</label>
-								<div class="col-xs-10">
-									<input type="text" class="form-control input-sm" name="model_name" id="model_name">
-								</div>
-							</div>
-							<div class="form-group">
-								<label for="acquired_date" class="control-label col-xs-2">취득시기</label>
+								<label for="acquired_date" class="control-label col-xs-2">취득일</label>
 								<div class="col-xs-10">
 									<input type="text" class="form-control input-datepicker input-sm " name="acquired_date">
 								</div>
 							</div>
-							<div class="form-group">
-								<label for="acquired_route" class="control-label col-xs-2">취득경로</label>
-								<div class="col-xs-10">
-									<input type="text" class="form-control input-sm" name="acquired_route">
-								</div>
-							</div>
-							<div class="form-group">
-								<label for="count" class="control-label col-xs-2">취득수량</label>
-								<div class="col-xs-10">
-									<input type="text" class="form-control input-sm" name="count">
-								</div>
-							</div>
 						</fieldset>
-				<button class="btn btn-lg btn-block btn-primary" type="submit">제출</button>
-				{{ Form::close(); }}
+						<fieldset id="fieldset">
+							<legend><h4>사이즈별 수량</h4></legend>
+							<table class="table table-condensed table-bordered table-striped" id="count_table">
+							<thead>
+								<tr id="ths">
+									<!-- ajax loaded data will set here -->
+								</tr>
+							</thead>
+							<tbody>
+								<tr id="tds">
+									<!-- ajax loaded data will set here -->
+								</tr>
+							</tbody>
+						</table>
+						</fieldset>
+						<button class="btn btn-lg btn-block btn-primary" type="submit">제출</button>
 
+				{{ Form::close(); }}
+				
+				<div style="margin-bottom: 50px;"></div>
 			</div>
 		</div>
 	</div>
@@ -84,7 +83,56 @@
 
 <script type="text/javascript">
 $(function(){
-	
+	addRow();
+
+	$("#item").on('change', function(){
+		var selectedItemId = $("#item").attr('value');
+		$("#ths").html("");
+		$("#tds").html("");
+		$.ajax({
+			url : base_url+"/equips/inventories/create/get_item_type_set/"+selectedItemId,
+			method : 'post',
+			success : function(res){
+				for(i=0;i<res.length;i++) {
+					$("#ths").append("<th style='text-align: center;'>"+res[i].type_name+"</th>");
+					$("#tds").append('<td><input type="text" style="width:100%;" name="type_counts['+i+']"><input type=text" class="hidden", name="type_ids['+i+']" value="'+res[i].id+'"></td>');
+				}
+			}
+		});
+	});
+
+	$("#remove_detail").on('click', function(){
+		removeRow();	
+	});
+
+	$("#add_details").on('click', addRow);
+
+	function removeRow(){
+		var rowNum = $("#fieldset .type_input").length;
+		if (rowNum == 1) {
+			alert('최소 하나의 제원을 입력해야 합니다.');
+			return;
+		}
+
+		$("#fieldset .type_input").last().remove();
+	}
+
+	function addRow(){
+		var newRow = $("#type_template .type_input").clone();
+		$("#fieldset").append(newRow);
+		onRowAdded(newRow);
+	}
+
+	function onRowAdded(row) {
+		var rows = $("#fieldset .type_input");
+		var id = rows.length-1;
+		row.find("input.type").prop('name', 'type['+id+']');
+		row.find(".type-label").html("제원 #"+rows.length);
+
+		row.find("input.count").prop('name', 'count['+id+']');
+		row.find(".count-label").html("수량");
+	}
+
 	$('#item_category').on('change', function(){
 		var data = {'id' : this.value};
 		$.ajax({
@@ -103,31 +151,27 @@ $(function(){
 					options += str;
 				}
 				$("#item").html(options);
+				$("#item").trigger('change');
 			}
 		});
+
 		$('#item').html("<option >")
 	});
 	$('#item_category').trigger('change');
+
 
 	$('#basic_form').validate({
 		rules : {
 			item_category : {
 				required : true
 			},
-			item_name : {
-				required : true
-			},
-			model_name : {
+			item: {
 				required : true
 			},
 			acquired_date : {
 				required : true,
 				dateISO : true
 			},
-			count : {
-				required : true,
-				number : true
-			}
 		}
 	});
 })

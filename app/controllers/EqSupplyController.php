@@ -9,7 +9,7 @@ class EqSupplyController extends BaseController {
 		if(sizeof($inventories)!==0){
 			$options = '';
 			foreach ($inventories as $i) {
-				$options = $options.'<option value="'.$i->id.'">'.$i->model_name.' ('.$i->acq_date.')</option>';
+				$options = $options.'<option value="'.$i->id.'">'.$i->manufacturer.' ('.$i->acq_date.')</option>';
 			}
 			$res['body'] = $options;
 			$res['code'] = 1;
@@ -77,7 +77,7 @@ class EqSupplyController extends BaseController {
 
 		$itemName = Input::get('item_name');
 
-		$query = EqSupply::where('supply_date', '>=', $start)->where('supply_date', '<=', $end);
+		$query = EqItemSupplySet::where('supplied_date', '>=', $start)->where('supplied_date', '<=', $end);
 
 		if ($itemName) {
 			$query->whereHas('item', function($q) use ($itemName) {
@@ -85,7 +85,9 @@ class EqSupplyController extends BaseController {
 			});
 		}
 
-		$data = $query->paginate(15);
+		$supplies = $query->paginate(15);
+
+		$items = EqItem::where('is_active','=',1)->get();
 
         return View::make('equip.supplies-index', get_defined_vars());
 	}
@@ -97,9 +99,19 @@ class EqSupplyController extends BaseController {
 	 */
 	public function create()
 	{
-		$items = EqItem::has('inventories')->get();
-		$data = compact('items');
+		$itemId = Input::get('item');
+		$user = Sentry::getUser();
+		$userNode = $user->supplyNode;
+		$data = array();
+
+		$types = EqItemType::where('item_id','=',$itemId)->get();
+		
+		$data['types'] = $types;
 		$data['mode'] = 'create';
+		$data['item'] = EqItem::find($itemId);
+		$data['userNode'] = $userNode;
+		$data['lowerNodes'] = EqSupplyManagerNode::where('parent_id','=',$userNode->id)->get();
+		
         return View::make('equip.supplies-create',$data);
 	}
 
@@ -112,22 +124,65 @@ class EqSupplyController extends BaseController {
 	{
 		$data = Input::all();
 		$user = Sentry::getUser();
+		$nodes = EqSupplyManagerNode::where('parent_id','=',$user->supplyNode->id)->get();
+		$types = EqItemType::where('item_id','=',$data['item_id'])->get();
 
-		$supply = new EqSupply;
 
-		$supply->supply_dept_id = $user->dept_id;
-		$supply->creator_id = $user->id;
-		$supply->item_id = $data['item'];
-		$supply->title = $data['title'];
-		$supply->supply_date = $data['supply_date'];
-		$supply->inventory_id = $data['classifier'];
-
-		if(!$supply->save()){
-			App::abort(500);
+		$acquiredSum = EqItemAcquire::where('item_id','=',$data['item_id'])->get()->sum('count');
+		$supplied = EqItemSupplySet::where('item_id','=',$data['item_id'])->get();
+		$suppliedSum = 0;
+		foreach ($supplied as $s) {
+			$suppliedSum += $s->children->sum('count');
 		}
 
-		return Redirect::to('equips/supplies/'.$supply->id);
 
+		DB::beginTransaction();
+
+		$supplySet = new EqItemSupplySet;
+		$supplySet->item_id = $data['item_id'];
+		$supplySet->creator_id = $user->id;
+		$supplySet->from_node_id = $user->supplyNode->id;
+		$supplySet->supplied_date = $data['supply_date'];
+
+		if (!$supplySet->save()) {
+			return App::abort(500);
+		}
+
+		foreach ($nodes as $node) {
+			$countName = 'count_';
+			$countNameNode = $countName.$node->id.'_';
+
+			foreach ($types as $type) {
+				$typeId = $type->id;
+				$countName = $countNameNode.$typeId;
+
+				$supply = new EqItemSupply;
+				$supply->supply_set_id = $supplySet->id;
+				$supply->item_type_id = $type->id;
+				$supply->count = $data[$countName];
+				$supply->to_node_id = $node->id;
+
+				if (!$supply->save()) {
+					return App::abort(500);
+				}
+			}
+		}
+
+		$countSum = $supplySet->children->sum('count');
+
+		
+
+		$havingSum = $acquiredSum - $suppliedSum;
+		$lack = $countSum - $havingSum;
+		if($countSum > $havingSum){
+			Session::flash('message', '보유수량이 부족합니다. (현재 보유수량: '.$havingSum.', '.$lack.'개 부족)');
+			return Redirect::back();
+		}
+
+		DB::commit();
+
+		Session::flash('message', '저장되었습니다.');	
+		return Redirect::to('equips/supplies');
 	}
 
 	/**
@@ -138,14 +193,31 @@ class EqSupplyController extends BaseController {
 	 */
 	public function show($id)
 	{
-		$supply = EqSupply::find($id);
-		if (!$supply) {
-			return App::abort(404);
+		$data = array();
+		$supply = EqItemSupplySet::find($id);
+
+		$types = EqItemType::where('item_id','=',$supply->item->id)->get();
+		$lowerNodes = EqSupplyManagerNode::where('parent_id','=',1)->get();
+		$count = array();
+
+		$data['types'] = $types;
+		$data['supply'] = $supply;
+		$data['item'] = $supply->item;
+		$data['lowerNodes'] = $lowerNodes;
+		
+		foreach ($lowerNodes as $n) {
+			$nodeSupplies = EqItemSupply::where('to_node_id','=',$n->id)->get();
+			foreach ($nodeSupplies as $s) {
+				if(!$s->count == 0){
+					$count[$n->id][$s->item_type_id] = $s->count;
+				} else {
+					$count[$n->id][$s->item_type_id] = '';
+				}
+			}
 		}
 
-
-
-        return View::make('equip.supplies-show', get_defined_vars());
+		$data['count'] = $count;
+        return View::make('equip.supplies-show', $data);
 	}
 
 	/**

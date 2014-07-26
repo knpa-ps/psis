@@ -7,6 +7,10 @@ class User extends Cartalyst\Sentry\Users\Eloquent\User {
 		return $this->belongsTo('Code', 'user_rank', 'code')->where('category_code', '=', 'H001');
 	}
 
+	public function supplyNode() {
+		return $this->hasOne('EqSupplyManagerNode', 'manager_id', 'id');
+	}
+
 	public function department()
 	{
 		return $this->belongsTo('Department', 'dept_id', 'id');

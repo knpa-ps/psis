@@ -8,6 +8,11 @@ class EqInventoryController extends BaseController {
 		$this->service = new EqService;
 	}
 
+	public function getItemTypeSet($itemId) {
+		$itemTypes = EqItemType::where("item_id","=",$itemId)->get();
+		return $itemTypes;
+	}
+
 	public function getItemsInCategory() {
 		$categoryId = Input::get('id');
 		$items = EqItem::where('category_id','=',$categoryId)->get();
@@ -21,25 +26,37 @@ class EqInventoryController extends BaseController {
 	public function index()
 	{
 		$user = Sentry::getUser();
-		$data = array();
+		$node = $user->supplyNode;
+		$data['items'] = array();
+		$data['acquired_count'] = array();
+		$data['supplied_count'] = array();
+		$data['remaining_count'] = array();
 
+		$itemIds = DB::table('eq_item_acquires')->distinct()->select('item_id')->get();
 
-		$sum = 0;
-		$inventories = $this->service->getInventoriesQuery($user)->get();
-		foreach ($inventories as $i) {
-			$supplies = $i->supplies;
-			if(sizeof($supplies)!==0){
-				foreach ($supplies as $s) {
-					$sum += $s->details->sum('count');
-					$data['sum'][$i->id] = $sum;
-				}
-			} else {
-				$data['sum'][$i->id] = $sum;				
+		foreach ($itemIds as $i) {
+			$item = EqItem::find($i->item_id);
+			array_push($data['items'], $item);
+
+			//item별 취득 수량 합계 계산
+			$acquires = $item->acquires;
+			$acqSum = 0;
+			foreach ($acquires as $a) {
+				$acqSum += $a->count;
 			}
-			$sum=0;
+			$data['acquired_count'][$i->item_id] = $acqSum;
+
+			//item별 보급 수량 합계 계산
+			$supplySets = EqItemSupplySet::where('item_id','=',$item->id)->get();
+
+			$supSum = 0;
+			foreach ($supplySets as $set) {
+				$supSum += EqItemSupply::where('supply_set_id','=',$set->id)->sum('count');
+			}
+			$data['supplied_count'][$i->item_id] = $supSum;
+			$data['remaining_count'][$i->item_id] = $acqSum - $supSum;
 		}
-	
-		$data['inventories'] = $inventories;
+
         return View::make('equip.inventories-index', $data);
 	}
 
@@ -51,6 +68,7 @@ class EqInventoryController extends BaseController {
 	public function create()
 	{
 		$data['categories'] = EqCategory::all();
+		$data['types'] = EqItemType::where('item_id','=','22')->get();
         return View::make('equip.inventories-add', $data);
 	}
 
@@ -64,16 +82,26 @@ class EqInventoryController extends BaseController {
 		$data = Input::all();
 		$user = Sentry::getUser();
 
-		$inventory = new EqInventory;
-		$inventory->item_id = $data['item'];
-		$inventory->dept_id = $user['dept_id'];
-		$inventory->count = $data['count'];
-		$inventory->model_name = $data['model_name'];
-		$inventory->acq_date = $data['acquired_date'];
-		$inventory->acq_route = $data['acquired_route'];
-		if(!$inventory->save()){
-			return App::abort(400);
+		$ids = $data['type_ids'];
+		$counts = $data['type_counts'];
+
+		DB::beginTransaction();
+
+		for ($i=0; $i < sizeof($ids); $i++) { 
+			if ($counts[$i] !== '') {
+				$acq = new EqItemAcquire;
+				$acq->item_id = $data['item'];
+				$acq->item_type_id = $ids[$i];
+				$acq->count = $counts[$i];
+				$acq->acquired_date = $data['acquired_date'];
+				if (!$acq->save()) {
+					return App::abort(400);
+				}
+			}
 		}
+
+		DB::commit();
+
 		Session::flash('message', '저장되었습니다');
 		return Redirect::action('EqInventoryController@index');
 	}
@@ -134,6 +162,9 @@ class EqInventoryController extends BaseController {
 	public function destroy($id)
 	{
 		$inventory = EqInventory::find($id);
+		if(sizeof($inventory->supplies)!==0) {
+			return '보급내역이 존재하는 장비는 취득내역에서 삭제할 수 없습니다.';
+		}
 		if($inventory->delete()){
 			return '삭제되었습니다.';
 		} else {
