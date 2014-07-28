@@ -249,7 +249,7 @@ class EqItemController extends EquipController {
 
 		$data['item'] = $item;
 		$data['types'] = $types;
-		return View::make('equip.items-show-new', $data);
+		return View::make('equip.items-show', $data);
 	}
 
 	public function showInventories($id) {
@@ -375,16 +375,27 @@ class EqItemController extends EquipController {
 			$managingNode = $user->supplyNode;
 			$nodes = EqSupplyManagerNode::where('parent_id','=',$managingNode->id)->get();
 
+			$row = array(
+				'node'=> (object) array(
+					'node_name'=>'계', 
+					'is_terminal'=>true, 
+				));	
+
+			$row['sum_row'] = 0;
+			foreach ($types as $t) {
+				$row[$t->type_name]=EqItemSupply::where('item_type_id','=',$t->id)->sum('count');
+				$row['sum_row'] += $row[$t->type_name];
+			}
+			$row['row_type']=0;
+			$data[] = $row;
+
 		} else {
 			$parent = EqSupplyManagerNode::find($parentId);
 			if (!$parent) {
 				return App::abort(400);
 			}
 			$nodes = $parent->children()->get();
-			if ($parent->parent) {
-				# code...
-			}
-
+			
 			$row = array(
 						'node'=> (object) array(
 							'id'=>$parent->parent_id, 
@@ -396,27 +407,52 @@ class EqItemController extends EquipController {
 			foreach ($types as $t) {
 				$row[$t->type_name]='';
 			}
+
+			$row['row_type']=0;
+			$data[] = $row;
+			
+			$row = array(
+				'node'=> (object) array(
+					'node_name'=>'계', 
+					'is_terminal'=>true, 
+				));	
+
+			$row['sum_row'] = 0;
+
+			$subSets = EqItemSupplySet::where('from_node_id','=',$parentId)->get();
+			foreach ($types as $t) {
+				$row[$t->type_name] = 0;
+				foreach ($subSets as $s) {
+					$setsum = $s->children()->where('item_type_id','=',$t->id)->sum('count');
+					$row[$t->type_name] += $setsum;
+					$row['sum_row'] += $setsum;
+				}
+			}
+			
 			$row['row_type']=0;
 			$data[] = $row;
 		}
-		$row = array(
-						'node'=> (object) array(
-							'node_name'=>'계', 
-							'is_terminal'=>true, 
-						));	
-			$row['sum_row'] = '77';
-			foreach ($types as $t) {
-				$row[$t->type_name]='8';
-			}
-			$row['row_type']=0;
-			$data[] = $row;
+
+
 		foreach ($nodes as $node) {
 			
 
 			$row['node'] = $node->toArray();
-			$row['sum_row'] = 100;
+			$row['sum_row'] = 0;
+
 			foreach ($types as $t) {
-			$row[$t->type_name] = 3;
+
+			$row[$t->type_name] = EqItemSupply::where('item_type_id','=',$t->id)->where('to_node_id','=',$node->id)->sum('count');
+			$row['sum_row'] += $row[$t->type_name];
+
+			if ($row[$t->type_name]==0) {
+				$row[$t->type_name] = '';
+			}
+
+			if ($row['sum_row']==0) {
+				$row['sum_row'] = '';
+			}
+
 			}
 			$row['row_type'] = 1;
 			$data[] = $row;

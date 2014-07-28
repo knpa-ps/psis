@@ -169,27 +169,20 @@
 								</div>
 							</form>
 						</div>
-						<table class="table table-condensed table-striped table-hover table-bordered" id="data_table">
-							<colgroup>
-								<col class="col-xs-4">
-								<col class="col-xs-3">
-								<col class="col-xs-3">
-								<col class="col-xs-2">
-							</colgroup>
+						<table style="table-layout: fixed;" class="table table-condensed table-striped table-hover table-bordered" id="data_table">
 							<thead>
 								<tr>
 									<th>
-										관서명
+										구분
 									</th>
 									<th>
-										보급수량(A)
+										총계
 									</th>
+									@foreach ($types as $t)
 									<th>
-										보유수량(B)
+										{{ $t->type_name }}
 									</th>
-									<th>
-										차이(A-B)
-									</th>
+									@endforeach
 								</tr>
 							</thead>
 							<tbody>
@@ -263,23 +256,24 @@ $(function() {
 		ajax: url("equips/items/{{$item->id}}/data"),
 		columns: [
 			{ 
-				data: "dept.full_name",
+				data: "node.node_name",
 				render: function (data, type, row, meta) {
 					if (type != 'display') {
 						return data;
 					}
 
-					if (row.dept.is_terminal) {
+					if (row.node.is_terminal) {
 						return data;
 					} else {
-						return '<a href="#data_table" onclick="loadData('+row.dept.id+')">'+data+'</a>'
+						return '<a href="#data_table" onclick="loadData('+row.node.id+')">'+data+'</a>'
 					}
 
 				}
 			},
-			{ data: "supplies" },
-			{ data: "inventories" },
-			{ data: "difference" }
+			{ data: "sum_row" },
+			@foreach ($types as $t)
+				{{ '{ data: "'.$t->type_name.'" },'}}
+			@endforeach
 		]
 	});
 });
