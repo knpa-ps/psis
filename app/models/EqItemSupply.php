@@ -7,8 +7,5 @@ class EqItemSupply extends Eloquent {
 	protected $guarded = array();
 
 	public static $rules = array();
-
-	public function item(){
-		return $this->belongsTo('User','creator_id','id');
-	}
+	
 }

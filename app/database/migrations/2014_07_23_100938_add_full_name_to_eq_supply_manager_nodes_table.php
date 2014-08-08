@@ -25,7 +25,7 @@ class AddFullNameToEqSupplyManagerNodesTable extends Migration {
 	public function down()
 	{
 		Schema::table('eq_supply_manager_nodes', function(Blueprint $table) {
-			$table->dropColumn('full_name', 255);
+			$table->dropColumn('full_name');
 		});
 	}
 

@@ -9,7 +9,13 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	});
 	
 	
+	Route::get('/surveys/{id}/data', 'EqSurveyController@getData');	
+	Route::get('/surveys/new', 'EqSurveyController@newSurvey');
+	Route::post('/surveys/new', 'EqSurveyController@storeNewSurvey');
+	Route::put('/surveys/new/{$id}', 'EqSurveyController@updateSurvey');
+	Route::delete('/surveys/new/{$id}', 'EqSurveyController@deleteSurvey');
 	Route::resource('/items', 'EqItemController');
+	Route::resource('/surveys', 'EqSurveyController');
 	Route::get('items/{id}/data', 'EqItemController@getData');
 	Route::resource('/inventories', 'EqInventoryController');
 	Route::post('/inventories/create/get_item_type_set/{itemId}', 'EqInventoryController@getItemTypeSet');

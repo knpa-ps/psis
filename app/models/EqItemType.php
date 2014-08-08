@@ -8,4 +8,7 @@ class EqItemType extends Eloquent {
 
 	public static $rules = array();
 
+	public function acquires(){
+		return $this->hasOne('EqItmeAcquire','type_id','id');
+	}
 }

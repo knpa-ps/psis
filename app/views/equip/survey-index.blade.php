@@ -7,7 +7,7 @@
 		<div class="panel-default panel">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					<strong>보급관리</strong>
+					<strong>수요수량조사관리</strong>
 				</h3>
 			</div>
 			<div class="panel-body">
@@ -17,7 +17,7 @@
 						<div class="row">
 							<div class="col-xs-6 form-group">
 								<label for="start" class="col-xs-3 control-label">
-									보급일자
+									조사일자
 								</label>
 								<div class="col-xs-9">
 									<div class="input-daterange input-group">
@@ -53,23 +53,20 @@
 				</div>
 		
 				<div class="toolbar-table">
-					<form action="{{url('equips/supplies/create')}}">
-						<label style="margin-top: 9px; text-align: center;" for="item_to_supply" class="control-label col-xs-1">장비선택</label>
+					<form action="{{url('equips/surveys/new')}}">
+						<label style="margin-top: 9px; text-align: center;" for="item_to_survey" class="control-label col-xs-1">장비선택</label>
 						<div class="col-xs-9">
-							<select name="item" id="item_to_supply" class="form-control">
-								@if(count($items)>0)
-									@foreach($items as $i)
-										<option value="{{$i->id}}">{{$i->name}} ({{$i->maker_name}})</option>
-									@endforeach
-								@else
-									<option value="0">보유중인 장비가 없습니다.</option>
-								@endif
-								
+							<select name="item" id="item_to_survey" class="form-control">
+								@foreach($items as $i)
+									<option value="{{$i->id}}">{{$i->name}} ({{$i->maker_name}})</option>
+								@endforeach
 							</select>
 						</div>
-						<button type="submit" style="margin-top: 3px;" class="col-xs-2 btn-xs pull-right btn btn-info"><span class="glyphicon glyphicon-plus"></span> 보급하기</button>
+						
+						<button type="submit" style="margin-top: 3px;" class="col-xs-2 btn-xs pull-right btn btn-success"><span class="glyphicon glyphicon-plus"></span> 수량조사 등록</button>
 						<div class="clearfix"></div>
 					</form>
+					<!-- 수량조사 등록 폼 끝 -->
 				</div>
 
 				<table class="table table-condensed table-bordered table-hover table-striped" id="data_table">
@@ -82,13 +79,13 @@
 								장비명
 							</th>
 							<th>
-								취득구분 (제조사/취득일)
+								조사일자
 							</th>
 							<th>
-								보급일자
+								총 수요수량
 							</th>
 							<th>
-								총 보급수량
+								조사응답현황
 							</th>
 							<th>
 								작업
@@ -96,30 +93,30 @@
 						</tr>
 					</thead>
 					<tbody>
-					@if (count($supplies) > 0) 
-						@foreach ($supplies as $supply)
-							<tr data-id="{{$supply->id}}">
+					@if (count($surveys) > 0) 
+						@foreach ($surveys as $survey)
+							<tr data-id="{{$survey->id}}">
 								<td>
-									{{ $supply->id }}
+									{{ $survey->id }}
 								</td>
 								<td>
-									<a href="{{ url('equips/supplies/'.$supply->id)}}">{{ $supply->item->name }}</a>
+									<a href="{{ url('equips/surveys/'.$survey->id)}}">{{ $survey->item->name }}</a>
 								</td>
 								<td>
-									{{ $supply->item->maker_name.' / '.$supply->item->acquired_date }}
+									{{ $survey->started_at }}
 								</td>
 								<td>
-									{{ $supply->supplied_date }}
+									{{ number_format($survey->datas->sum('count')) }}
 								</td>
 								<td>
-									{{ number_format($supply->children->sum('count')) }}
+									{{ $survey->responses->count().'/'. $user->supplyNode->children->count()}} ({{$survey->responses->count()/$user->supplyNode->children->count()*100}}%)
 								</td>
 								<td>
-									<a href="{{ url('equips/supplies/'.$supply->id.'/edit') }}" class="btn btn-xs btn-info btn-edit">
+									<a href="{{ url('equips/surveys/'.$survey->id.'/edit') }}" class="btn btn-xs btn-info btn-edit">
 										<span class="glyphicon glyphicon-edit"></span> 수정
 									</a>
 									{{ Form::open(array(
-											'url'=>url('equips/supplies/'.$supply->id),
+											'url'=>url('equips/surveys/'.$survey->id),
 											'method'=>'delete',
 											'class'=>'form-delete'
 										)) }}
@@ -139,7 +136,7 @@
 					@endif
 					</tbody>
 				</table>
-				{{ $supplies->links() }}
+				{{ $surveys->links() }}
 			</div>
 		</div>
 	</div>

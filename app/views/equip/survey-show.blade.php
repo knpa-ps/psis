@@ -138,45 +138,23 @@
 						<table class="table table-condensed table-bordered table-striped" style="table-layout: fixed;">
 							<thead>
 								<tr>
-									<td style="text-align: center;"><b>사이즈</b></td>
-									@foreach($item->types as $t)
-										<td style="text-align: center;"><b>{{$t->type_name}}</b></td>
-									@endforeach
-									<td style="text-align: center;"><b>합계</b></td>
+									<th style="text-align: center;" colspan="{{$item->types->count()}}">사이즈 종류</th>
 								</tr>
 							</thead>
-							@if (count($item->acquires)>0)
 							<tbody>
 								<tr>
-									<td style="text-align: center;"><b>취득수량</b></td>
-									@foreach($item->acquires as $a)
-										<td style="text-align: center;">{{$a->count}}</td>
+									@foreach($item->types as $t)
+										<td style="text-align: center;">{{$t->type_name}}</td>
 									@endforeach
-									<td style="text-align: center;">{{$item->acquires->sum('count')}}</td>
 								</tr>
 							</tbody>
-							@endif
 						</table>
 					</div>
 				</div>
 				<div class="row" id="data_container">
 					<div class="col-xs-12">
-						<h4>보급현황</h4>
+						<h4>설문조사현황</h4>
 						
-						<div class="well well-sm">
-							<form class="form-inline">
-								<div class="form-group">
-									<label for="year">조회연도</label>
-									<input type="text" class="input-sm form-control" id="year" name="year" placeholder="yyyy" 
-									value="{{date('Y')}}">
-								</div>
-								<button type="button" id="data_view" class="btn-xs btn btn-primary">조회</button>
-								<!-- <div class="pull-right">
-									<button type="button" class="btn btn-info btn-xs">보급내역</button>
-									<button type="button" class="btn btn-info btn-xs">보유현황</button>
-								</div> -->
-							</form>
-						</div>
 						<table style="table-layout: fixed;" class="table table-condensed table-striped table-hover table-bordered" id="data_table">
 							<thead>
 								<tr>
@@ -222,10 +200,6 @@ $(function() {
 		popup(itemId+"/detail/"+detailId, 800, 900);
 	});
 
-	$("#data_view").click(function() {
-		loadData(null);
-	});
-
 	$(".fancybox").fancybox({
 		openEffect	: 'none',
 		closeEffect	: 'none'
@@ -261,21 +235,12 @@ $(function() {
 		ordering: false,
 		lengthChange: false,
 		paging: false,
-		ajax: url("equips/items/{{$item->id}}/data"),
+		ajax: url("equips/surveys/{{$survey->id}}/data"),
 		columns: [
 			{ 
 				data: "node.node_name",
 				render: function (data, type, row, meta) {
-					if (type != 'display') {
-						return data;
-					}
-
-					if (row.node.is_terminal) {
-						return data;
-					} else {
-						return '<a href="#data_table" onclick="loadData('+row.node.id+')">'+data+'</a>'
-					}
-
+					return data;
 				}
 			},
 			{ data: "sum_row" },
@@ -285,14 +250,6 @@ $(function() {
 		]
 	});
 });
-function loadData(parentId) {
-
-	parentId = parentId || "";
-
-	var year = $("#year").val();
-
-	dataTable.ajax.url(url("equips/items/{{$item->id}}/data?parent="+parentId+"&year="+year)).load();
-}
 </script>
 @stop
 

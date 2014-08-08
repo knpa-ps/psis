@@ -87,7 +87,7 @@ class EqSupplyController extends BaseController {
 
 		$supplies = $query->paginate(15);
 
-		$items = EqItem::where('is_active','=',1)->get();
+		$items = EqItem::where('is_active','=',1)->has('acquires')->get();
 
         return View::make('equip.supplies-index', get_defined_vars());
 	}
@@ -100,6 +100,10 @@ class EqSupplyController extends BaseController {
 	public function create()
 	{
 		$itemId = Input::get('item');
+		if($itemId==0){
+			Session::flash('message', '보유중인 장비가 없어 보급할 수 없습니다.');
+			return Redirect::back();
+		}
 		$user = Sentry::getUser();
 		$userNode = $user->supplyNode;
 		$data = array();
@@ -169,8 +173,6 @@ class EqSupplyController extends BaseController {
 		}
 
 		$countSum = $supplySet->children->sum('count');
-
-		
 
 		$havingSum = $acquiredSum - $suppliedSum;
 		$lack = $countSum - $havingSum;

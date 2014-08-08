@@ -30,7 +30,7 @@ class DeleteEqSuppliesTable extends Migration {
 			$table->integer('creator_id')->unsigned()->index();
 			$table->integer('item_id')->unsigned()->index();
 
-			$table->date('supply_date')->index();
+			$table->date('supply_date');
 
 			$table->string('title');
 			$table->text('description');
