@@ -4,6 +4,15 @@
 
 <div class="row">
 	<div class="col-xs-12">
+		<ul class="nav nav-tabs">
+			@if ($domain == 0)
+				<li class="active"><a href="{{url('equips/surveys?domain=0')}}">조사응답</a></li>
+				<li><a href="{{url('equips/surveys?domain=1')}}">조사하기</a></li>
+			@else
+				<li><a href="{{url('equips/surveys?domain=0')}}">조사응답</a></li>
+				<li class="active"><a href="{{url('equips/surveys?domain=1')}}">조사하기</a></li>
+			@endif
+		</ul>
 		<div class="panel-default panel">
 			<div class="panel-heading">
 				<h3 class="panel-title">
@@ -51,9 +60,9 @@
 
 					</form>
 				</div>
-		
+				@if ($domain == 1)
 				<div class="toolbar-table">
-					<form action="{{url('equips/surveys/new')}}">
+					<form action="{{url('equips/surveys/create')}}">
 						<label style="margin-top: 9px; text-align: center;" for="item_to_survey" class="control-label col-xs-1">장비선택</label>
 						<div class="col-xs-9">
 							<select name="item" id="item_to_survey" class="form-control">
@@ -68,10 +77,12 @@
 					</form>
 					<!-- 수량조사 등록 폼 끝 -->
 				</div>
-
+				@endif
 				<table class="table table-condensed table-bordered table-hover table-striped" id="data_table">
 					<thead>
 						<tr>
+						<!-- 조사하기 탭 선택된 경우 -->
+						@if ($domain == 1)
 							<th>
 								번호
 							</th>
@@ -90,12 +101,30 @@
 							<th>
 								작업
 							</th>
+						<!-- 조사응답 탭 선택된 경우 -->
+						@else
+							<th>
+								번호
+							</th>
+							<th>
+								장비명
+							</th>
+							<th>
+								조사기한
+							</th>
+							<th>
+								응답여부
+							</th>
+						@endif
 						</tr>
 					</thead>
 					<tbody>
 					@if (count($surveys) > 0) 
 						@foreach ($surveys as $survey)
 							<tr data-id="{{$survey->id}}">
+
+								<!-- 조사하기 탭 선택된 경우 -->
+								@if ($domain == 1)
 								<td>
 									{{ $survey->id }}
 								</td>
@@ -109,7 +138,7 @@
 									{{ number_format($survey->datas->sum('count')) }}
 								</td>
 								<td>
-									{{ $survey->responses->count().'/'. $user->supplyNode->children->count()}} ({{$survey->responses->count()/$user->supplyNode->children->count()*100}}%)
+									{{ $survey->responses->count()/$survey->item->types->count().'/'. $user->supplyNode->children->count()}} ({{$survey->responses->count()/$user->supplyNode->children->count()*100}}%)
 								</td>
 								<td>
 									<a href="{{ url('equips/surveys/'.$survey->id.'/edit') }}" class="btn btn-xs btn-info btn-edit">
@@ -125,6 +154,26 @@
 										</button>
 									{{ Form::close() }}
 								</td>
+
+								<!-- 조사응답 탭 선택된 경우 -->
+								@else
+								<td>
+									{{ $survey->id }}
+								</td>
+								<td>
+									<a href="{{ url('equips/surveys/'.$survey->id.'/response') }}">{{ $survey->item->name }}</a>
+								</td>
+								<td>
+									{{ $survey->expired_at }} 까지
+								</td>
+								<td>
+									@if ($survey->isResponsed($user->supplyNode->id))
+										<span class="label label-success">설문응답완료</span>
+									@else
+										<span class="label label-danger">미응답</span>
+									@endif
+								</td>
+								@endif
 							</tr>
 						@endforeach
 					@else

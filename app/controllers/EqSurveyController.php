@@ -2,6 +2,66 @@
 
 class EqSurveyController extends \BaseController {
 
+	public function updateResponse($id) {
+		$survey = EqItemSurvey::find($id);
+		$user = Sentry::getUser();
+		$node = $user->supplyNode;
+		$types = $survey->item->types;
+
+		foreach ($types as $t) {
+			$response = EqItemSurveyResponse::where('survey_id','=',$id)->where('node_id','=',$node->id)->where('item_type_id','=',$t->id)->first();
+			$response->count = Input::get('count_'.$t->id);
+			$response->update();
+		}
+
+		Session::flash('message', '수정되었습니다.');
+
+		return Redirect::to('equips/surveys');
+	}
+
+	public function storeResponse($id){
+		$survey = EqItemSurvey::find($id);
+		$user = Sentry::getUser();
+		$node = $user->supplyNode;
+		$types = $survey->item->types;
+
+		foreach ($types as $t) {
+			$response = new EqItemSurveyResponse;
+			$response->survey_id = $survey->id;
+			$response->node_id = $node->id;
+			$response->creator_id = $user->id;
+			$response->item_type_id = $t->id;
+			$response->count = Input::get('count_'.$t->id);
+
+			if (!$response->save()) {
+				return App::abort('400');
+			}
+		}
+
+		Session::flash('message', '저장되었습니다.');
+
+		return Redirect::to('equips/surveys');
+	}
+
+	public function doResponse($id){
+		$survey = EqItemSurvey::find($id);
+		$user = Sentry::getUser();
+		$item = $survey->item;
+		$types = $item->types;
+
+		if ($survey->isResponsed($user->supplyNode->id)==0) {
+			$mode = 'create';
+		} else {
+			$mode = 'update';
+			foreach ($types as $t) {
+				$count[$t->id] = EqItemSurveyResponse::where('survey_id','=',$id)->where('item_type_id','=',$t->id)->first()->count;
+			}
+		}
+		$sum = EqItemSurveyData::where('survey_id','=',$survey->id)->where('target_node_id','=',$user->supplyNode->id)->first()->count;
+
+		return View::make('equip.survey-response',get_defined_vars());
+	}
+
 	public function getData($id){
 
 		$survey = EqItemSurvey::find($id);
@@ -19,7 +79,7 @@ class EqSurveyController extends \BaseController {
 
 		$row['sum_row'] = EqItemSurveyData::where('survey_id','=',$id)->sum('count');
 		foreach ($types as $t) {
-			$row[$t->type_name]= 0;
+			$row[$t->type_name]= EqItemSurveyResponse::where('survey_id','=',$id)->where('item_type_id','=',$t->id)->sum('count');
 		}
 		$row['row_type']=0;
 		$data[] = $row;
@@ -31,9 +91,11 @@ class EqSurveyController extends \BaseController {
 
 			foreach ($types as $t) {
 
-			$surveyRes = EqItemSurveyResponse::where('survey_id','=',$id)->where('item_type_id','=',$t->id)->first();
+			$surveyRes = EqItemSurveyResponse::where('survey_id','=',$id)->where('node_id','=',$node->id)->where('item_type_id','=',$t->id)->first();
 			if (isset($surveyRes)) {
 				$row[$t->type_name] = $surveyRes->count;
+			} else {
+				$row[$t->type_name] = 0;
 			}
 
 			if ($row[$t->type_name]==0) {
@@ -49,58 +111,10 @@ class EqSurveyController extends \BaseController {
 			$data[] = $row;
 		}
 
+
 		return array('data'=>$data);		
 	}
 
-	public function newSurvey(){
-		$item = EqItem::find(Input::get('item'));
-		$user = Sentry::getUser();
-		$mode = 'create';
-		$childrenNodes = EqSupplyManagerNode::where('parent_id','=',$user->supplyNode->id)->get();
-		return View::make('equip.survey-new', get_defined_vars());
-	}
-
-	public function storeNewSurvey() {
-		$input = Input::all();
-		$user = Sentry::getUser();
-		$nodes = $user->supplyNode->children;
-
-		DB::beginTransaction();
-			$survey = new EqItemSurvey;
-			$survey->item_id = $input['item_id'];
-			$survey->creator_id = $user->id;
-			$survey->node_id = $user->supplyNode->id;
-			$survey->started_at = date('Y-m-d');
-			$survey->expired_at = date('Y-m-d', strtotime('+2 month'));
-			if (!$survey->save()) {
-				return App::abort(400);
-			}
-
-			foreach ($nodes as $n) {
-				$data = new EqItemSurveyData;
-				$data->survey_id = $survey->id;
-				$data->target_node_id = $n->id;
-				$data->count = $input['count_'.$n->id];
-
-				if (!$data->save()) {
-					return App::abort(400);
-				}
-			}
-
-		DB::commit();
-
-		Session::flash('message', '저장되었습니다.');
-
-		return Redirect::to('equips/surveys');
-	}
-
-	public function updateSurvey($id) {
-
-	}
-
-	public function deleteSurvey($id) {
-
-	}
 
 	/**
 	 * Display a listing of the resource.
@@ -132,7 +146,25 @@ class EqSurveyController extends \BaseController {
 
 		$itemName = Input::get('item_name');
 
-		$query = EqItemSurvey::where('started_at', '>=', $start);
+		// domainId == 0이면 조사응답 탭
+		// domainId == 1이면 조사하기 탭
+		$domain = Input::get('domain');
+
+		if (!$domain) {
+			$domain = 0;
+		}
+
+		//조사하기 탭일 땐 자신이 등록한 설문조사 목록을 출력
+		if ($domain == 1) {
+
+			$query = EqItemSurvey::where('node_id','=',$user->supplyNode->id)->where('started_at', '>=', $start)->where('is_closed','=',0);
+			$items = EqItem::where('is_active','=',1)->get();
+
+		//조사응답 탭일 땐 자신이 응답해야 하는 설문조사 목록을 출력한다.
+		} else {
+
+			$query = EqItemSurvey::where('node_id','=',$user->supplyNode->parent_id)->where('started_at', '>=', $start)->where('is_closed','=',0);
+		}
 
 		if ($itemName) {
 			$query->whereHas('item', function($q) use ($itemName) {
@@ -141,10 +173,6 @@ class EqSurveyController extends \BaseController {
 		}
 
 		$surveys = $query->paginate(15);
-
-		$responsesQuery = EqItemSurveyResponse::where('node_id','=',$user->supplyNode->id);
-
-		$items = EqItem::where('is_active','=',1)->get();
 
         return View::make('equip.survey-index', get_defined_vars());
 	}
@@ -157,20 +185,11 @@ class EqSurveyController extends \BaseController {
 	 */
 	public function create()
 	{
-		$itemId = Input::get('item');
+		$item = EqItem::find(Input::get('item'));
 		$user = Sentry::getUser();
-		$userNode = $user->supplyNode;
-		$data = array();
-
-		$types = EqItemType::where('item_id','=',$itemId)->get();
-		
-		$data['types'] = $types;
-		$data['mode'] = 'create';
-		$data['item'] = EqItem::find($itemId);
-		$data['userNode'] = $userNode;
-		$data['lowerNodes'] = EqSupplyManagerNode::where('parent_id','=',$userNode->id)->get();
-		
-        return View::make('equip.supplies-create',$data);
+		$mode = 'create';
+		$childrenNodes = EqSupplyManagerNode::where('parent_id','=',$user->supplyNode->id)->get();
+		return View::make('equip.survey-new', get_defined_vars());
 	}
 
 
@@ -181,7 +200,37 @@ class EqSurveyController extends \BaseController {
 	 */
 	public function store()
 	{
-		//
+		$input = Input::all();
+		$user = Sentry::getUser();
+		$nodes = $user->supplyNode->children;
+
+		DB::beginTransaction();
+			$survey = new EqItemSurvey;
+			$survey->item_id = $input['item_id'];
+			$survey->creator_id = $user->id;
+			$survey->node_id = $user->supplyNode->id;
+			$survey->started_at = date('Y-m-d');
+			$survey->expired_at = date('Y-m-d', strtotime('+1 week'));
+			if (!$survey->save()) {
+				return App::abort(400);
+			}
+
+			foreach ($nodes as $n) {
+				$data = new EqItemSurveyData;
+				$data->survey_id = $survey->id;
+				$data->target_node_id = $n->id;
+				$data->count = $input['count_'.$n->id];
+
+				if (!$data->save()) {
+					return App::abort(400);
+				}
+			}
+
+		DB::commit();
+
+		Session::flash('message', '저장되었습니다.');
+
+		return Redirect::to('equips/surveys');
 	}
 
 
@@ -215,7 +264,18 @@ class EqSurveyController extends \BaseController {
 	 */
 	public function edit($id)
 	{
-		//
+		$user = Sentry::getUser();
+		$userNode = $user->supplyNode;
+		$survey = EqItemSurvey::find($id);
+		$item = $survey->item;
+		$childrenNodes = $userNode->children;
+		$mode = 'update';
+
+		foreach ($childrenNodes as $n) {
+			$count[$n->id] = EqItemSurveyData::where('survey_id','=',$id)->where('target_node_id','=',$n->id)->first()->count;
+		}
+			
+        return View::make('equip.survey-new',get_defined_vars());
 	}
 
 
@@ -227,7 +287,23 @@ class EqSurveyController extends \BaseController {
 	 */
 	public function update($id)
 	{
-		//
+		$input = Input::all();
+		$user = Sentry::getUser();
+		$nodes = $user->supplyNode->children;
+
+		DB::beginTransaction();
+			foreach ($nodes as $n) {
+				$data = EqItemSurveyData::where('survey_id','=',$id)->where('target_node_id','=',$n->id)->first();
+				$data->count = $input['count_'.$n->id];
+
+				$data->update();
+			}
+
+		DB::commit();
+
+		Session::flash('message', '수정되었습니다.');
+
+		return Redirect::to('equips/surveys?domain=1');
 	}
 
 
@@ -239,7 +315,13 @@ class EqSurveyController extends \BaseController {
 	 */
 	public function destroy($id)
 	{
-		//
+		$survey = EqItemSurvey::find($id);
+		$survey->is_closed = 1;
+		$survey->update();
+
+		Session::flash('message', '삭되었습니다.');
+
+		return Redirect::to('equips/surveys?domain=1');
 	}
 
 

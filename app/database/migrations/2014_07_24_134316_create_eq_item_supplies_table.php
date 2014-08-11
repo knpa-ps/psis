@@ -19,7 +19,7 @@ class CreateEqItemSuppliesTable extends Migration {
 			$table->integer('item_type_id')->unsigned()->index();
 			$table->integer('count')->unsigned();
 			$table->integer('to_node_id')->unsigned()->index();
-
+			$table->tinyInteger('is_closed')->default(0);
 			$table->timestamps();
 		});
 	}

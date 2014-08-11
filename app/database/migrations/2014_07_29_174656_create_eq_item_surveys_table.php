@@ -19,6 +19,7 @@ class CreateEqItemSurveysTable extends Migration {
 			$table->integer('node_id')->unsigned()->index();
 			$table->date('started_at');
 			$table->date('expired_at');
+			$table->tinyInteger('is_closed')->default(0);
 			$table->timestamps();
 		});
 	}

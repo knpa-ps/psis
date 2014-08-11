@@ -21,6 +21,10 @@ class User extends Cartalyst\Sentry\Users\Eloquent\User {
 		return $this->belongsToMany('Group', 'users_groups', 'user_id', 'group_id');
 	}
 
+	public function surveys(){
+		return $this->hasMany('EqItemSurvey','creator_id','id');
+	}
+
 	public function modifyRequests(){
 		return $this->hasMany('ModUser');
 	}

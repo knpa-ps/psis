@@ -60,7 +60,7 @@
 									<td id="{{'sum_node_'.$node->id}}">0</td>
 									@foreach($types as $t)
 									<td>
-										<input class="input-count input-sm form-control" style="width:100%;" type="text" id="count_{{$node->id}}_{{$t->id}}" name="count_{{$node->id}}_{{$t->id}}" value="{{$mode === 'create' ? '' : $count[$node->id][$t->id] }}">
+										<input class="input-count input-sm form-control" style="width:100%;" type="text" id="count_{{$node->id}}_{{$t->id}}" name="count_{{$node->id}}_{{$t->id}}" value="{{$mode === 'create' ? '' : $count[$t->id] }}">
 									</td>
 									@endforeach
 								</tr>

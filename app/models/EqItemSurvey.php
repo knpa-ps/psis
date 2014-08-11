@@ -18,4 +18,14 @@ class EqItemSurvey extends Eloquent {
 	public function responses() {
 		return $this->hasMany('EqItemSurveyResponse','survey_id','id');
 	}
+
+	public function isResponsed($nodeId){
+		$responses = EqItemSurveyResponse::where('node_id','=',$nodeId)->where('survey_id','=',$this->id)->get();
+
+		if (sizeof($responses) !== 0) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
 }

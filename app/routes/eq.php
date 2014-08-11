@@ -7,13 +7,11 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::group(array('before'=>'permission:eq.admin'), function() {
 		Route::resource('/categories', 'EqCategoryController');
 	});
-	
-	
+
+	Route::put('/surveys/{id}/response', 'EqSurveyController@updateResponse');
+	Route::post('/surveys/{id}/response','EqSurveyController@storeResponse');
+	Route::get('/surveys/{id}/response', 'EqSurveyController@doResponse');
 	Route::get('/surveys/{id}/data', 'EqSurveyController@getData');	
-	Route::get('/surveys/new', 'EqSurveyController@newSurvey');
-	Route::post('/surveys/new', 'EqSurveyController@storeNewSurvey');
-	Route::put('/surveys/new/{$id}', 'EqSurveyController@updateSurvey');
-	Route::delete('/surveys/new/{$id}', 'EqSurveyController@deleteSurvey');
 	Route::resource('/items', 'EqItemController');
 	Route::resource('/surveys', 'EqSurveyController');
 	Route::get('items/{id}/data', 'EqItemController@getData');

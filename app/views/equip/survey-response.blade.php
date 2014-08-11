@@ -8,35 +8,35 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					수요조사 등록하기 - {{$item->name.'('.$item->maker_name.')'}}
+					설문조사 응답하기 - {{$item->name.'('.$item->maker_name.')'}}
 				</h3>
 			</div>
 			<div class="panel-body">
 				<div class="col-xs-12">
 					{{ Form::open(array(
-						'url' => $mode === "create" ? 'equips/surveys':'equips/surveys/'.$survey->id,
-						'method' => $mode === 'create' ? 'post':'put',
+						'url' => 'equips/surveys/'.$survey->id.'/response',
+						'method' => $mode === 'create' ? 'post':'put', 
 						'class' => 'form-horizontal',
-						'id' => 'new_survey_form'
+						'id' => 'survey_form'
 					)) }}
 					<legend>
-						관서별 총 수량 지정
+						사이즈 별 수량 입력
 					</legend>
 					<table class="table table-condensed table-bordered table-striped" style="table-layout: fixed;">
 						<thead>
 							<tr>
 								<td style="text-align: center;">총계</td>
-								@foreach($childrenNodes as $n)
-									<td style="text-align: center;">{{$n->node_name}}</td>
+								@foreach($types as $t)
+									<td style="text-align: center;">{{$t->type_name}}</td>
 								@endforeach
 							</tr>
 						</thead>
 						<tbody>
 							<tr>
-								<td style="padding-top: 11px; text-align: center;" id="sum"></td>
-								@foreach ($childrenNodes as $n)
+								<td style="padding-top: 11px; text-align: center;" id="sum">{{ $sum }}</td>
+								@foreach ($types as $t)
 									<td>
-										<input type="text" class="input-sm form-control input-count" name="{{'count_'.$n->id}}" id="{{'count_'.$n->id}}" value="{{$count[$n->id] or ''}}">
+										<input type="text" class="input-sm form-control input-count" name="{{'count_'.$t->id}}" id="{{'count_'.$t->id}}" value="{{$count[$t->id] or ''}}">
 									</td>
 								@endforeach
 							</tr>
@@ -63,16 +63,20 @@ $(function(){
 		if (!jQuery.isNumeric(input)) {
 			$(this).val('');
 		};
-
-		var sumNode = 0;
-		@foreach ($childrenNodes as $n)
-			var typeValue = $("#{{'count_'.$n->id}}").val();
-			if (jQuery.isNumeric(typeValue)) {
-				sumNode += parseInt(typeValue);
-			}
-			//노드별합계 계산
+	});
+	$('#survey_form').submit(function(event){
+		var sum = 0;
+		@foreach ($types as $t)
+			var count = $("#{{'count_'.$t->id}}").val();
+			if (count=='') {
+				count = 0;
+			};
+			sum += parseInt(count);
 		@endforeach
-		$("#sum").html('<b>'+sumNode+'</b>')
+		if (sum != {{$sum}} ) {
+			alert("총 수량이 일치하지 않습니다.");
+			event.preventDefault();
+		}
 	});
 });
 </script>
