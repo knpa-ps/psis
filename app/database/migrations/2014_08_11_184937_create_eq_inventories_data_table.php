@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateEqSupplyDetailsTable extends Migration {
+class CreateEqInventoriesDataTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,12 +12,11 @@ class CreateEqSupplyDetailsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('eq_supply_details', function(Blueprint $table) {
+		Schema::create('eq_inventories_data', function(Blueprint $table) {
 			$table->increments('id');
-			$table->integer('supply_id')->unsigned()->index();
-			$table->integer('target_dept_id')->unsigned()->index();
+			$table->integer('inventory_set_id')->unsigned()->index();
+			$table->integer('item_type_id')->unsigned()->index();
 			$table->integer('count')->unsigned();
-			
 			$table->timestamps();
 		});
 	}
@@ -30,7 +29,7 @@ class CreateEqSupplyDetailsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('eq_supply_details');
+		Schema::drop('eq_inventories_data');
 	}
 
 }

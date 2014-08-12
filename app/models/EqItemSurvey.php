@@ -8,6 +8,10 @@ class EqItemSurvey extends Eloquent {
 
 	public static $rules = array();
 
+	public function node(){
+		return $this->belongsTo('EqSupplyManagerNode','node_id','id');
+	}
+
 	public function item(){
 		return $this->belongsTo('EqItem', 'item_id','id');
 	}

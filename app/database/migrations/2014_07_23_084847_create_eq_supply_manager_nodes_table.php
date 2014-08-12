@@ -14,11 +14,12 @@ class CreateEqSupplyManagerNodesTable extends Migration {
 	{
 		Schema::create('eq_supply_manager_nodes', function(Blueprint $table) {
 			$table->increments('id');
-			$table->integer('manager_id')->unsigned();
+			$table->integer('manager_id')->unsigned()->nullable();
 			$table->integer('parent_id')->unsigned()->nullable();
 			$table->string('node_name', 50);
 			$table->string('full_path', 255);
 			$table->smallInteger('is_terminal');
+			$table->string('full_name', 255);
 			$table->timestamps();
 		});
 	}

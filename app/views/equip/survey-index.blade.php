@@ -110,6 +110,9 @@
 								장비명
 							</th>
 							<th>
+								조사관서
+							</th>
+							<th>
 								조사기한
 							</th>
 							<th>
@@ -162,6 +165,9 @@
 								</td>
 								<td>
 									<a href="{{ url('equips/surveys/'.$survey->id.'/response') }}">{{ $survey->item->name }}</a>
+								</td>
+								<td>
+									{{ $survey->node->node_name }}
 								</td>
 								<td>
 									{{ $survey->expired_at }} 까지

@@ -17,7 +17,7 @@ class CreateEqItemAcquires extends Migration {
 			$table->integer('item_id')->unsigned();
 			$table->integer('item_type_id')->unsigned();
 			$table->integer('count');
-			$table->integer('node_from_id')->unsigned();
+			$table->date('acquired_date');
 			$table->timestamps();
 		});
 	}

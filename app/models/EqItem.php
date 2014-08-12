@@ -11,16 +11,16 @@ class EqItem extends Eloquent {
 		return $this->hasMany('EqItemDetail', 'item_id', 'id');
 	}
 
-	public function inventories() {
-		return $this->hasMany('EqInventory', 'item_id', 'id');
-	}
-
 	public function images() {
 		return $this->hasMany('EqItemImage', 'item_id', 'id');
 	}
 
 	public function types() {
 		return $this->hasMany('EqItemType', 'item_id', 'id');
+	}
+
+	public function inventories() {
+		return $this->hasMany('EqInventorySet','item_id','id');
 	}
 
 	public function acquires() {

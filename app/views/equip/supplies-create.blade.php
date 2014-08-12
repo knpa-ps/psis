@@ -33,7 +33,7 @@
 						<div class="form-group">
 							<label for="supply_date" class="control-label col-xs-1">보급일자</label>
 							<div class="col-xs-2">
-								<input type="text" class="form-control input-datepicker input-sm" name="supply_date" id="supply_date" value="{{ $supply->supply_date or ''}}">
+								<input type="text" class="form-control input-datepicker input-sm" name="supply_date" id="supply_date" value="{{ $supply->supplied_date or ''}}">
 							</div>
 						</div>
 						<table class="table table-condensed table-bordered" style="table-layout: fixed;" >
@@ -60,7 +60,7 @@
 									<td id="{{'sum_node_'.$node->id}}">0</td>
 									@foreach($types as $t)
 									<td>
-										<input class="input-count input-sm form-control" style="width:100%;" type="text" id="count_{{$node->id}}_{{$t->id}}" name="count_{{$node->id}}_{{$t->id}}" value="{{$mode === 'create' ? '' : $count[$t->id] }}">
+										<input class="input-count input-sm form-control" style="width:100%;" type="text" id="count_{{$node->id}}_{{$t->id}}" name="count_{{$node->id}}_{{$t->id}}" value="{{$mode === 'create' ? '' : $count[$node->id][$t->id] }}">
 									</td>
 									@endforeach
 								</tr>

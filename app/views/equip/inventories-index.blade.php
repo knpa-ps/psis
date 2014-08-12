@@ -27,19 +27,13 @@
 								제조업체명
 							</th>
 							<th>
-								취득시기
+								총 취득수량 (개)
 							</th>
 							<th>
-								취득수량 (개)
-							</th>
-							<th>
-								보급수량 (개)
+								총 보급수량 (개)
 							</th>
 							<th>
 								잔여수량 (개)
-							</th>
-							<th>
-								작업
 							</th>
 						</tr>
 					</thead>
@@ -59,24 +53,13 @@
 									{{ $i->maker_name or '' }}
 								</td>
 								<td>
-									{{ $i->acquired_date or ''}}
-								</td>
-								<td>
-									{{ $acquired_count[$i->id] or '' }}
+									{{ $having_count[$i->id] or '' }}
 								</td>
 								<td>
 									{{ $supplied_count[$i->id] or '' }}
 								</td>
 								<td>
 									{{ $remaining_count[$i->id] or '' }}
-								</td>
-								<td>
-									<a id="{{ $i->id }}" href="#" class="delete label label-danger pull-right">
-										<span class="glyphicon glyphicon-trash"></span> 삭제
-									</a>
-									<a id="{{ $i->id }}" href="{{url('equips/inventories/'.$i->id.'/edit')}}" class="update label label-success pull-right">
-										<span class="glyphicon glyphicon-pencil"></span> 수정
-									</a>
 								</td>
 							</tr>
 						@endforeach

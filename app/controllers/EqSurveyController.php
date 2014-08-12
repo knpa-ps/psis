@@ -230,7 +230,7 @@ class EqSurveyController extends \BaseController {
 
 		Session::flash('message', '저장되었습니다.');
 
-		return Redirect::to('equips/surveys');
+		return Redirect::to('equips/surveys?domain=2');
 	}
 
 
@@ -319,7 +319,7 @@ class EqSurveyController extends \BaseController {
 		$survey->is_closed = 1;
 		$survey->update();
 
-		Session::flash('message', '삭되었습니다.');
+		Session::flash('message', '삭제되었습니다.');
 
 		return Redirect::to('equips/surveys?domain=1');
 	}

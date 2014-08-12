@@ -16,9 +16,9 @@ class CreateEqItemSuppliesSetTable extends Migration {
 			$table->increments('id');
 			$table->integer('item_id')->unsigned()->index();
 			$table->integer('creator_id')->unsigned()->index();
-			$table->integer('confirmer_id')->unsigned()->nullable();
 			$table->integer('from_node_id')->unsigned()->index();
 			$table->date('supplied_date');
+			$table->tinyInteger('is_closed')->default(0);
 			$table->timestamps();
 		});
 	}
