@@ -12,7 +12,7 @@ class EqCategoryController extends EquipController {
 		
 		$data['categories'] = $this->service->getVisibleCategoriesQuery($user)->paginate(10);
 		$data['user'] = $user;
-
+		
         return View::make('equip.categories', $data);
 	}
 

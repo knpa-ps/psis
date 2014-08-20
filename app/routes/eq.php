@@ -4,9 +4,7 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 
 	Route::get('/', 'EquipController@index');
 
-	Route::group(array('before'=>'permission:eq.admin'), function() {
-		Route::resource('/categories', 'EqCategoryController');
-	});
+	Route::resource('/categories', 'EqCategoryController');
 
 	Route::put('/surveys/{id}/response', 'EqSurveyController@updateResponse');
 	Route::post('/surveys/{id}/response','EqSurveyController@storeResponse');
