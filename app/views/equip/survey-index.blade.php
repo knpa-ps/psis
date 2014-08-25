@@ -67,7 +67,7 @@
 						<div class="col-xs-9">
 							<select name="item" id="item_to_survey" class="form-control">
 								@foreach($items as $i)
-									<option value="{{$i->id}}">{{$i->name}} ({{$i->maker_name}})</option>
+									<option value="{{$i->id}}">{{$i->code->title}} ({{$i->maker_name}})</option>
 								@endforeach
 							</select>
 						</div>
@@ -132,7 +132,7 @@
 									{{ $survey->id }}
 								</td>
 								<td>
-									<a href="{{ url('equips/surveys/'.$survey->id)}}">{{ $survey->item->name }}</a>
+									<a href="{{ url('equips/surveys/'.$survey->id)}}">{{ $survey->item->code->title }}</a>
 								</td>
 								<td>
 									{{ $survey->started_at }}
@@ -144,9 +144,9 @@
 									{{ $survey->responses->count()/$survey->item->types->count().'/'. $user->supplyNode->children->count()}} ({{$survey->responses->count()/$user->supplyNode->children->count()*100}}%)
 								</td>
 								<td>
-									<a href="{{ url('equips/surveys/'.$survey->id.'/edit') }}" class="btn btn-xs btn-info btn-edit">
+									<!-- <a href="{{ url('equips/surveys/'.$survey->id.'/edit') }}" class="btn btn-xs btn-info btn-edit">
 										<span class="glyphicon glyphicon-edit"></span> 수정
-									</a>
+									</a> -->
 									{{ Form::open(array(
 											'url'=>url('equips/surveys/'.$survey->id),
 											'method'=>'delete',
@@ -164,7 +164,7 @@
 									{{ $survey->id }}
 								</td>
 								<td>
-									<a href="{{ url('equips/surveys/'.$survey->id.'/response') }}">{{ $survey->item->name }}</a>
+									<a href="{{ url('equips/surveys/'.$survey->id.'/response') }}">{{ $survey->item->code->title }}</a>
 								</td>
 								<td>
 									{{ $survey->node->node_name }}

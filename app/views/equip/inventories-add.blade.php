@@ -41,6 +41,14 @@
 								</div>
 							</div>
 							<div class="form-group">
+								<label for="classification" class="control-label col-xs-2">구분</label>
+								<div class="col-xs-10">
+									<select name="classification" id="classification" class="form-control">
+										<!-- 장비 선택시 해당 장비의 세부선택할것 목록이 option으로 드감. -->
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
 								<label for="acquired_date" class="control-label col-xs-2">취득일</label>
 								<div class="col-xs-10">
 									<input type="text" class="form-control input-datepicker input-sm " name="acquired_date">
@@ -83,10 +91,61 @@
 
 <script type="text/javascript">
 $(function(){
-	addRow();
+	
+	$('#item_category').on('change', function(){
+		var data = {'id' : this.value};
+		$.ajax({
+			url : base_url+"/equips/inventories/create/get_items_in_category",
+			method : 'post',
+			data : JSON.stringify(data),
+			contentType: 'application/json',
+			dataType: 'json',
+			success : function(res){
+				var options;
+				if(res.length === 0){
+					$("#item").html('<option>해당 분류에 속하는 장비가 없습니다</option>');
+				}
+				for (var i=0; i< res.length; i++){
+					var str = '<option value="'+res[i].id+'">'+res[i].title+'</option>';
+					options += str;
+				}
+				$("#item").html(options);
+				$("#item").trigger('change');
+			}
+		});
 
-	$("#item").on('change', function(){
-		var selectedItemId = $("#item").attr('value');
+	});
+	$('#item_category').trigger('change');
+
+	// item선택하면 해당 아이템에 속한 구분자들이 아래 셀렉트박스에 나옴
+
+	$('#item').on('change', function(){
+		var data = {'id' : this.value};
+		$.ajax({
+			url : base_url+"/equips/inventories/create/get_items_in_code",
+			method : 'post',
+			data : JSON.stringify(data),
+			contentType: 'application/json',
+			dataType: 'json',
+			success : function(res){
+				var options;
+				if(res.length === 0){
+					$("#classification").html('<option>미등록 장비입니다</option>');
+				}
+				for (var i=0; i< res.length; i++){
+					var str = '<option value="'+res[i].id+'">'+res[i].classification+'</option>';
+					options += str;
+				}
+				$("#classification").html(options);
+				$("#classification").trigger('change');
+			}
+		});
+
+	});
+
+	//구분 선택시 해당 item의 치수표 등장!
+	$("#classification").on('change', function(){
+		var selectedItemId = $("#classification").attr('value');
 		$("#ths").html("");
 		$("#tds").html("");
 		$.ajax({
@@ -100,64 +159,6 @@ $(function(){
 			}
 		});
 	});
-
-	$("#remove_detail").on('click', function(){
-		removeRow();	
-	});
-
-	$("#add_details").on('click', addRow);
-
-	function removeRow(){
-		var rowNum = $("#fieldset .type_input").length;
-		if (rowNum == 1) {
-			alert('최소 하나의 제원을 입력해야 합니다.');
-			return;
-		}
-
-		$("#fieldset .type_input").last().remove();
-	}
-
-	function addRow(){
-		var newRow = $("#type_template .type_input").clone();
-		$("#fieldset").append(newRow);
-		onRowAdded(newRow);
-	}
-
-	function onRowAdded(row) {
-		var rows = $("#fieldset .type_input");
-		var id = rows.length-1;
-		row.find("input.type").prop('name', 'type['+id+']');
-		row.find(".type-label").html("제원 #"+rows.length);
-
-		row.find("input.count").prop('name', 'count['+id+']');
-		row.find(".count-label").html("수량");
-	}
-
-	$('#item_category').on('change', function(){
-		var data = {'id' : this.value};
-		$.ajax({
-			url : base_url+"/equips/inventories/create/get_items_in_category",
-			method : 'post',
-			data : JSON.stringify(data),
-			contentType: 'application/json',
-			dataType: 'json',
-			success : function(res){
-				var options;
-				if(res.length === 0){
-					$("#item").html('<option>해당 분류에 속하는 장비 없음</option>');
-				}
-				for (var i=0; i< res.length; i++){
-					var str = '<option value="'+res[i].id+'">'+res[i].name+'</option>';
-					options += str;
-				}
-				$("#item").html(options);
-				$("#item").trigger('change');
-			}
-		});
-
-		$('#item').html("<option >")
-	});
-	$('#item_category').trigger('change');
 
 
 	$('#basic_form').validate({

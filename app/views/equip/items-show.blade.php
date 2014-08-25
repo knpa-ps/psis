@@ -6,7 +6,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-				 	<a href="{{url('equips/items?domain='.$item->category->domain->id)}}"><span class="glyphicon glyphicon-chevron-left"></span></a> <strong>장비상세정보</strong>
+				 	<a href="{{url('equips/items?domain='.$domainId)}}"><span class="glyphicon glyphicon-chevron-left"></span></a> <strong>장비상세정보</strong>
 				</h3>
 			</div>
 
@@ -14,7 +14,7 @@
 				{{-- 기본정보 --}}
 				<div class="row">
 					<div class="col-xs-6">
-						<h4 class="block-header"><small>{{ $item->category->name }}</small> {{ $item->name }}</h4>
+						<h4 class="block-header"><small>{{ $category->name }}</small> {{ $item->code->title }}</h4>
 						<input type="hidden" id="item_id" value="{{ $item->id }}">
 					</div>
 					
@@ -71,13 +71,13 @@
 							<tbody>
 								<tr>
 									<th>장비명</th>
-									<td colspan="5"><strong> {{ $item->name }} </strong></td>
+									<td colspan="5"><strong> {{ $item->code->title }} </strong></td>
 								</tr>
 								<tr>
 									<th>기능</th>
-									<td> {{ $item->category->domain->name }} </td>
+									<td> {{ $category->domain->name }} </td>
 									<th>분류</th>
-									<td colspan="3"> {{ $item->category->name }} </td>
+									<td colspan="3"> {{ $category->name }} </td>
 								</tr>
 								<tr>
 									<th>업체명</th>
@@ -88,8 +88,8 @@
 									<td> {{ $item->persist_years }} </td>
 								</tr>
 								<tr>
-									<th>제원</th>
-									<td colspan="3">{{$item->standard}}</td>
+									<th>구분</th>
+									<td colspan="3">{{$item->classification}}</td>
 									<th>구입일자</th>
 									<td>{{$item->acquired_date}}</td>
 								</tr>

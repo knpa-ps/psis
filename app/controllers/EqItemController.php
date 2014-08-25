@@ -3,6 +3,16 @@ use Carbon\Carbon;
 
 class EqItemController extends EquipController {
 
+	
+	
+	public function showRegisteredList($codeId){
+
+		$code = EqItemCode::find($codeId);
+		$data['code'] = $code;
+		$data['items'] = $code->items;
+
+		return View::make('equip.items-registered-list', $data);
+	}
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -156,9 +166,9 @@ class EqItemController extends EquipController {
 
 		$data['user'] = $user;
 
-		$data['items'] =  EqItem::whereHas('category', function($q) use ($domainId) {
+		$data['itemCodes'] =  EqItemCode::whereHas('category', function($q) use ($domainId) {
 									$q->where('domain_id', '=', $domainId);
-								})->orderBy('category_id', 'asc')->orderBy('name', 'asc')->get();
+								})->orderBy('category_id', 'asc')->orderBy('sort_order', 'asc')->get();
 
 		$data['domainId'] = $domainId;
         return View::make('equip.items', $data);
@@ -172,6 +182,9 @@ class EqItemController extends EquipController {
 	public function create()
 	{
 		$user = Sentry::getUser();
+		$code = EqItemCode::where('code','=',Input::get('code'))->first();
+		
+		$data['code'] = $code;
 		$data['mode'] = 'create';
 		$data['categories'] = $this->service->getVisibleCategoriesQuery($user)->get();
 		$data['user'] = $user;
@@ -190,13 +203,12 @@ class EqItemController extends EquipController {
 		$item = new EqItem;
 
 		DB::beginTransaction();
-		$item->name = Input::get('item_name');
-		$item->category_id = Input::get('item_category_id');
-		$item->standard = Input::get('item_standard');
-		$item->maker_name = Input::get('item_maker_name');
-		$item->maker_phone = Input::get('item_maker_phone');
-		$item->acquired_date = Input::get('item_acquired_date');
-		$item->persist_years = Input::get('item_persist_years');
+		$item->classification = $data['item_classification'];
+		$item->item_code = $data['item_code'];
+		$item->maker_name = $data['item_maker_name'];
+		$item->maker_phone = $data['item_maker_phone'];
+		$item->acquired_date = $data['item_acquired_date'];
+		$item->persist_years = $data['item_persist_years'];
 		$item->is_active = 1;
 		if (!$item->save()) {
 			return App::abort(400);
@@ -247,6 +259,8 @@ class EqItemController extends EquipController {
 		}
 		$types = EqItemType::where('item_id','=',$id)->get();
 
+		$data['domainId'] = $item->code->category->domain->id;
+		$data['category'] = $item->code->category;
 		$data['item'] = $item;
 		$data['types'] = $types;
 		return View::make('equip.items-show', $data);

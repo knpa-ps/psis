@@ -6,7 +6,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					<strong>{{ $mode=='create'?'장비추가':'장비수정' }}</strong>
+					<strong>{{$code->title}} {{ $mode=='create'?'장비추가':'장비수정' }}</strong>
 				</h3>
 			</div>
 
@@ -21,37 +21,12 @@
 							<legend>
 								<h4>기본정보</h4>
 							</legend>
-
+									
 							<div class="form-group">
-								<label for="item_name" class="control-label col-xs-2">장비명</label>
+								<label for="item_classification" class="control-label col-xs-2">보급구분</label>
 								<div class="col-xs-10">
-									<input type="text" class="form-control input-sm" name="item_name" id="item_name" 
-									value="{{ $item->name or '' }}">
-								</div>
-							</div>
-
-							<div class="form-group">
-								<label for="item_category_id" class="control-label col-xs-2">분류</label>
-								<div class="col-xs-10">
-									<select name="item_category_id" id="item_category_id" class="form-control">
-										@foreach ($categories as $c)
-										
-										@if (isset($item) && $item->category_id == $c->id)
-											<option value="{{ $c->id }}" selected>[{{ $c->domain->name }}] {{ $c->name }}</option>
-										@else	
-											<option value="{{ $c->id }}">[{{ $c->domain->name }}] {{ $c->name }}</option>
-										@endif
-
-										@endforeach
-									</select>
-								</div>
-							</div>
-
-							<div class="form-group">
-								<label for="item_standard" class="control-label col-xs-2">제원</label>
-								<div class="col-xs-10">
-									<input type="text" class="form-control input-sm" name="item_standard" id="item_standard"
-									value="{{ $item->standard or '' }}">
+									<input type="text" class="form-control input-sm" name="item_classification" id="item_classification"
+									value="{{ $item->classification or '' }}">
 								</div>
 							</div>
 
@@ -98,6 +73,8 @@
 								</div>
 							</legend>
 						</fieldset>
+						<!-- 장비코드 hidden으로 -->
+						<input type="hidden" name="item_code" value="{{$code->code}}">
 
 				{{ Form::close(); }}
 				
@@ -157,6 +134,7 @@
 
 <script type="text/javascript">
 $(function() {
+
 	addRow();
 
 	$("#remove_detail").on('click', function(){
@@ -194,11 +172,7 @@ $(function() {
 
 	$("#basic_form").validate({
 		rules: {
-			item_name: {
-				required: true,
-				maxlength: 255
-			},
-			item_standard: {
+			item_classification: {
 				required: true,
 				maxlength: 255
 			},

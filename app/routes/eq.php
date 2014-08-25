@@ -11,10 +11,14 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::get('/surveys/{id}/response', 'EqSurveyController@doResponse');
 	Route::get('/surveys/{id}/data', 'EqSurveyController@getData');	
 	Route::resource('/items', 'EqItemController');
+	Route::get('/items/list/{codeId}', 'EqItemController@showRegisteredList');
+	
+
 	Route::resource('/surveys', 'EqSurveyController');
 	Route::get('items/{id}/data', 'EqItemController@getData');
 	Route::resource('/inventories', 'EqInventoryController');
 	Route::post('/inventories/create/get_item_type_set/{itemId}', 'EqInventoryController@getItemTypeSet');
+	Route::post('/inventories/create/get_items_in_code', 'EqInventoryController@getItemsInCode');
 	Route::post('/inventories/create/get_items_in_category', 'EqInventoryController@getItemsInCategory');
 	Route::get('/items/{itemId}/details', 'EqItemController@displayDetailsList');
 	Route::get('/items/{itemId}/detail/{id}', 'EqItemController@displayExtraInfo');

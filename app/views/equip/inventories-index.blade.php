@@ -18,9 +18,6 @@
 								번호
 							</th>
 							<th>
-								분류
-							</th>
-							<th>
 								장비명
 							</th>
 							<th>
@@ -44,10 +41,7 @@
 									{{ $i->id or '' }}
 								</td>
 								<td>
-									{{ $i->category->name or '' }}
-								</td>
-								<td>
-									<a href="{{ url('equips/items/'.$i->id) }}">{{ $i->name or '' }}</a>
+									<a href="{{ url('equips/items/'.$i->id) }}">{{ $i->code->title.'('.$i->classification.')' }}</a>
 								</td>
 								<td>
 									{{ $i->maker_name or '' }}

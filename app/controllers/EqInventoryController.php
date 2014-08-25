@@ -8,6 +8,12 @@ class EqInventoryController extends BaseController {
 		$this->service = new EqService;
 	}
 
+	public function getItemsInCode(){
+		$code = EqItemCode::find(Input::get('id'));
+		$items = EqItem::where('item_code','=',$code->code)->get();
+		return $items;
+	}
+
 	public function getItemTypeSet($itemId) {
 		$itemTypes = EqItemType::where("item_id","=",$itemId)->get();
 		return $itemTypes;
@@ -15,7 +21,7 @@ class EqInventoryController extends BaseController {
 
 	public function getItemsInCategory() {
 		$categoryId = Input::get('id');
-		$items = EqItem::where('category_id','=',$categoryId)->get();
+		$items = EqItemCode::where('category_id','=',$categoryId)->get();
 		return $items;
 	}
 	/**
