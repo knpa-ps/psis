@@ -145,14 +145,14 @@
 									<td style="text-align: center;"><b>합계</b></td>
 								</tr>
 							</thead>
-							@if (count($item->acquires)>0)
+							@if (count($inventorySet->children->sum('count'))>0)
 							<tbody>
 								<tr>
-									<td style="text-align: center;"><b>취득수량</b></td>
-									@foreach($item->acquires as $a)
-										<td style="text-align: center;">{{$a->count}}</td>
+									<td style="text-align: center;"><b>보유수량</b></td>
+									@foreach($inventorySet->children as $c)
+										<td style="text-align: center;">{{$c->count}}</td>
 									@endforeach
-									<td style="text-align: center;">{{$item->acquires->sum('count')}}</td>
+									<td style="text-align: center;">{{$inventorySet->children->sum('count')}}</td>
 								</tr>
 							</tbody>
 							@endif

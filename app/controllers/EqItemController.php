@@ -253,6 +253,7 @@ class EqItemController extends EquipController {
 	 */
 	public function show($id)
 	{
+		$user = Sentry::getUser();
 		$item = EqItem::find($id);
 		if ($item == null) {
 			return App::abort(404);
@@ -263,6 +264,8 @@ class EqItemController extends EquipController {
 		$data['category'] = $item->code->category;
 		$data['item'] = $item;
 		$data['types'] = $types;
+		$data['inventorySet'] = EqInventorySet::where('item_id','=',$id)->where('node_id','=',$user->supplyNode->id)->first();
+
 		return View::make('equip.items-show', $data);
 	}
 
@@ -397,7 +400,10 @@ class EqItemController extends EquipController {
 
 			$row['sum_row'] = 0;
 			foreach ($types as $t) {
-				$row[$t->type_name]=EqItemSupply::where('item_type_id','=',$t->id)->sum('count');
+				$row[$t->type_name] = EqItemSupply::whereHas('supplySet', function($q) use ($managingNode) {
+					$q->where('from_node_id','=',$managingNode->id);
+				})->where('item_type_id','=',$t->id)->sum('count');
+				
 				$row['sum_row'] += $row[$t->type_name];
 			}
 			$row['row_type']=0;

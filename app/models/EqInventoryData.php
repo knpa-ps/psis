@@ -7,4 +7,8 @@ class EqInventoryData extends Eloquent {
 	protected $guarded = array();
 
 	public static $rules = array();
+
+	public function parentSet(){
+		return $this->belongsTo('EqInventorySet','inventory_set_id','id');
+	}
 }
