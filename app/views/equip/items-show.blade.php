@@ -139,22 +139,26 @@
 							<thead>
 								<tr>
 									<td style="text-align: center;"><b>사이즈</b></td>
+								<td style="text-align: center;"><b>합계</b></td>
 									@foreach($item->types as $t)
 										<td style="text-align: center;"><b>{{$t->type_name}}</b></td>
 									@endforeach
-									<td style="text-align: center;"><b>합계</b></td>
+									
 								</tr>
 							</thead>
-							@if (count($inventorySet->children->sum('count'))>0)
-							<tbody>
-								<tr>
-									<td style="text-align: center;"><b>보유수량</b></td>
-									@foreach($inventorySet->children as $c)
-										<td style="text-align: center;">{{$c->count}}</td>
-									@endforeach
-									<td style="text-align: center;">{{$inventorySet->children->sum('count')}}</td>
-								</tr>
-							</tbody>
+							@if ($inventorySet !== null)
+								@if (count($inventorySet->children->sum('count'))>0)
+								<tbody>
+									<tr>
+										<td style="text-align: center;"><b>보유수량</b></td>
+										<td style="text-align: center;">{{$inventorySet->children-> sum('count')}}</td>
+										@foreach($inventorySet->children as $c)
+											<td style="text-align: center;">{{$c->count}}</td>
+										@endforeach
+										
+									</tr>
+								</tbody>
+								@endif
 							@endif
 						</table>
 					</div>

@@ -132,36 +132,58 @@ class EqSupplyController extends BaseController {
 			$countName = 'count_';
 			$countNameNode = $countName.$node->id.'_';
 
-			$invSet = new EqInventorySet;
-			$invSet->item_id = $data['item_id'];
-			$invSet->from_node_id = $user->supplyNode->id;
-			$invSet->node_id = $node->id;
-			$invSet->is_confirmed = 0;
-			if (!$invSet->save()) {
-				return App::abort(500);
-			}
-
-			foreach ($types as $type) {
-				$typeId = $type->id;
-				$countName = $countNameNode.$typeId;
-
-				$supply = new EqItemSupply;
-				$supply->supply_set_id = $supplySet->id;
-				$supply->item_type_id = $type->id;
-				$supply->count = $data[$countName];
-				$supply->to_node_id = $node->id;
-
-				if (!$supply->save()) {
+			$invSet = EqinventorySet::where('item_id','=',$data['item_id'])->where('node_id','=',$user->supplyNode->id)->first();
+			if(sizeof($invSet)==0) {
+				$invSet = new EqInventorySet;
+				$invSet->item_id = $data['item_id'];
+				$invSet->node_id = $node->id;
+				if (!$invSet->save()) {
 					return App::abort(500);
 				}
+				foreach ($types as $type) {
+					$typeId = $type->id;
+					$countName = $countNameNode.$typeId;
 
-				$invData = new EqInventoryData;
-				$invData->inventory_set_id = $invSet->id;
-				$invData->item_type_id = $type->id;
-				$invData->count = $data[$countName];
+					$supply = new EqItemSupply;
+					$supply->supply_set_id = $supplySet->id;
+					$supply->item_type_id = $type->id;
+					$supply->count = $data[$countName];
+					$supply->to_node_id = $node->id;
 
-				if (!$invData->save()) {
-					return App::abort(500);
+					if (!$supply->save()) {
+						return App::abort(500);
+					}
+
+					$invData = new EqInventoryData;
+					$invData->inventory_set_id = $invSet->id;
+					$invData->item_type_id = $type->id;
+					$invData->count = $data[$countName];
+
+					if (!$invData->save()) {
+						return App::abort(500);
+					}
+				}
+			} else {
+				foreach ($types as $type) {
+					$typeId = $type->id;
+					$countName = $countNameNode.$typeId;
+
+					$supply = new EqItemSupply;
+					$supply->supply_set_id = $supplySet->id;
+					$supply->item_type_id = $type->id;
+					$supply->count = $data[$countName];
+					$supply->to_node_id = $node->id;
+
+					if (!$supply->save()) {
+						return App::abort(500);
+					}
+
+					$invData = EqInventoryData::where('inventory_set_id','=',$invSet->id);
+					$invData->count += $data[$countName];
+
+					if (!$invData->save()) {
+						return App::abort(500);
+					}
 				}
 			}
 		}

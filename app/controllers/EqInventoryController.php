@@ -24,6 +24,7 @@ class EqInventoryController extends BaseController {
 		$items = EqItemCode::where('category_id','=',$categoryId)->get();
 		return $items;
 	}
+
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -32,6 +33,145 @@ class EqInventoryController extends BaseController {
 	public function index()
 	{
 		$user = Sentry::getUser();
+
+		$data['domains'] = $this->service->getVisibleDomains($user);
+
+		if (count($data['domains']) == 0) {
+			return App::abort(403);
+		}
+
+		$domainId = Input::get('domain');
+
+		if (!$domainId) {
+			$domainId = $data['domains'][0]->id;
+		}
+
+		if (!$user->hasAccess(EqDomain::find($domainId)->permission)) {
+			return App::abort(403);
+		}
+
+		$data['user'] = $user;
+
+		$data['itemCodes'] =  EqItemCode::whereHas('category', function($q) use ($domainId) {
+									$q->where('domain_id', '=', $domainId);
+								})->orderBy('category_id', 'asc')->orderBy('sort_order', 'asc')->get();
+
+		$data['domainId'] = $domainId;
+
+		foreach ($data['itemCodes'] as $c) {
+
+			$data['acquiredSum'][$c->id]=0;
+			$data['holdingSum'][$c->id]=0;
+			foreach ($c->items as $i) {
+				$itemAcquiredSum = EqItemSupply::whereHas('supplySet', function($q) use ($i) {
+					$q->where('item_id','=',$i->id);
+				})->where('to_node_id','=',$user->supplyNode->id)->sum('count');
+				$data['acquiredSum'][$c->id] += $itemAcquiredSum;
+
+				$itemHoldingSum = EqInventoryData::whereHas('parentSet', function($q) use ($i, $user) {
+					$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
+				})->sum('count');
+				$data['holdingSum'][$c->id] += $itemHoldingSum;
+			} 
+		}
+        return View::make('equip.inventories-index-real', $data);
+	}
+
+	/**
+	 * Show the form for creating a new resource.
+	 *
+	 * @return Response
+	 */
+	public function create()
+	{
+		$data['categories'] = EqCategory::all();
+        return View::make('equip.inventories-add', $data);
+	}
+
+	/**
+	 * Store a newly created resource in storage.
+	 *
+	 * @return Response
+	 */
+	public function store()
+	{
+		$data = Input::all();
+		$user = Sentry::getUser();
+
+		$ids = $data['type_ids'];
+		$counts = $data['type_counts'];
+
+		DB::beginTransaction();
+
+		//자기가 자신에게 물품 지급함.
+		$invSet = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$data['item'])->first();
+		// Inventory에 해당 물품이 존재한다면 불러오고 없으면 만든다.
+		if (sizeof($invSet)==0) {
+			$invSet = new EqInventorySet;	
+			$invSet->item_id = $data['item'];
+			$invSet->node_id = $user->supplyNode->id;
+			if (!$invSet->save()) {
+				return App::abort(400);
+			}
+
+			for ($i=0; $i < sizeof($ids); $i++) { 
+				if ($counts[$i] !== '') {
+					$acq = new EqItemAcquire;
+					$acq->item_id = $data['item'];
+					$acq->item_type_id = $ids[$i];
+					$acq->count = $counts[$i];
+					$acq->acquired_date = $data['acquired_date'];
+					if (!$acq->save()) {
+						return App::abort(400);
+					}
+
+					$invData = new EqInventoryData;
+					$invData->inventory_set_id = $invSet->id;
+					$invData->item_type_id = $ids[$i];
+					$invData->count = $counts[$i];
+					if (!$invData->save()) {
+						return App::abort(400);
+					}
+				}
+			}
+		} else {
+			for ($i=0; $i < sizeof($ids); $i++) { 
+				if ($counts[$i] !== '') {
+					$acq = new EqItemAcquire;
+					$acq->item_id = $data['item'];
+					$acq->item_type_id = $ids[$i];
+					$acq->count = $counts[$i];
+					$acq->acquired_date = $data['acquired_date'];
+					if (!$acq->save()) {
+						return App::abort(400);
+					}
+
+					$invData = EqInventoryData::where('inventory_set_id','=',$invSet->id);
+					$invData->count += $counts[$i];
+					if (!$invData->save()) {
+						return App::abort(400);
+					}
+				}
+			}
+		}
+
+		
+
+		DB::commit();
+
+		Session::flash('message', '저장되었습니다');
+		return Redirect::action('EqInventoryController@index');
+	}
+
+	/**
+	 * Display the specified resource.
+	 *
+	 * @param  int  $id
+	 * @return Response
+	 */
+	public function show($id)
+	{
+        $user = Sentry::getUser();
 		$node = $user->supplyNode;
 		$data['items'] = array();
 		$data['having_count'] = array();
@@ -65,79 +205,6 @@ class EqInventoryController extends BaseController {
 		$data['user'] = $user;
 
         return View::make('equip.inventories-index', $data);
-	}
-
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create()
-	{
-		$data['categories'] = EqCategory::all();
-        return View::make('equip.inventories-add', $data);
-	}
-
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @return Response
-	 */
-	public function store()
-	{
-		$data = Input::all();
-		$user = Sentry::getUser();
-
-		$ids = $data['type_ids'];
-		$counts = $data['type_counts'];
-
-		DB::beginTransaction();
-
-		//자기가 자신에게 물품 지급함.
-		$invSet = new EqInventorySet;	
-		$invSet->item_id = $data['item'];
-		$invSet->node_id = $user->supplyNode->id;
-		$invSet->is_confirmed = 1;
-		if (!$invSet->save()) {
-			return App::abort(400);
-		}
-
-		for ($i=0; $i < sizeof($ids); $i++) { 
-			if ($counts[$i] !== '') {
-				$acq = new EqItemAcquire;
-				$acq->item_id = $data['item'];
-				$acq->item_type_id = $ids[$i];
-				$acq->count = $counts[$i];
-				$acq->acquired_date = $data['acquired_date'];
-				if (!$acq->save()) {
-					return App::abort(400);
-				}
-
-				$invData = new EqInventoryData;
-				$invData->inventory_set_id = $invSet->id;
-				$invData->item_type_id = $ids[$i];
-				$invData->count = $counts[$i];
-				if (!$invData->save()) {
-					return App::abort(400);
-				}
-			}
-		}
-
-		DB::commit();
-
-		Session::flash('message', '저장되었습니다');
-		return Redirect::action('EqInventoryController@index');
-	}
-
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
-	{
-        return View::make('eqinventories.show');
 	}
 
 	/**

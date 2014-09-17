@@ -32,6 +32,9 @@
 							<th>
 								보유수량 (개)
 							</th>
+							<th>
+								상세정보
+							</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -54,6 +57,9 @@
 								</td>
 								<td>
 									{{ $remaining_count[$i->id] or '' }}
+								</td>
+								<td>
+									<a href="#">상세정보보기</a>
 								</td>
 							</tr>
 						@endforeach
