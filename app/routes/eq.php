@@ -13,6 +13,7 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::resource('/items', 'EqItemController');
 	Route::get('/items/list/{codeId}', 'EqItemController@showRegisteredList');
 	
+	Route::get('/inventories/code/{itemCode}','EqInventoryController@showCodeBelongs');
 
 	Route::resource('/surveys', 'EqSurveyController');
 	Route::get('items/{id}/data', 'EqItemController@getData');

@@ -8,6 +8,35 @@ class EqInventoryController extends BaseController {
 		$this->service = new EqService;
 	}
 
+	public function showCodeBelongs($itemCode) {
+		$data['code']=EqItemCode::where('code','=',$itemCode)->first();
+		$user = Sentry::getUser();
+		$data['user']= $user;
+		$items = EqItem::where('item_code','=',$itemCode)->get();
+		$data['items']= $items;
+
+		//TODO
+		// sum of it's given
+		// supplied 의 합 + 관리전환 합
+
+		//TODO
+		// holding amount
+
+		foreach ($items as $i) {
+			
+			$data['acquiredSum'][$i->id] = EqItemSupply::whereHas('supplySet', function($q) use($i) {
+				$q->where('item_id','=',$i->id);
+			})->where('to_node_id','=',$user->supplyNode->id)->sum('count');
+
+			$data['holdingSum'][$i->id] = EqInventoryData::whereHas('parentSet', function($q) use ($i, $user) {
+				$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
+			})->sum('count');
+
+		}
+
+		return View::make('equip.inventories-code', $data);
+	}
+
 	public function getItemsInCode(){
 		$code = EqItemCode::find(Input::get('id'));
 		$items = EqItem::where('item_code','=',$code->code)->get();
@@ -106,9 +135,9 @@ class EqInventoryController extends BaseController {
 		//자기가 자신에게 물품 지급함.
 		$invSet = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$data['item'])->first();
 		// Inventory에 해당 물품이 존재한다면 불러오고 없으면 만든다.
-		if (sizeof($invSet)==0) {
+		if ($invSet == null) {
 			$invSet = new EqInventorySet;	
-			$invSet->item_id = $data['item'];
+			$invSet->item_id = $data['classification'];
 			$invSet->node_id = $user->supplyNode->id;
 			if (!$invSet->save()) {
 				return App::abort(400);
@@ -148,9 +177,7 @@ class EqInventoryController extends BaseController {
 
 					$invData = EqInventoryData::where('inventory_set_id','=',$invSet->id);
 					$invData->count += $counts[$i];
-					if (!$invData->save()) {
-						return App::abort(400);
-					}
+					$invData->save();
 				}
 			}
 		}

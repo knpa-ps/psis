@@ -5,33 +5,27 @@
 
 <div class="row">
 	<div class="col-xs-12">
-
-<ul class="nav nav-tabs">
-	@foreach ($domains as $d)
-		@if ($d->id == $domainId)
-			<li class="active"><a href="{{url('equips/items?domain='.$d->id)}}">{{ $d->name }}</a></li>
-		@else
-			<li><a href="{{url('equips/items?domain='.$d->id)}}">{{ $d->name }}</a></li>
-		@endif
-	@endforeach
-</ul>
-
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title"><strong>장비 목록</strong></h3>
+				<h3 class="panel-title"><strong>{{$code->title}} 목록</strong></h3>
 			</div>
 			<div class="panel-body">
+				@if($user->supplyNode->id === 1)
+				<div class="toolbar-table">
+					<a href="{{url('equips/inventories/create')}}" class="btn btn-info btn-xs pull-right">
+						<span class="glyphicon glyphicon-plus"></span> 취득장비추가
+					</a>	
+					<div class="clearfix"></div>
+				</div>
+				@endif
 				<table class="table table-condensed table-bordered table-striped table-hover" id="items_table">
 					<thead>
 						<tr>
 							<th>
-								분류
+								구분
 							</th>
 							<th>
-								장비코드
-							</th>
-							<th>
-								장비명
+								업체명
 							</th>
 							<th>
 								총 지급수량
@@ -42,11 +36,10 @@
 						</tr>
 					</thead>
 					<tbody>
-						@foreach ($itemCodes as $i)
+						@foreach ($items as $i)
 						<tr data-id="{{ $i->id }}">
-							<td> {{ $i->category->name }} </td>
-							<td> {{ $i->code}} </td>
-							<td> <a href="{{ url('equips/inventories/code/'.$i->code) }}">{{ $i->title }}</a> </td>
+							<td> {{ $i->classification }}</td>
+							<td> <a href="{{ url('equips/items/'.$i->id) }}">{{ $i->maker_name }}</a> </td>
 							<td> {{ $acquiredSum[$i->id] }}</td>
 							<td> {{ $holdingSum[$i->id] }}</td>
 						</tr>
