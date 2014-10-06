@@ -54,6 +54,8 @@ class DepartmentController extends BaseController {
 		return $nodes;
 	}
 
+
+
 	public function showDeptTree() {
 		$title = Lang::get('strings.title_dept_list');
 		return View::make('dept/dept_list', array('title'=>$title));

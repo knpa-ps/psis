@@ -11,7 +11,6 @@ $inputClass = isset($inputClass) ? $inputClass : '';
 
     <input type="text" readonly="readonly" class="form-control dept-name {{ $inputClass }}" 
     name="{{ $id }}_display" id="{{ $id }}_display" value="{{ $defaultDeptName }}">
-    
     <input type="hidden" name="{{ $id }}" id="{{ $id }}" class="dept-id" value="{{$defaultDeptId}}">
     
     <a href="#" class="dept-selector-clear"><span class="glyphicon glyphicon-remove form-control-feedback"></span></a>

@@ -46,6 +46,7 @@
 									<input type="text" class="input-sm form-control" id="item_name" name="item_name">
 								</div>
 							</div>
+							<input type="text" class="hidden" name="domain" value="{{ $domain == 1 ? 1:0 }}">
 						</div>
 
 						<div class="row">
@@ -60,6 +61,7 @@
 
 					</form>
 				</div>
+
 				@if ($domain == 1)
 				<div class="toolbar-table">
 					<form action="{{url('equips/surveys/create')}}">
@@ -93,7 +95,7 @@
 								조사일자
 							</th>
 							<th>
-								총 수요수량
+								총 조사수량
 							</th>
 							<th>
 								조사응답현황

@@ -154,7 +154,7 @@ $(function(){
 			success : function(res){
 				for(i=0;i<res.length;i++) {
 					$("#ths").append("<th style='text-align: center;'>"+res[i].type_name+"</th>");
-					$("#tds").append('<td><input type="text" style="width:100%;" name="type_counts['+i+']"><input type=text" class="hidden", name="type_ids['+i+']" value="'+res[i].id+'"></td>');
+					$("#tds").append('<td><input type="text" style="width:100%;" name="type_counts['+i+']"><input type=text" class="hidden" name="type_ids['+i+']" value="'+res[i].id+'"></td>');
 				}
 			}
 		});

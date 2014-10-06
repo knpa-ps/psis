@@ -8,7 +8,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					설문조사 응답하기 - {{$item->name.'('.$item->maker_name.')'}}
+					설문조사 응답하기 - {{$item->code->title.'('.$item->maker_name.')'}}
 				</h3>
 			</div>
 			<div class="panel-body">

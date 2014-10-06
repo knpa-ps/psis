@@ -79,11 +79,20 @@ $(function() {
 			data.mngDeptId = mng_dept_id;
 		};
 
-		$modal.load(base_url+"/ajax/dept_select_tree", data, function() {
-			$modal.modal({
-				modalOverflow: true
+		if (!$(".dept-name").hasClass("select-node")) {
+			$modal.load(base_url+"/ajax/dept_select_tree", data, function() {
+				$modal.modal({
+					modalOverflow: true
+				});
 			});
-		});
+		} else {
+			$modal.load(base_url+"/ajax/node_select_tree", data, function() {
+				$modal.modal({
+					modalOverflow: true
+				});
+			});
+		}
+		
 	});
 	
 	$(".dept-selector").on('select.dept-selector', function(e, data) {

@@ -68,7 +68,7 @@ class EqInventoryController extends BaseController {
 		if (count($data['domains']) == 0) {
 			return App::abort(403);
 		}
-
+;;;;;;;
 		$domainId = Input::get('domain');
 
 		if (!$domainId) {

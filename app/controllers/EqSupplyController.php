@@ -2,6 +2,27 @@
 
 class EqSupplyController extends BaseController {
 
+	public function getSupplyTreeNodes() {
+		$parentId = Input::get('id');
+
+		$supplyNodes = EqSupplyManagerNode::find($parentId === '#' ? 1 : $parentId)->children;
+
+		$nodes = array();
+
+		foreach ($supplyNodes as $supNode) {
+			$nodes[] = array(
+					'id' => $supNode->id,
+					'text' => $supNode->node_name,
+					'children' => $supNode->is_terminal?array():true,
+					'li_attr' => array( 
+						'data-full-name' => $supNode->full_name,
+						'data-selectable' => 1
+						)
+				);
+		}
+		return $nodes;
+	}
+
 	public function getClassifiers(){
 		$itemId = Input::get('item_id');
 		$inventories = EqInventory::where('item_id','=',$itemId)->get();
@@ -54,8 +75,10 @@ class EqSupplyController extends BaseController {
 		$query = EqItemSupplySet::where('supplied_date', '>=', $start)->where('supplied_date', '<=', $end)->where('is_closed','=',0)->where('from_node_id','=',$nodeId);
 
 		if ($itemName) {
-			$query->whereHas('item', function($q) use ($itemName) {
-				$q->where('name', 'like', "%$itemName%");
+			$query->whereHas('item', function($q) use($itemName) {
+				$q->whereHas('code', function($qry) use($itemName) {
+					$qry->where('title','like',"%$itemName%");
+				});
 			});
 		}
 
@@ -250,7 +273,7 @@ class EqSupplyController extends BaseController {
 		$data['lowerNodes'] = $lowerNodes;
 		
 		foreach ($lowerNodes as $n) {
-			$nodeSupplies = EqItemSupply::where('to_node_id','=',$n->id)->get();
+			$nodeSupplies = EqItemSupply::where('to_node_id','=',$n->id)->where('supply_set_id','=',$supply->id)->get();
 			foreach ($nodeSupplies as $s) {
 				if(!$s->count == 0){
 					$count[$n->id][$s->item_type_id] = $s->count;

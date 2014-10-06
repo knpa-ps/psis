@@ -166,9 +166,12 @@ class EqSurveyController extends \BaseController {
 			$query = EqItemSurvey::where('node_id','=',$user->supplyNode->parent_id)->where('started_at', '>=', $start)->where('is_closed','=',0);
 		}
 
+		// 장비명 필터 걸기
 		if ($itemName) {
-			$query->whereHas('item', function($q) use ($itemName) {
-				$q->where('name', 'like', "%$itemName%");
+			$query->whereHas('item', function($q) use($itemName) {
+				$q->whereHas('code', function($qry) use($itemName) {
+					$qry->where('title','like',"%$itemName%");
+				});
 			});
 		}
 

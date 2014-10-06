@@ -54,8 +54,13 @@ Route::group(array('before'=>'ajax', 'prefix'=>'ajax'), function() {
         return View::make('widget.dept-selector-tree', Input::all());
     });
 
+    Route::post('node_select_tree', function() {
+        return View::make('widget.node-selector-tree', Input::all());
+    });
+
     Route::any('dept_tree', 'DepartmentController@getTreeNodes');
 
+    Route::any('supply_node_tree', 'EqSupplyController@getSupplyTreeNodes');
 });
 
 include('routes/users.php');
