@@ -59,7 +59,7 @@
 								<!-- 수량을 입력하고 수량과 함께 type_id를 hidden form을 통해 보내기 위한 폼 -->
 								@foreach ($item->types as $type)
 									<td>									
-										<input type="number" style="width:100%;" name="{{ 'type_counts['.$type->id.']' }}">
+										<input type="number" style="width:100%;" name="{{ 'type_counts['.$type->id.']' }}" placeholder="보유량 : {{ $holding[$type->id] }}">
 									</td>
 								@endforeach
 								</tr>

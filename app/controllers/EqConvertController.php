@@ -91,6 +91,17 @@ class EqConvertController extends EquipController {
 	{
 		$itemId = Input::get('item');
 		$data['item'] = EqItem::find($itemId);
+		$user = Sentry::getUser();
+		$item = EqItem::find($itemId);
+		$itemTypes = $item->types;
+
+		$inventorySet = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$item->id)->first();
+
+		foreach ($itemTypes as $t) {
+			$query = EqInventoryData::where('inventory_set_id','=',$inventorySet->id);
+			$holding = $query->where('item_type_id','=',$t->id)->first()->count;
+			$data['holding'][$t->id] = $holding;
+		}
 
 		return View::make('equip.convert-create',$data);
 	}
@@ -105,7 +116,23 @@ class EqConvertController extends EquipController {
 	{
 		$input = Input::all();
 		$user = Sentry::getUser();
-		$itemTypes = EqItem::find($input['item_id'])->types;
+		$item = EqItem::find($input['item_id']);
+		$itemTypes = $item->types;
+
+		// 보유수량이 충분한지 검사하는 로직
+
+		$inventorySet = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$item->id)->first();
+		
+		foreach ($itemTypes as $t) {
+			$query = EqInventoryData::where('inventory_set_id','=',$inventorySet->id);
+			$holding = $query->where('item_type_id','=',$t->id)->first()->count;
+
+			if ($holding < $input['type_counts'][$t->id]) {
+				return Redirect::back()->with('message','보유수량이 부족합니다. '.$t->type_name.' 보유수량 : '.$holding);
+			}
+		}
+
+		// 보유수량 검사 끝
 
 		DB::beginTransaction();
 
