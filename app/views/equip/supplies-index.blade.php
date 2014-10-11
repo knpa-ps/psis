@@ -43,7 +43,6 @@
 							<div class="col-xs-12">
 								<div class="pull-right">
 									<button class="btn btn-primary btn-xs" type="submit"><span class="glyphicon glyphicon-ok"></span> 조회</button>
-									<!-- <button class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-download"></span> 다운로드</button> -->
 								</div>
 								<div class="clearfix"></div>
 							</div>
@@ -90,9 +89,9 @@
 							<th>
 								총 보급수량
 							</th>
-							<th>
+							<!-- <th>
 								작업
-							</th>
+							</th> -->
 						</tr>
 					</thead>
 					<tbody>
@@ -114,7 +113,7 @@
 								<td>
 									{{ number_format($supply->children->sum('count')) }}
 								</td>
-								<td>
+							<!-- 	<td>
 									<a href="{{ url('equips/supplies/'.$supply->id.'/edit') }}" class="btn btn-xs btn-info btn-edit">
 										<span class="glyphicon glyphicon-edit"></span> 수정
 									</a>
@@ -127,7 +126,7 @@
 											<span class="glyphicon glyphicon-remove"></span> 삭제
 										</button>
 									{{ Form::close() }}
-								</td>
+								</td> -->
 							</tr>
 						@endforeach
 					@else

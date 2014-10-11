@@ -25,20 +25,22 @@
 					<table class="table table-condensed table-bordered table-striped" style="table-layout: fixed;">
 						<thead>
 							<tr>
-								<td style="text-align: center;">총계</td>
-								@foreach($childrenNodes as $n)
-									<td style="text-align: center;">{{$n->node_name}}</td>
-								@endforeach
+								<td style="text-align: center;">관서명</td>
+								<td style="text-align: center;">수량</td>
 							</tr>
 						</thead>
 						<tbody>
-							<tr>
-								<td style="padding-top: 11px; text-align: center;" id="sum"></td>
-								@foreach ($childrenNodes as $n)
+							@foreach($childrenNodes as $n)
+								<tr>
+									<td style="padding-top: 11px; text-align: center;">{{$n->node_name}}</td>
 									<td>
 										<input type="text" class="input-sm form-control input-count" name="{{'count_'.$n->id}}" id="{{'count_'.$n->id}}" value="{{$count[$n->id] or ''}}">
 									</td>
-								@endforeach
+								</tr>
+							@endforeach
+							<tr>
+								<td style="text-align: center;">총계</td>
+								<td style="text-align: center;" id="sum"></td>
 							</tr>
 						</tbody>
 					</table>

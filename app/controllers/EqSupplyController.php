@@ -367,8 +367,8 @@ class EqSupplyController extends BaseController {
 
 		// DB::commit();
 
-		Session::flash('message', '수정되었습니다.');	
-		return Redirect::to('equips/supplies');
+		// Session::flash('message', '수정되었습니다.');	
+		// return Redirect::to('equips/supplies');
 	}
 
 	/**
@@ -379,15 +379,15 @@ class EqSupplyController extends BaseController {
 	 */
 	public function destroy($id)
 	{
-		$s = EqItemSupplySet::find($id);
-		if (!$s) {
-			return App::abort(404);
-		}
-		$s->is_closed = 1;
-		$s->update();
+		// $s = EqItemSupplySet::find($id);
+		// if (!$s) {
+		// 	return App::abort(404);
+		// }
+		// $s->is_closed = 1;
+		// $s->update();
 
-		Session::flash('message', '삭제되었습니다.');
-		return Redirect::to('equips/supplies');
+		// Session::flash('message', '삭제되었습니다.');
+		// return Redirect::to('equips/supplies');
 	}
 
 }
