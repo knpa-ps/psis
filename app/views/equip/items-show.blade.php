@@ -132,9 +132,18 @@
 						{{-- 기타정보 목록 끝 --}}
 					</div>
 				</div>{{-- 기본정보 끝 --}}
-
+				
 				<div class="row" style="margin-top: 15px;">
+					<div class="col-xs-6">
+						<h4 class="block-header">보유현황 <small><a href="{{ url('equips/items/'.$item->id.'/holding')}}">[상세]</a></small></h4>
+					</div>
+					<div class="col-xs-6">
+						<button class="btn btn-xs btn-success pull-right" id="wrecked_update_btn"><span class="glyphicon glyphicon-ok"></span> 파손수량 저장</button>
+					</div>
+				</div>
+				<div class="row">
 					<div class="col-xs-12">
+						
 						<table class="table table-condensed table-bordered table-striped" style="table-layout: fixed;">
 							<thead>
 								<tr>
@@ -147,18 +156,40 @@
 								</tr>
 							</thead>
 							@if ($inventorySet !== null)
-								@if (count($inventorySet->children->sum('count'))>0)
 								<tbody>
 									<tr>
 										<td style="text-align: center;"><b>보유수량</b></td>
-										<td style="text-align: center;">{{$inventorySet->children-> sum('count')}}</td>
+										<td style="text-align: center;">{{ $inventorySet->children->sum('count') }}</td>
 										@foreach($inventorySet->children as $c)
 											<td style="text-align: center;">{{$c->count}}</td>
 										@endforeach
 										
 									</tr>
+									<tr>
+										<td style="text-align: center;"><b>파손수량</b></td>
+										<td style="text-align: center;">{{ $inventorySet->children->sum('wrecked') }}</td>
+										{{ Form::open(array(
+											'url'=> '/equips/items/'.$item->id.'/wrecked_update',
+											'method'=> 'post',
+											'id'=>'wrecked_update_form'
+										)) }}
+											@foreach ($inventorySet->children as $c)
+												<td style="text-align: center;">
+													<input type="text" class="form-control input-sm" value="{{$c->wrecked}}" name="{{ 'wrecked['.$c->id.']' }}">
+												</td>
+											@endforeach
+										{{ Form::close() }}
+									</tr>
 								</tbody>
-								@endif
+								<tfoot>
+									<tr>
+										<td style="text-align: center;"><b>가용수량</b></td>
+										<td style="text-align: center">{{ $inventorySet->children->sum('count') - $inventorySet->children->sum('wrecked') }}</td>
+										@foreach ($inventorySet->children as $c)
+											<td style="text-align: center">{{ $c->count - $c->wrecked }}</td>
+										@endforeach
+									</tr>
+								</tfoot>
 							@endif
 						</table>
 					</div>
@@ -219,6 +250,9 @@
 var dataTable;
 
 $(function() {
+	$("#wrecked_update_btn").click(function() {
+		$("#wrecked_update_form").submit();
+	});
 
 	$(".detail-title").click(function() {
 		var detailId = $(this).data('id');

@@ -3,15 +3,113 @@ use Carbon\Carbon;
 
 class EqItemController extends EquipController {
 
+	public function holdingDetail($itemId) {
+
+		$item = EqItem::find($itemId);
+		$user = Sentry::getUser();
+
+		$elements = array();
+
+		if ($user->supplyNode->parent_id == null) {
+			// 본청인 경우
+			// 본청에서 취득한것
+			$acquiredSet = EqItemAcquire::where('item_id','=',$itemId)->select('acquired_date as date', DB::raw('SUM(count) as income'))->groupby('acquired_date')->get();
+
+			if($acquiredSet) {
+				foreach ($acquiredSet as $a) {
+					$obj = new stdClass();
+					$obj->date = $a['date'];
+					$obj->income = $a['income'];
+					$obj->outgoings = 0;
+					$obj->classification = '본청 구입';
+					array_push($elements, $obj);
+				}
+			}
+			// 각각을 모두 elements라는 array에 넣어준다.
+		} else {
+			// 본청 아닌 경우
+			// 보급받은것
+			$beSuppliedSet = EqItemSupplySet::where('item_id','=',$itemId)->where('from_node_id','=',$user->supplyNode->parent->id)->get();
+			if($beSuppliedSet) {
+				foreach ($beSuppliedSet as $s) {
+					$obj = new stdClass();
+					$obj->date = $s['supplied_date'];
+					$obj->income = $s->children->sum('count');
+					$obj->outgoings = 0;
+					$obj->classification = EqSupplyManagerNode::find($s->from_node_id)->node_name.' 보급';
+					array_push($elements, $obj);
+				}
+			}
+		}
+		
+		//보급준것
+		$suppliedSet = EqItemSupplySet::where('item_id','=', $itemId)->where('from_node_id','=',$user->supplyNode->id)->get();
+
+		if($suppliedSet) {
+			foreach ($suppliedSet as $s) {
+				$obj = new stdClass();
+				$obj->date = $s['supplied_date'];
+				$obj->income = 0;
+				$obj->outgoings = $s->children->sum('count');
+				$obj->classification = EqSupplyManagerNode::find($s->from_node_id)->node_name.' 보급';
+				array_push($elements, $obj);
+
+			}
+		}
+
+		//관리전환받은것, 준것 convert
+		$convertedSet = EqConvertSet::where('from_node_id','=',$user->supplyNode->id)->where('is_confirmed','=',1)->get();
+		$beConvertedSet = EqConvertSet::where('target_node_id','=',$user->supplyNode->id)->where('is_confirmed','=',1)->get();
+
+		if($convertedSet) {
+			foreach ($convertedSet as $c) {
+				$obj = new stdClass();
+				$obj->date = $c['converted_date'];
+				$obj->income = 0;
+				$obj->outgoings = $c->children->sum('count');
+				$obj->classification = EqSupplyManagerNode::find($c->from_node_id)->node_name.' 관리전환';
+				array_push($elements, $obj);
+			}
+		}
+
+		if($beConvertedSet) {
+			foreach ($beConvertedSet as $c) {
+				$obj = new stdClass();
+				$obj->date = $c['converted_date'];
+				$obj->income = $c->children->sum('count');
+				$obj->outgoings = 0;
+				$obj->classification = EqSupplyManagerNode::find($c->from_node_id)->node_name.' 관리전환';
+				array_push($elements, $obj);
+			}
+		}
+		// 폐기한것 discard
+		$discardSets = EqItemDiscardSet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->get();
+		if ($discardSets) {
+			foreach ($discardSets as $dSet) {
+				$obj = new stdClass();
+				$obj->date = $dSet['discarded_date'];
+				$obj->income = 0;
+				$obj->outgoings = $dSet->children->sum('count');
+				$obj->classification = $dSet['category']=="lost"?"폐기-분실":"폐기-파손" ;
+				array_push($elements, $obj);
+			}
+		}
+
+		$data['elements'] = Paginator::make($elements, count($elements),15);
+		$data['remaining'] = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first()->children->sum('count');
+		$data['itemId'] = $itemId;
+		return View::make('equip.item-holding-detail', $data);
+
+	}
 	
-	
-	public function showRegisteredList($codeId){
+	public function showRegisteredList($codeId) {
 
 		$code = EqItemCode::find($codeId);
 		$data['code'] = $code;
 		$data['items'] = $code->items;
 
 		return View::make('equip.items-registered-list', $data);
+
 	}
 	/**
 	 * Display a listing of the resource.
@@ -286,6 +384,11 @@ class EqItemController extends EquipController {
 		}
 
 		$user = Sentry::getUser();
+
+
+		$code = EqItemCode::where('code','=',$item->code->code)->first();
+		
+		$data['code'] = $code;
 		$data['mode'] = 'edit';
 		$data['item'] = $item;
 		$data['categories'] = $this->service->getVisibleCategoriesQuery($user)->get();

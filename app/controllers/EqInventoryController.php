@@ -8,6 +8,115 @@ class EqInventoryController extends BaseController {
 		$this->service = new EqService;
 	}
 
+	public function wreckedUpdate($itemId) {
+		$item = EqItem::find($itemId);
+		$user = Sentry::getUser();
+		$wrecked = Input::get('wrecked');
+
+		$inventory = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$item->id)->first();
+
+		if($inventory) {
+
+			DB::beginTransaction();
+
+			foreach ($item->types as $t) {
+				$data = EqInventoryData::where('inventory_set_id','=',$inventory->id)->where('item_type_id','=',$t->id)->first();
+				$data->wrecked = $wrecked[$data->id];
+				if (!$data->save()) {
+					return App::abort(500);
+				}
+			}
+
+			DB::commit();
+
+			return Redirect::back()->with('message','파손수량이 수정되었습니다.');
+
+		}
+
+		return Redirect::back()->with('message','해당 물품을 보유하고 있지 않습니다');
+	}
+
+
+	public function displayDiscardForm($itemId) {
+		$user = Sentry::getUser();
+
+		$data['item'] = EqItem::find($itemId);
+		$inventory = EqInventorySet::where('item_id','=',$data['item']->id)->where('node_id','=',$user->supplyNode->id)->first();
+
+		foreach ($data['item']->types as $t) {
+			$holding[$t->id] = EqInventoryData::where('item_type_id','=',$t->id)->where('inventory_set_id','=',$inventory->id)->first()->count;
+		}
+
+		$data['holding'] = $holding;
+		return View::make('equip.inventories-discard',$data);
+	}
+
+	public function discardItem($itemId) {
+
+		$user = Sentry::getUser();
+		$input = Input::all();
+		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first();
+		$types = EqItem::find($itemId)->types;
+
+		//날짜 입력했는지 확인
+		$validator = Validator::make($input, array(
+				'discard_date' => 'required'
+			));
+		if ($validator->fails()) {
+			return Redirect::back()->with('message','폐기일자를 입력하세요');
+		}
+
+
+
+		DB::beginTransaction();
+
+		//1. discard 테이블에 폐기 물품 등록
+		//2. inventory에서 해당 수량만큼 차감
+
+		$dSet = new EqItemDiscardSet;
+		$dSet->discarded_date = $input['discard_date'];
+		$dSet->item_id = $itemId;
+		$dSet->category = $input['category'];
+		$dSet->node_id = $user->supplyNode->id;
+
+		
+
+		if (!$dSet->save()) {
+			return App::abort(500);
+		}
+		
+		foreach ($types as $t) {
+			$dData = new EqItemDiscardData;
+			$dData->discard_set_id = $dSet->id;
+			$dData->item_type_id = $t->id;
+			$dData->count = $input['type_counts'][$t->id];
+			if (!$dData->save()) {
+				return App::abort(500);
+			}
+
+			$iData = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$t->id)->first();
+			$iData->count -= $dData->count;
+
+			if ($iData->count < 0) {
+				return Redirect::back()->with('message', '폐기수량이 보유수량을 초과합니다.');
+				
+			}
+			//파손물품 폐기하는 경우 보유수량 중 파손수량을 뺀다.
+			if ($input['category']=='wrecked') {
+				$iData->wrecked -= $dData->count;
+				if ($iData->wrecked<0) {
+					return Redirect::back()->with('message', '폐기수량이 파손수량을 초과합니다');
+				}
+			}
+
+			$iData->save();
+		}
+
+		DB::commit();
+
+		return Redirect::back()->with('message', '물품폐기 등록이 완료되었습니다.');
+	}
+
 	public function showCodeBelongs($itemCode) {
 		$data['code']=EqItemCode::where('code','=',$itemCode)->first();
 		$user = Sentry::getUser();
