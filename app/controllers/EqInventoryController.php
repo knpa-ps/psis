@@ -243,7 +243,7 @@ class EqInventoryController extends BaseController {
 		DB::beginTransaction();
 
 		//자기가 자신에게 물품 지급함.
-		$invSet = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$data['item'])->first();
+		$invSet = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$data['classification'])->first();
 		// Inventory에 해당 물품이 존재한다면 불러오고 없으면 만든다.
 		if ($invSet == null) {
 			$invSet = new EqInventorySet;	
@@ -256,7 +256,7 @@ class EqInventoryController extends BaseController {
 			for ($i=0; $i < sizeof($ids); $i++) { 
 				if ($counts[$i] !== '') {
 					$acq = new EqItemAcquire;
-					$acq->item_id = $data['item'];
+					$acq->item_id = $data['classification'];
 					$acq->item_type_id = $ids[$i];
 					$acq->count = $counts[$i];
 					$acq->acquired_date = $data['acquired_date'];
