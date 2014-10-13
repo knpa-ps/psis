@@ -47,7 +47,7 @@
 					<input type="hidden" name="item_id" value="{{$item->id}}">
 				</div>
 				<div class="col-xs-12">
-					<button class="btn btn-primary pull-right" type="submit">제출</button>
+					<button class="btn btn-primary btn-lg btn-block" type="submit">제출</button>
 				</div>
 			</div>
 		</div>

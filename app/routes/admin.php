@@ -40,6 +40,9 @@ Route::group(array('before'=>'auth|permission:superuser'), function() {
         Route::get('permission', 'AdminController@displayPermissionMng');
         Route::post('permission/get', 'AdminController@getPermission');
         Route::post('permission/save', 'AdminController@savePermission');
+        // 장비 관리
+        Route::resource('/categories', 'EqCategoryController');
+        Route::resource('/item_codes', 'EqItemController');
 
     });
 

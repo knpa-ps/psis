@@ -16,6 +16,7 @@ class CreateEqItemDiscardSetTable extends Migration {
 			$table->increments('id');
 			$table->integer('item_id')->unsigned();
 			$table->date('discarded_date');
+			$table->string('cause');
 			$table->string('category');
 			$table->integer('node_id');
 			$table->timestamps();

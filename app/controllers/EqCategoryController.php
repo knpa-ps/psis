@@ -87,7 +87,7 @@ class EqCategoryController extends EquipController {
 		$c->name = Input::get('category_name');
 		$c->save();
 		Session::flash('message', '수정되었습니다.');
-		return Redirect::to('equips/categories/'.$id);
+		return Redirect::action('EqCategoryController@index');
 	}
 
 	/**

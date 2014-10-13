@@ -20,18 +20,24 @@
 						<fieldset>
 							<legend><h4>처분장비정보</h4></legend>
 							<div class="form-group">
-								<label for="discard_date" class="control-label col-xs-2">폐기일자</label>
+								<label for="discard_date" class="control-label col-xs-2">일자</label>
 								<div class="col-xs-10">
 									<input type="text" class="form-control input-datepicker input-sm " name="discard_date">
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="category" class="control-label col-xs-2">폐기유형</label>
+								<label for="category" class="control-label col-xs-2">유형</label>
 								<div class="col-xs-10">
 									<select name="category" id="category" class="form-control">
 										<option value="lost">분실</option>
 										<option value="wrecked">파손</option>
 									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="cause" class="control-label col-xs-2">사유</label>
+								<div class="col-xs-10">
+									<input type="text" class="form-control input-sm" name="cause">
 								</div>
 							</div>
 						</fieldset>

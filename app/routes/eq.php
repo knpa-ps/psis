@@ -4,7 +4,6 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 
 	Route::get('/', 'EquipController@index');
 
-	Route::resource('/categories', 'EqCategoryController');
 
 	Route::resource('/surveys', 'EqSurveyController');
 	Route::put('/surveys/{id}/response', 'EqSurveyController@updateResponse');
@@ -22,7 +21,6 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::post('/items/{itemId}/wrecked_update', 'EqInventoryController@wreckedUpdate');
 
 
-	Route::resource('/items', 'EqItemController');
 	Route::get('/items/{itemId}/details', 'EqItemController@displayDetailsList');
 	Route::get('/items/{itemId}/detail/{id}', 'EqItemController@displayExtraInfo');
 	Route::get('/items/{itemId}/new_detail', 'EqItemController@displayDetailForm');

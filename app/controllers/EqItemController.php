@@ -340,7 +340,7 @@ class EqItemController extends EquipController {
 		DB::commit();
 
 		Session::flash('message', '추가되었습니다.');
-		return Redirect::to('equips/items/'.$item->id);
+		return Redirect::action('EqItemController@index');
 	}
 
 	/**
@@ -439,7 +439,7 @@ class EqItemController extends EquipController {
 		DB::commit();
 
 		Session::flash('message', '수정되었습니다.');
-		return Redirect::to('equips/items/'.$id);
+		return Redirect::action('EqItemController@index');
 	}
 
 	/**

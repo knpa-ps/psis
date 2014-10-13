@@ -78,6 +78,7 @@ class EqInventoryController extends BaseController {
 		$dSet->item_id = $itemId;
 		$dSet->category = $input['category'];
 		$dSet->node_id = $user->supplyNode->id;
+		$dSet->cause = $input['cause'];
 
 		
 
@@ -99,7 +100,7 @@ class EqInventoryController extends BaseController {
 
 			if ($iData->count < 0) {
 				return Redirect::back()->with('message', '폐기수량이 보유수량을 초과합니다.');
-				
+
 			}
 			//파손물품 폐기하는 경우 보유수량 중 파손수량을 뺀다.
 			if ($input['category']=='wrecked') {
@@ -176,8 +177,8 @@ class EqInventoryController extends BaseController {
 
 		if (count($data['domains']) == 0) {
 			return App::abort(403);
-		}
-;;;;;;;
+		};
+		
 		$domainId = Input::get('domain');
 
 		if (!$domainId) {
