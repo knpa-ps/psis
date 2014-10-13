@@ -12,7 +12,7 @@
 				<div class="row toolbar-table">
 					<div class="col-xs-12">
 						<div class="pull-right">
-							<a href="{{ url('equips/categories/create') }}" class="btn btn-info btn-xs">
+							<a href="{{ url('admin/categories/create') }}" class="btn btn-info btn-xs">
 								<span class="glyphicon glyphicon-plus"></span> 분류추가
 							</a>
 						</div>
@@ -48,7 +48,7 @@
 										{{ $c->created_at }}
 									</td>	
 									<td>
-										<a href="{{ url('equips/categories/'.$c->id) }}" class="label label-success btn-edit">
+										<a href="{{ url('admin/categories/'.$c->id) }}" class="label label-success btn-edit">
 											<span class="glyphicon glyphicon-edit"></span> 수정
 										</a>
 										<a href="#" class="label label-danger btn-delete">
@@ -86,7 +86,7 @@ $(function() {
 		var id = $(this).parent().parent().data('id');
 
 		$.ajax({
-			url: url("equips/categories/"+id),
+			url: url("admin/categories/"+id),
 			type: "delete",
 			success: function(res) {
 				alert(res.message);
