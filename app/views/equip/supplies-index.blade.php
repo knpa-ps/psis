@@ -89,9 +89,9 @@
 							<th>
 								총 보급수량
 							</th>
-							<!-- <th>
+							<th>
 								작업
-							</th> -->
+							</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -113,20 +113,17 @@
 								<td>
 									{{ number_format($supply->children->sum('count')) }}
 								</td>
-							<!-- 	<td>
-									<a href="{{ url('equips/supplies/'.$supply->id.'/edit') }}" class="btn btn-xs btn-info btn-edit">
-										<span class="glyphicon glyphicon-edit"></span> 수정
-									</a>
+								<td>
 									{{ Form::open(array(
 											'url'=>url('equips/supplies/'.$supply->id),
 											'method'=>'delete',
 											'class'=>'form-delete'
 										)) }}
 										<button type="submit" class="btn btn-xs btn btn-danger btn-delete">
-											<span class="glyphicon glyphicon-remove"></span> 삭제
+											<span class="glyphicon glyphicon-remove"></span> 보급취소
 										</button>
 									{{ Form::close() }}
-								</td> -->
+								</td>
 							</tr>
 						@endforeach
 					@else

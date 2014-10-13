@@ -379,15 +379,56 @@ class EqSupplyController extends BaseController {
 	 */
 	public function destroy($id)
 	{
-		// $s = EqItemSupplySet::find($id);
-		// if (!$s) {
-		// 	return App::abort(404);
-		// }
-		// $s->is_closed = 1;
-		// $s->update();
+		$s = EqItemSupplySet::find($id);
+		if (!$s) {
+			return App::abort(500);
+		}
+		$datas = $s->children;
 
-		// Session::flash('message', '삭제되었습니다.');
-		// return Redirect::to('equips/supplies');
+		$item = EqItem::find($s->item_id);
+
+		// 보급을 삭제할 경우 보급 내역을 인벤토리에서 롤백한다.
+		
+		DB::beginTransaction();
+
+		// 1. 보급한 관서의 인벤토리 수량 더하기
+		$supplierNodeId = $s->from_node_id;
+
+		$supplierInvSet = EqInventorySet::where('node_id','=',$supplierNodeId)->where('item_id','=',$item->id)->first();
+
+		foreach ($item->types as $t) {
+			$suppliedCount = EqItemSupply::where('supply_set_id','=',$s->id)->where('item_type_id','=',$t->id)->sum('count');
+			$invData = EqInventoryData::where('inventory_set_id','=',$supplierInvSet->id)->where('item_type_id','=',$t->id)->first();
+			$invData->count += $suppliedCount;
+			if (!$invData->save()) {
+				return App::abort(500);
+			}
+		} 
+
+		// 2. 보급받은 관서의 인벤토리 수량 빼기
+		foreach ($datas as $d) {
+			$itemTypeId = $d->item_type_id;
+			$toNodeId = $d->to_node_id;
+			$invSet = EqInventorySet::where('node_id','=',$toNodeId)->where('item_id','=',$s->item_id)->first();
+			$invData = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$d->item_type_id)->first();
+			
+			$invData->count -= $d->count;
+			if (!$invData->save()) {
+				return App::abort(500);
+			}
+
+			if (!$d->delete()) {
+				return App::abort(500);
+			}
+		}
+
+		if (!$s->delete()) {
+			return App::abort(500);
+		}
+
+		DB::commit();
+
+		return Redirect::back()->with('message', '해당 보급이 취소되었습니다');
 	}
 
 }

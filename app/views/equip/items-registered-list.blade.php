@@ -37,7 +37,7 @@
 						@foreach ($items as $i)
 						<tr data-id="{{ $i->id }}">
 							<td> {{ $i->classification }}</td>
-							<td> <a href="{{ url('equips/items/'.$i->id) }}">{{ $i->maker_name }}</a> </td>
+							<td> <a href="{{ url('admin/item_codes/'.$i->id) }}">{{ $i->maker_name }}</a> </td>
 							<td> {{ $i->acquired_date }} </td>
 							<td> {{ $i->persist_years }} </td>
 						</tr>

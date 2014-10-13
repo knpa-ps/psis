@@ -44,7 +44,7 @@
 									{{ $i->id or '' }}
 								</td>
 								<td>
-									<a href="{{ url('equips/items/'.$i->id) }}">{{ $i->code->title.'('.$i->classification.')' }}</a>
+									<a href="{{ url('admin/item_codes/'.$i->id) }}">{{ $i->code->title.'('.$i->classification.')' }}</a>
 								</td>
 								<td>
 									{{ $i->maker_name or '' }}
