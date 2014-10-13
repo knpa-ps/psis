@@ -31,6 +31,9 @@
 								총 지급수량
 							</th>
 							<th>
+								총 파손수량
+							</th>
+							<th>
 								총 보유수량
 							</th>
 						</tr>
@@ -41,6 +44,7 @@
 							<td> {{ $i->classification }}</td>
 							<td> <a href="{{ url('admin/item_codes/'.$i->id) }}">{{ $i->maker_name }}</a> </td>
 							<td> {{ $acquiredSum[$i->id] }}</td>
+							<td> {{ $wreckedSum[$i->id] }} </td>
 							<td> {{ $holdingSum[$i->id] }}</td>
 						</tr>
 						@endforeach

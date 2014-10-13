@@ -142,6 +142,9 @@ class EqInventoryController extends BaseController {
 				$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
 			})->sum('count');
 
+			$data['wreckedSum'][$i->id] = EqInventoryData::whereHas('parentSet', function($q) use ($i, $user) {
+				$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
+			})->sum('wrecked');
 		}
 
 		return View::make('equip.inventories-code', $data);
@@ -201,6 +204,7 @@ class EqInventoryController extends BaseController {
 
 			$data['acquiredSum'][$c->id]=0;
 			$data['holdingSum'][$c->id]=0;
+			$data['wreckedSum'][$c->id]=0;
 			foreach ($c->items as $i) {
 				$itemAcquiredSum = EqItemSupply::whereHas('supplySet', function($q) use ($i) {
 					$q->where('item_id','=',$i->id);
@@ -211,6 +215,11 @@ class EqInventoryController extends BaseController {
 					$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
 				})->sum('count');
 				$data['holdingSum'][$c->id] += $itemHoldingSum;
+
+				$itemWreckedSum = EqInventoryData::whereHas('parentSet', function($q) use ($i, $user) {
+					$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
+				})->sum('wrecked');
+				$data['wreckedSum'][$c->id] += $itemWreckedSum;
 			} 
 		}
         return View::make('equip.inventories-index-real', $data);
