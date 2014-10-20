@@ -132,6 +132,9 @@ class EqInventoryController extends BaseController {
 		//TODO
 		// holding amount
 
+		//item 별 연한 초과 여부를 저장하는 배열
+		$timeover = array();
+
 		foreach ($items as $i) {
 			
 			$data['acquiredSum'][$i->id] = EqItemSupply::whereHas('supplySet', function($q) use($i) {
@@ -145,7 +148,20 @@ class EqInventoryController extends BaseController {
 			$data['wreckedSum'][$i->id] = EqInventoryData::whereHas('parentSet', function($q) use ($i, $user) {
 				$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
 			})->sum('wrecked');
+
+			//불용연한 지났는지 여부 판단
+			$acquired_date = $i->acquired_date;
+			$acqDate = strtotime($acquired_date);
+			$persist = $i->persist_years;
+			$endDate = strtotime('+'.$persist.' years', $acqDate);
+			$diff = (time() - $endDate)/31536000;
+
+
+			time() > $endDate ? $timeover[$i->id] = ceil($diff) : $timeover[$i->id] = 0 ;
+
 		}
+
+		$data['timeover'] = $timeover;
 
 		return View::make('equip.inventories-code', $data);
 	}

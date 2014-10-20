@@ -16,6 +16,21 @@ class EqService extends BaseService {
 		}
 	}
 
+	public function getEventType($code) {
+		switch ($code) {
+			case 'assembly':
+				$eventType = '집회';
+				break;
+			case 'training':
+				$eventType = '훈련';
+				break;
+			default:
+				return App::abort(500);
+				break;
+		}
+		return $eventType;
+	}
+
 	/**
 	 * 사용자에게 허용된 도메인의 카테고리들을 가져온다
 	 * @param User $user 

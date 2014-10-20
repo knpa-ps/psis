@@ -26,8 +26,4 @@ class EqItem extends Eloquent {
 	public function acquires() {
 		return $this->hasMany('EqItemAcquire', 'item_id', 'id');
 	}
-
-	public function getPersistYearsAttribute($value) {
-		return $value.'년';
-	}
 }

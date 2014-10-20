@@ -42,7 +42,12 @@
 						@foreach ($items as $i)
 						<tr data-id="{{ $i->id }}">
 							<td> {{ $i->classification }}</td>
-							<td> <a href="{{ url('admin/item_codes/'.$i->id) }}">{{ $i->maker_name }}</a> </td>
+							@if ($timeover[$i->id] !== 0)
+								<td> <a style="color: red;" href="{{ url('admin/item_codes/'.$i->id) }}">{{ $i->maker_name.'('.$timeover[$i->id].'년 초과)' }}</a> </td>
+							@else
+								<td> <a href="{{ url('admin/item_codes/'.$i->id) }}">{{ $i->maker_name }}</a> </td>
+							@endif
+							
 							<td> {{ $acquiredSum[$i->id] }}</td>
 							<td> {{ $wreckedSum[$i->id] }} </td>
 							<td> {{ $holdingSum[$i->id] }}</td>

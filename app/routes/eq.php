@@ -32,6 +32,9 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::get('items/{id}/data', 'EqItemController@getData');
 	Route::get('/items/list/{codeId}', 'EqItemController@showRegisteredList');
 
+	Route::resource('capsaicin', 'EqCapsaicinController');
+	Route::get('/capsaicin/node/{nodeId}', 'EqCapsaicinController@displayNodeState');
+
 
 	Route::resource('supplies', 'EqSupplyController');
 	Route::put('/supplies/{id}/detail', 'EqSupplyController@addSupply');
