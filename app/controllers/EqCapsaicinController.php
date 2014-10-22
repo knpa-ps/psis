@@ -121,7 +121,8 @@ class EqCapsaicinController extends EquipController {
 	public function displayNodeState($nodeId)
 	{
 		$user = Sentry::getUser();
-		$data['isState'] = Input::get('is_state');
+		$isState = Input::get('is_state');
+		$data['isState'] = $isState;
 		$data['node'] = EqSupplyManagerNode::find($nodeId);
 		$start = Input::get('start');
 		$end = Input::get('end');
@@ -148,40 +149,41 @@ class EqCapsaicinController extends EquipController {
 			$end = date('Y-m-d');
 		}
 
-		$data['start'] = $start;
-		$data['end'] = $end;
-		//날짜 필터 걸었다
-		$query = EqCapsaicinEvent::where('date', '>=', $start)->where('date', '<=', $end);
-		//행사명 필터 걸었다
-		if ($eventName) {
-			$query->where('event_name','like',"%$eventName%");
-		}
-		//행사구분 필터 검
-		if ($eventType) {
-			$query->where('type_code','=',$eventType);
-		}
-		$data['eventType'] = $eventType;
-
-		$events = $query->where('node_id','=',$nodeId)->get();
-		foreach ($events as $e) {
-			$usages = $e->children;
-			foreach ($usages as $u) {
-				$row = new stdClass;
-				$row->date = $e->date;
-				$row->node = EqSupplyManagerNode::find($e->node_id);
-				$row->user_node = EqSupplyManagerNode::find($u->user_node_id);
-				$row->type = $this->service->getEventType($e->type_code);
-				$row->location = $e->location;
-				$row->event_name = $e->event_name;
-				$row->amount = $u->amount;
-				array_push($rows, $row);
+		if ($isState !== 'true') {
+			$data['start'] = $start;
+			$data['end'] = $end;
+			//날짜 필터 걸었다
+			$query = EqCapsaicinEvent::where('date', '>=', $start)->where('date', '<=', $end);
+			//행사명 필터 걸었다
+			if ($eventName) {
+				$query->where('event_name','like',"%$eventName%");
 			}
+			//행사구분 필터 검
+			if ($eventType) {
+				$query->where('type_code','=',$eventType);
+			}
+			$data['eventType'] = $eventType;
+
+			$events = $query->where('node_id','=',$nodeId)->get();
+			foreach ($events as $e) {
+				$usages = $e->children;
+				foreach ($usages as $u) {
+					$row = new stdClass;
+					$row->date = $e->date;
+					$row->node = EqSupplyManagerNode::find($e->node_id);
+					$row->user_node = EqSupplyManagerNode::find($u->user_node_id);
+					$row->type = $this->service->getEventType($e->type_code);
+					$row->location = $e->location;
+					$row->event_name = $e->event_name;
+					$row->amount = $u->amount;
+					array_push($rows, $row);
+				}
+			}
+			$pagedRows = array_chunk($rows, 15);
+			$page = Input::get('page')== null ? 0 : Input::get('page') - 1;
+			$data['rows'] = Paginator::make($pagedRows[$page], count($rows), 15);
 		}
-
-		$pagedRows = array_chunk($rows, 4);
-		$page = Input::get('page')== null ? 1 : Input::get('page') - 1;
-		$data['rows'] = Paginator::make($pagedRows[$page], count($rows), 4);
-
+		
 		return View::make('equip.capsaicin-per-node',$data);
 	}
 
