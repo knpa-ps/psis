@@ -178,7 +178,10 @@ class EqCapsaicinController extends EquipController {
 			}
 		}
 
-		$data['rows'] = $rows; 
+		$pagedRows = array_chunk($rows, 4);
+		$page = Input::get('page')== null ? 1 : Input::get('page') - 1;
+		$data['rows'] = Paginator::make($pagedRows[$page], count($rows), 4);
+
 		return View::make('equip.capsaicin-per-node',$data);
 	}
 

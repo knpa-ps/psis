@@ -97,6 +97,7 @@
 					
 					@endif
 				</tbody>
+				{{ $rows->links() }}
 				</table>
 			</div>
 		</div>
