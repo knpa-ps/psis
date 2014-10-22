@@ -40,7 +40,34 @@ class EqCapsaicinController extends EquipController {
 	 */
 	public function store()
 	{
-		//
+		$input = Input::all();
+		$usageLength = sizeof($input['nodeId']);
+		DB::beginTransaction();
+
+		$event = new EqCapsaicinEvent;
+		$event->type_code = $input['classification'];
+		$event->event_name = $input['event_name'];
+		$event->location = $input['location'];
+		$event->node_id = $input['node'];
+		$event->date = $input['date'];
+		if (!$event->save()) {
+			return App::abort(500);
+		}
+
+		for ($i=0; $i < $usageLength; $i++) { 
+			$usage = new EqCapsaicinUsage;
+			$usage->event_id = $event->id;
+			$usage->amount = $input['amount'][$i];
+			$usage->user_node_id = $input['nodeId'][$i];
+
+			if (!$usage->save()) {
+				return App::abort(500);
+			}
+		}
+
+		DB::commit();
+
+		return Redirect::action('EqCapsaicinController@displayNodeState', $input['node'])->with('message', '저장되었습니다.');
 	}
 
 

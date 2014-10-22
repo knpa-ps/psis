@@ -4,6 +4,7 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 
 	Route::get('/', 'EquipController@index');
 
+	Route::post('/get_node_name/{nodeId}', 'EquipController@getNodeName');
 
 	Route::resource('/surveys', 'EqSurveyController');
 	Route::put('/surveys/{id}/response', 'EqSurveyController@updateResponse');

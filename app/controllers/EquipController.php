@@ -20,4 +20,8 @@ class EquipController extends BaseController {
 		}
 	}
 
+	public function getNodeName($nodeId) {
+		$node = EqSupplyManagerNode::find($nodeId);
+		return $node->full_name;
+	}
 }

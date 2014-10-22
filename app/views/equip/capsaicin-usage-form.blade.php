@@ -23,34 +23,36 @@
 							</legend>
 									
 							<div class="form-group">
-								<label for="item_classification" class="control-label col-xs-2">행사명</label>
+								<label for="event_name" class="control-label col-xs-2">행사명</label>
 								<div class="col-xs-10">
-									<input type="text" class="form-control input-sm" name="item_classification" id="item_classification"
-									value="{{ $item->classification or '' }}">
+									<input type="text" class="form-control input-sm" name="event_name" id="event_name"
+									value="">
 								</div>
 							</div>
 
 							<div class="form-group">
-								<label for="item_maker_name" class="control-label col-xs-2">행사구분</label>
+								<label for="classification" class="control-label col-xs-2">행사구분</label>
 								<div class="col-xs-10">
-									<input type="text" class="form-control input-sm" name="item_maker_name" id="item_maker_name"
-									value="{{ $item->maker_name or '' }}">
+									<select name="classification" id="classification" class="form-control input-sm">
+										<option value="assembly">집회</option>
+										<option value="training">훈련</option>
+									</select>
 								</div>
 							</div>
 							
 							<div class="form-group">
-								<label for="item_maker_phone" class="control-label col-xs-2">날짜</label>
+								<label for="date" class="control-label col-xs-2">날짜</label>
 								<div class="col-xs-10">
-									<input type="text" class="form-control input-sm" name="item_maker_phone" id="item_maker_phone"
-									value="{{ $item->maker_phone or '' }}">
+									<input type="text" class="form-control input-datepicker input-sm" name="date" id="date"
+									value="">
 								</div>
 							</div>
 
 							<div class="form-group">
-								<label for="item_acquired_date" class="control-label col-xs-2">장소</label>
+								<label for="location" class="control-label col-xs-2">장소</label>
 								<div class="col-xs-10">
-									<input type="text" class="form-control input-datepicker input-sm" name="item_acquired_date" id="item_acquired_date"
-									value="{{ $item->acquired_date or '' }}">
+									<input type="text" class="form-control input-sm" name="location" id="location"
+									value="">
 								</div>
 							</div>
 
@@ -61,41 +63,59 @@
 									<b>캡사이신 희석액 사용현황보고 기준 예시</b><br>
 									서울청 집회관리에 동원된 경기청 중대에서 사용한 경우 -> 경기청에서 서울청으로 사용 결과를 보고하고 여기에는 서울청에서 입력한다.
 								</span>
-								<div class="form-group">
-									<div class="col-xs-offset-2 col-xs-10">
-										<button type="button" id="add_details" class="btn btn-sm btn-success col-xs-6"><span class="glyphicon glyphicon-plus"></span> 동원 중대 추가</button>
-										<button type="button" id="remove_detail" class="col-xs-6 btn btn-sm btn-danger"><span class="glyphicon glyphicon-remove"></span> 제거</button>
-									</div>
-								</div>
 							</legend>
+							<table class="table table-condensed table-striped table-bordered">
+								<thead>
+									<tr>
+										<th>중대명</th>
+										<th>사용량(L)</th>
+										<th>작업</th>
+									</tr>
+								</thead>
+								<tbody id="tbody">
+									<tr>
+										<td>
+											{{ View::make('widget.dept-selector', array('id'=>'user_node_id', 'inputClass'=>'select-node')) }}
+										</td>
+										<td>
+											<input type="number" min="0" step="0.01" class="form-control input-sm" id="amount">
+										</td>
+										<td>
+											<button type="button" id="add_unit" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-plus"></span> 추가</button>
+											<button type="button" id="delete-row" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></span> 제거</button>
+										</td>
+									</tr>
+									
+								</tbody>
+							</table>
 						</fieldset>
 						<!-- 집행관서 hidden으로 -->
 						<input type="hidden" name="node" value="{{$node->id}}">
 
 				{{ Form::close(); }}
-				
-				<div class="hide" id="type_template">
-					<div class="form-group type_input">
-						<label for="node[]" class="type-label control-label col-xs-2">동원 중대 #</label>
-						<div class="col-xs-4">
-							<input type="text" class="type form-control input-sm" name="node[]">
-						</div>
-					</div>
-					<div class="form-group type_input">
-						<label for="type[]" class="type-label control-label col-xs-2">중대</label>
-						<div class="col-xs-4">
-							<input type="text" class="type form-control input-sm" name="type[]">
-						</div>
-					</div>
-					<div class="form-group type_input">
-						<label for="type[]" class="type-label control-label col-xs-2">사용량(L)</label>
-						<div class="col-xs-4">
-							<input type="text" class="type form-control input-sm" name="type[]">
-						</div>
-					</div>
-				</div>
 
 				<input type="button" id="submit_btn" class="btn btn-lg btn-block btn-primary" value="제출">
+				
+				<table>
+					<tbody id="template_tbody">
+						<tr class="hidden unit_info">
+							<td class="node_name">
+								<!-- 관서명 들어감 -->
+								<span class="unit_name"></span>
+								<input type="text" class="hidden">
+								<!-- value는 node id로 넣어줌 -->
+							</td>
+							<td class="amount">
+								<input type="text" class="form-control input-sm input-amount" disabled>
+								<!-- name은 amount[#], value는 입력한 값을 넣어줌 -->
+							</td>
+							<td>
+								
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				
 			</div>
 		</div>
 	</div>
@@ -116,100 +136,75 @@
 {{ HTML::script('static/vendor/bootstrap-datepicker/js/defaults.js') }}
 
 <script type="text/javascript">
-$(function() {
+	$('#add_unit').on('click', function(){
+		var length = $("#tbody .unit_info").length;
+		var nodeId = $('#user_node_id').val();
+		var amount = $('#amount').val();
+		
+		if (nodeId == '' || amount == '') {
+			return alert('값을 입력하세요');
+		};
 
-	addRow();
-
-	$("#remove_detail").on('click', function(){
-		removeRow();	
+		var newRow = $('#template_tbody tr').clone();
+		$.ajax({
+			url : base_url+'/equips/get_node_name/'+nodeId,
+			type : 'post',
+			success : function(res) {
+				newRow.find('.unit_name').html(res);
+			}
+		});
+		newRow.removeClass('hidden');
+		newRow.find('.node_name input').val(nodeId);
+		newRow.find('.node_name input').attr('name', 'nodeId['+length+']');
+		newRow.find('.amount input').val(amount);
+		newRow.find('.amount input').attr('name', 'amount['+length+']');
+		$("#tbody").append(newRow);
 	});
 
-	$("#add_details").on('click', addRow);
-
 	function removeRow(){
-		var rowNum = $("#fieldset .type_input").length;
+		var rowNum = $("#tbody .unit_info").length;
 		if (rowNum == 1) {
 			alert('최소 한 종류를 입력해야 합니다.');
 			return;
 		}
 
-		$("#fieldset .type_input").last().remove();
+		$("#tbody .unit_info").last().remove();
 	}
 
-	function addRow(){
-		var newRow = $("#type_template .type_input").clone();
-		$("#fieldset").append(newRow);
-		onRowAdded(newRow);
-	}
+	$("#delete-row").on('click', function(){
+		removeRow();
+	})
 
-	function onRowAdded(row) {
-		var rows = $("#fieldset .type_input");
-		var id = rows.length-1;
-		row.find("input.type").prop('name', 'type['+id+']');
-		row.find(".type-label").html("동원 중대 #"+rows.length);
-	}
-
-	$("#submit_btn").click(function() {
+	$("#submit_btn").on('click', function(){
 		$("#basic_form").submit();
-	});
+	})
 
 	$("#basic_form").validate({
 		rules: {
-			item_classification: {
+			event_name: {
 				required: true,
 				maxlength: 255
 			},
-			item_maker_name: {
+			location: {
 				required: true,
 				maxlength: 255
 			},
-			item_maker_phone: {
-				required: true,
-				maxlength: 255
-			},
-			item_acquired_date: {
+			date: {
 				required: true,
 				dateISO: true
-			},
-			item_persist_years: {
-				required: true,
-				number: true,
-				min: 0
 			}
 		},
 		submitHandler: function(form) {
 			var basic_form = $(form);
-			$(".form-upload .item-images").each(function(){ 
-				var url = $(this).val();
-				if (!url) {
-					return;
-				}
-
-				basic_form.append('<input type="hidden" name="item_images[]" value="'+url+'">');
-
-			});
+			var len = $("#tbody .unit_info").length;
+			if (len == 0) {
+				return alert('최소 한개의 동원중대를 입력해야 합니다.')
+			};
+			$('.input-amount').removeAttr("disabled");
 		    // do other things for a valid form
 		    form.submit();
 		}
 	});
-
-	$("#iframe_upload").load(function() {
-		var d = $(this).contents().find("#data").text();
-		if (!d) {
-			alert('업로드에 실패했습니다');
-			return;
-		}
-		var result = JSON.parse(d);
-		if (result.code != 0) {
-			alert(result.message);
-			return;
-		}
-		var template = $("#image_field_template").html();
-		$("#"+result.target).html(template);
-		$("#"+result.target+" img").prop('src', result.url);
-		$("#"+result.target+" .item-images").val(result.url);
-	});
-});
 </script>
 @stop
 
