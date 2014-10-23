@@ -26,29 +26,29 @@
 						<th>집회 시위시</th>
 					</tr>
 					<tr>
-						<th>1</th>
-						<th></th>
-						<th></th>
-						<th></th>
-						<th></th>
-						<th></th>
-						<th></th>
-						<th></th>
-						<th></th>
+						<th>{{ round($presentStock, 2) }}</th>
+						<th>{{ round($origin, 2) }}</th>
+						<th>{{ round($usageSumSum, 2) }}</th>
+						<th>{{ round($usageTSum, 2) }}</th>
+						<th>{{ round($usageASum, 2) }}</th>
+						<th>{{ $timesSumSum }}</th>
+						<th>{{ $timesTSum }}</th>
+						<th>{{ $timesASum }}</th>
+						<th>{{ round($additionSum, 2) }}</th>
 					</tr>
 				</thead>
 				<tbody>
 					@for ($i=1; $i <=12 ; $i++)
 					<tr>
 						<th style="text-align: center;">{{$i}}월</th>
-						<td colspan="2"></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
+						<td colspan="2">{{ round($stock[$i], 2) }}</td>
+						<td>{{ round($usageSum[$i], 2) }}</td>
+						<td>{{ round($usageT[$i], 2) }}</td>
+						<td>{{ round($usageA[$i], 2) }}</td>
+						<td>{{ $timesSum[$i] }}</td>
+						<td>{{ $timesT[$i] }}</td>
+						<td>{{ $timesA[$i] }}</td>
+						<td>{{ round($addition[$i], 2) }}</td>
 						<td></td>
 					</tr>
 					@endfor
