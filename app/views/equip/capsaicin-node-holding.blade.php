@@ -1,6 +1,6 @@
 <div class="panel panel-default">
 	<div class="panel-heading">
-		<h3 class="panel-title"><strong>{{ $node->node_name }} 캡사이신 희석액 보유 현황</strong></h3>
+		<h3 class="panel-title"><strong>{{ $node->node_name }} {{ $date->year }} 캡사이신 희석액 보유 현황</strong></h3>
 	</div>
 	<div class="panel-body">
 		<div class="row">

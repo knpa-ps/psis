@@ -356,6 +356,8 @@ class EqCapsaicinController extends EquipController {
 			$data['timesA'] = $timesA;
 			$data['addition'] = $addition;
 		}
+
+		$data['date'] = Carbon::now('Asia/Seoul');
 		
 		return View::make('equip.capsaicin-per-node',$data);
 	}
