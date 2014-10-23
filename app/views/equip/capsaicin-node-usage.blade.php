@@ -80,7 +80,7 @@
 				<tbody>
 					@if(sizeof($rows)==0)
 					<tr>
-						<td colspan="10">내역이 없습니다.</td>
+						<td colspan="7">내역이 없습니다.</td>
 					</tr>
 					@else
 					@foreach ($rows as $r)

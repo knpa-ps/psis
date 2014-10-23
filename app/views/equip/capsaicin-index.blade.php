@@ -29,4 +29,5 @@
 @stop
 
 @section('scripts')
+{{ HTML::datepicker() }}
 @stop

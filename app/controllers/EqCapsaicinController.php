@@ -10,11 +10,111 @@ class EqCapsaicinController extends EquipController {
 	 */
 	public function index()
 	{
-		$user = Sentry::getUser();
-		$userNode = $user->supplyNode;
-		$lowerNodes = $userNode->children;
-		$data['nodes'] = $lowerNodes;
+		$agencies = EqSupplyManagerNode::find(1)->children;
+		$data['nodes'] = $agencies;
 		$data['tabDept'] = Input::get('tab_dept');
+		$start = Input::get('start');
+		$end = Input::get('end');
+		$eventName = Input::get('event_name');
+		$eventType = Input::get('event_type');
+		$data['eventType'] = $eventType;
+
+		$validator = Validator::make(Input::all(), array(
+				'start'=>'date',
+				'end'=>'date'
+			));
+
+		if ($validator->fails()) {
+			return App::abort(400);
+		}
+
+		if (!$start) {
+			$start = date('Y-m-d', strtotime('-1 year'));
+		}
+
+		if (!$end) {
+			$end = date('Y-m-d');
+		}
+
+		$data['start'] = $start;
+		$data['end'] = $end;
+		//날짜 필터 걸었다
+		$query = EqCapsaicinEvent::where('date', '>=', $start)->where('date', '<=', $end);
+		//행사명 필터 걸었다
+		if ($eventName) {
+			$query->where('event_name','like',"%$eventName%");
+		}
+		//행사구분 필터 검
+		if ($eventType) {
+			$query->where('type_code','=',$eventType);
+		}
+		$data['eventType'] = $eventType;
+
+		$events = $query->get();
+
+		$rows = array();
+		foreach ($events as $e) {
+			$usages = $e->children;
+			foreach ($usages as $u) {
+				$row = new stdClass;
+				$row->date = $e->date;
+				$row->node = EqSupplyManagerNode::find($e->node_id);
+				$row->user_node = EqSupplyManagerNode::find($u->user_node_id);
+				$row->type = $this->service->getEventType($e->type_code);
+				$row->location = $e->location;
+				$row->event_name = $e->event_name;
+				$row->amount = $u->amount;
+				array_push($rows, $row);
+			}
+		}
+		$pagedRows = array_chunk($rows, 15);
+		$page = Input::get('page')== null ? 0 : Input::get('page') - 1;
+		$data['rows'] = Paginator::make($pagedRows[$page], count($rows), 15);
+
+		// 관서별 보유현황
+		$stock = array();
+		$usageSum = array();
+		$usageT = array();
+		$usageA = array();
+		$timesSum = array();
+		$timesT = array();
+		$timesA = array();
+		foreach ($agencies as $n) {
+			$stock[$n->id] = EqCapsaicinInventory::where('node_id','=',$n->id)->first()->stock;
+			$usageSum[$n->id] =  EqCapsaicinUsage::whereHas('event', function($q) use($n) {
+				$q->where('node_id','=',$n->id);
+			})->sum('amount');
+			$usageT[$n->id] = EqCapsaicinUsage::whereHas('event', function($q) use($n) {
+				$q->where('node_id','=',$n->id)->where('type_code','=','training');
+			})->sum('amount');
+			$usageA[$n->id] = EqCapsaicinUsage::whereHas('event', function($q) use($n) {
+				$q->where('node_id','=',$n->id)->where('type_code','=','assembly');
+			})->sum('amount');
+
+			$timesSum[$n->id] = EqCapsaicinEvent::where('node_id','=',$n->id)->count();
+			$timesA[$n->id] = EqCapsaicinEvent::where('node_id','=',$n->id)->where('type_code','=','assembly')->count();
+			$timesT[$n->id] = EqCapsaicinEvent::where('node_id','=',$n->id)->where('type_code','=','training')->count();
+ 		}
+ 		$data['stock'] = $stock;
+ 		$data['usageSum'] = $usageSum;
+ 		$data['usageT'] = $usageT;
+ 		$data['usageA'] = $usageA;
+ 		$data['timesSum'] = $timesSum;
+ 		$data['timesT'] = $timesT;
+ 		$data['timesA'] = $timesA;
+
+ 		$data['stockSum'] = EqCapsaicinInventory::sum('stock');
+ 		$data['usageSumSum'] = EqCapsaicinUsage::sum('amount');
+ 		$data['usageTSum'] = EqCapsaicinUsage::whereHas('event', function($q) use($n) {
+ 			$q->where('type_code','=','training');
+ 		})->sum('amount');
+ 		$data['usageASum'] = EqCapsaicinUsage::whereHas('event', function($q) use($n) {
+ 			$q->where('type_code','=','assembly');
+ 		})->sum('amount');
+ 		$data['timesSumSum'] = EqCapsaicinEvent::count();
+ 		$data['timesTSum'] = EqCapsaicinEvent::where('type_code','=','training')->count();
+ 		$data['timesASum'] = EqCapsaicinEvent::where('type_code','=','assembly')->count();
+
 		return View::make('equip.capsaicin-index', $data);
 	}
 
