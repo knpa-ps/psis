@@ -290,9 +290,14 @@ class EqCapsaicinController extends EquipController {
 					array_push($rows, $row);
 				}
 			}
-			$pagedRows = array_chunk($rows, 15);
-			$page = Input::get('page')== null ? 0 : Input::get('page') - 1;
-			$data['rows'] = Paginator::make($pagedRows[$page], count($rows), 15);
+			if (sizeof($rows)!=0) {
+				$pagedRows = array_chunk($rows, 15);
+				$page = Input::get('page')== null ? 0 : Input::get('page') - 1;
+				$data['rows'] = Paginator::make($pagedRows[$page], count($rows), 15);
+			} else {
+				$data['rows'] = Paginator::make(array(),0,15);
+			}
+			
 		} else {
 			// 보유현황 탭 선택한 경우
 			$presentStock = EqCapsaicinInventory::where('node_id','=',$nodeId)->first()->stock;
