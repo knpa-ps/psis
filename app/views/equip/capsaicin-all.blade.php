@@ -83,7 +83,11 @@
 							<td>{{ $r->user_node->node_name }}</td>
 							<td>{{ $r->type }}</td>
 							<td>{{ $r->location }}</td>
+							@if($r->fileName != '')
 							<td><a href="{{ url('uploads/docs/'.$r->fileName) }}">{{ $r->event_name }}</a></td>
+							@else
+							<td>{{ $r->event_name }}</td>
+							@endif
 							<td>{{ round($r->amount,2) }}</td>
 						</tr>
 						@endforeach
