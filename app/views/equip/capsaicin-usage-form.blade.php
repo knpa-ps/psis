@@ -55,7 +55,6 @@
 									value="">
 								</div>
 							</div>
-
 						</fieldset>
 						<fieldset id="fieldset" {{ $mode=='create'? '': 'class="hidden"' }}>
 							<legend><h4>동원 중대별 정보</h4>
@@ -91,9 +90,21 @@
 						</fieldset>
 						<!-- 집행관서 hidden으로 -->
 						<input type="hidden" name="node" value="{{$node->id}}">
-
+						<!-- 업로드한 파일 명 hidden으로 -->
+						<input type="hidden" name="file_name" value="" id="file_name">
 				{{ Form::close(); }}
-
+				<div class="col-xs-12">
+					<div class="form-group">
+						<label for="doc" class="control-label col-xs-2">첨부문서</label>
+						<div class="col-xs-5">
+							<form action="{{ url('upload/capsaicin_doc') }}" target="upload_target"  method="post" enctype="multipart/form-data">
+								<input type="file" name="doc" id="doc" />
+							</form>
+						</div>
+						<button class="btn btn-xs col-xs-5 btn-info" type="submit"><span class="glyphicon glyphicon-upload"></span> 업로드</button>	
+					</div>
+				</div>
+				<iframe id="upload_target" name="upload_target" src="" frameborder="0" style="width:0;height:0;border:0px solid #fff;"></iframe>
 				<input type="button" id="submit_btn" class="btn btn-lg btn-block btn-primary" value="제출">
 				
 				<table>
@@ -120,11 +131,6 @@
 		</div>
 	</div>
 </div>
-<div class="hide" id="image_field_template">
-	@include('equip.items-image-preview')
-</div>
-
-<iframe id="iframe_upload" name="iframe_upload" src="" style="width:0;height:0;border:0px solid #fff;"></iframe> 
 @stop
 @section('scripts')
 {{ HTML::script('static/vendor/jquery.form.js') }}
@@ -204,6 +210,20 @@
 		    // do other things for a valid form
 		    form.submit();
 		}
+	});
+
+	$("#upload_target").load(function() {
+		var d = $(this).contents().find("#data").text();
+		if (!d) {
+			alert('업로드에 실패했습니다');
+			return;
+		}
+		var result = JSON.parse(d);
+		if (result.code != 0) {
+			return;
+		}
+		alert(result.message);
+		$('#file_name').val(result.fileName);
 	});
 </script>
 @stop

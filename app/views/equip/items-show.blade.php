@@ -257,7 +257,7 @@ $(function() {
 	$(".detail-title").click(function() {
 		var detailId = $(this).data('id');
 		var itemId = $(this).data('item-id');
-		popup(itemId+"/detail/"+detailId, 800, 900);
+		popup(base_url+'/equips/items/'+itemId+"/detail/"+detailId, 800, 900);
 	});
 
 	$("#data_view").click(function() {
@@ -270,7 +270,7 @@ $(function() {
 	});
 	$("#item_detail_btn").click(function() {
 		var id = $(this).attr('data-item-id');
-		popup(id+"/details", 800, 900);
+		popup(base_url+'/equips/items/'+id+'/details', 800, 900);
 	});
 
 	$("#delete_btn").click(function() {

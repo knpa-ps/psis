@@ -112,6 +112,7 @@ class EqCapsaicinController extends EquipController {
 					$row->type = $this->service->getEventType($e->type_code);
 					$row->location = $e->location;
 					$row->event_name = $e->event_name;
+					$row->fileName = $e->attached_file_name;
 					$row->amount = $u->amount;
 					array_push($rows, $row);
 				}
@@ -157,6 +158,7 @@ class EqCapsaicinController extends EquipController {
 		$event->location = $input['location'];
 		$event->node_id = $input['node'];
 		$event->date = $input['date'];
+		$event->attached_file_name = $input['file_name'];
 		if (!$event->save()) {
 			return App::abort(500);
 		}
@@ -284,6 +286,7 @@ class EqCapsaicinController extends EquipController {
 					$row->location = $e->location;
 					$row->event_name = $e->event_name;
 					$row->amount = $u->amount;
+					$row->fileName = $e->attached_file_name;
 					array_push($rows, $row);
 				}
 			}

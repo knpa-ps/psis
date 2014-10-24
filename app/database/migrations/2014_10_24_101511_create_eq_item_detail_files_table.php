@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateEqCapsaicinInventoryTable extends Migration {
+class CreateEqItemDetailFilesTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,10 +12,10 @@ class CreateEqCapsaicinInventoryTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('eq_capsaicin_inventory', function(Blueprint $table) {
+		Schema::create('eq_item_detail_files', function(Blueprint $table) {
 			$table->increments('id');
-			$table->integer('node_id');
-			$table->float('stock');
+			$table->integer('detail_id')->unsigned();
+			$table->string('file_name');
 			$table->timestamps();
 		});
 	}
@@ -28,7 +28,7 @@ class CreateEqCapsaicinInventoryTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('eq_capsaicin_inventory');
+		Schema::drop('eq_item_detail_files');
 	}
 
 }

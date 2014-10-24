@@ -30,6 +30,28 @@ class UploadController extends BaseController {
 		return View::make('upload-result', array('result'=>$result));
 	}
 
+	public function capsaicinDoc() {
+		$validator = Validator::make(Input::all(), array(
+				'doc'=>'required'
+			));
+
+		if ($validator->fails()) {
+			$result = array('code'=>-1, 'message'=>'업로드에 실패했습니다.');
+			return View::make('upload-result', array('result'=>$result));
+		}
+
+		$fileName = str_random(15).'.'.Input::file('doc')->getClientOriginalExtension();
+		$filePath = public_path('uploads/docs');
+
+		Input::file('doc')->move($filePath, $fileName);
+
+		$result = array('code'=>0,
+						'message'=>'업로드 되었습니다.',
+						'fileName'=>$fileName);
+
+		return View::make('upload-result', array('result'=>$result));
+	}
+
 	public function imageCkeditor() {
 		$validator = Validator::make(Input::all(), array(
 				'upload'=>'required|image'
