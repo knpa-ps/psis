@@ -297,7 +297,7 @@ class EqCapsaicinController extends EquipController {
 			} else {
 				$data['rows'] = Paginator::make(array(),0,15);
 			}
-			
+	
 		} else {
 			// 보유현황 탭 선택한 경우
 			$presentStock = EqCapsaicinInventory::where('node_id','=',$nodeId)->first()->stock;

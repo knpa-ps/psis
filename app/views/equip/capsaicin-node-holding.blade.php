@@ -10,7 +10,7 @@
 					<tr>
 						<th rowspan="3">구분</th>
 						<th colspan="2">캡사이신 보유량</th>
-						<th colspan="3">사용량</th>
+						<th colspan="3" style="background-color: #E89ECC">사용량</th>
 						<th colspan="3">사용횟수</th>
 						<th rowspan="2">추가량</th>
 						<th rowspan="3" colspan="3">비고</th>
@@ -18,9 +18,9 @@
 					<tr>
 						<th>현재보유량</th>
 						<th>최초보유량</th>
-						<th>계</th>
-						<th>훈련시</th>
-						<th>집회 시위시</th>
+						<th style="background-color: #E89ECC">계</th>
+						<th style="background-color: #E89ECC">훈련시</th>
+						<th style="background-color: #E89ECC">집회 시위시</th>
 						<th>계</th>
 						<th>훈련시</th>
 						<th>집회 시위시</th>
@@ -28,9 +28,9 @@
 					<tr>
 						<th>{{ round($presentStock, 2) }}</th>
 						<th>{{ round($origin, 2) }}</th>
-						<th>{{ round($usageSumSum, 2) }}</th>
-						<th>{{ round($usageTSum, 2) }}</th>
-						<th>{{ round($usageASum, 2) }}</th>
+						<th style="background-color: #FEE9FC">{{ round($usageSumSum, 2) }}</th>
+						<th style="background-color: #FEE9FC">{{ round($usageTSum, 2) }}</th>
+						<th style="background-color: #FEE9FC">{{ round($usageASum, 2) }}</th>
 						<th>{{ $timesSumSum }}</th>
 						<th>{{ $timesTSum }}</th>
 						<th>{{ $timesASum }}</th>
@@ -42,9 +42,9 @@
 					<tr>
 						<th style="text-align: center;">{{$i}}월</th>
 						<td colspan="2">{{ round($stock[$i], 2) }}</td>
-						<td>{{ round($usageSum[$i], 2) }}</td>
-						<td>{{ round($usageT[$i], 2) }}</td>
-						<td>{{ round($usageA[$i], 2) }}</td>
+						<td style="background-color: #FEE9FC">{{ round($usageSum[$i], 2) }}</td>
+						<td style="background-color: #FEE9FC">{{ round($usageT[$i], 2) }}</td>
+						<td style="background-color: #FEE9FC">{{ round($usageA[$i], 2) }}</td>
 						<td>{{ $timesSum[$i] }}</td>
 						<td>{{ $timesT[$i] }}</td>
 						<td>{{ $timesA[$i] }}</td>

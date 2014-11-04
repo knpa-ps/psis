@@ -645,4 +645,75 @@ class AdminController extends BaseController {
 		
 		return View::make('admin.depts');
 	}
+
+	public function adjustHierarchy($nodeId = null) {
+		DB::beginTransaction();
+
+		if ($nodeId === null) {
+			$node = null;
+		} else {
+			$node = EqSupplyManagerNode::with('children')->find($nodeId);
+
+			if ($node === null) {
+				throw new Exception('node does not exists with id='.$nodeId);
+			}
+
+			$parent = $node->parent()->first();
+
+			if ($parent === null) {
+				$node->full_path = ":{$node->id}:";
+				$node->full_name = $node->node_name;
+			} else {
+				$node->full_path = rtrim($parent->full_path, ':').":{$node->id}:";
+				if ($parent->id == 1) {
+					$node->full_name = $node->node_name;
+				} else {
+					$node->full_name = trim($parent->full_name." {$node->node_name}");
+				}
+			}
+
+			$node->is_terminal = 0;
+
+			if (!$node->save()) {
+				throw new Exception('failed to update node data. '.$child);
+			}
+
+		}
+
+		$this->doAdjustHierarchy($node);
+
+		DB::commit();
+	}
+
+	private function doAdjustHierarchy(EqSupplyManagerNode $parent = null) {
+
+		if ($parent === null) {
+			$children = EqSupplyManagerNode::regions()->get();
+			$parent = new stdClass;
+			$parent->full_path = '';
+			$parent->full_name = '';
+		} else {
+			$children = $parent->children()->with('children')->get();
+		}
+
+		// break point : 하위 부서가 없으면 break
+		foreach ($children as $child) {
+
+			// 하위부서의 계층 정보를 업데이트
+			$child->full_path = rtrim($parent->full_path, ':').":{$child->id}:";
+			if ($parent->full_name == '본청') {
+				$child->full_name = $child->node_name;
+			} else {
+				$child->full_name = trim($parent->full_name." {$child->node_name}");
+			}
+			$child->is_terminal == 0;
+
+			if (!$child->save()) {
+				throw new Exception('failed to update node data. '.$child);
+			}
+
+			// traverse
+			$this->doAdjustHierarchy($child);
+		}
+	}
 }

@@ -165,3 +165,7 @@ body {
   color: #999 !important;
   background-color: transparent !important;
 }
+.nav-stacked li a:hover {
+   background-color: #008cba;
+   color : #fff;
+}

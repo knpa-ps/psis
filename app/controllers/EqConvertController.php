@@ -50,7 +50,6 @@ class EqConvertController extends EquipController {
 		$query = EqConvertSet::where('converted_date', '>=', $start)->where('converted_date', '<=', $end);
 
 		//날짜 지정 관련 끝
-
 		//장비명
 		$itemName = Input::get('item_name');
 		if ($itemName) {
@@ -73,11 +72,12 @@ class EqConvertController extends EquipController {
 			$data['converts'] = $query->where('from_node_id','=',$user->supplyNode->id)->paginate(15);
 		}
 
+
 		// 보유장비 목록 보여주기
 		$data['items'] = $items = EqItem::where('is_active','=',1)->whereHas('inventories', function($q) use ($user) {
 			$q->where('node_id','=',$user->supplyNode->id);
 		})->get();
-
+		
 		return View::make('equip.convert-index', $data);
 	}
 
@@ -145,7 +145,7 @@ class EqConvertController extends EquipController {
 		$convSet->is_confirmed = 0;
 
 		if (!$convSet->save()) {
-			return App::abort(500);
+			return a::abort(500);
 		}
 
 		foreach ($itemTypes as $t) {
@@ -294,6 +294,7 @@ class EqConvertController extends EquipController {
 		//주는 쪽 끝
 		//컨펌 플래그 변경
 		$convSet->is_confirmed = 1;
+		$convSet->confirmed_date = date("Y-m-d");
 		if (!$convSet->save()) {
 			return App::abort(500);
 		}

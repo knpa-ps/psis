@@ -10,14 +10,13 @@
 					<tr>
 						<th rowspan="2">구분</th>
 						<th rowspan="2">현재보유량</th>
-						<th colspan="3">사용량</th>
+						<th colspan="3" style="background-color: #E89ECC">사용량</th>
 						<th colspan="3">사용횟수</th>
-						<th rowspan="3">비고</th>	
 					</tr>
 					<tr>
-						<th>계</th>
-						<th>훈련시</th>
-						<th>집회시위시</th>
+						<th style="background-color: #E89ECC">계</th>
+						<th style="background-color: #E89ECC">훈련시</th>
+						<th style="background-color: #E89ECC">집회시위시</th>
 						<th>계</th>
 						<th>훈련시</th>
 						<th>집회시위시</th>
@@ -25,9 +24,9 @@
 					<tr>
 						<th>계</th>
 						<th>{{ round($stockSum,2) }}</th>
-						<th>{{ round($usageSumSum,2) }}</th>
-						<th>{{ round($usageTSum,2)}}</th>
-						<th>{{ round($usageASum,2)}}</th>
+						<th style="background-color: #FEE9FC">{{ round($usageSumSum,2) }}</th>
+						<th style="background-color: #FEE9FC">{{ round($usageTSum,2)}}</th>
+						<th style="background-color: #FEE9FC">{{ round($usageASum,2)}}</th>
 						<th>{{ $timesSumSum }}</th>
 						<th>{{ $timesTSum }}</th>
 						<th>{{ $timesASum }}</th>
@@ -38,13 +37,12 @@
 					<tr>
 						<th><a href="{{ url('/equips/capsaicin/node/'.$n->id) }}">{{$n->node_name}}</a></th>
 						<td>{{ round($stock[$n->id],2)}}</td>
-						<td>{{ round($usageSum[$n->id],2) }}</td>
-						<td>{{ round($usageT[$n->id], 2) }}</td>
-						<td>{{ round($usageA[$n->id], 2) }}</td>
+						<td style="background-color: #FEE9FC">{{ round($usageSum[$n->id],2) }}</td>
+						<td style="background-color: #FEE9FC">{{ round($usageT[$n->id], 2) }}</td>
+						<td style="background-color: #FEE9FC">{{ round($usageA[$n->id], 2) }}</td>
 						<td>{{ $timesSum[$n->id] }}</td>
 						<td>{{ $timesT[$n->id]}}</td>
 						<td>{{ $timesA[$n->id]}}</td>
-						<td></td>
 					</tr>
 					@endforeach
 				</tbody>

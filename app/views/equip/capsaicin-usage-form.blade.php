@@ -60,7 +60,7 @@
 							<legend><h4>동원 중대별 정보</h4>
 								<span class="help-block">
 									<b>캡사이신 희석액 사용현황보고 기준 예시</b><br>
-									서울청 집회관리에 동원된 경기청 중대에서 사용한 경우 -> 경기청에서 서울청으로 사용 결과를 보고하고 여기에는 서울청에서 입력한다.
+									경기청에서 본청(서울청 통보) 사용 결과를 보고하고 입력란에는 서울청에서 입력
 								</span>
 							</legend>
 							<table class="table table-condensed table-striped table-bordered">

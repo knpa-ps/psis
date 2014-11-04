@@ -44,6 +44,9 @@ Route::group(array('before'=>'auth|permission:superuser'), function() {
         Route::resource('/categories', 'EqCategoryController');
         Route::resource('/item_codes', 'EqItemController');
 
+        // 노드 fullpath, fullname 정렬
+        Route::get('node_adjust', 'AdminController@adjustHierarchy');
+
     });
 
     Route::resource('menu', 'MenuController');

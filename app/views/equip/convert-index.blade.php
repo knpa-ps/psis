@@ -141,7 +141,8 @@
 									@if($convert->is_confirmed==0)
 										<span class="label label-danger"><span class="glyphicon glyphicon-question-sign"></span> 미확인</span>
 									@else
-										<span class="label label-success"><span class="glyphicon glyphicon-ok"></span> 확인</span>
+										<span class="label label-success"><span class="glyphicon glyphicon-ok"></span> {{ $convert->confirmed_date }}</span>
+
 									@endif
 								</td>
 							</tr>
