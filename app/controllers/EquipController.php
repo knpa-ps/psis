@@ -13,11 +13,10 @@ class EquipController extends BaseController {
 	 */
 	public function index() {
 		$user = Sentry::getUser();
-		if ($user->department->type_code == Department::TYPE_HEAD) {
-			return View::make('equip.dashboard');
-		} else {
-			return Redirect::to('equips/items');
-		}
+
+		$inbounds = EqConvertSet::where('target_node_id','=',$user->supplyNode->id)->take(4)->get();
+		$outbounds = EqConvertSet::where('from_node_id','=',$user->supplyNode->id)->take(4)->get();
+		return View::make('equip.dashboard', get_defined_vars());
 	}
 
 	public function getNodeName($nodeId) {

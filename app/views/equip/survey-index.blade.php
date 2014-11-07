@@ -69,7 +69,7 @@
 						<div class="col-xs-9">
 							<select name="item" id="item_to_survey" class="form-control">
 								@foreach($items as $i)
-									<option value="{{$i->id}}">{{$i->code->title}} ({{$i->maker_name}})</option>
+									<option value="{{$i->id}}">{{$i->code->title}} ({{$i->classification.'/'.$i->maker_name}})</option>
 								@endforeach
 							</select>
 						</div>

@@ -10,7 +10,7 @@ class EqItemCode extends Eloquent {
 	}
 
 	public function items() {
-		return $this->hasMany('EqItem','item_code','code');
+		return $this->hasMany('EqItem','item_code','code')->where('is_active','=',1);
 	}
 
 }

@@ -70,7 +70,7 @@
 							<select name="item" id="item_to_convert" class="form-control">
 								@if(count($items)>0)
 									@foreach($items as $i)
-										<option value="{{$i->id}}">{{$i->code->title}} ({{$i->maker_name}})</option>
+										<option value="{{$i->id}}">{{$i->code->title}} ({{$i->classification.'/'.$i->maker_name}})</option>
 									@endforeach
 								@else
 									<option value="0">보유중인 장비가 없습니다.</option>

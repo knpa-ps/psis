@@ -90,7 +90,20 @@ class EqItemController extends EquipController {
 				$obj->date = $dSet['discarded_date'];
 				$obj->income = 0;
 				$obj->outgoings = $dSet->children->sum('count');
-				$obj->classification = $dSet['category']=="lost"?"폐기-분실":"폐기-파손" ;
+				switch ($dSet['category']) {
+					case 'lost':
+						$obj->classification = "폐기-분실";
+						break;
+					case 'wrecked':
+						$obj->classification = "폐기-파손";
+						break;
+					case 'expired':
+						$obj->classification = "폐기-불용";
+						break;
+					default:
+						$obj->classification = "폐기";
+						break;
+				};
 				array_push($elements, $obj);
 			}
 		}
@@ -447,6 +460,7 @@ class EqItemController extends EquipController {
 	 *
 	 * @param  int  $id
 	 * @return Response
+	 * 해당 장비의 is_active 플래그를 0으로 바꾸어 비활성화한다.
 	 */
 	public function destroy($id)
 	{
@@ -454,18 +468,13 @@ class EqItemController extends EquipController {
 		if (!$item) {
 			return App::abort(404);
 		}
-		
-		if ($item->inventories()->count() > 0) {
-			return array('message'=>'보유내역이 있는 장비는 삭제할 수 없습니다.', 'result'=>-1);
+
+		$item->is_active = 0;
+		if (!$item->save()) {
+			return App::abort(500);
 		}
 
-		DB::beginTransaction();
-		$item->details()->delete();
-		$item->images()->delete();
-		$item->delete();
-		DB::commit();
-
-		return array('message'=>'삭제되었습니다.', 'result'=>0);
+		return array('message'=>'일괄 폐기되었습니다.', 'result'=>0);
 	}
 
 	public function getData($id) {

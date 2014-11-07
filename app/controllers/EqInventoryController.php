@@ -122,15 +122,8 @@ class EqInventoryController extends BaseController {
 		$data['code']=EqItemCode::where('code','=',$itemCode)->first();
 		$user = Sentry::getUser();
 		$data['user']= $user;
-		$items = EqItem::where('item_code','=',$itemCode)->get();
+		$items = EqItem::where('item_code','=',$itemCode)->where('is_active','=',1)->get();
 		$data['items']= $items;
-
-		//TODO
-		// sum of it's given
-		// supplied 의 합 + 관리전환 합
-
-		//TODO
-		// holding amount
 
 		//item 별 연한 초과 여부를 저장하는 배열
 		$timeover = array();

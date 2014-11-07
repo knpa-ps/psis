@@ -24,7 +24,7 @@
 								<span class="glyphicon glyphicon-edit"></span> 수정
 							</a>
 							<a href="#" class="btn btn-xs btn-danger" id="delete_btn"> 
-								<span class="glyphicon glyphicon-trash"></span> 삭제
+								<span class="glyphicon glyphicon-trash"></span> 일괄폐기
 							</a>
 						</div>
 					</div>
@@ -274,19 +274,19 @@ $(function() {
 	});
 
 	$("#delete_btn").click(function() {
-		if (!confirm('삭제하시겠습니까?')) {
+		if (!confirm('일괄 폐기하시겠습니까?')) {
 			return;
 		}
 
 		var id = $("#item_id").val();
 
 		$.ajax({
-			url: url("equips/items/"+id),
+			url: url("admin/item_codes/"+id),
 			type: "delete",
 			success: function(res){ 
 				alert(res.message);
 				if (res.result == 0) {
-					redirect('equips/items');
+					redirect('equips/inventories');
 				}
 			}
 		});

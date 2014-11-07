@@ -78,11 +78,11 @@ class EqCapsaicinController extends EquipController {
 			}
 
 			if (!$start) {
-				$start = date('Y-m-d', strtotime('-1 year'));
+				$start = date('Y-m-d', strtotime('first day of January this year'));
 			}
 
 			if (!$end) {
-				$end = date('Y-m-d');
+				$end = date('Y-m-d', strtotime('last day of December this year'));
 			}
 
 			$data['start'] = $start;
@@ -120,7 +120,12 @@ class EqCapsaicinController extends EquipController {
 			$pagedRows = array_chunk($rows, 15);
 			$page = Input::get('page')== null ? 0 : Input::get('page') - 1;
 			$data['rows'] = Paginator::make($pagedRows[$page], count($rows), 15);
+
+			$data['totalUsage'] = EqCapsaicinUsage::whereHas('event', function($q) use($start, $end) {
+	 			$q->where('date', '>=', $start)->where('date', '<=', $end);
+	 		})->sum('amount');
 		}
+		
 		
 
 		return View::make('equip.capsaicin-index', $data);
@@ -254,11 +259,11 @@ class EqCapsaicinController extends EquipController {
 			}
 
 			if (!$start) {
-				$start = date('Y-m-d', strtotime('-1 year'));
+				$start = date('Y-m-d', strtotime('first day of January this year'));
 			}
 
 			if (!$end) {
-				$end = date('Y-m-d');
+				$end = date('Y-m-d', strtotime('last day of December this year'));
 			}
 			$data['start'] = $start;
 			$data['end'] = $end;
@@ -297,6 +302,9 @@ class EqCapsaicinController extends EquipController {
 			} else {
 				$data['rows'] = Paginator::make(array(),0,15);
 			}
+			$data['totalUsage'] = EqCapsaicinUsage::whereHas('event', function($q) use($start, $end) {
+	 			$q->where('date', '>=', $start)->where('date', '<=', $end);
+	 		})->sum('amount');
 	
 		} else {
 			// 보유현황 탭 선택한 경우
@@ -363,6 +371,7 @@ class EqCapsaicinController extends EquipController {
 			$data['timesT'] = $timesT;
 			$data['timesA'] = $timesA;
 			$data['addition'] = $addition;
+
 		}
 
 		$data['date'] = Carbon::now('Asia/Seoul');

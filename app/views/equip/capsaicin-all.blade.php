@@ -94,10 +94,15 @@
 						
 						@endif
 					</tbody>
+					<tfoot>
+						<tr>
+							<td colspan="6">{{ $start }} ~ {{$end}} 총 사용량</td>
+							<td>{{ round($totalUsage, 2) }}</td>
+						</tr>
+					</tfoot>
 					{{ $rows->links() }}
 				</table>
 			</div>
 		</div>
-
 	</div>
 </div>
