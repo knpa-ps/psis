@@ -12,7 +12,7 @@
 
 			<div class="panel-body">
 				{{ Form::open(array(
-						'url'=> $mode=='create'?'admin/item_codes':'admin/item_codes'.$item->id,
+						'url'=> $mode=='create'?'admin/item_codes':'admin/item_codes/'.$item->id,
 						'method'=>$mode=='create'?'post':'put',
 						'id'=>'basic_form',
 						'class'=>'form-horizontal'
@@ -23,13 +23,28 @@
 							</legend>
 									
 							<div class="form-group">
-								<label for="item_classification" class="control-label col-xs-2">보급구분</label>
+								<label for="item_classification" class="control-label col-xs-2">구분</label>
 								<div class="col-xs-10">
 									<input type="text" class="form-control input-sm" name="item_classification" id="item_classification"
 									value="{{ $item->classification or '' }}">
 								</div>
 							</div>
-
+							<div class="form-group">
+								<label for="supplier" class="control-label col-xs-2">보급부서</label>
+								<div class="col-xs-10">
+									<select name="supplier" id="supplier" class="form-control input-sm">
+									@if(!isset($item))
+										<option value="경비" >경비</option>
+										<option value="장비" >장비</option>
+										<option value="경무" >경무</option>
+									@else
+										<option value="경비" {{$item->supplier =='경비' ? 'selected':''}} >경비</option>
+										<option value="장비"  {{$item->supplier =='장비' ? 'selected':''}} >장비</option>
+										<option value="경무"  {{$item->supplier =='경무' ? 'selected':''}} >경무</option>
+									@endif
+									</select>
+								</div>
+							</div>
 							<div class="form-group">
 								<label for="item_maker_name" class="control-label col-xs-2">업체명</label>
 								<div class="col-xs-10">
@@ -133,6 +148,11 @@
 {{ HTML::script('static/vendor/bootstrap-datepicker/js/defaults.js') }}
 
 <script type="text/javascript">
+$("#year").datepicker( {
+		format: "yyyy",
+		viewMode: "years",
+		minViewMode: "years"
+	});
 $(function() {
 
 	addRow();

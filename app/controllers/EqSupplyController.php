@@ -10,15 +10,31 @@ class EqSupplyController extends BaseController {
 		$nodes = array();
 
 		foreach ($supplyNodes as $supNode) {
-			$nodes[] = array(
+			if ($supNode->is_selectable == 1) {
+				$nodes[] = array(
 					'id' => $supNode->id,
 					'text' => $supNode->node_name,
 					'children' => $supNode->is_terminal?array():true,
 					'li_attr' => array( 
 						'data-full-name' => $supNode->full_name,
-						'data-selectable' => 1
+						'data-selectable' => $supNode->is_selectable
 						)
 				);
+			} else {
+				$nodes[] = array(
+					'id' => $supNode->id,
+					'text' => $supNode->node_name,
+					'children' => $supNode->is_terminal?array():true,
+					'li_attr' => array( 
+						'data-full-name' => $supNode->full_name,
+						'data-selectable' => $supNode->is_selectable
+						),
+					'state' => array(
+							'disabled'=> true
+						)
+				);
+			}
+			
 		}
 		return $nodes;
 	}
@@ -113,7 +129,7 @@ class EqSupplyController extends BaseController {
 		$data['mode'] = 'create';
 		$data['item'] = EqItem::find($itemId);
 		$data['userNode'] = $userNode;
-		$data['lowerNodes'] = EqSupplyManagerNode::where('parent_id','=',$userNode->id)->get();
+		$data['lowerNodes'] = $userNode->managedChildren;
 		
         return View::make('equip.supplies-create',$data);
 	}
@@ -127,7 +143,7 @@ class EqSupplyController extends BaseController {
 	{
 		$data = Input::all();
 		$user = Sentry::getUser();
-		$nodes = EqSupplyManagerNode::where('parent_id','=',$user->supplyNode->id)->get();
+		$nodes = $user->supplyNode->managedChildren;
 		$types = EqItemType::where('item_id','=',$data['item_id'])->get();
 
 
@@ -264,7 +280,7 @@ class EqSupplyController extends BaseController {
 		$supply = EqItemSupplySet::find($id);
 
 		$types = EqItemType::where('item_id','=',$supply->item->id)->get();
-		$lowerNodes = EqSupplyManagerNode::where('parent_id','=',$userNode->id)->get();
+		$lowerNodes = $userNode->managedChildren;
 		$count = array();
 
 		$data['types'] = $types;

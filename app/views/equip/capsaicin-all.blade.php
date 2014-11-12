@@ -67,7 +67,7 @@
 							<th>행사유형</th>
 							<th>사용장소</th>
 							<th>행사명</th>
-							<th style="background-color: #E89ECC">사용량(L)</th>
+							<th style="background-color: #E89ECC">사용량(ℓ)</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -91,12 +91,11 @@
 							<td style="background-color: #FEE9FC">{{ round($r->amount,2) }}</td>
 						</tr>
 						@endforeach
-						
 						@endif
 					</tbody>
 					<tfoot>
 						<tr>
-							<td colspan="6">{{ $start }} ~ {{$end}} 총 사용량</td>
+							<td colspan="6">조회내역 총 사용량</td>
 							<td>{{ round($totalUsage, 2) }}</td>
 						</tr>
 					</tfoot>

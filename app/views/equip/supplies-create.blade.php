@@ -27,7 +27,7 @@
 				)) }}
 					<fieldset>
 						<legend>
-							<h4>[{{$userNode->node_name}}] {{$item->code->title}} ({{$item->classification}}) 보급하기</h4>
+							<h4>[{{$userNode->node_name}}] {{$item->code->title}} ({{$item->maker_name}}, {{substr($item->acquired_date, 0,4)}}년) 보급하기</h4>
 						</legend>
 						<input type="text" style="display: none;" name="item_id" value="{{$item->id}}">
 						<div class="form-group">

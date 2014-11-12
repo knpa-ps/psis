@@ -78,7 +78,7 @@ class EqCapsaicinController extends EquipController {
 			}
 
 			if (!$start) {
-				$start = date('Y-m-d', strtotime('first day of January this year'));
+				$start = date('Y-m-d', strtotime('1 January 2010'));
 			}
 
 			if (!$end) {
@@ -100,7 +100,7 @@ class EqCapsaicinController extends EquipController {
 			$data['eventType'] = $eventType;
 
 			$events = $query->get();
-
+			$totalUsage = 0;
 			$rows = array();
 			foreach ($events as $e) {
 				$usages = $e->children;
@@ -114,16 +114,16 @@ class EqCapsaicinController extends EquipController {
 					$row->event_name = $e->event_name;
 					$row->fileName = $e->attached_file_name;
 					$row->amount = $u->amount;
+					$totalUsage += $u->amount;
 					array_push($rows, $row);
 				}
 			}
 			$pagedRows = array_chunk($rows, 15);
 			$page = Input::get('page')== null ? 0 : Input::get('page') - 1;
+
 			$data['rows'] = Paginator::make($pagedRows[$page], count($rows), 15);
 
-			$data['totalUsage'] = EqCapsaicinUsage::whereHas('event', function($q) use($start, $end) {
-	 			$q->where('date', '>=', $start)->where('date', '<=', $end);
-	 		})->sum('amount');
+			$data['totalUsage'] = $totalUsage;
 		}
 		
 		
@@ -259,7 +259,7 @@ class EqCapsaicinController extends EquipController {
 			}
 
 			if (!$start) {
-				$start = date('Y-m-d', strtotime('first day of January this year'));
+				$start = date('Y-m-d', strtotime('1 January 2010'));
 			}
 
 			if (!$end) {
@@ -278,7 +278,6 @@ class EqCapsaicinController extends EquipController {
 				$query->where('type_code','=',$eventType);
 			}
 			$data['eventType'] = $eventType;
-
 			$events = $query->where('node_id','=',$nodeId)->get();
 			foreach ($events as $e) {
 				$usages = $e->children;
@@ -347,7 +346,7 @@ class EqCapsaicinController extends EquipController {
 					$q->where('node_id','=',$nodeId)->where('date','>',$afterithMonth)->where('date','<',$now);
 				})->sum('amount');
 				$acquireSinceithMonth = EqCapsaicinAcquire::where('node_id','=',$nodeId)->where('acquired_date','>',$afterithMonth)->where('acquired_date','<',$now)->sum('amount');
-				$stock[$i] = $presentStock + $consumptionSinceithMonth - $acquireSinceithMonth;
+				$stock[$i] = $presentStock - $consumptionSinceithMonth + $acquireSinceithMonth;
 				$usageSum[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId, $firstDayofMonth, $afterithMonth){
 									$q->where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth);
 								})->sum('amount');

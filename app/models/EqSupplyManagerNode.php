@@ -23,6 +23,21 @@ class EqSupplyManagerNode extends Eloquent {
 	public function children() {
 		return $this->hasMany('EqSupplyManagerNode', 'parent_id', 'id');
 	}
+	/**
+	 * 해당 부서의 부모 노드 중 관리자가 존재하는 가장 가까운 노드를 리턴한다
+	 * @return EqSupplyManagerNode
+	 */
+	public function managedParent() {
+		return $this->belongsTo('EqSupplyManagerNode', 'parent_manager_node','id');
+	}
+
+	/**
+	 * 해당 부서의 자식 노드 중 관리자가 존재하는 가장 가까운 노드들을 리턴한
+	 * @return EqSupplyManagerNode
+	 */
+	public function managedChildren() {
+		return $this->hasMany('EqSupplyManagerNode','parent_manager_node','id');
+	}
 
 	/**
 	 * 해당 부서가 속한 지방청에 대한 Node 모델을 불러온다.

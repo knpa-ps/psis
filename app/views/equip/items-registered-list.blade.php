@@ -20,26 +20,30 @@
 					<thead>
 						<tr>
 							<th>
-								구분
+								연도
 							</th>
 							<th>
 								업체명
 							</th>
 							<th>
-								등록일자
+								구분
 							</th>
 							<th>
 								사용연한
+							</th>
+							<th>
+								보급부서
 							</th>
 						</tr>
 					</thead>
 					<tbody>
 						@foreach ($items as $i)
 						<tr data-id="{{ $i->id }}">
-							<td> {{ $i->classification }}</td>
+							<td> {{ substr($i->acquired_date,0,4) }}</td>
 							<td> <a href="{{ url('admin/item_codes/'.$i->id) }}">{{ $i->maker_name }}</a> </td>
-							<td> {{ $i->acquired_date }} </td>
+							<td> {{ $i->classification }} </td>
 							<td> {{ $i->persist_years }} </td>
+							<td> {{ $i->supplier }} </td>
 						</tr>
 						@endforeach
 					</tbody>

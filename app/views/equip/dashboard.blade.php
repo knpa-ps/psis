@@ -4,7 +4,7 @@
 	
 	<div class="row">
 		<div class="col-xs-4">
-			<img src="{{ url('/static/img/eq_main.gif') }}" alt="" class="col-xs-12" />
+			<img src="{{ url('/static/img/eq_main.gif') }}" alt="" class="col-xs-12" style="padding:0px; border: 1px solid transparent; box-shadow: 0 1px 1px rgba(0,0,0,0.05);" />
 		</div>
 		<div class="col-xs-8">
 			<div class="row">
@@ -125,15 +125,7 @@
 									<tr>
 										<td></td>
 										<td></td>
-										@if ($o->is_confirmed == 1)
-										<td>
-											<span class="label label-success"><span class="glyphicon glyphicon-ok"></span> {{ $o->confirmed_date }}</span>
-										</td>
-										@else
-										<td>
-											<span class="label label-danger"><span class="glyphicon glyphicon-question-sign"></span> 미확인</span>
-										</td>
-										@endif
+										<td></td>
 									</tr>
 								</tbody>
 							</table>

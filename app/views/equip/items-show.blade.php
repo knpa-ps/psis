@@ -20,7 +20,7 @@
 					
 					<div class="col-xs-6">
 						<div class="pull-right">
-							<a href="{{url('equips/items/'.$item->id.'/edit')}}" class="btn btn-xs btn-success">
+							<a href="{{url('admin/item_codes/'.$item->id.'/edit')}}" class="btn btn-xs btn-success">
 								<span class="glyphicon glyphicon-edit"></span> 수정
 							</a>
 							<a href="#" class="btn btn-xs btn-danger" id="delete_btn"> 
@@ -42,14 +42,14 @@
 							<div class="carousel-inner">
 								@if ($item->images->count() == 0) 
 									<div class="item active">
-										<img src="{{ url('/static/img/no_image_available_big.gif') }}" alt="" />
+										<img src="{{ url('/static/img/no_image_available_big.gif') }}" alt=""  />
 									</div>
 								@else
 									@foreach ($item->images as $idx=>$i)
 									
 									<div class="item {{ $idx==0?'active':'' }}">
-										<a class="fancybox" rel="gallery" href="{{ $i->url }}">
-											<img src="{{ $i->url }}" alt="" />
+										<a class="fancybox" rel="gallery" href="{{ $i->url }}" >
+											<img src="{{ $i->url }}" alt="" style="width:100%;" />
 										</a>
 									</div>
 
@@ -74,8 +74,8 @@
 									<td colspan="5"><strong> {{ $item->code->title }} </strong></td>
 								</tr>
 								<tr>
-									<th>기능</th>
-									<td> {{ $category->domain->name }} </td>
+									<th>보급부서</th>
+									<td> {{ $item->supplier }} </td>
 									<th>분류</th>
 									<td colspan="3"> {{ $category->name }} </td>
 								</tr>

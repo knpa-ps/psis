@@ -22,7 +22,7 @@
 					<thead>
 						<tr>
 							<th>
-								구분
+								연도
 							</th>
 							<th>
 								업체명
@@ -41,7 +41,7 @@
 					<tbody>
 						@foreach ($items as $i)
 						<tr data-id="{{ $i->id }}">
-							<td> {{ $i->classification }}</td>
+							<td> {{ substr($i->acquired_date,0,4) }}</td>
 							@if ($timeover[$i->id] !== 0)
 								<td> <a style="color: red;" href="{{ url('admin/item_codes/'.$i->id) }}">{{ $i->maker_name.'('.$timeover[$i->id].'년 초과)' }}</a> </td>
 							@else

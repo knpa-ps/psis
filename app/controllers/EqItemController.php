@@ -315,6 +315,7 @@ class EqItemController extends EquipController {
 
 		DB::beginTransaction();
 		$item->classification = $data['item_classification'];
+		$item->supplier = $data['supplier'];
 		$item->item_code = $data['item_code'];
 		$item->maker_name = $data['item_maker_name'];
 		$item->maker_phone = $data['item_maker_phone'];
@@ -417,19 +418,21 @@ class EqItemController extends EquipController {
 	 */
 	public function update($id)
 	{
+		$data = Input::all();
 		$item = EqItem::find($id);
 		if (!$item) {
 			return App::abort(404);
 		}
 
 		DB::beginTransaction();
-		$item->name = Input::get('item_name');
-		$item->category_id = Input::get('item_category_id');
-		$item->standard = Input::get('item_standard');
-		$item->maker_name = Input::get('item_maker_name');
-		$item->maker_phone = Input::get('item_maker_phone');
-		$item->acquired_date = Input::get('item_acquired_date');
-		$item->persist_years = Input::get('item_persist_years');
+		$item->classification = $data['item_classification'];
+		$item->supplier = $data['supplier'];
+		$item->item_code = $data['item_code'];
+		$item->maker_name = $data['item_maker_name'];
+		$item->maker_phone = $data['item_maker_phone'];
+		$item->acquired_date = $data['item_acquired_date'];
+		$item->persist_years = $data['item_persist_years'];
+		$item->is_active = 1;
 		if (!$item->save()) {
 			return App::abort(400);
 		}
