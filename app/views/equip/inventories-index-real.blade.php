@@ -1,6 +1,5 @@
 @extends('layouts.master')
 
-
 @section('content')
 
 <div class="row">
@@ -47,7 +46,7 @@
 					<tbody>
 						@foreach ($itemCodes as $i)
 						<tr data-id="{{ $i->id }}">
-							<td> {{ $i->category->name }} </td>
+							<td> {{ $i->category->name }}({{sizeof($i->category->codes)}}종) </td>
 							<td> {{ $i->code}} </td>
 							<td> <a href="{{ url('equips/inventories/code/'.$i->code) }}">{{ $i->title }}</a> </td>
 							<td> {{ $acquiredSum[$i->id] }}</td>

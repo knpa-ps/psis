@@ -120,7 +120,7 @@ $(function(){
 	// item선택하면 해당 아이템에 속한 구분자들이 아래 셀렉트박스에 나옴
 
 	$('#item').on('change', function(){
-		var data = {'id' : this.value};
+		var data = {'id' : this.value };
 		$.ajax({
 			url : base_url+"/equips/inventories/create/get_items_in_code",
 			method : 'post',
@@ -133,7 +133,7 @@ $(function(){
 					$("#classification").html('<option>미등록 장비입니다</option>');
 				}
 				for (var i=0; i< res.length; i++){
-					var str = '<option value="'+res[i].id+'">'+res[i].classification+'</option>';
+					var str = '<option value="'+res[i].id+'">'+res[i].acquired_date.substr(0,4)+' '+res[i].classification+'</option>';
 					options += str;
 				}
 				$("#classification").html(options);

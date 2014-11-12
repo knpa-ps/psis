@@ -161,7 +161,7 @@ class EqInventoryController extends BaseController {
 
 	public function getItemsInCode(){
 		$code = EqItemCode::find(Input::get('id'));
-		$items = EqItem::where('item_code','=',$code->code)->get();
+		$items = EqItem::where('item_code','=',$code->code)->where('is_active','=',1)->get();
 		return $items;
 	}
 
@@ -229,8 +229,9 @@ class EqInventoryController extends BaseController {
 					$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
 				})->sum('wrecked');
 				$data['wreckedSum'][$c->id] += $itemWreckedSum;
-			} 
+			}
 		}
+
         return View::make('equip.inventories-index-real', $data);
 	}
 
@@ -272,23 +273,21 @@ class EqInventoryController extends BaseController {
 			}
 
 			for ($i=0; $i < sizeof($ids); $i++) { 
-				if ($counts[$i] !== '') {
-					$acq = new EqItemAcquire;
-					$acq->item_id = $data['classification'];
-					$acq->item_type_id = $ids[$i];
-					$acq->count = $counts[$i];
-					$acq->acquired_date = $data['acquired_date'];
-					if (!$acq->save()) {
-						return App::abort(400);
-					}
+				$acq = new EqItemAcquire;
+				$acq->item_id = $data['classification'];
+				$acq->item_type_id = $ids[$i];
+				$acq->count = $counts[$i];
+				$acq->acquired_date = $data['acquired_date'];
+				if (!$acq->save()) {
+					return App::abort(400);
+				}
 
-					$invData = new EqInventoryData;
-					$invData->inventory_set_id = $invSet->id;
-					$invData->item_type_id = $ids[$i];
-					$invData->count = $counts[$i];
-					if (!$invData->save()) {
-						return App::abort(400);
-					}
+				$invData = new EqInventoryData;
+				$invData->inventory_set_id = $invSet->id;
+				$invData->item_type_id = $ids[$i];
+				$invData->count = $counts[$i];
+				if (!$invData->save()) {
+					return App::abort(400);
 				}
 			}
 		} else {

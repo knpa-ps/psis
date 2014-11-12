@@ -43,9 +43,9 @@
 						<tr data-id="{{ $i->id }}">
 							<td> {{ substr($i->acquired_date,0,4) }}</td>
 							@if ($timeover[$i->id] !== 0)
-								<td> <a style="color: red;" href="{{ url('admin/item_codes/'.$i->id) }}">{{ $i->maker_name.'('.$timeover[$i->id].'년 초과)' }}</a> </td>
+								<td> <a style="color: red;" href="{{ url('admin/item_codes/'.$i->id) }}">{{ $i->maker_name.'('.$i->classification.', '.$timeover[$i->id].'년 초과)' }}</a> </td>
 							@else
-								<td> <a href="{{ url('admin/item_codes/'.$i->id) }}">{{ $i->maker_name }}</a> </td>
+								<td> <a href="{{ url('admin/item_codes/'.$i->id) }}">{{ $i->maker_name }}({{$i->classification}})</a> </td>
 							@endif
 							
 							<td> {{ $acquiredSum[$i->id] }}</td>

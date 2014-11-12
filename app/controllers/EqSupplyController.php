@@ -155,9 +155,8 @@ class EqSupplyController extends BaseController {
 		foreach ($types as $t) {
 			$holdingNum[$t->id] = EqInventoryData::whereHas('parentSet', function($q) use ($user) {
 				$q->where('node_id','=',$user->supplyNode->id);
-			})->where('item_type_id','=',$t->id)->first()->count;
+			})->where('item_type_id','=',$t->id)->first();
 		}
-
 
 		DB::beginTransaction();
 

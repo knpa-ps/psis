@@ -11,4 +11,5 @@ class EqInventoryData extends Eloquent {
 	public function parentSet(){
 		return $this->belongsTo('EqInventorySet','inventory_set_id','id');
 	}
+
 }

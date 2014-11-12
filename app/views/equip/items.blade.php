@@ -35,7 +35,7 @@
 					<tbody>
 						@foreach ($itemCodes as $i)
 						<tr data-id="{{ $i->id }}">
-							<td> {{ $i->category->name }} </td>
+							<td> {{ $i->category->name }}({{sizeof($i->category->codes)}}종)</td>
 							<td> <a href="{{ url('equips/items/list/'.$i->id) }}">{{ $i->title }}</a> </td>
 						</tr>
 						@endforeach
