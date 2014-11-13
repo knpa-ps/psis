@@ -66,7 +66,7 @@
 						<div class="clearfix"></div>
 					</div>
 				</div>
-				<input type="hidden" name="tab_dept" value="false">
+				<input type="hidden" name="tab_id" value="3">
 			</form>
 		</div>
 		<div class="row">
@@ -112,7 +112,7 @@
 							<td>{{ round($totalUsage, 2) }}</td>
 						</tr>
 					</tfoot>
-					{{ $rows->links() }}
+					{{ $rows->appends(array('tab_id' => '3' ))->links() }}
 				</table>
 			</div>
 		</div>

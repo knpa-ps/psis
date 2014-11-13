@@ -54,7 +54,6 @@
 						<div class="clearfix"></div>
 					</div>
 				</div>
-
 			</form>
 		</div>
 
@@ -108,7 +107,7 @@
 						<td>{{ round($totalUsage, 2) }}</td>
 					</tr>
 				</tfoot>
-				{{ $rows->links() }}
+				{{ $rows->appends(array('is_state'=>'false') )->links() }}
 				</table>
 			</div>
 		</div>

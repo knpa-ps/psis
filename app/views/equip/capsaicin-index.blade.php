@@ -14,21 +14,21 @@
 			<ul class="nav nav-tabs">
 				<li><a href="{{url('equips/capsaicin?tab_id=1')}}">지방청별 보기</a></li>
 				<li class="active"><a href="{{url('equips/capsaicin?tab_id=2')}}">월별보기</a></li>
-				<li><a href="{{url('equips/capsaicin?tab_id=3')}}">전체보기</a></li>
+				<li><a href="{{url('equips/capsaicin?tab_id=3')}}">행사별 보기</a></li>
 			</ul>
 			@include('equip.capsaicin-bymonth')
 		@elseif ($tabId == '3')
 			<ul class="nav nav-tabs">
 				<li><a href="{{url('equips/capsaicin?tab_id=1')}}">지방청별 보기</a></li>
 				<li><a href="{{url('equips/capsaicin?tab_id=2')}}">월별보기</a></li>
-				<li class="active"><a href="{{url('equips/capsaicin?tab_id=3')}}">전체보기</a></li>
+				<li class="active"><a href="{{url('equips/capsaicin?tab_id=3')}}">행사별 보기</a></li>
 			</ul>
 			@include('equip.capsaicin-all')
 		@else
 			<ul class="nav nav-tabs">
 				<li class="active"><a href="{{url('equips/capsaicin?tab_id=1')}}">지방청별 보기</a></li>
 				<li><a href="{{url('equips/capsaicin?tab_id=2')}}">월별보기</a></li>
-				<li><a href="{{url('equips/capsaicin?tab_id=3')}}">전체보기</a></li>
+				<li><a href="{{url('equips/capsaicin?tab_id=3')}}">행사별 보기</a></li>
 			</ul>
 			@include('equip.capsaicin-bynode')
 		@endif

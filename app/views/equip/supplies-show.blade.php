@@ -18,7 +18,7 @@
 				</h3>
 			</div>
 			<div class="panel-body">
-				<h4>[{{$supply->node->node_name}} 보급] {{$item->name}} ({{$item->maker_name}})</h4>
+				<h4>[{{$supply->node->node_name}} 보급] {{$item->code->title}} ({{$item->maker_name.','.$item->classification }})</h4>
 				<span class="pull-right" >보급일자 {{ $supply->supplied_date }}</span>
 				<table class="table table-condensed table-bordered table-striped" style="table-layout: fixed;" >
 					<thead>

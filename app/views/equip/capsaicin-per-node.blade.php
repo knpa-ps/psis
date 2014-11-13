@@ -14,7 +14,7 @@
 			@if ($isState == 'true')
 				<ul class="nav nav-tabs">
 					<li class="active"><a href="{{url('equips/capsaicin/node/'.$node->id.'?is_state=true')}}">월별보기</a></li>
-					<li><a href="{{url('equips/capsaicin/node/'.$node->id.'?is_state=false')}}">사용내역</a></li>
+					<li><a href="{{url('equips/capsaicin/node/'.$node->id.'?is_state=false')}}">행사별 보기</a></li>
 				</ul>
 
 				@include('equip.capsaicin-node-holding')
@@ -22,7 +22,7 @@
 			@else
 				<ul class="nav nav-tabs">
 					<li><a href="{{url('equips/capsaicin/node/'.$node->id.'?is_state=true')}}">월별보기</a></li>
-					<li class="active"><a href="{{url('equips/capsaicin/node/'.$node->id.'?is_state=false')}}">사용내역</a></li>
+					<li class="active"><a href="{{url('equips/capsaicin/node/'.$node->id.'?is_state=false')}}">행사별 보기</a></li>
 				</ul>
 				
 				@include('equip.capsaicin-node-usage')
