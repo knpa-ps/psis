@@ -128,7 +128,13 @@
 									<tr>
 										<td>{{$r->item->code->title}}</td>
 										<td>{{$r->started_at.'~'.$r->expired_at}}</td>
-										<td>{{ $r->responses->count()/$r->item->types->count().'/'. $user->supplyNode->managedChildren->count()}} ({{$r->responses->count()/$user->supplyNode->managedChildren->count()*100}}%)</td>
+										<td>
+										@if ($r->is_closed == 1)
+											<span class="label label-success">설문응답완료</span>
+										@else
+											<span class="label label-danger">미응답</span>
+										@endif
+										</td>
 									</tr>
 								@endforeach
 								</tbody>
