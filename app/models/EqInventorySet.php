@@ -11,4 +11,8 @@ class EqInventorySet extends Eloquent {
 	public function children(){
 		return $this->hasMany('EqInventoryData','inventory_set_id','id');
 	}
+
+	public function ownerNode() {
+		return $this->belongsTo('EqSupplyManagerNode','node_id','id');
+	}
 }

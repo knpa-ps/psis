@@ -507,6 +507,7 @@ class EqItemController extends EquipController {
 			$managingNode = $user->supplyNode;
 			$nodes = EqSupplyManagerNode::where('parent_id','=',$managingNode->id)->get();
 
+			// 총계
 			$row = array(
 				'node'=> (object) array(
 					'node_name'=>'계', 
@@ -515,8 +516,10 @@ class EqItemController extends EquipController {
 
 			$row['sum_row'] = 0;
 			foreach ($types as $t) {
-				$row[$t->type_name] = EqItemSupply::whereHas('supplySet', function($q) use ($managingNode) {
-					$q->where('from_node_id','=',$managingNode->id);
+				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($managingNode) {
+					$q->whereHas('ownerNode', function($qq) use ($managingNode) {
+						$qq->where('parent_id','=',$managingNode->id);
+					});
 				})->where('item_type_id','=',$t->id)->sum('count');
 				
 				$row['sum_row'] += $row[$t->type_name];
@@ -554,14 +557,14 @@ class EqItemController extends EquipController {
 
 			$row['sum_row'] = 0;
 
-			$subSets = EqItemSupplySet::where('from_node_id','=',$parentId)->get();
 			foreach ($types as $t) {
-				$row[$t->type_name] = 0;
-				foreach ($subSets as $s) {
-					$setsum = $s->children()->where('item_type_id','=',$t->id)->sum('count');
-					$row[$t->type_name] += $setsum;
-					$row['sum_row'] += $setsum;
-				}
+				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($parentId) {
+					$q->whereHas('ownerNode', function($qq) use ($parentId) {
+						$qq->where('parent_id','=',$parentId);
+					});
+				})->where('item_type_id','=',$t->id)->sum('count');
+				
+				$row['sum_row'] += $row[$t->type_name];
 			}
 			
 			$row['row_type']=0;
@@ -577,7 +580,51 @@ class EqItemController extends EquipController {
 
 			foreach ($types as $t) {
 
-			$row[$t->type_name] = EqItemSupply::where('item_type_id','=',$t->id)->where('to_node_id','=',$node->id)->sum('count');
+			$invData = EqInventoryData::whereHas('parentSet', function($q) use ($node) {
+				$q->where('node_id','=',$node->id);
+			})->where('item_type_id','=',$t->id)->first();
+
+			if ($invData != null) {
+				$row[$t->type_name] = $invData->count;
+			} else {
+				$row[$t->type_name] = 0;
+			}
+
+			$row['sum_row'] += $row[$t->type_name];
+
+			if ($row[$t->type_name]==0) {
+				$row[$t->type_name] = '';
+			}
+
+			if ($row['sum_row']==0) {
+				$row['sum_row'] = '';
+			}
+
+			}
+			$row['row_type'] = 1;
+			$data[] = $row;
+
+			// 파손수량 행 추가
+			$row['node'] = (object) array(
+							'id'=>'', 
+							'node_name'=>'파손수량', 
+							'is_terminal'=>true, 
+							'parent_id'=>''
+						);
+			$row['sum_row'] = 0;
+
+			foreach ($types as $t) {
+
+			$invData = EqInventoryData::whereHas('parentSet', function($q) use ($node) {
+				$q->where('node_id','=',$node->id);
+			})->where('item_type_id','=',$t->id)->first();
+
+			if ($invData != null) {
+				$row[$t->type_name] = $invData->wrecked;
+			} else {
+				$row[$t->type_name] = 0;
+			}
+
 			$row['sum_row'] += $row[$t->type_name];
 
 			if ($row[$t->type_name]==0) {

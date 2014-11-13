@@ -196,22 +196,8 @@
 				</div>
 				<div class="row" id="data_container">
 					<div class="col-xs-12">
-						<h4>보급현황</h4>
+						<h4>하위부서 보유현황</h4>
 						
-						<div class="well well-sm">
-							<form class="form-inline">
-								<div class="form-group">
-									<label for="year">조회연도</label>
-									<input type="text" class="input-sm form-control" id="year" name="year" placeholder="yyyy" 
-									value="{{date('Y')}}">
-								</div>
-								<button type="button" id="data_view" class="btn-xs btn btn-primary">조회</button>
-								<!-- <div class="pull-right">
-									<button type="button" class="btn btn-info btn-xs">보급내역</button>
-									<button type="button" class="btn btn-info btn-xs">보유현황</button>
-								</div> -->
-							</form>
-						</div>
 						<table style="table-layout: fixed;" class="table table-condensed table-striped table-hover table-bordered" id="data_table">
 							<thead>
 								<tr>
