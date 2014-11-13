@@ -12,13 +12,13 @@ class EqCapsaicinController extends EquipController {
 	{
 		$user = Sentry::getUser();
 
-		if ($user->supplyNode->id !== 1) {
-			if ($user->supplyNode->managedParent->id == 1) {
-				return Redirect::action('EqCapsaicinController@displayNodeState', $user->supplyNode->id);
-			} else {
-				return Redirect::back()->with('message','해당 메뉴는 본청,지방청 관리자만 접근 가능합니다');
-			}
-		}
+		// if ($user->supplyNode->id !== 1) {
+		// 	if ($user->supplyNode->managedParent->id == 1) {
+		// 		return Redirect::action('EqCapsaicinController@displayNodeState', $user->supplyNode->id);
+		// 	} else {
+		// 		return Redirect::back()->with('message','해당 메뉴는 본청,지방청 관리자만 접근 가능합니다');
+		// 	}
+		// }
 
 		$agencies = EqSupplyManagerNode::find(1)->children;
 		$data['nodes'] = $agencies;
@@ -90,13 +90,13 @@ class EqCapsaicinController extends EquipController {
 			//월별 보기
 				//조회 조건에 관련된 변수들 정의
 				$year = Input::get('year');
-				$selectedRegionId = Input::get('regionId');
+				$selectedRegionId = Input::get('region');
 
 				$now = Carbon::now();
 				if ($year == null) {
 					$year = $now->year;
 				}
-
+				$data['year'] = $year;
 				$data['initYears'] = EqCapsaicinFirstday::select('year')->distinct()->get();
 				$regions = EqSupplyManagerNode::where('type_code','=','D002')->get();
 				$data['regions'] = $regions;
@@ -104,114 +104,231 @@ class EqCapsaicinController extends EquipController {
 				if ($selectedRegionId == null) {
 					$selectedRegionId = 1;
 				}
-
-				$firstDayHolding = EqCapsaicinFirstday::where('year','=',$year)->where('node_id','=',$nodeId)->first();
-				$consumptionThisYear = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$year){
-					$q->where('node_id','=',$nodeId)->where('date','>',$year);
-				})->sum('amount');
-
-				$acquiresThisYear = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','>',$year)->sum('amount');
-				$jcardsThisYear = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','>',$year)->sum('amount');
-
-				$data['firstDayHolding'] = $firstDayHolding;
-
-				$data['usageSumSum'] = $consumptionThisYear;
-				$data['usageTSum'] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId, $year){
-					$q->where('type_code','=','training')->where('node_id','=',$nodeId)->where('date','like',$year.'%');
-				})->sum('amount');
-				$data['usageASum'] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$year){
-					$q->where('type_code','=','assembly')->where('node_id','=',$nodeId)->where('date','like',$year.'%');
-				})->sum('amount');
-				$data['timesSumSum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->count();
-				$data['timesTSum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('type_code','=','training')->count();
-				$data['timesASum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('type_code','=','assembly')->count();
-				$data['additionSum'] = $acquiresThisYear;
-				$data['discardSum'] = $discardsThisYear;
-
-				$stock = array();
-				$usageSum = array();
-				$usageT = array();
-				$usageA = array();
-				$timesSum = array();
-				$timesT = array();
-				$timesA = array();
-				$addition = array();
-				$discard = array();
-
-				$now = Carbon::now();
-				//올해면 아직 안 온 달은 비워둔다.
-				$data['presentStock'] = null;
-				for ($i=1; $i <= 12; $i++) {
-					
-					$firstDayofMonth = Carbon::createFromDate($year, $i, 1, 'Asia/Seoul');
-					$afterithMonth = Carbon::createFromDate($year, $i+1, 1, 'Asia/Seoul');
-
-					$consumptionUntilithMonth = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$year,$afterithMonth){
-						$q->where('node_id','=',$nodeId)->where('date','<',$afterithMonth)->where('date','like',$year.'%');
+				$data['selectedRegionId'] = $selectedRegionId;
+				
+				if ($selectedRegionId == 1) {
+					//지방청 필터 안 건 경우 전체자료 다 가져옴 
+					$firstDayHolding = EqCapsaicinFirstday::where('year','=',$year)->sum('amount');
+					$consumptionThisYear = EqCapsaicinUsage::whereHas('event', function($q) use($year){
+						$q->where('date','>',$year);
 					})->sum('amount');
-					$acquireUntilithMonth = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','<',$afterithMonth)->where('acquired_date','like',$year.'%')->sum('amount');
-					$discardUntilithMonth = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','<',$afterithMonth)->where('acquired_date','like',$year.'%')->sum('amount');
-					$stock[$i] = $firstDayHolding->amount - $consumptionUntilithMonth + $acquireUntilithMonth - $discardUntilithMonth;
+
+					$acquiresThisYear = EqCapsaicinIo::where('io','=',1)->where('acquired_date','>',$year)->sum('amount');
+					$discardsThisYear = EqCapsaicinIo::where('io','=',0)->where('acquired_date','>',$year)->sum('amount');
+
+					$data['firstDayHolding'] = $firstDayHolding;
+
+					$data['usageSumSum'] = $consumptionThisYear;
+					$data['usageTSum'] = EqCapsaicinUsage::whereHas('event', function($q) use($year){
+						$q->where('type_code','=','training')->where('date','like',$year.'%');
+					})->sum('amount');
+					$data['usageASum'] = EqCapsaicinUsage::whereHas('event', function($q) use($year){
+						$q->where('type_code','=','assembly')->where('date','like',$year.'%');
+					})->sum('amount');
+
+					$data['timesSumSum'] = EqCapsaicinEvent::where('date','like',$year.'%')->count();
+					$data['timesTSum'] = EqCapsaicinEvent::where('date','like',$year.'%')->where('type_code','=','training')->count();
+					$data['timesASum'] = EqCapsaicinEvent::where('date','like',$year.'%')->where('type_code','=','assembly')->count();
+					$data['additionSum'] = $acquiresThisYear;
+					$data['discardSum'] = $discardsThisYear;
+
+					$stock = array();
+					$usageSum = array();
+					$usageT = array();
+					$usageA = array();
+					$timesSum = array();
+					$timesT = array();
+					$timesA = array();
+					$addition = array();
+					$discard = array();
+
+					$now = Carbon::now();
+					//올해면 아직 안 온 달은 비워둔다.
+					$data['presentStock'] = null;
+					for ($i=1; $i <= 12; $i++) {
+						
+						$firstDayofMonth = Carbon::createFromDate($year, $i, 1, 'Asia/Seoul');
+						$afterithMonth = Carbon::createFromDate($year, $i+1, 1, 'Asia/Seoul');
+
+						$consumptionUntilithMonth = EqCapsaicinUsage::whereHas('event', function($q) use($year,$afterithMonth){
+							$q->where('date','<',$afterithMonth)->where('date','like',$year.'%');
+						})->sum('amount');
+						$acquireUntilithMonth = EqCapsaicinIo::where('io','=',1)->where('acquired_date','<',$afterithMonth)->where('acquired_date','like',$year.'%')->sum('amount');
+						$discardUntilithMonth = EqCapsaicinIo::where('io','=',0)->where('acquired_date','<',$afterithMonth)->where('acquired_date','like',$year.'%')->sum('amount');
+						$stock[$i] = $firstDayHolding - $consumptionUntilithMonth + $acquireUntilithMonth - $discardUntilithMonth;
 
 
-					$month = 12;
-					if ($year == $now->year) {
-						$month = $now->month;
-						if ($month == $i) {
-							$data['presentStock'] = $stock[$i];
-						} 
-					} elseif ($year > $now->year) {
-						$stock[$i] = null;
-						$usageSum[$i] = null;
-						$usageT[$i] = null;
-						$usageA[$i] = null;
-						$timesSum[$i] = null;
-						$timesT[$i] = null;
-						$timesA[$i] = null;
-						$addition[$i] = null;
-						$discard[$i] = null;
-						continue;
+						$month = 12;
+						if ($year == $now->year) {
+							$month = $now->month;
+							if ($month == $i) {
+								$data['presentStock'] = $stock[$i];
+							} 
+						} elseif ($year > $now->year) {
+							$stock[$i] = null;
+							$usageSum[$i] = null;
+							$usageT[$i] = null;
+							$usageA[$i] = null;
+							$timesSum[$i] = null;
+							$timesT[$i] = null;
+							$timesA[$i] = null;
+							$addition[$i] = null;
+							$discard[$i] = null;
+							continue;
+						}
+
+						if ($month < $i) {
+							$stock[$i] = null;
+							$usageSum[$i] = null;
+							$usageT[$i] = null;
+							$usageA[$i] = null;
+							$timesSum[$i] = null;
+							$timesT[$i] = null;
+							$timesA[$i] = null;
+							$addition[$i] = null;
+							$discard[$i] = null;
+							continue;
+						}
+
+						
+						$usageSum[$i] = EqCapsaicinUsage::whereHas('event', function($q) use( $firstDayofMonth, $afterithMonth){
+											$q->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth);
+										})->sum('amount');
+						$usageT[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($firstDayofMonth, $afterithMonth){
+											$q->where('type_code','=','training')->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth);
+										})->sum('amount');
+						$usageA[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($firstDayofMonth, $afterithMonth){
+											$q->where('type_code','=','assembly')->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth);
+										})->sum('amount');
+
+						$timesSum[$i] = EqCapsaicinEvent::where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
+						$timesT[$i] = EqCapsaicinEvent::where('type_code','=','training')->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
+						$timesA[$i] = EqCapsaicinEvent::where('type_code','=','assembly')->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
+						$addition[$i] = EqCapsaicinIo::where('io','=',1)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<',$afterithMonth)->sum('amount');
+						$discard[$i]  = EqCapsaicinIo::where('io','=',0)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<',$afterithMonth)->sum('amount');
 					}
+					$data['stock'] = $stock;
+					$data['usageSum'] = $usageSum;
+					$data['usageT'] = $usageT;
+					$data['usageA'] = $usageA;
+					$data['timesSum'] = $timesSum;
+					$data['timesT'] = $timesT;
+					$data['timesA'] = $timesA;
+					$data['addition'] = $addition;
+					$data['discard'] = $discard;
+				} else {
+					//지방청 필터 건 경우
+					$nodeId = $selectedRegionId;
 
-					if ($month < $i) {
-						$stock[$i] = null;
-						$usageSum[$i] = null;
-						$usageT[$i] = null;
-						$usageA[$i] = null;
-						$timesSum[$i] = null;
-						$timesT[$i] = null;
-						$timesA[$i] = null;
-						$addition[$i] = null;
-						$discard[$i] = null;
-						continue;
+					$firstDayHolding = EqCapsaicinFirstday::where('year','=',$year)->where('node_id','=',$nodeId)->first()->amount;
+					$consumptionThisYear = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$year){
+						$q->where('node_id','=',$nodeId)->where('date','>',$year);
+					})->sum('amount');
+
+					$acquiresThisYear = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','>',$year)->sum('amount');
+					$discardsThisYear = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','>',$year)->sum('amount');
+
+					$data['firstDayHolding'] = $firstDayHolding;
+
+					$data['usageSumSum'] = $consumptionThisYear;
+					$data['usageTSum'] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId, $year){
+						$q->where('type_code','=','training')->where('node_id','=',$nodeId)->where('date','like',$year.'%');
+					})->sum('amount');
+					$data['usageASum'] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$year){
+						$q->where('type_code','=','assembly')->where('node_id','=',$nodeId)->where('date','like',$year.'%');
+					})->sum('amount');
+						
+					$data['timesSumSum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->count();
+					$data['timesTSum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('type_code','=','training')->count();
+					$data['timesASum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('type_code','=','assembly')->count();
+					$data['additionSum'] = $acquiresThisYear;
+					$data['discardSum'] = $discardsThisYear;
+
+					$stock = array();
+					$usageSum = array();
+					$usageT = array();
+					$usageA = array();
+					$timesSum = array();
+					$timesT = array();
+					$timesA = array();
+					$addition = array();
+					$discard = array();
+
+					$now = Carbon::now();
+					//올해면 아직 안 온 달은 비워둔다.
+					$data['presentStock'] = null;
+					for ($i=1; $i <= 12; $i++) {
+						
+						$firstDayofMonth = Carbon::createFromDate($year, $i, 1, 'Asia/Seoul');
+						$afterithMonth = Carbon::createFromDate($year, $i+1, 1, 'Asia/Seoul');
+
+						$consumptionUntilithMonth = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$year,$afterithMonth){
+							$q->where('node_id','=',$nodeId)->where('date','<',$afterithMonth)->where('date','like',$year.'%');
+						})->sum('amount');
+						$acquireUntilithMonth = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','<',$afterithMonth)->where('acquired_date','like',$year.'%')->sum('amount');
+						$discardUntilithMonth = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','<',$afterithMonth)->where('acquired_date','like',$year.'%')->sum('amount');
+						$stock[$i] = $firstDayHolding - $consumptionUntilithMonth + $acquireUntilithMonth - $discardUntilithMonth;
+
+
+						$month = 12;
+						if ($year == $now->year) {
+							$month = $now->month;
+							if ($month == $i) {
+								$data['presentStock'] = $stock[$i];
+							} 
+						} elseif ($year > $now->year) {
+							$stock[$i] = null;
+							$usageSum[$i] = null;
+							$usageT[$i] = null;
+							$usageA[$i] = null;
+							$timesSum[$i] = null;
+							$timesT[$i] = null;
+							$timesA[$i] = null;
+							$addition[$i] = null;
+							$discard[$i] = null;
+							continue;
+						}
+
+						if ($month < $i) {
+							$stock[$i] = null;
+							$usageSum[$i] = null;
+							$usageT[$i] = null;
+							$usageA[$i] = null;
+							$timesSum[$i] = null;
+							$timesT[$i] = null;
+							$timesA[$i] = null;
+							$addition[$i] = null;
+							$discard[$i] = null;
+							continue;
+						}
+
+						
+						$usageSum[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId, $firstDayofMonth, $afterithMonth){
+											$q->where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth);
+										})->sum('amount');
+						$usageT[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$firstDayofMonth, $afterithMonth){
+											$q->where('type_code','=','training')->where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth);
+										})->sum('amount');
+						$usageA[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$firstDayofMonth, $afterithMonth){
+											$q->where('type_code','=','assembly')->where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth);
+										})->sum('amount');
+
+						$timesSum[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
+						$timesT[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('type_code','=','training')->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
+						$timesA[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('type_code','=','assembly')->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
+						$addition[$i] = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<',$afterithMonth)->sum('amount');
+						$discard[$i]  = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<',$afterithMonth)->sum('amount');
 					}
-
-					
-					$usageSum[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId, $firstDayofMonth, $afterithMonth){
-										$q->where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth);
-									})->sum('amount');
-					$usageT[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$firstDayofMonth, $afterithMonth){
-										$q->where('type_code','=','training')->where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth);
-									})->sum('amount');
-					$usageA[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$firstDayofMonth, $afterithMonth){
-										$q->where('type_code','=','assembly')->where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth);
-									})->sum('amount');
-
-					$timesSum[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
-					$timesT[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('type_code','=','training')->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
-					$timesA[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('type_code','=','assembly')->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
-					$addition[$i] = EqCapsaicinIo::where('io','=',1)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<',$afterithMonth)->sum('amount');
-					$discard[$i]  = EqCapsaicinIo::where('io','=',0)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<',$afterithMonth)->sum('amount');
+					$data['stock'] = $stock;
+					$data['usageSum'] = $usageSum;
+					$data['usageT'] = $usageT;
+					$data['usageA'] = $usageA;
+					$data['timesSum'] = $timesSum;
+					$data['timesT'] = $timesT;
+					$data['timesA'] = $timesA;
+					$data['addition'] = $addition;
+					$data['discard'] = $discard;
 				}
-				$data['stock'] = $stock;
-				$data['usageSum'] = $usageSum;
-				$data['usageT'] = $usageT;
-				$data['usageA'] = $usageA;
-				$data['timesSum'] = $timesSum;
-				$data['timesT'] = $timesT;
-				$data['timesA'] = $timesA;
-				$data['addition'] = $addition;
-				$data['discard'] = $discard;
 				break;
 			case '3':
 			//전체보기 탭인 경우
@@ -607,8 +724,8 @@ class EqCapsaicinController extends EquipController {
 				$timesSum[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
 				$timesT[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('type_code','=','training')->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
 				$timesA[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('type_code','=','assembly')->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
-				$addition[$i] = EqCapsaicinIo::where('io','=',1)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<',$afterithMonth)->sum('amount');
-				$discard[$i] = EqCapsaicinIo::where('io','=',0)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<',$afterithMonth)->sum('amount');
+				$addition[$i] = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<',$afterithMonth)->sum('amount');
+				$discard[$i] = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<',$afterithMonth)->sum('amount');
 
 			}
 			$data['stock'] = $stock;

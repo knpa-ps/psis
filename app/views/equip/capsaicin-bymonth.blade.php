@@ -3,21 +3,49 @@
 		<h3 class="panel-title"><strong>{{ $year }} 캡사이신 희석액 현황</strong></h3>
 	</div>
 	<div class="panel-body">
-		<div class="row">
-			<div class="col-xs-12">
-				<form>
-					<div class="form-group">
-						<label for="year" class="control-label">조회연도</label>
-						<select name="year" id="year_select">
-						@foreach ($initYears as $i)
-							<option value="{{$i->year}}" {{ $i->year == $year ? 'selected' : ''}}>{{$i->year}}</option>
-						@endforeach
-						</select>
-						<input type="hidden" name="is_state" value="true">
-						<button type="submit" class="btn btn-xs btn-primary">조회</button>
+		<div class="well well-sm">
+			<form class="form-horizontal">
+				<input type="hidden" name="tab_id" value="{{$tabId}}">
+
+				<h5>조회조건</h5>
+				<div class="row">
+					<div class="col-xs-6 form-group">
+						<label for="year" class="control-label col-xs-3">
+							조회연도
+						</label>
+						<div class="col-xs-9">
+							<select name="year" class="input-sm form-control" id="year_select">
+							@foreach ($initYears as $i)
+								<option value="{{$i->year}}" {{ $i->year == $year ? 'selected' : ''}}>{{$i->year}}</option>
+							@endforeach
+							</select>
+						</div>
 					</div>
-				</form>
-			</div>
+					<div class="col-xs-6 form-group">
+						<label for="region" class="control-label col-xs-3">
+							지방청
+						</label>
+						<div class="col-xs-9">
+							<select name="region" class="input-sm form-control" id="region">
+							<option value="1" {{ $selectedRegionId == 1 ? 'selected' : ''}} >전체</option>
+							@foreach ($regions as $r)
+							<option value="{{$r->id}}" {{ $r->id == $selectedRegionId ? 'selected' : ''}} >{{$r->node_name}}</option>
+							@endforeach
+							</select>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="pull-right">
+							<button class="btn btn-primary btn-xs" type="submit"><span class="glyphicon glyphicon-ok"></span> 조회</button>
+						</div>
+						<div class="clearfix"></div>
+					</div>
+				</div>
+
+			</form>
 		</div>
 		<div class="row">
 			<div class="col-xs-12">
@@ -44,7 +72,7 @@
 					<tr>
 						<th>{{  isset($presentStock) ? round($presentStock, 2) : ''}}</th>
 						<th>
-							{{ round($firstDayHolding->amount, 2) }}
+							{{ round($firstDayHolding, 2) }}
 						</th>
 						<th style="background-color: #FEE9FC">{{ round($usageSumSum, 2) }}</th>
 						<th style="background-color: #FEE9FC">{{ round($usageTSum, 2) }}</th>
@@ -68,7 +96,7 @@
 						<td>{{ $timesT[$i] }}</td>
 						<td>{{ $timesA[$i] }}</td>
 						<td>{{ isset($stock[$i]) ? round($addition[$i], 2) : '' }}</td>
-						<td>{{ isset($stock[$i]) ? round($addition[$i], 2) : '' }}</td>
+						<td>{{ isset($stock[$i]) ? round($discard[$i], 2) : '' }}</td>
 					</tr>
 					@endfor
 				</tbody>
