@@ -75,7 +75,7 @@
 						<th>행사유형</th>
 						<th>사용장소</th>
 						<th>행사명</th>
-						<th style="background-color: #E89ECC">사용량(L)</th>
+						<th style="background-color: #E89ECC">사용량(ℓ)</th>
 					</tr>
 				</thead>
 				<tbody>

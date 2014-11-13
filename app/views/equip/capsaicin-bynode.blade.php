@@ -1,6 +1,6 @@
 <div class="panel panel-default">
 	<div class="panel-heading">
-		<h3 class="panel-title"><strong>관서별 캡사이신 희석액 보유 현황</strong></h3>
+		<h3 class="panel-title"><strong>{{$year}}년 지방청별 캡사이신 희석액 현황</strong></h3>
 	</div>
 	<div class="panel-body">
 		<div class="row">
@@ -9,8 +9,8 @@
 				<thead>
 					<tr>
 						<th rowspan="2">구분</th>
-						<th rowspan="2">현재보유량</th>
-						<th colspan="3" style="background-color: #E89ECC">사용량</th>
+						<th rowspan="2">현재보유량(ℓ)</th>
+						<th colspan="3" style="background-color: #E89ECC">사용량(ℓ)</th>
 						<th colspan="3">사용횟수</th>
 					</tr>
 					<tr>

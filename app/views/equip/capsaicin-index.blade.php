@@ -10,16 +10,25 @@
 @section('content')
 <div class="row">
 	<div class="col-xs-12" style="overflow: auto;">
-		@if ($tabDept == 'false')
+		@if ($tabId == '2')
 			<ul class="nav nav-tabs">
-				<li><a href="{{url('equips/capsaicin?tab_dept=true')}}">지방청별 보기</a></li>
-				<li class="active"><a href="{{url('equips/capsaicin?tab_dept=false')}}">전체보기</a></li>
+				<li><a href="{{url('equips/capsaicin?tab_id=1')}}">지방청별 보기</a></li>
+				<li class="active"><a href="{{url('equips/capsaicin?tab_id=2')}}">월별보기</a></li>
+				<li><a href="{{url('equips/capsaicin?tab_id=3')}}">전체보기</a></li>
+			</ul>
+			@include('equip.capsaicin-bymonth')
+		@elseif ($tabId == '3')
+			<ul class="nav nav-tabs">
+				<li><a href="{{url('equips/capsaicin?tab_id=1')}}">지방청별 보기</a></li>
+				<li><a href="{{url('equips/capsaicin?tab_id=2')}}">월별보기</a></li>
+				<li class="active"><a href="{{url('equips/capsaicin?tab_id=3')}}">전체보기</a></li>
 			</ul>
 			@include('equip.capsaicin-all')
 		@else
 			<ul class="nav nav-tabs">
-				<li class="active"><a href="{{url('equips/capsaicin?tab_dept=true')}}">지방청별 보기</a></li>
-				<li><a href="{{url('equips/capsaicin?tab_dept=false')}}">전체보기</a></li>
+				<li class="active"><a href="{{url('equips/capsaicin?tab_id=1')}}">지방청별 보기</a></li>
+				<li><a href="{{url('equips/capsaicin?tab_id=2')}}">월별보기</a></li>
+				<li><a href="{{url('equips/capsaicin?tab_id=3')}}">전체보기</a></li>
 			</ul>
 			@include('equip.capsaicin-bynode')
 		@endif
