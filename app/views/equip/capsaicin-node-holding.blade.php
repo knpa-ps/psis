@@ -68,7 +68,7 @@
 						<td>{{ $timesT[$i] }}</td>
 						<td>{{ $timesA[$i] }}</td>
 						<td>{{ isset($stock[$i]) ? round($addition[$i], 2) : '' }}</td>
-						<td>{{ isset($stock[$i]) ? round($addition[$i], 2) : '' }}</td>
+						<td>{{ isset($stock[$i]) ? round($discard[$i], 2) : '' }}</td>
 					</tr>
 					@endfor
 				</tbody>

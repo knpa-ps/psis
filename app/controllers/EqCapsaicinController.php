@@ -136,6 +136,7 @@ class EqCapsaicinController extends EquipController {
 				$timesT = array();
 				$timesA = array();
 				$addition = array();
+				$discard = array();
 
 				$now = Carbon::now();
 				//올해면 아직 안 온 달은 비워둔다.
@@ -200,8 +201,7 @@ class EqCapsaicinController extends EquipController {
 					$timesT[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('type_code','=','training')->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
 					$timesA[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('type_code','=','assembly')->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
 					$addition[$i] = EqCapsaicinIo::where('io','=',1)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<',$afterithMonth)->sum('amount');
-					$discard[$i] = EqCapsaicinIo::where('io','=',0)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<',$afterithMonth)->sum('amount');
-
+					$discard[$i]  = EqCapsaicinIo::where('io','=',0)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<',$afterithMonth)->sum('amount');
 				}
 				$data['stock'] = $stock;
 				$data['usageSum'] = $usageSum;
@@ -211,6 +211,7 @@ class EqCapsaicinController extends EquipController {
 				$data['timesT'] = $timesT;
 				$data['timesA'] = $timesA;
 				$data['addition'] = $addition;
+				$data['discard'] = $discard;
 				break;
 			case '3':
 			//전체보기 탭인 경우
@@ -542,6 +543,7 @@ class EqCapsaicinController extends EquipController {
 			$timesT = array();
 			$timesA = array();
 			$addition = array();
+			$discard = array();
 
 			$now = Carbon::now();
 			//올해면 아직 안 온 달은 비워둔다.
@@ -617,6 +619,7 @@ class EqCapsaicinController extends EquipController {
 			$data['timesT'] = $timesT;
 			$data['timesA'] = $timesA;
 			$data['addition'] = $addition;
+			$data['discard'] = $discard;
 
 
 		}
