@@ -10,6 +10,16 @@ class EqCapsaicinController extends EquipController {
 	 */
 	public function index()
 	{
+		$user = Sentry::getUser();
+
+		if ($user->supplyNode->id !== 1) {
+			if ($user->supplyNode->managedParent->id == 1) {
+				return Redirect::action('EqCapsaicinController@displayNodeState', $user->supplyNode->id);
+			} else {
+				return Redirect::back()->with('message','해당 메뉴는 본청,지방청 관리자만 접근 가능합니다');
+			}
+		}
+
 		$agencies = EqSupplyManagerNode::find(1)->children;
 		$data['nodes'] = $agencies;
 		$tabDept = Input::get('tab_dept');
@@ -19,11 +29,76 @@ class EqCapsaicinController extends EquipController {
 		$eventName = Input::get('event_name');
 		$eventType = Input::get('event_type');
 		$data['eventType'] = $eventType;
+		$regionId = Input::get('region');
+		$data['region'] = $regionId;
 
 		
 
 		// 관서별 보유현황 탭일 경우
-		if ($tabDept == 'true') {
+		if ($tabDept == 'false') {
+			//전체보기 탭인 경우
+			$validator = Validator::make(Input::all(), array(
+				'start'=>'date',
+				'end'=>'date'
+			));
+
+			if ($validator->fails()) {
+				return App::abort(400);
+			}
+
+			if (!$start) {
+				$start = date('Y-m-d', strtotime('1 January 2010'));
+			}
+
+			if (!$end) {
+				$end = date('Y-m-d', strtotime('last day of December this year'));
+			}
+
+			$data['start'] = $start;
+			$data['end'] = $end;
+			//날짜 필터 걸었다
+			$query = EqCapsaicinEvent::where('date', '>=', $start)->where('date', '<=', $end);
+			//행사명 필터 걸었다
+			if ($eventName) {
+				$query->where('event_name','like',"%$eventName%");
+			}
+			//행사구분 필터 검
+			if ($eventType) {
+				$query->where('type_code','=',$eventType);
+			}
+			$data['eventType'] = $eventType;
+			//지방청 필터 검
+			$data['regions'] = EqSupplyManagerNode::where('type_code','=','D002')->get();
+			if ($regionId) {
+				$query->where('node_id','=',$regionId);
+			}
+
+			$events = $query->orderBy('date','DESC')->get();
+			$totalUsage = 0;
+			$rows = array();
+			foreach ($events as $e) {
+				$usages = $e->children;
+				foreach ($usages as $u) {
+					$row = new stdClass;
+					$row->date = $e->date;
+					$row->node = EqSupplyManagerNode::find($e->node_id);
+					$row->user_node = EqSupplyManagerNode::find($u->user_node_id);
+					$row->type = $this->service->getEventType($e->type_code);
+					$row->location = $e->location;
+					$row->event_name = $e->event_name;
+					$row->fileName = $e->attached_file_name;
+					$row->amount = $u->amount;
+					$totalUsage += $u->amount;
+					array_push($rows, $row);
+				}
+			}
+			$pagedRows = array_chunk($rows, 15);
+			$page = Input::get('page')== null ? 0 : Input::get('page') - 1;
+
+			$data['rows'] = Paginator::make($pagedRows[$page], count($rows), 15);
+
+			$data['totalUsage'] = $totalUsage;
+		} else {
 			$stock = array();
 			$usageSum = array();
 			$usageT = array();
@@ -66,64 +141,7 @@ class EqCapsaicinController extends EquipController {
 	 		$data['timesSumSum'] = EqCapsaicinEvent::count();
 	 		$data['timesTSum'] = EqCapsaicinEvent::where('type_code','=','training')->count();
 	 		$data['timesASum'] = EqCapsaicinEvent::where('type_code','=','assembly')->count();
-		} else {
-			//전체보기 탭인 경우
-			$validator = Validator::make(Input::all(), array(
-				'start'=>'date',
-				'end'=>'date'
-			));
-
-			if ($validator->fails()) {
-				return App::abort(400);
-			}
-
-			if (!$start) {
-				$start = date('Y-m-d', strtotime('1 January 2010'));
-			}
-
-			if (!$end) {
-				$end = date('Y-m-d', strtotime('last day of December this year'));
-			}
-
-			$data['start'] = $start;
-			$data['end'] = $end;
-			//날짜 필터 걸었다
-			$query = EqCapsaicinEvent::where('date', '>=', $start)->where('date', '<=', $end);
-			//행사명 필터 걸었다
-			if ($eventName) {
-				$query->where('event_name','like',"%$eventName%");
-			}
-			//행사구분 필터 검
-			if ($eventType) {
-				$query->where('type_code','=',$eventType);
-			}
-			$data['eventType'] = $eventType;
-
-			$events = $query->get();
-			$totalUsage = 0;
-			$rows = array();
-			foreach ($events as $e) {
-				$usages = $e->children;
-				foreach ($usages as $u) {
-					$row = new stdClass;
-					$row->date = $e->date;
-					$row->node = EqSupplyManagerNode::find($e->node_id);
-					$row->user_node = EqSupplyManagerNode::find($u->user_node_id);
-					$row->type = $this->service->getEventType($e->type_code);
-					$row->location = $e->location;
-					$row->event_name = $e->event_name;
-					$row->fileName = $e->attached_file_name;
-					$row->amount = $u->amount;
-					$totalUsage += $u->amount;
-					array_push($rows, $row);
-				}
-			}
-			$pagedRows = array_chunk($rows, 15);
-			$page = Input::get('page')== null ? 0 : Input::get('page') - 1;
-
-			$data['rows'] = Paginator::make($pagedRows[$page], count($rows), 15);
-
-			$data['totalUsage'] = $totalUsage;
+			
 		}
 		
 		
@@ -243,7 +261,11 @@ class EqCapsaicinController extends EquipController {
 		$eventName = Input::get('event_name');
 		$eventType = Input::get('event_type');
 		$rows = array();
-
+		$year = Input::get('year');
+		if ($year == null) {
+			$year = Carbon::now()->year;
+		}
+		$data['initYears'] = EqCapsaicinFirstday::where('node_id','=',$nodeId)->get();
 		
 
 		if ($isState !== 'true') {
@@ -278,7 +300,8 @@ class EqCapsaicinController extends EquipController {
 				$query->where('type_code','=',$eventType);
 			}
 			$data['eventType'] = $eventType;
-			$events = $query->where('node_id','=',$nodeId)->get();
+			$events = $query->where('node_id','=',$nodeId)->orderBy('date','DESC')->get();
+			$totalUsage = 0;
 			foreach ($events as $e) {
 				$usages = $e->children;
 				foreach ($usages as $u) {
@@ -292,6 +315,7 @@ class EqCapsaicinController extends EquipController {
 					$row->amount = $u->amount;
 					$row->fileName = $e->attached_file_name;
 					array_push($rows, $row);
+					$totalUsage += $u->amount;
 				}
 			}
 			if (sizeof($rows)!=0) {
@@ -301,32 +325,28 @@ class EqCapsaicinController extends EquipController {
 			} else {
 				$data['rows'] = Paginator::make(array(),0,15);
 			}
-			$data['totalUsage'] = EqCapsaicinUsage::whereHas('event', function($q) use($start, $end) {
-	 			$q->where('date', '>=', $start)->where('date', '<=', $end);
-	 		})->sum('amount');
-	
+			$data['totalUsage'] = $totalUsage;	
 		} else {
 			// 보유현황 탭 선택한 경우
-			$presentStock = EqCapsaicinInventory::where('node_id','=',$nodeId)->first()->stock;
-			$now = Carbon::now();
-			$consumptionThisYear = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$now){
-				$q->where('node_id','=',$nodeId)->where('date','>',$now->year);
+			$firstDayHolding = EqCapsaicinFirstday::where('year','=',$year)->where('node_id','=',$nodeId)->first();
+			$consumptionThisYear = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$year){
+				$q->where('node_id','=',$nodeId)->where('date','>',$year);
 			})->sum('amount');
 
-			$acquiresThisYear = EqCapsaicinAcquire::where('node_id','=',$nodeId)->where('acquired_date','>',$now->year)->sum('amount');
+			$acquiresThisYear = EqCapsaicinAcquire::where('node_id','=',$nodeId)->where('acquired_date','>',$year)->sum('amount');
 
-			$data['presentStock'] = $presentStock;
-			$data['origin'] = $presentStock + $consumptionThisYear - $acquiresThisYear;
+			$data['firstDayHolding'] = $firstDayHolding;
+
 			$data['usageSumSum'] = $consumptionThisYear;
-			$data['usageTSum'] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$now){
-				$q->where('type_code','=','training')->where('node_id','=',$nodeId)->where('date','>',$now->year);
+			$data['usageTSum'] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId, $year){
+				$q->where('type_code','=','training')->where('node_id','=',$nodeId)->where('date','like',$year.'%');
 			})->sum('amount');
-			$data['usageASum'] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$now){
-				$q->where('type_code','=','assembly')->where('node_id','=',$nodeId)->where('date','>',$now->year);
+			$data['usageASum'] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$year){
+				$q->where('type_code','=','assembly')->where('node_id','=',$nodeId)->where('date','like',$year.'%');
 			})->sum('amount');
-			$data['timesSumSum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','>',$now->year)->count();
-			$data['timesTSum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','>',$now->year)->where('type_code','=','training')->count();
-			$data['timesASum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','>',$now->year)->where('type_code','=','assembly')->count();
+			$data['timesSumSum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->count();
+			$data['timesTSum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('type_code','=','training')->count();
+			$data['timesASum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('type_code','=','assembly')->count();
 			$data['additionSum'] = $acquiresThisYear;
 
 			$stock = array();
@@ -338,15 +358,52 @@ class EqCapsaicinController extends EquipController {
 			$timesA = array();
 			$addition = array();
 
-			for ($i=1; $i <= 12; $i++) { 
-				$firstDayofMonth = Carbon::createFromDate($now->year, $i, 1, 'Asia/Seoul');
-				$afterithMonth = Carbon::createFromDate($now->year, $i+1, 1, 'Asia/Seoul');
+			$now = Carbon::now();
+			//올해면 아직 안 온 달은 비워둔다.
+			$data['presentStock'] = null;
+			for ($i=1; $i <= 12; $i++) {
+				
+				$firstDayofMonth = Carbon::createFromDate($year, $i, 1, 'Asia/Seoul');
+				$afterithMonth = Carbon::createFromDate($year, $i+1, 1, 'Asia/Seoul');
 
-				$consumptionSinceithMonth = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$now,$afterithMonth){
-					$q->where('node_id','=',$nodeId)->where('date','>',$afterithMonth)->where('date','<',$now);
+				$consumptionUntilithMonth = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$year,$afterithMonth){
+					$q->where('node_id','=',$nodeId)->where('date','<',$afterithMonth)->where('date','like',$year.'%');
 				})->sum('amount');
-				$acquireSinceithMonth = EqCapsaicinAcquire::where('node_id','=',$nodeId)->where('acquired_date','>',$afterithMonth)->where('acquired_date','<',$now)->sum('amount');
-				$stock[$i] = $presentStock - $consumptionSinceithMonth + $acquireSinceithMonth;
+				$acquireUntilithMonth = EqCapsaicinAcquire::where('node_id','=',$nodeId)->where('acquired_date','<',$afterithMonth)->where('acquired_date','like',$year.'%')->sum('amount');
+				$stock[$i] = $firstDayHolding->amount - $consumptionUntilithMonth + $acquireUntilithMonth;
+
+
+				$month = 12;
+				if ($year == $now->year) {
+					$month = $now->month;
+					if ($month == $i) {
+						$data['presentStock'] = $stock[$i];
+					} 
+				} elseif ($year > $now->year) {
+					$stock[$i] = null;
+					$usageSum[$i] = null;
+					$usageT[$i] = null;
+					$usageA[$i] = null;
+					$timesSum[$i] = null;
+					$timesT[$i] = null;
+					$timesA[$i] = null;
+					$addition[$i] = null;
+					continue;
+				}
+
+				if ($month < $i) {
+					$stock[$i] = null;
+					$usageSum[$i] = null;
+					$usageT[$i] = null;
+					$usageA[$i] = null;
+					$timesSum[$i] = null;
+					$timesT[$i] = null;
+					$timesA[$i] = null;
+					$addition[$i] = null;
+					continue;
+				}
+
+				
 				$usageSum[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId, $firstDayofMonth, $afterithMonth){
 									$q->where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth);
 								})->sum('amount');
@@ -356,12 +413,13 @@ class EqCapsaicinController extends EquipController {
 				$usageA[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$firstDayofMonth, $afterithMonth){
 									$q->where('type_code','=','assembly')->where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth);
 								})->sum('amount');
+
 				$timesSum[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
 				$timesT[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('type_code','=','training')->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
 				$timesA[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('type_code','=','assembly')->where('date','>',$firstDayofMonth)->where('date','<',$afterithMonth)->count();
-				$addition[$i] = EqCapsaicinAcquire::where('acquired_date','>',$afterithMonth->subMonth())->where('acquired_date','<',$afterithMonth)->sum('amount');
-			}
+				$addition[$i] = EqCapsaicinAcquire::where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<',$afterithMonth)->sum('amount');
 
+			}
 			$data['stock'] = $stock;
 			$data['usageSum'] = $usageSum;
 			$data['usageT'] = $usageT;
@@ -371,9 +429,10 @@ class EqCapsaicinController extends EquipController {
 			$data['timesA'] = $timesA;
 			$data['addition'] = $addition;
 
+
 		}
 
-		$data['date'] = Carbon::now('Asia/Seoul');
+		$data['year'] = $year;
 		
 		return View::make('equip.capsaicin-per-node',$data);
 	}

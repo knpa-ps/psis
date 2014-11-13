@@ -10,18 +10,18 @@
 @section('content')
 <div class="row">
 	<div class="col-xs-12" style="overflow: auto;">
-		@if ($tabDept == 'true')
+		@if ($tabDept == 'false')
 			<ul class="nav nav-tabs">
-				<li><a href="{{url('equips/capsaicin?tab_dept=false')}}">전체보기</a></li>
-				<li class="active"><a href="{{url('equips/capsaicin?tab_dept=true')}}">지방청별 보기</a></li>
-			</ul>
-			@include('equip.capsaicin-bynode')
-		@else
-			<ul class="nav nav-tabs">
-				<li class="active"><a href="{{url('equips/capsaicin?tab_dept=false')}}">전체보기</a></li>
 				<li><a href="{{url('equips/capsaicin?tab_dept=true')}}">지방청별 보기</a></li>
+				<li class="active"><a href="{{url('equips/capsaicin?tab_dept=false')}}">전체보기</a></li>
 			</ul>
 			@include('equip.capsaicin-all')
+		@else
+			<ul class="nav nav-tabs">
+				<li class="active"><a href="{{url('equips/capsaicin?tab_dept=true')}}">지방청별 보기</a></li>
+				<li><a href="{{url('equips/capsaicin?tab_dept=false')}}">전체보기</a></li>
+			</ul>
+			@include('equip.capsaicin-bynode')
 		@endif
 		
 	</div>

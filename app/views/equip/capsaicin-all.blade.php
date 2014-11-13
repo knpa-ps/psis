@@ -43,6 +43,19 @@
 							</select>
 						</div>
 					</div>
+					<div class="col-xs-6 form-group">
+						<label for="region" class="control-label col-xs-3">
+							지방청별 보기
+						</label>
+						<div class="col-xs-9">
+							<select name="region" id="region" class="input-sm form-control">
+								<option value="">전체</option>
+								@foreach ($regions as $r)
+									<option value="{{ $r->id }}" {{ $region == $r->id ? 'selected' : '' }} >{{$r->node_name}}</option>
+								@endforeach
+							</select>
+						</div>
+					</div>
 				</div>
 
 				<div class="row">
@@ -53,7 +66,7 @@
 						<div class="clearfix"></div>
 					</div>
 				</div>
-
+				<input type="hidden" name="tab_dept" value="false">
 			</form>
 		</div>
 		<div class="row">

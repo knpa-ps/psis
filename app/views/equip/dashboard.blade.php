@@ -101,16 +101,18 @@
 									<tr>
 										<th>장비명</th>
 										<th>조사기한</th>
-										<th>조사현황</th>
+										<th>응답현황</th>
 									</tr>
 								</thead>
+								@foreach ($surveys as $s)
 								<tbody>
 									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
+										<td>{{$s->item->code->title}}</td>
+										<td>{{$s->started_at.'~'.$s->expired_at}}</td>
+										<td>{{ $s->responses->count()/$s->item->types->count().'/'. $user->supplyNode->managedChildren->count()}} ({{$s->responses->count()/$user->supplyNode->managedChildren->count()*100}}%)</td>
 									</tr>
 								</tbody>
+								@endforeach
 							</table>
 							<span class="label label-warning">조사응답</span>
 							<table class="table table-condensed table-striped table-hover">
@@ -122,11 +124,13 @@
 									</tr>
 								</thead>
 								<tbody>
+								@foreach ($toResponses as $r)
 									<tr>
-										<td></td>
-										<td></td>
-										<td></td>
+										<td>{{$r->item->code->title}}</td>
+										<td>{{$r->started_at.'~'.$r->expired_at}}</td>
+										<td>{{ $r->responses->count()/$r->item->types->count().'/'. $user->supplyNode->managedChildren->count()}} ({{$r->responses->count()/$user->supplyNode->managedChildren->count()*100}}%)</td>
 									</tr>
+								@endforeach
 								</tbody>
 							</table>
 						</div>

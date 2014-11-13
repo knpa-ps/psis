@@ -16,6 +16,9 @@ class EquipController extends BaseController {
 
 		$inbounds = EqConvertSet::where('target_node_id','=',$user->supplyNode->id)->take(4)->get();
 		$outbounds = EqConvertSet::where('from_node_id','=',$user->supplyNode->id)->take(4)->get();
+
+		$surveys = EqItemSurvey::where('node_id','=',$user->supplyNode->id)->take(4)->get();
+		$toResponses = EqItemSurvey::where('node_id','=',$user->supplyNode->managedParent)->take(4)->get();
 		return View::make('equip.dashboard', get_defined_vars());
 	}
 

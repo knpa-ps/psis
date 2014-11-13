@@ -1,6 +1,6 @@
 <div class="panel panel-default">
 	<div class="panel-heading">
-		<h3 class="panel-title"><strong>{{ $node->node_name }} 캡사이신 사용내역</strong></h3>
+		<h3 class="panel-title"><strong>{{ $node->node_name }} 캡사이신 희석액 사용내역</strong></h3>
 	</div>
 	<div class="panel-body">
 		<div class="well well-sm">
@@ -43,6 +43,7 @@
 							</select>
 						</div>
 					</div>
+					
 				</div>
 
 				<div class="row">
