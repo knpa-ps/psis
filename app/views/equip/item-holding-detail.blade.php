@@ -7,7 +7,7 @@
 		<div class="panel-default panel">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					<strong>보급관리</strong>
+					<strong>입출고 이력</strong>
 				</h3>
 			</div>
 			<div class="panel-body">

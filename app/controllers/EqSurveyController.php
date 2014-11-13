@@ -162,7 +162,12 @@ class EqSurveyController extends \BaseController {
 
 		//조사응답 탭일 땐 자신이 응답해야 하는 설문조사 목록을 출력한다.
 		} else {
-			$query = EqItemSurvey::where('node_id','=',$user->supplyNode->managedParent->id)->where('started_at', '>=', $start)->where('is_closed','=',0);
+			if ($user->supplyNode->id != 1) {
+				$query = EqItemSurvey::where('node_id','=',$user->supplyNode->managedParent->id)->where('started_at', '>=', $start)->where('is_closed','=',0);
+			} else {
+				$query = EqItemSurvey::where('node_id','=',0);
+			}
+			
 		}
 
 		// 장비명 필터 걸기
