@@ -8,6 +8,34 @@ class EqInventoryController extends BaseController {
 		$this->service = new EqService;
 	}
 
+	public function countUpdate($itemId) {
+		$item = EqItem::find($itemId);
+		$user = Sentry::getUser();
+		$count = Input::get('count');
+		$inventory = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$item->id)->first();
+
+		if($inventory) {
+
+			DB::beginTransaction();
+
+			foreach ($item->types as $t) {
+				$data = EqInventoryData::where('inventory_set_id','=',$inventory->id)->where('item_type_id','=',$t->id)->first();
+				$data->count = $count[$data->id];
+				if (!$data->save()) {
+					return App::abort(500);
+				}
+			}
+
+			DB::commit();
+
+			return Redirect::back()->with('message','보유수량이 수정되었습니다.');
+
+		}
+
+		return Redirect::back()->with('message','해당 물품을 보유하고 있지 않습니다');
+
+	}
+
 	public function wreckedUpdate($itemId) {
 		$item = EqItem::find($itemId);
 		$user = Sentry::getUser();

@@ -20,6 +20,7 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::get('/items/{itemId}/discard', 'EqInventoryController@displayDiscardForm');
 	Route::post('/items/{itemId}/discard', 'EqInventoryController@discardItem');
 	Route::post('/items/{itemId}/wrecked_update', 'EqInventoryController@wreckedUpdate');
+	Route::post('/items/{itemId}/count_update', 'EqInventoryController@countUpdate');
 
 
 	Route::get('/items/{itemId}/details', 'EqItemController@displayDetailsList');

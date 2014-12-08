@@ -376,7 +376,16 @@ class EqItemController extends EquipController {
 		$data['category'] = $item->code->category;
 		$data['item'] = $item;
 		$data['types'] = $types;
-		$data['inventorySet'] = EqInventorySet::where('item_id','=',$id)->where('node_id','=',$user->supplyNode->id)->first();
+		$invSet = EqInventorySet::where('item_id','=',$id)->where('node_id','=',$user->supplyNode->id)->first();
+		$data['inventorySet'] = $invSet;
+
+		$modifiable = false; 
+		$now = Carbon::now();
+		$includingToday = EqQuantityCheckPeriod::where('check_end','>',$now)->where('check_start','<',$now)->get();
+		if (sizeof($includingToday) !== 0) {
+			$modifiable = true;
+		}
+		$data['modifiable'] = $modifiable;
 
 		return View::make('equip.items-show', $data);
 	}
@@ -481,24 +490,15 @@ class EqItemController extends EquipController {
 	}
 
 	public function getData($id) {
-		$year = Input::get('year');
 		$types = EqItemType::where('item_id','=',$id)->get();
 		$validator = Validator::make(Input::all(), array(
-				'year'=>'integer|min:1990|max:2100',
 				'parent'=>'integer|min:0'
 			));
 
 		if ($validator->fails()) {
 			return App::abort(400);
 		}
-
-		if (!$year) {
-			$year = date('Y');
-		}
-
-		$start = date('Y-01-01', strtotime($year.'-01-01'));
-		$end = date('Y-12-t', strtotime($start));
-
+		
 		$parentId = Input::get('parent');
 
 		if (!$parentId || $parentId == 1) {
@@ -518,7 +518,7 @@ class EqItemController extends EquipController {
 			foreach ($types as $t) {
 				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($managingNode) {
 					$q->whereHas('ownerNode', function($qq) use ($managingNode) {
-						$qq->where('parent_id','=',$managingNode->id);
+						$qq->where('full_path','like',$managingNode->full_path.':%');
 					});
 				})->where('item_type_id','=',$t->id)->sum('count');
 				

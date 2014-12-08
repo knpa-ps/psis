@@ -646,7 +646,8 @@ class AdminController extends BaseController {
 		return View::make('admin.depts');
 	}
 
-	public function adjustHierarchy($nodeId = null) {
+	public function adjustHierarchy($nodeId = 1) {
+		Log::info('Start adjusting... nodeId = '.$nodeId);
 		DB::beginTransaction();
 
 		if ($nodeId === null) {
@@ -676,16 +677,20 @@ class AdminController extends BaseController {
 
 			if (!$node->save()) {
 				throw new Exception('failed to update node data. '.$child);
+				Log::warning("failed to update node data");
 			}
 
 		}
-
+		Log::info('go down to lower node');
 		$this->doAdjustHierarchy($node);
 
-		DB::commit();
+
+		DB::commit();		
 	}
 
 	private function doAdjustHierarchy(EqSupplyManagerNode $parent = null) {
+
+		Log::info("doAdjustHierarchy Method get started");
 
 		if ($parent === null) {
 			$children = EqSupplyManagerNode::regions()->get();
@@ -696,6 +701,7 @@ class AdminController extends BaseController {
 			$children = $parent->children()->with('children')->get();
 		}
 
+		Log::info("children length is ".sizeof($children));
 		// break point : 하위 부서가 없으면 break
 		foreach ($children as $child) {
 
@@ -709,10 +715,12 @@ class AdminController extends BaseController {
 			$child->is_terminal == 0;
 
 			if (!$child->save()) {
-				throw new Exception('failed to update node data. '.$child);
+				throw new Exception('failed to update node data. '.$child->full_name);
+				Log::info('failed to update node data. '.$child->full_name);
 			}
 
 			// traverse
+			Log::info('go down again to its lower node');
 			$this->doAdjustHierarchy($child);
 		}
 	}

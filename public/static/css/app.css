@@ -169,3 +169,13 @@ body {
    background-color: #008cba;
    color : #fff;
 }
+
+.carousel-indicators .active {
+  background-color: #000;
+}
+.carousel-indicators > li {
+  border: 1px solid gray;
+}
+.carousel.slide {
+  background: none !important;
+}

@@ -4,7 +4,7 @@
 	</div>
 	<div class="panel-body">
 		<div class="row">
-			<div class="col-xs-12">
+			<div class="col-xs-6">
 				<form>
 					<div class="form-group">
 						<label for="year" class="control-label">조회연도</label>
@@ -17,6 +17,9 @@
 						<button type="submit" class="btn btn-xs btn-primary">조회</button>
 					</div>
 				</form>
+			</div>
+			<div class="col-xs-6">
+				<button id="btnExport" class="pull-right btn btn-info btn-xs"><span class="glyphicon glyphicon-download" ></span> 다운로드 (.xls)</button>
 			</div>
 		</div>
 		<div class="row">
@@ -75,6 +78,16 @@
 				</table>
 			</div>
 		</div>
-
 	</div>
 </div>
+<script src="static/vendor/battatech_excelexport/jquery.battatech.excelexport.min.js" ></script>
+<script>
+$(document).ready(function () {
+    $("#btnExport").click(function () {
+        $("#capsaicin_table").btechco_excelexport({
+            containerid: "capsaicin_table"
+           , datatype: $datatype.Table
+        });
+    });
+});
+</script>

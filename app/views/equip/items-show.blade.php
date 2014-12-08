@@ -138,7 +138,10 @@
 						<h4 class="block-header">보유현황 <small><a href="{{ url('equips/items/'.$item->id.'/holding')}}">[상세]</a></small></h4>
 					</div>
 					<div class="col-xs-6">
-						<button class="btn btn-xs btn-success pull-right" id="wrecked_update_btn"><span class="glyphicon glyphicon-ok"></span> 파손수량 저장</button>
+						@if($modifiable)
+						<button class="btn btn-xs btn-warning pull-right" id="count_update_btn"><span class="glyphicon glyphicon-pencil"></span> 보유수량 수정</button>
+						@endif
+						<button class="btn btn-xs btn-success pull-right" id="wrecked_update_btn"><span class="glyphicon glyphicon-ok"></span> 파손수량 수정</button>
 					</div>
 				</div>
 				<div class="row">
@@ -160,10 +163,23 @@
 									<tr>
 										<td style="text-align: center;"><b>보유수량</b></td>
 										<td style="text-align: center;">{{ $inventorySet->children->sum('count') }}</td>
-										@foreach($inventorySet->children as $c)
-											<td style="text-align: center;">{{$c->count}}</td>
-										@endforeach
-										
+										@if($modifiable)
+											{{ Form::open(array(
+													'url'=>'/equips/items/'.$item->id.'/count_update',
+													'method'=>'post',
+													'id'=>'count_update_form'
+												))}}
+											@foreach ($inventorySet->children as $c)
+												<td style="text-align: center;">
+													<input type="number" class="form-control input-sm" value="{{$c->count}}" name="{{ 'count['.$c->id.']'}}">
+												</td>
+											@endforeach
+											{{ Form::close() }}
+										@else
+											@foreach($inventorySet->children as $c)
+												<td style="text-align: center;">{{$c->count}}</td>
+											@endforeach
+										@endif
 									</tr>
 									<tr>
 										<td style="text-align: center;"><b>파손수량</b></td>
@@ -239,7 +255,9 @@ $(function() {
 	$("#wrecked_update_btn").click(function() {
 		$("#wrecked_update_form").submit();
 	});
-
+	$("#count_update_btn").click(function() {
+		$("#count_update_form").submit();
+	});
 	$(".detail-title").click(function() {
 		var detailId = $(this).data('id');
 		var itemId = $(this).data('item-id');
@@ -313,9 +331,7 @@ function loadData(parentId) {
 
 	parentId = parentId || "";
 
-	var year = $("#year").val();
-
-	dataTable.ajax.url(url("equips/items/{{$item->id}}/data?parent="+parentId+"&year="+year)).load();
+	dataTable.ajax.url(url("equips/items/{{$item->id}}/data?parent="+parentId)).load();
 }
 </script>
 @stop
