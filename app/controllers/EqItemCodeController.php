@@ -1,7 +1,7 @@
 <?php
 use Carbon\Carbon;
 
-class EqItemController extends EquipController {
+class EqItemCodeController extends EquipController {
 
 	public function holdingDetail($itemId) {
 
@@ -195,7 +195,7 @@ class EqItemController extends EquipController {
 
 		DB::commit();
 		Session::flash('message', '수정되었습니다');
-		return Redirect::action('EqItemController@displayExtraInfo', array('itemId'=>$itemId, 'id'=>$id));
+		return Redirect::action('EqItemCodeController@displayExtraInfo', array('itemId'=>$itemId, 'id'=>$id));
 	}
 
 	public function displayExtraInfo($itemId,$id){
@@ -252,7 +252,7 @@ class EqItemController extends EquipController {
 		DB::commit();
 
 		Session::flash('message', '저장되었습니다.');
-		return Redirect::action('EqItemController@displayDetailsList', $itemId);
+		return Redirect::action('EqItemCodeController@displayDetailsList', $itemId);
 	}
 
 	public function index()
@@ -282,7 +282,7 @@ class EqItemController extends EquipController {
 								})->orderBy('category_id', 'asc')->orderBy('sort_order', 'asc')->get();
 
 		$data['domainId'] = $domainId;
-        return View::make('equip.items', $data);
+        return View::make('equip.item-codes', $data);
 	}
 
 	/**
@@ -292,14 +292,8 @@ class EqItemController extends EquipController {
 	 */
 	public function create()
 	{
-		$user = Sentry::getUser();
-		$code = EqItemCode::where('code','=',Input::get('code'))->first();
-		
-		$data['code'] = $code;
-		$data['mode'] = 'create';
-		$data['categories'] = $this->service->getVisibleCategoriesQuery($user)->get();
-		$data['user'] = $user;
-        return View::make('equip.items-basic-form', $data);
+		$categories = EqCategory::all();
+		return View::make('equip.item-code-add', get_defined_vars());
 	}
 
 	/**
@@ -309,52 +303,29 @@ class EqItemController extends EquipController {
 	 */
 	public function store()
 	{
-		$data = Input::all();
+		$input = Input::all();
+		$code = new EqItemCode;
+		$categoryId = $input['item_category'];
+		$code->category_id = $categoryId;
 
-		$item = new EqItem;
-
-		DB::beginTransaction();
-		$item->classification = $data['item_classification'];
-		$item->supplier = $data['supplier'];
-		$item->item_code = $data['item_code'];
-		$item->maker_name = $data['item_maker_name'];
-		$item->maker_phone = $data['item_maker_phone'];
-		$item->acquired_date = $data['item_acquired_date'];
-		$item->persist_years = $data['item_persist_years'];
-		$item->is_active = 1;
-		if (!$item->save()) {
-			return App::abort(400);
+		//code는 해당 카테고리의 마지막 번호에 1을 더한거.
+		
+		$lastCode = EqItemCode::where('category_id','=',$categoryId)->orderBy('code','desc')->first();
+		$codeIndex = substr($lastCode->code, 1) + 1;
+		if (strlen($codeIndex) <= 3)
+		{
+		    $codeIndex = '0'.$codeIndex;
 		}
+		$code->code = substr($lastCode->code, 0,1).$codeIndex;
+		$code->title = $input['title'];
+		$code->sort_order = $lastCode->sort_order + 1;
 
-		$images = Input::get('item_images');
-
-		if ($images) {
-			foreach ($images as $url) {
-				$img = new EqItemImage;
-				$img->item_id = $item->id;
-				$img->url = $url;
-				if (!$img->save()) {
-					return App::abort(400);
-				}
-			}
+		if (!$code->save()) {
+			return App::abort(500);
 		}
-
-		$types = $data['type'];
-		for ($i=0; $i < sizeof($types); $i++) { 
-
-			$itemType = new EqItemType;
-			$itemType->type_name = strtoupper($types[$i]);
-			$itemType->item_id = $item->id;
-
-			if(!$itemType->save()){
-				return App::abort(400);
-			}
-		}
-
-		DB::commit();
 
 		Session::flash('message', '추가되었습니다.');
-		return Redirect::action('EqItemController@index');
+		return Redirect::action('EqItemCodeController@index'); 
 	}
 
 	/**
@@ -469,7 +440,7 @@ class EqItemController extends EquipController {
 		DB::commit();
 
 		Session::flash('message', '수정되었습니다.');
-		return Redirect::action('EqItemController@index');
+		return Redirect::action('EqItemCodeController@index');
 	}
 
 	/**

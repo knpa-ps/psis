@@ -133,7 +133,7 @@ $(function(){
 					$("#classification").html('<option>미등록 장비입니다</option>');
 				}
 				for (var i=0; i< res.length; i++){
-					var str = '<option value="'+res[i].id+'">'+res[i].acquired_date.substr(0,4)+' '+res[i].classification+'</option>';
+					var str = '<option value="'+res[i].id+'">'+res[i].maker_name+' ('+res[i].classification+')</option>';
 					options += str;
 				}
 				$("#classification").html(options);

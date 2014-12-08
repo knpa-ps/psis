@@ -42,8 +42,8 @@ Route::group(array('before'=>'auth|permission:superuser'), function() {
         Route::post('permission/save', 'AdminController@savePermission');
         // 장비 관리
         Route::resource('/categories', 'EqCategoryController');
-        Route::resource('/item_codes', 'EqItemController');
-        Route::get('/item_codes/{itemCode}/{itemId}', 'EqItemController@showDetail');
+        Route::resource('/item_codes', 'EqItemCodeController');
+        Route::get('/item_codes/{itemCode}/{itemId}', 'EqItemCodeController@showDetail');
 
         // 노드 fullpath, fullname 정렬
         Route::get('node_adjust', 'AdminController@adjustHierarchy');

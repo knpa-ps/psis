@@ -21,31 +21,40 @@
 				<h3 class="panel-title"><strong>장비 목록</strong></h3>
 			</div>
 			<div class="panel-body">
-				<table class="table table-condensed table-bordered table-striped table-hover" id="items_table">
-					<thead>
-						<tr>
-							<th>
-								분류
-							</th>
-							<th>
-								장비코드
-							</th>
-							<th>
-								장비명
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						@foreach ($itemCodes as $i)
-						<tr data-id="{{ $i->id }}">
-							<td> {{ $i->category->name }}({{sizeof($i->category->codes)}}종)</td>
-							<td> {{ $i->code }} </td>
-							<td> <a href="{{ url( URL::current().'/'.$i->code) }}">{{ $i->title }}</a> </td>
-						</tr>
-						@endforeach
-					</tbody>
-				</table>
-
+				<div class="toolbar-table row">
+					<div class="col-xs-12">
+						<a href="{{ URL::current().'/create' }}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus"></span> 신규장비추가</a>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">
+						<table class="table table-condensed table-bordered table-striped table-hover" id="items_table">
+							<thead>
+								<tr>
+									<th>
+										분류
+									</th>
+									<th>
+										장비코드
+									</th>
+									<th>
+										장비명
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach ($itemCodes as $i)
+								<tr data-id="{{ $i->id }}">
+									<td> {{ $i->category->name }}({{sizeof($i->category->codes)}}종)</td>
+									<td> {{ $i->code }} </td>
+									<td> <a href="{{ url( URL::current().'/'.$i->code) }}">{{ $i->title }}</a> </td>
+								</tr>
+								@endforeach
+							</tbody>
+						</table>
+					</div>
+					
+				</div>
 			</div>
 		</div>
 	</div>
