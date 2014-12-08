@@ -48,7 +48,7 @@
 						<tr data-id="{{ $i->id }}">
 							<td> {{ $i->category->name }}({{sizeof($i->category->codes)}}종) </td>
 							<td> {{ $i->code}} </td>
-							<td> <a href="{{ url('equips/inventories/code/'.$i->code) }}">{{ $i->title }}</a> </td>
+							<td> <a href="{{ url('equips/inventories/'.$i->code) }}">{{ $i->title }}</a> </td>
 							<td> {{ $acquiredSum[$i->id] }}</td>
 							<td> {{ $wreckedSum[$i->id] }}</td>
 							<td> {{ $holdingSum[$i->id] }}</td>

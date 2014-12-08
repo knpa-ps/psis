@@ -1,4 +1,5 @@
 <?php
+use Carbon\Carbon;
 
 class EqInventoryController extends BaseController {
 
@@ -146,7 +147,14 @@ class EqInventoryController extends BaseController {
 		return Redirect::back()->with('message', '물품폐기 등록이 완료되었습니다.');
 	}
 
-	public function showCodeBelongs($itemCode) {
+	/**
+	 * Display the specified resource.
+	 *
+	 * @param  int  $id
+	 * @return Response
+	 */
+	
+	public function show($itemCode) {
 		$data['code']=EqItemCode::where('code','=',$itemCode)->first();
 		$user = Sentry::getUser();
 		$data['user']= $user;
@@ -185,6 +193,31 @@ class EqInventoryController extends BaseController {
 		$data['timeover'] = $timeover;
 
 		return View::make('equip.inventories-code', $data);
+	}
+	public function showDetail($itemCode, $itemId){
+		$user = Sentry::getUser();
+		$item = EqItem::find($itemId);
+		if ($item == null) {
+			return App::abort(404);
+		}
+		$types = EqItemType::where('item_id','=',$itemId)->get();
+
+		$data['domainId'] = $item->code->category->domain->id;
+		$data['category'] = $item->code->category;
+		$data['item'] = $item;
+		$data['types'] = $types;
+		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first();
+		$data['inventorySet'] = $invSet;
+
+		$modifiable = false; 
+		$now = Carbon::now();
+		$includingToday = EqQuantityCheckPeriod::where('check_end','>',$now)->where('check_start','<',$now)->get();
+		if (sizeof($includingToday) !== 0) {
+			$modifiable = true;
+		}
+		$data['modifiable'] = $modifiable;
+
+		return View::make('equip.items-show', $data);
 	}
 
 	public function getItemsInCode(){
@@ -345,49 +378,7 @@ class EqInventoryController extends BaseController {
 		return Redirect::action('EqInventoryController@index');
 	}
 
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
-	{
-        $user = Sentry::getUser();
-		$node = $user->supplyNode;
-		$data['items'] = array();
-		$data['having_count'] = array();
-		$data['supplied_count'] = array();
-		$data['remaining_count'] = array();
-
-		$itemIds = DB::table('eq_item_acquires')->distinct()->select('item_id')->get();
-
-		foreach ($itemIds as $i) {
-			$item = EqItem::find($i->item_id);
-			array_push($data['items'], $item);
-
-			//item별 현재 관서에서 소유하고 있는 수량 합계 계산
-			$havingSum = 0;
-			$havingSet = EqInventorySet::where('item_id','=',$item->id)->where('node_id','=',$node->id)->get();
-			foreach ($havingSet as $s) {
-				$havingSum += $s->children->sum('count'); 
-			}
-			$data['having_count'][$i->item_id] = $havingSum;
-
-			//item별 현재 관서에서 보급한 수량 합계 계산
-			$supplySets = EqItemSupplySet::where('item_id','=',$item->id)->where('from_node_id','=',$node->id)->get();
-
-			$supSum = 0;
-			foreach ($supplySets as $set) {
-				$supSum += EqItemSupply::where('supply_set_id','=',$set->id)->sum('count');
-			}
-			$data['supplied_count'][$i->item_id] = $supSum;
-			$data['remaining_count'][$i->item_id] = $havingSum - $supSum;
-		}
-		$data['user'] = $user;
-
-        return View::make('equip.inventories-index', $data);
-	}
+	
 
 	/**
 	 * Show the form for editing the specified resource.

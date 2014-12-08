@@ -363,20 +363,28 @@ class EqItemController extends EquipController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show($code)
 	{
+		$code = EqItemCode::where('code','=',$code)->first();
+		$data['code'] = $code;
+		$data['items'] = $code->items;
+
+		return View::make('equip.items-registered-list', $data);
+	}
+
+	public function showDetail($itemCode, $itemId) {
 		$user = Sentry::getUser();
-		$item = EqItem::find($id);
+		$item = EqItem::find($itemId);
 		if ($item == null) {
 			return App::abort(404);
 		}
-		$types = EqItemType::where('item_id','=',$id)->get();
+		$types = EqItemType::where('item_id','=',$itemId)->get();
 
 		$data['domainId'] = $item->code->category->domain->id;
 		$data['category'] = $item->code->category;
 		$data['item'] = $item;
 		$data['types'] = $types;
-		$invSet = EqInventorySet::where('item_id','=',$id)->where('node_id','=',$user->supplyNode->id)->first();
+		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first();
 		$data['inventorySet'] = $invSet;
 
 		$modifiable = false; 
@@ -388,9 +396,6 @@ class EqItemController extends EquipController {
 		$data['modifiable'] = $modifiable;
 
 		return View::make('equip.items-show', $data);
-	}
-
-	public function showInventories($id) {
 	}
 
 	/**http://localhost/psis/equips/inventories

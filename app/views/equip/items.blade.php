@@ -28,6 +28,9 @@
 								분류
 							</th>
 							<th>
+								장비코드
+							</th>
+							<th>
 								장비명
 							</th>
 						</tr>
@@ -36,7 +39,8 @@
 						@foreach ($itemCodes as $i)
 						<tr data-id="{{ $i->id }}">
 							<td> {{ $i->category->name }}({{sizeof($i->category->codes)}}종)</td>
-							<td> <a href="{{ url('equips/items/list/'.$i->id) }}">{{ $i->title }}</a> </td>
+							<td> {{ $i->code }} </td>
+							<td> <a href="{{ url( URL::current().'/'.$i->code) }}">{{ $i->title }}</a> </td>
 						</tr>
 						@endforeach
 					</tbody>

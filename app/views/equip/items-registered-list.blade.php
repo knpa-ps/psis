@@ -40,7 +40,7 @@
 						@foreach ($items as $i)
 						<tr data-id="{{ $i->id }}">
 							<td> {{ substr($i->acquired_date,0,4) }}</td>
-							<td> <a href="{{ url('admin/item_codes/'.$i->id) }}">{{ $i->maker_name }}</a> </td>
+							<td> <a href="{{ url(URL::current().'/'.$i->id) }}">{{ $i->maker_name }}</a> </td>
 							<td> {{ $i->classification }} </td>
 							<td> {{ $i->persist_years }} </td>
 							<td> {{ $i->supplier }} </td>
