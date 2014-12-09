@@ -572,6 +572,8 @@ class EqCapsaicinController extends EquipController {
 		$eventType = Input::get('event_type');
 		$rows = array();
 		$year = Input::get('year');
+		$now = Carbon::now();
+
 		if ($year == null) {
 			$year = Carbon::now()->year;
 		}
@@ -635,7 +637,56 @@ class EqCapsaicinController extends EquipController {
 			} else {
 				$data['rows'] = Paginator::make(array(),0,15);
 			}
-			$data['totalUsage'] = $totalUsage;	
+			$data['totalUsage'] = $totalUsage;
+
+			if (Input::get('export')) {
+				//xls obj 생성
+				$objPHPExcel = new PHPExcel();
+				$fileName = $node->node_name.' 캡사이신 희석액 사용내역'; 
+				//obj 속성
+				$objPHPExcel->getProperties()
+					->setCreator($user->user_name)
+					->setTitle($fileName)
+					->setSubject($fileName);
+				//셀 정렬(가운데)
+				$objPHPExcel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER)->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+				
+				$sheet = $objPHPExcel->setActiveSheetIndex(0);
+				
+				$sheet->setCellValue('a1','일자');
+				$sheet->setCellValue('b1','관서명');
+				$sheet->setCellValue('c1','중대');
+				$sheet->setCellValue('d1','행사유형');
+				$sheet->setCellValue('e1','사용장소');
+				$sheet->setCellValue('f1','행사명');
+				$sheet->setCellValue('g1','사용량(ℓ)');
+				//양식 부분 끝
+				//이제 사용내역 나옴
+				for ($i=1; $i <= sizeof($rows); $i++) { 
+					$sheet->setCellValue('a'.($i+1),$rows[$i-1]->date);
+					$sheet->setCellValue('b'.($i+1),$rows[$i-1]->node->node_name);
+					$sheet->setCellValue('c'.($i+1),$rows[$i-1]->user_node->node_name);
+					$sheet->setCellValue('d'.($i+1),$rows[$i-1]->type);
+					$sheet->setCellValue('e'.($i+1),$rows[$i-1]->location);
+					$sheet->setCellValue('f'.($i+1),$rows[$i-1]->event_name);
+					$sheet->setCellValue('g'.($i+1),round(($i+1),$rows[$i-1]->amount, 2));
+				}
+				
+
+				//파일로 저장하기
+				$writer = PHPExcel_IOFactory::createWriter($objPHPExcel,'Excel2007');
+				header("Pragma: public");
+				header("Expires: 0");
+				header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+				header("Content-Type: application/force-download");
+				header('Content-type: application/vnd.ms-excel');
+				header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+				header('Content-Encoding: UTF-8');
+				header('Content-Disposition: attachment; filename="'.$fileName.' '.$now.'.xlsx"');
+				header("Content-Transfer-Encoding: binary ");
+				$writer->save('php://output');
+				return;
+			}
 		} else {
 			// 월별보기 탭 선택한 경우
 			$firstDayHolding = EqCapsaicinFirstday::where('year','=',$year)->where('node_id','=',$nodeId)->first();
@@ -671,7 +722,6 @@ class EqCapsaicinController extends EquipController {
 			$addition = array();
 			$discard = array();
 
-			$now = Carbon::now();
 			//올해면 아직 안 온 달은 비워둔다.
 			$data['presentStock'] = null;
 			for ($i=1; $i <= 12; $i++) {

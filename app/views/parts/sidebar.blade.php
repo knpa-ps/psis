@@ -3,7 +3,7 @@
 @foreach ($menus['sidebar'] as $menu)
 
 @if ($menu->is_active)
-	<h4><span class="glyphicon glyphicon-list"></span> <a href="{{ url($menu->url) }}" class="black"> {{ $menu->name }}</a></h4>
+	<h4><a href="{{ url($menu->url) }}" class="black"><b>{{ $menu->name }}</b></a></h4>
 	@if (isset($menu->children))
 		<ul class="nav nav-pills nav-stacked">
 			@foreach ($menu->children as $child)
