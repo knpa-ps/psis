@@ -295,6 +295,16 @@ class EqItemCodeController extends EquipController {
 		$categories = EqCategory::all();
 		return View::make('equip.item-code-add', get_defined_vars());
 	}
+	public function createItem(){
+		$user = Sentry::getUser();
+		$code = EqItemCode::where('code','=',Input::get('code'))->first();
+		
+		$data['code'] = $code;
+		$data['mode'] = 'create';
+		$data['categories'] = $this->service->getVisibleCategoriesQuery($user)->get();
+		$data['user'] = $user;
+        return View::make('equip.items-basic-form', $data);
+	}
 
 	/**
 	 * Store a newly created resource in storage.
