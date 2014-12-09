@@ -95,7 +95,7 @@
 						@else
 						<td>{{ $r->event_name }}</td>
 						@endif
-						<td style="background-color: #FEE9FC">{{ round($r->amount,2) }}</td>
+						<td style="background-color: #FEE9FC">{{ round($r->amount, 2) }}</td>
 					</tr>
 					@endforeach
 					

@@ -19,7 +19,7 @@
 				</form>
 			</div>
 			<div class="col-xs-6">
-				<button id="btnExport" class="pull-right btn btn-info btn-xs"><span class="glyphicon glyphicon-download" ></span> 다운로드 (.xls)</button>
+				<a href="{{URL::current().'?is_state=true&export=true'}}" class="pull-right btn btn-info btn-xs"><span class="glyphicon glyphicon-download" ></span> 다운로드 (.xls)</a>
 			</div>
 		</div>
 		<div class="row">
@@ -63,15 +63,22 @@
 					@for ($i=1; $i <=12 ; $i++)
 					<tr>
 						<th style="text-align: center;">{{$i}}월</th>
-						<td colspan="2">{{ isset($stock[$i]) ? round($stock[$i], 2) : '' }}</td>
-						<td style="background-color: #FEE9FC">{{ isset($stock[$i]) ? round($usageSum[$i], 2) : '' }}</td>
-						<td style="background-color: #FEE9FC">{{ isset($stock[$i]) ? round($usageT[$i], 2) : '' }}</td>
-						<td style="background-color: #FEE9FC">{{ isset($stock[$i]) ? round($usageA[$i], 2) : '' }}</td>
+						@if (isset($stock[$i]))
+							<td colspan="2">{{ round($stock[$i], 2) }}</td>
+							<td style="background-color: #FEE9FC">{{ round($usageSum[$i], 2) }}</td>
+							<td style="background-color: #FEE9FC">{{ round($usageT[$i], 2) }}</td>
+							<td style="background-color: #FEE9FC">{{ round($usageA[$i], 2) }}</td>
+						@else
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						@endif
 						<td>{{ $timesSum[$i] }}</td>
 						<td>{{ $timesT[$i] }}</td>
 						<td>{{ $timesA[$i] }}</td>
-						<td>{{ isset($stock[$i]) ? round($addition[$i], 2) : '' }}</td>
-						<td>{{ isset($stock[$i]) ? round($discard[$i], 2) : '' }}</td>
+						<td>{{ round($addition[$i], 2) }}</td>
+						<td>{{ round($discard[$i], 2) }}</td>
 					</tr>
 					@endfor
 				</tbody>
@@ -80,14 +87,3 @@
 		</div>
 	</div>
 </div>
-<script src="static/vendor/battatech_excelexport/jquery.battatech.excelexport.min.js" ></script>
-<script>
-$(document).ready(function () {
-    $("#btnExport").click(function () {
-        $("#capsaicin_table").btechco_excelexport({
-            containerid: "capsaicin_table"
-           , datatype: $datatype.Table
-        });
-    });
-});
-</script>

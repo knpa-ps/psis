@@ -38,7 +38,6 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::resource('capsaicin', 'EqCapsaicinController');
 	Route::get('/capsaicin/node/{nodeId}', 'EqCapsaicinController@displayNodeState');
 
-
 	Route::resource('supplies', 'EqSupplyController');
 	Route::put('/supplies/{id}/detail', 'EqSupplyController@addSupply');
 	Route::delete('/supplies/{id}/detail/{detailId}', 'EqSupplyController@removeSupply');
