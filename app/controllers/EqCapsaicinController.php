@@ -369,7 +369,6 @@ class EqCapsaicinController extends EquipController {
 				if ($eventType) {
 					$query->where('type_code','=',$eventType);
 				}
-				$data['eventType'] = $eventType;
 				//지방청 필터 검
 				$data['regions'] = EqSupplyManagerNode::where('type_code','=','D002')->get();
 				if ($regionId) {
@@ -569,6 +568,7 @@ class EqCapsaicinController extends EquipController {
 		$start = Input::get('start');
 		$end = Input::get('end');
 		$eventName = Input::get('event_name');
+		$data['eventName'] = $eventName;
 		$eventType = Input::get('event_type');
 		$rows = array();
 		$year = Input::get('year');

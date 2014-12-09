@@ -61,7 +61,7 @@
 			<a href="{{url('equips/capsaicin/create?nodeId='.$node->id)}}" class="btn btn-info btn-xs pull-right">
 				<span class="glyphicon glyphicon-plus"></span> 사용내역 추가
 			</a>	
-			<a href="{{URL::current().'?is_state=false&export=true'}}" class="btn btn-success btn-xs pull-right">
+			<a href="{{URL::current().'?is_state=false&export=true&event_type='.$eventType.'&start='.$start.'&end='.$end.'&event_name='.$eventName}}" class="btn btn-success btn-xs pull-right">
 				<span class="glyphicon glyphicon-download"></span> 다운로드(.xlsx)
 			</a>
 			<div class="clearfix"></div>

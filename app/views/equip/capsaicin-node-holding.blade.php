@@ -19,7 +19,7 @@
 				</form>
 			</div>
 			<div class="col-xs-6">
-				<a href="{{URL::current().'?is_state=true&export=true'}}" class="pull-right btn btn-info btn-xs"><span class="glyphicon glyphicon-download" ></span> 다운로드 (.xlsx)</a>
+				<a href="{{URL::current().'?is_state=true&export=true' }}" class="pull-right btn btn-info btn-xs"><span class="glyphicon glyphicon-download" ></span> 다운로드 (.xlsx)</a>
 			</div>
 		</div>
 		<div class="row">
