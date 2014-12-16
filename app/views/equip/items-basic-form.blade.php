@@ -12,7 +12,7 @@
 
 			<div class="panel-body">
 				{{ Form::open(array(
-						'url'=> $mode=='create'?'admin/item_codes':'admin/item_codes/'.$item->id,
+						'url'=> $mode=='create'?'admin/item':'admin/item/'.$item->id,
 						'method'=>$mode=='create'?'post':'put',
 						'id'=>'basic_form',
 						'class'=>'form-horizontal'

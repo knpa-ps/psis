@@ -11,7 +11,7 @@
 			</div>
 			<div class="panel-body">
 				<div class="toolbar-table">
-					<a href="{{ url('admin/add_item?code='.$code->code) }}" class="btn btn-info btn-xs pull-right">
+					<a href="{{ url('admin/item/create?code='.$code->code) }}" class="btn btn-info btn-xs pull-right">
 						<span class="glyphicon glyphicon-plus"></span> 장비추가
 					</a>
 					<div class="clearfix"></div>

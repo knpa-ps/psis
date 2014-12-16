@@ -26,7 +26,7 @@
 							행사명
 						</label>
 						<div class="col-xs-9">
-							<input type="text" class="input-sm form-control" id="event_name" name="event_name">
+							<input type="text" class="input-sm form-control" id="event_name" name="event_name" value="{{ $eventName or '' }}">
 						</div>
 					</div>
 				</div>
@@ -68,6 +68,11 @@
 				</div>
 				<input type="hidden" name="tab_id" value="3">
 			</form>
+		</div>
+		<div class="row">
+			<div class="col-xs-12">
+				<a href="{{URL::current().'?tab_id=3&export=true&region='.$region.'&event_type='.$eventType.'&start='.$start.'&end='.$end.'&event_name='.$eventName }}" class="pull-right btn btn-info btn-xs"><span class="glyphicon glyphicon-download" ></span> 다운로드 (.xlsx)</a>
+			</div>
 		</div>
 		<div class="row">
 			<div class="col-xs-12">

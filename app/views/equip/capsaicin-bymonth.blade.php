@@ -40,12 +40,18 @@
 					<div class="col-xs-12">
 						<div class="pull-right">
 							<button class="btn btn-primary btn-xs" type="submit"><span class="glyphicon glyphicon-ok"></span> 조회</button>
+
 						</div>
 						<div class="clearfix"></div>
 					</div>
 				</div>
 
 			</form>
+		</div>
+		<div class="row">
+			<div class="col-xs-12">
+				<a href="{{URL::current().'?tab_id=2&export=true&year='.$year.'&region='.$selectedRegionId }}" class="btn btn-info btn-xs pull-right"><span class="glyphicon glyphicon-download"></span> 다운로드(.xlsx)</a>
+			</div>
 		</div>
 		<div class="row">
 			<div class="col-xs-12">

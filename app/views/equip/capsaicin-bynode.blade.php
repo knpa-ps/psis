@@ -5,6 +5,11 @@
 	<div class="panel-body">
 		<div class="row">
 			<div class="col-xs-12">
+				<a href="{{URL::current().'?tab_id=1&export=true' }}" class="pull-right btn btn-info btn-xs"><span class="glyphicon glyphicon-download" ></span> 다운로드 (.xlsx)</a>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12">
 				<table class="table table-condensed table-hover table-striped table-bordered" id="capsaicin_table">
 				<thead>
 					<tr>
@@ -41,8 +46,8 @@
 						<td style="background-color: #FEE9FC">{{ round($usageT[$n->id], 2) }}</td>
 						<td style="background-color: #FEE9FC">{{ round($usageA[$n->id], 2) }}</td>
 						<td>{{ $timesSum[$n->id] }}</td>
-						<td>{{ $timesT[$n->id]}}</td>
-						<td>{{ $timesA[$n->id]}}</td>
+						<td>{{ $timesT[$n->id] }}</td>
+						<td>{{ $timesA[$n->id] }}</td>
 					</tr>
 					@endforeach
 				</tbody>

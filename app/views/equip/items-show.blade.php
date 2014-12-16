@@ -20,12 +20,14 @@
 					
 					<div class="col-xs-6">
 						<div class="pull-right">
-							<a href="{{url('admin/item_codes/'.$item->id.'/edit')}}" class="btn btn-xs btn-success">
+							<a href="{{url('admin/item/'.$item->id.'/edit')}}" class="btn btn-xs btn-success">
 								<span class="glyphicon glyphicon-edit"></span> 수정
 							</a>
+							@if(Sentry::getUser()->supplyNode->type_code == "D001")
 							<a href="#" class="btn btn-xs btn-danger" id="delete_btn"> 
 								<span class="glyphicon glyphicon-trash"></span> 일괄폐기
 							</a>
+							@endif
 						</div>
 					</div>
 				</div>
@@ -285,7 +287,7 @@ $(function() {
 		var id = $("#item_id").val();
 
 		$.ajax({
-			url: url("admin/item_codes/"+id),
+			url: url("admin/item/"+id),
 			type: "delete",
 			success: function(res){ 
 				alert(res.message);
