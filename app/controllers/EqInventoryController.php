@@ -281,19 +281,24 @@ class EqInventoryController extends BaseController {
 				})->where('to_node_id','=',$user->supplyNode->id)->sum('count');
 				$data['acquiredSum'][$c->id] += $itemAcquiredSum;
 
-				$itemHoldingSum = EqInventoryData::whereHas('parentSet', function($q) use ($i, $user) {
-					$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
-				})->sum('count');
-				$data['holdingSum'][$c->id] += $itemHoldingSum;
-
 				$itemWreckedSum = EqInventoryData::whereHas('parentSet', function($q) use ($i, $user) {
 					$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
 				})->sum('wrecked');
 				$data['wreckedSum'][$c->id] += $itemWreckedSum;
+
+				$itemHoldingSum = EqInventoryData::whereHas('parentSet', function($q) use ($i, $user) {
+					$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
+				})->sum('count');
+				$data['holdingSum'][$c->id] += $itemHoldingSum;
 			}
 		}
+		//Excel로 총괄표 export
+		if (Input::get('export')) {
+			return $this->service->exportGeneralTable($user->supplyNode);
+			return;
+		}
 
-        return View::make('equip.inventories-index-real', $data);
+        return View::make('equip.inventories-index', $data);
 	}
 
 	/**

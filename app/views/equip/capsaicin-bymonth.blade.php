@@ -49,7 +49,7 @@
 			</form>
 		</div>
 		<div class="row">
-			<div class="col-xs-12">
+			<div class="col-xs-12 toolbar-table">
 				<a href="{{URL::current().'?tab_id=2&export=true&year='.$year.'&region='.$selectedRegionId }}" class="btn btn-info btn-xs pull-right"><span class="glyphicon glyphicon-download"></span> 다운로드(.xlsx)</a>
 			</div>
 		</div>

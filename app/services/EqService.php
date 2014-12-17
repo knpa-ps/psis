@@ -1,5 +1,7 @@
 <?php 
 
+use Carbon\Carbon;
+
 class EqService extends BaseService {
 
 	public function getScopeDept(User $user) {
@@ -219,4 +221,195 @@ class EqService extends BaseService {
 		$writer->save('php://output');
 	}
 
+	public function exportGeneralTable($node) {
+
+		$now = Carbon::now();
+		$itemTotalNum = 0;
+
+		$categories = EqCategory::where('domain_id','=',1)->get();
+
+		$objPHPExcel = new PHPExcel();
+		$fileName = '집회시위 관리장비 점검 총괄표('.$node->node_name.')'; 
+		
+		//obj 속성
+		$objPHPExcel->getProperties()
+			->setTitle($fileName)
+			->setSubject($fileName);
+		//셀 정렬(가운데)
+		$objPHPExcel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER)->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+		
+		$sheet = $objPHPExcel->setActiveSheetIndex(0);
+
+		//양식 만들기
+		$sheet->mergeCells('a1:a2');
+		$sheet->setCellValue('a1', '기관명');
+		$sheet->mergeCells('b1:d2');
+		$sheet->setCellValue('b1', '장비명');
+
+		//총계 열 추가
+		$lastColIdx = PHPExcel_Cell::columnIndexFromString($sheet->getHighestDataColumn());
+
+		$sheet->mergeCells(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1:'.PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'1');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1', '총계');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'2','보급');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+1).'2','파손');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'2','사용가능');
+
+		//4년이상 초과 열
+		$lastColIdx = PHPExcel_Cell::columnIndexFromString($sheet->getHighestDataColumn());
+
+		$sheet->mergeCells(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1:'.PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'1');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1', $now->subYears(4)->year.'년 이전');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'2','보급');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+1).'2','파손');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'2','사용가능');
+
+		//4개년 열 추가
+		for ($i=0; $i <= 3; $i++) { 
+			$lastColIdx = PHPExcel_Cell::columnIndexFromString($sheet->getHighestDataColumn());
+
+			$sheet->mergeCells(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1:'.PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'1');
+			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1', $now->addYear()->year.'년');
+
+			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'2','보급');
+			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+1).'2','파손');
+			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'2','사용가능');
+		}
+		
+		$threeYearsAgo = Carbon::now()->subYears(3)->firstOfYear();
+
+		//장비별 행, 행별 자료 입력
+		foreach ($categories as $c) {
+
+			$itemsInCategory = EqItemCode::where('category_id','=',$c->id)->get();
+			$itemTotalNum += sizeof($itemsInCategory);
+			$lastRow = $sheet->getHighestRow();
+			$sheet->setCellValue('b'.($lastRow+1), $c->name);
+			$sheet->mergeCells('b'.($lastRow+1).':b'.($lastRow+sizeof($itemsInCategory)));
+
+			
+			for ($i=1; $i<=sizeof($itemsInCategory) ; $i++) { 
+				$sheet->setCellValue('c'.($lastRow+$i), $itemsInCategory[$i-1]->code);
+				$sheet->setCellValue('d'.($lastRow+$i), $itemsInCategory[$i-1]->title);
+
+				//TODO
+				//총괄표 양식에 자료 넣기
+				
+				$itemCode = $itemsInCategory[$i-1];
+				$items = $itemCode->items;
+
+				//supply의 target이 node인것들 합
+				$suppliedSum = EqItemSupply::where('to_node_id','=',$node->id)->whereHas('supplySet', function($q) use ($itemCode){
+					$q->whereHas('item', function($q) use ($itemCode){
+						$q->whereHas('code', function($q) use ($itemCode){
+							$q->where('item_code','=',$itemCode->code);
+						});
+					});
+				})->sum('count');
+
+				$wreckedSum = EqInventoryData::whereHas('parentSet', function($q) use($node, $itemCode) {
+					$q->where('node_id','=',$node->id)->whereHas('item', function($q) use ($itemCode) {
+						$q->whereHas('code', function($q) use ($itemCode){
+							$q->where('item_code','=',$itemCode->code);
+						});
+					});
+				})->sum('wrecked');
+
+				$holdingSum = EqInventoryData::whereHas('parentSet', function($q) use($node, $itemCode) {
+					$q->where('node_id','=',$node->id)->whereHas('item', function($q) use ($itemCode) {
+						$q->whereHas('code', function($q) use ($itemCode){
+							$q->where('item_code','=',$itemCode->code);
+						});
+					});
+				})->sum('count') - $wreckedSum;
+
+				$sheet->setCellValue('e'.($lastRow+$i), $suppliedSum);
+				//inventory에서 해당 물품의 wrecked sum
+				$sheet->setCellValue('f'.($lastRow+$i), $wreckedSum);
+				//inventory에서 count - wrecked의 sum
+				$sheet->setCellValue('g'.($lastRow+$i), $holdingSum);
+				
+				$suppliedSumBefore4years = EqItemSupply::where('to_node_id','=',$node->id)->whereHas('supplySet', function($q) use ($itemCode, $threeYearsAgo){
+					$q->whereHas('item', function($q) use ($itemCode, $threeYearsAgo){
+						$q->where('supplied_date','<',$threeYearsAgo)->whereHas('code', function($q) use ($itemCode){
+							$q->where('item_code','=',$itemCode->code);
+						});
+					});
+				})->sum('count');
+
+				$wreckedSumBefore4years = EqInventoryData::whereHas('parentSet', function($q) use($node, $itemCode, $threeYearsAgo) {
+					$q->where('node_id','=',$node->id)->whereHas('item', function($q) use ($itemCode, $threeYearsAgo) {
+						$q->where('acquired_date','<',$threeYearsAgo)->whereHas('code', function($q) use ($itemCode){
+							$q->where('item_code','=',$itemCode->code);
+						});
+					});
+				})->sum('wrecked');
+
+				$availSumBefore4years = EqInventoryData::whereHas('parentSet', function($q) use($node, $itemCode, $threeYearsAgo) {
+					$q->where('node_id','=',$node->id)->whereHas('item', function($q) use ($itemCode, $threeYearsAgo) {
+						$q->where('acquired_date','<',$threeYearsAgo)->whereHas('code', function($q) use ($itemCode){
+							$q->where('item_code','=',$itemCode->code);
+						});
+					});
+				})->sum('count') - $wreckedSumBefore4years;
+
+				//supply의 target이 node인 것 중 supplied date가 4년 이전인것
+				$sheet->setCellValue('h'.($lastRow+$i), $suppliedSumBefore4years);
+				$sheet->setCellValue('i'.($lastRow+$i), $wreckedSumBefore4years);
+				$sheet->setCellValue('j'.($lastRow+$i), $availSumBefore4years);
+
+				for ($j=0; $j <=3 ; $j++) { 
+					$ColIdx = 10+3*$j;
+					// TODO
+					// 연도별 수량 입력할 곳
+					$year = $threeYearsAgo->year + $j;
+					$lastDayOfLastYear = Carbon::parse('last day of December '.($year-1));
+					$firstDayOfNextYear = Carbon::parse('first day of January '.($year+1));
+
+					$suppliedSumInYear = EqItemSupply::where('to_node_id','=',$node->id)->whereHas('supplySet', function($q) use ($itemCode, $lastDayOfLastYear, $firstDayOfNextYear){
+						$q->whereHas('item', function($q) use ($itemCode, $lastDayOfLastYear, $firstDayOfNextYear){
+							$q->where('supplied_date','>', $lastDayOfLastYear)->where('supplied_date','<', $firstDayOfNextYear)->whereHas('code', function($q) use ($itemCode){
+								$q->where('item_code','=',$itemCode->code);
+							});
+						});
+					})->sum('count');
+
+					$wreckedSumInYear = EqInventoryData::whereHas('parentSet', function($q) use($node, $itemCode, $lastDayOfLastYear, $firstDayOfNextYear) {
+						$q->where('node_id','=',$node->id)->whereHas('item', function($q) use ($itemCode, $lastDayOfLastYear, $firstDayOfNextYear) {
+							$q->where('acquired_date','>', $lastDayOfLastYear)->where('acquired_date','<', $firstDayOfNextYear)->whereHas('code', function($q) use ($itemCode){
+								$q->where('item_code','=',$itemCode->code);
+							});
+						});
+					})->sum('wrecked');
+
+					$availSumInYear = EqInventoryData::whereHas('parentSet', function($q) use($node, $itemCode, $lastDayOfLastYear, $firstDayOfNextYear) {
+						$q->where('node_id','=',$node->id)->whereHas('item', function($q) use ($itemCode, $lastDayOfLastYear, $firstDayOfNextYear) {
+							$q->where('acquired_date','>', $lastDayOfLastYear)->where('acquired_date','<', $firstDayOfNextYear)->whereHas('code', function($q) use ($itemCode){
+								$q->where('item_code','=',$itemCode->code);
+							});
+						});
+					})->sum('count') - $wreckedSumInYear;
+
+					$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($ColIdx).($lastRow+$i), $suppliedSumInYear);
+					$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($ColIdx+1).($lastRow+$i), $wreckedSumInYear);
+					$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($ColIdx+2).($lastRow+$i), $availSumInYear);
+				}
+			}
+		}
+		$sheet->setCellValue('a3', $node->node_name);
+		$sheet->mergeCells('a3:a'.($itemTotalNum+2));
+
+		//파일로 저장하기
+		$writer = PHPExcel_IOFactory::createWriter($objPHPExcel,'Excel2007');
+		header("Pragma: public");
+		header("Expires: 0");
+		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+		header("Content-Type: application/force-download");
+		header('Content-type: application/vnd.ms-excel');
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Encoding: UTF-8');
+		header('Content-Disposition: attachment; filename="'.$fileName.' '.$now.'.xlsx"');
+		header("Content-Transfer-Encoding: binary ");
+		$writer->save('php://output');
+	}
 }

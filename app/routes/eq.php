@@ -13,7 +13,6 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::get('/surveys/{id}/data', 'EqSurveyController@getData');	
 	
 	Route::resource('/inventories', 'EqInventoryController');
-	Route::get('/inventories/{itemCode}','EqInventoryController@showCodeBelongs');
 	Route::get('/inventories/{itemCode}/{itemId}', 'EqInventoryController@showDetail');
 	Route::post('/inventories/create/get_item_type_set/{itemId}', 'EqInventoryController@getItemTypeSet');
 	Route::post('/inventories/create/get_items_in_code', 'EqInventoryController@getItemsInCode');
