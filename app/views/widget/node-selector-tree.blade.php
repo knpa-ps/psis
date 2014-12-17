@@ -39,7 +39,7 @@ $(function() {
 			data: {
 				url: "{{ url('ajax/supply_node_tree') }}",
 				data: function (node) {
-					return { id: node.id <?php echo (isset($mngDeptId))? ',mngDeptId :'.$mngDeptId : '' ?> };
+					return { id: node.id, initId: {{$id}} <?php echo (isset($mngDeptId))? ',mngDeptId :'.$mngDeptId : '' ?> };
 				}
 			}
 		},

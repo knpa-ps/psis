@@ -140,7 +140,7 @@ class EqService extends BaseService {
 		//xls obj 생성
 		$objPHPExcel = new PHPExcel();
 		if (isset($node)) {
-			$fileName = $node->node_name.' '.$year.' 캡사이신 희석액 현황'; 
+			$fileName = $node->full_name.' '.$year.' 캡사이신 희석액 현황'; 
 		} else {
 			$fileName = $year.' 캡사이신 희석액 현황'; 
 		}
@@ -229,7 +229,7 @@ class EqService extends BaseService {
 		$categories = EqCategory::where('domain_id','=',1)->get();
 
 		$objPHPExcel = new PHPExcel();
-		$fileName = '집회시위 관리장비 점검 총괄표('.$node->node_name.')'; 
+		$fileName = '집회시위 관리장비 점검 총괄표('.$node->full_name.')'; 
 		
 		//obj 속성
 		$objPHPExcel->getProperties()

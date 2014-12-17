@@ -263,6 +263,7 @@ class EqInventoryController extends BaseController {
 		}
 
 		$data['user'] = $user;
+		$data['node'] = $user->supplyNode;
 
 		$data['itemCodes'] =  EqItemCode::whereHas('category', function($q) use ($domainId) {
 									$q->where('domain_id', '=', $domainId);
@@ -293,8 +294,12 @@ class EqInventoryController extends BaseController {
 			}
 		}
 		//Excel로 총괄표 export
+		$node = $user->supplyNode;
 		if (Input::get('export')) {
-			return $this->service->exportGeneralTable($user->supplyNode);
+			if (Input::get('supply_node_id')) {
+				$node = EqSupplyManagerNode::find(Input::get('supply_node_id'));
+			}
+			$this->service->exportGeneralTable($node);
 			return;
 		}
 

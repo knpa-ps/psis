@@ -72,8 +72,10 @@ $(function() {
 
 		var container_id = $(this).parent().prop('id');
 		var mng_dept_id = $(this).parent().attr('mngdeptid');
+		var init_node_id = $(this).parent().attr('initnodeid');
 		var data = {
 			container_id: container_id,
+			id : init_node_id
 		};
 		if (typeof mng_dept_id != 'undefined') {
 			data.mngDeptId = mng_dept_id;

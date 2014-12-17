@@ -4,8 +4,8 @@ class EqSupplyController extends BaseController {
 
 	public function getSupplyTreeNodes() {
 		$parentId = Input::get('id');
-
-		$supplyNodes = EqSupplyManagerNode::find($parentId === '#' ? 1 : $parentId)->children;
+		$initNodeId = Input::get('initId');
+		$supplyNodes = EqSupplyManagerNode::find($parentId === '#' ? $initNodeId : $parentId)->children;
 
 		$nodes = array();
 

@@ -47,7 +47,7 @@
 					<tr>
 						<th>{{  isset($presentStock) ? round($presentStock, 2) : ''}}</th>
 						<th>
-							{{ round($firstDayHolding->amount, 2) }}
+							{{ round($firstDayHolding, 2) }}
 						</th>
 						<th style="background-color: #FEE9FC">{{ round($usageSumSum, 2) }}</th>
 						<th style="background-color: #FEE9FC">{{ round($usageTSum, 2) }}</th>
