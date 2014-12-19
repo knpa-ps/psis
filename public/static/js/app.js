@@ -101,6 +101,10 @@ $(function() {
 		$(this).find(".dept-name").val(data.full_name);
 		$(this).find(".dept-id").val(data.dept_id);
 	});
+
+	$(".update_personnel").on('click', function(){
+		popup(base_url+'/equips/update_personnel/show', 400, 250);
+	});
 });
 
 // bootstrap-modal

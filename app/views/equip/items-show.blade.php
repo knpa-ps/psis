@@ -82,7 +82,7 @@
 									<td colspan="3"> {{ $category->name }} </td>
 								</tr>
 								<tr>
-									<th>업체명</th>
+									<th>제조사명</th>
 									<td> {{$item->maker_name}} </td>
 									<th>연락처</th>
 									<td>{{ $item->maker_phone }}</td>

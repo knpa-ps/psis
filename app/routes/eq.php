@@ -4,6 +4,8 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 
 	Route::get('/', 'EquipController@index');
 
+	Route::get('/update_personnel/show', 'EquipController@showUpdatePersonnelForm');
+	Route::post('/update_personnel', 'EquipController@updatePersonnel');
 	Route::post('/get_node_name/{nodeId}', 'EquipController@getNodeName');
 
 	Route::resource('/surveys', 'EqSurveyController');

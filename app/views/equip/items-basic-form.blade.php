@@ -46,7 +46,7 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="item_maker_name" class="control-label col-xs-2">업체명</label>
+								<label for="item_maker_name" class="control-label col-xs-2">제조사명</label>
 								<div class="col-xs-10">
 									<input type="text" class="form-control input-sm" name="item_maker_name" id="item_maker_name"
 									value="{{ $item->maker_name or '' }}">
@@ -54,7 +54,7 @@
 							</div>
 							
 							<div class="form-group">
-								<label for="item_maker_phone" class="control-label col-xs-2">업체 연락처</label>
+								<label for="item_maker_phone" class="control-label col-xs-2">제조사 연락처</label>
 								<div class="col-xs-10">
 									<input type="text" class="form-control input-sm" name="item_maker_phone" id="item_maker_phone"
 									value="{{ $item->maker_phone or '' }}">

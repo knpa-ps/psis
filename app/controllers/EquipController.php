@@ -31,4 +31,23 @@ class EquipController extends BaseController {
 		$node = EqSupplyManagerNode::find($nodeId);
 		return $node->full_name;
 	}
+
+	public function showUpdatePersonnelForm(){
+		$user = Sentry::getUser();
+		$node = $user->supplyNode;
+		return View::make('equip.update-personnel-form', array('node'=>$node));
+	} 
+
+	public function updatePersonnel() {
+		$user = Sentry::getUser();
+		$node = $user->supplyNode;
+
+		$node->personnel = (int) Input::get('personnel');
+		$node->capacity = (int) Input::get('capacity');
+		if (!$node->save()) {
+			return array('msg'=>"관할부서 인원 변경에 실패했습니다.");
+		}
+
+		return array('msg'=>"관할부서 인원이 변경되었습니다.");
+	}
 }
