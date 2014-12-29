@@ -9,7 +9,7 @@ class EqItemController extends EquipController {
 	 */
 	public function index()
 	{
-        return View::make('eqitems.index');
+		return;
 	}
 
 	/**

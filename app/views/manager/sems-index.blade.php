@@ -40,6 +40,10 @@
 									<th>휴대전화</th>
 									<td id="cellphone"></td>
 								</tr>
+								<tr>
+									<th>관리자변경일</th>
+									<td id="manager_date"></td>
+								</tr>
 							</tbody>
 						</table>
 						<!-- 선택한 부서 id -->
@@ -86,11 +90,13 @@ $(function(){
 					$("#user_account").empty();
 					$("#guard_phone").empty();
 					$("#cellphone").empty();
+					$("#manager_date").empty();
 				} else {
 					$("#manager_name").text(res.user_name);
 					$("#user_account").text(res.account_name);
 					$("#guard_phone").text(res.contact_extension);
 					$("#cellphone").text(res.contact_phone);
+					$("#manager_date").text(res.last_manager_changed_date);
 				};
 			}
 		});
@@ -140,11 +146,13 @@ $(function(){
 					$("#user_account").empty();
 					$("#guard_phone").empty();
 					$("#cellphone").empty();
+					$("#manager_date").empty();
 				} else {
 					$("#manager_name").text(res.user_name);
 					$("#user_account").text(res.account_name);
 					$("#guard_phone").text(res.contact_extension);
 					$("#cellphone").text(res.contact_phone);
+					$("#manager_date").text(res.last_manager_changed_date);
 				};
 			}
 		});

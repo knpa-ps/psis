@@ -17,6 +17,7 @@ class ManagerController extends \BaseController {
 		}
 		$node = EqSupplyManagerNode::find($nodeId);
 		$node->manager_id = $userId[0];
+		$node->last_manager_changed_date = date('Y-m-d H:i:s');
 
 		if (!$node->save()) {
 			return App::abort(500);
@@ -46,7 +47,7 @@ class ManagerController extends \BaseController {
 		$nodeId = Input::get("nodeId");
 		$node = EqSupplyManagerNode::find($nodeId);
 		$manager = $node->manager;
-		
+		$manager['last_manager_changed_date'] = $node->last_manager_changed_date;
 		return $manager;
 	}
 

@@ -210,7 +210,7 @@ class EqInventoryController extends BaseController {
 		$data['item'] = $item;
 		$data['types'] = $types;
 		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first();
-		$data['inventorySet'] = $invSet;
+		
 
 		$modifiable = false; 
 		$now = Carbon::now();
@@ -220,6 +220,34 @@ class EqInventoryController extends BaseController {
 		}
 		$data['modifiable'] = $modifiable;
 
+		if (!$invSet) {
+
+			DB::beginTransaction();
+
+			$invSet = new EqInventorySet;
+
+			$invSet->item_id = $item->id;
+			$invSet->node_id = $user->supplyNode->id;
+
+			if (!$invSet->save()) {
+				return App::abort(500);
+			}
+
+			foreach ($types as $t) {
+				$invData = new EqInventoryData;
+
+				$invData->inventory_set_id = $invSet->id;
+				$invData->item_type_id = $t->id;
+
+				if (!$invData->save()) {
+					return App::abort(500);
+				}
+			}
+
+			DB::commit();
+		}
+		$data['inventorySet'] = $invSet;
+		
 		return View::make('equip.items-show', $data);
 	}
 

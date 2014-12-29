@@ -208,6 +208,10 @@
 										@endforeach
 									</tr>
 								</tfoot>
+							@else
+								<tr>
+									<td colspan="{{ sizeof($types)+2 }}" align="center">보유수량이 없습니다.</td>
+								</tr>
 							@endif
 						</table>
 					</div>
