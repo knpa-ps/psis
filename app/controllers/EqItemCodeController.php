@@ -452,7 +452,7 @@ class EqItemCodeController extends EquipController {
 			$row = array(
 						'node'=> (object) array(
 							'id'=>$parent->parent_id, 
-							'node_name'=>'...', 
+							'node_name'=>'상위부서로', 
 							'is_terminal'=>false, 
 							'parent_id'=>$parent->parent_id
 						));	

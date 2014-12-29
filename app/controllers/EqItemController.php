@@ -67,6 +67,17 @@ class EqItemController extends EquipController {
 			}
 		}
 
+		$types = $data['type'];
+		for ($i=0; $i < sizeof($types); $i++) { 
+			$itemType = new EqItemType;
+			$itemType->type_name = strtoupper($types[$i]);
+			$itemType->item_id = $item->id;
+			if(!$itemType->save()){
+				return App::abort(400);
+			}
+		}
+
+
 		DB::commit();
 
 		Session::flash('message', '저장되었습니다.');

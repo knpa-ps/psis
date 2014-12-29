@@ -13,7 +13,7 @@ class EqSupplyManagerNode extends Eloquent {
 	}
 
 	public function manager() {
-		return $this->hasMany('User', 'manager_id', 'id');
+		return $this->belongsTo('User', 'manager_id', 'id');
 	}
 
 	public function parent() {

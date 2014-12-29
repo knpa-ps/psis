@@ -170,13 +170,16 @@ class EqInventoryController extends BaseController {
 				$q->where('item_id','=',$i->id);
 			})->where('to_node_id','=',$user->supplyNode->id)->sum('count');
 
-			$data['holdingSum'][$i->id] = EqInventoryData::whereHas('parentSet', function($q) use ($i, $user) {
+			$holdingSum = EqInventoryData::whereHas('parentSet', function($q) use ($i, $user) {
 				$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
 			})->sum('count');
+
 
 			$data['wreckedSum'][$i->id] = EqInventoryData::whereHas('parentSet', function($q) use ($i, $user) {
 				$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
 			})->sum('wrecked');
+
+			$data['availSum'][$i->id] = $holdingSum - $data['wreckedSum'][$i->id];
 
 			//불용연한 지났는지 여부 판단
 			$acquired_date = $i->acquired_date;
@@ -292,6 +295,7 @@ class EqInventoryController extends BaseController {
 				})->sum('count');
 				$data['holdingSum'][$c->id] += $itemHoldingSum;
 			}
+			$data['availSum'][$c->id] = $data['holdingSum'][$c->id] - $data['wreckedSum'][$c->id];
 		}
 		//Excel로 총괄표 export
 		$node = $user->supplyNode;

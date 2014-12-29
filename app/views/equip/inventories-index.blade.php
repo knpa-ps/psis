@@ -68,7 +68,7 @@
 										총 파손수량
 									</th>
 									<th>
-										총 보유수량
+										총 가용수량
 									</th>
 								</tr>
 							</thead>
@@ -80,7 +80,7 @@
 									<td> <a href="{{ url('equips/inventories/'.$i->code) }}">{{ $i->title }}</a> </td>
 									<td> {{ $acquiredSum[$i->id] }}</td>
 									<td> {{ $wreckedSum[$i->id] }}</td>
-									<td> {{ $holdingSum[$i->id] }}</td>
+									<td> {{ $availSum[$i->id] }}</td>
 								</tr>
 								@endforeach
 							</tbody>

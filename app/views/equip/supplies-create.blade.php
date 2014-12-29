@@ -44,6 +44,8 @@
 									@foreach($types as $t)
 										<th>{{$t->type_name}}</th>
 									@endforeach
+									<th>현원</th>
+									<th>정원</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -53,6 +55,8 @@
 									@foreach ($types as $t)
 									<td id="{{'sum_type_'.$t->id}}">0</td>
 									@endforeach
+									<td>{{$lowerNodes->sum('personnel')}}</td>
+									<td>{{$lowerNodes->sum('capacity')}}</td>
 								</tr>
 								@foreach ($lowerNodes as $node)
 								<tr>
@@ -63,6 +67,8 @@
 										<input class="input-count input-sm form-control" style="width:100%;" type="text" id="count_{{$node->id}}_{{$t->id}}" name="count_{{$node->id}}_{{$t->id}}" value="{{$mode === 'create' ? '' : $count[$node->id][$t->id] }}">
 									</td>
 									@endforeach
+									<td>{{$node->personnel}}</td>
+									<td>{{$node->capacity}}</td>
 								</tr>
 								@endforeach
 							</tbody>
