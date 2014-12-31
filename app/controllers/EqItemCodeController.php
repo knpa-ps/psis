@@ -285,6 +285,29 @@ class EqItemCodeController extends EquipController {
         return View::make('equip.item-codes', $data);
 	}
 
+	public function showDetail($itemCode, $itemId) {
+		$user = Sentry::getUser();
+		$item = EqItem::find($itemId);
+		if ($item == null) {
+			return App::abort(404);
+		}
+		$types = EqItemType::where('item_id','=',$itemId)->get();
+		$data['domainId'] = $item->code->category->domain->id;
+		$data['category'] = $item->code->category;
+		$data['item'] = $item;
+		$data['types'] = $types;
+		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first();
+		$data['inventorySet'] = $invSet;
+		$modifiable = false; 
+		$now = Carbon::now();
+		$includingToday = EqQuantityCheckPeriod::where('check_end','>',$now)->where('check_start','<',$now)->get();
+		if (sizeof($includingToday) !== 0) {
+			$modifiable = true;
+		}
+		$data['modifiable'] = $modifiable;
+		return View::make('equip.items-show', $data);
+	}
+
 	/**
 	 * Show the form for creating a new resource.
 	 *

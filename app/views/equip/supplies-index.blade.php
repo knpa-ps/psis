@@ -58,7 +58,7 @@
 							<select name="item" id="item_to_supply" class="form-control">
 								@if(count($items)>0)
 									@foreach($items as $i)
-										<option value="{{$i->id}}">{{$i->item_code}} ({{substr($i->acquired_date, 0, 4).' '.$i->maker_name.' '.$i->classification}})</option>
+										<option value="{{$i->id}}">{{$i->code->title}} ({{substr($i->acquired_date, 0, 4).' '.$i->maker_name.' '.$i->classification}})</option>
 									@endforeach
 								@else
 									<option value="0">보유중인 장비가 없습니다.</option>
@@ -95,14 +95,14 @@
 						</tr>
 					</thead>
 					<tbody>
-					@if (count($supplies) > 0) 
+					@if (sizeof($supplies) > 0) 
 						@foreach ($supplies as $supply)
 							<tr data-id="{{$supply->id}}">
 								<td>
 									{{ $supply->id }}
 								</td>
 								<td>
-									<a href="{{ url('equips/supplies/'.$supply->id)}}">{{ $supply->item->code->title }}</a>
+									<a href="{{ url('equips/supplies/'.$supply->id)}}">{{ $supply->item->item_code }}</a>
 								</td>
 								<td>
 									{{ $supply->item->maker_name.' / '.$supply->item->acquired_date }}
