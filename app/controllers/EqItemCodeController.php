@@ -279,7 +279,7 @@ class EqItemCodeController extends EquipController {
 
 		$data['itemCodes'] =  EqItemCode::whereHas('category', function($q) use ($domainId) {
 									$q->where('domain_id', '=', $domainId);
-								})->orderBy('category_id', 'asc')->orderBy('sort_order', 'asc')->get();
+								})->orderBy('code', 'asc')->orderBy('sort_order', 'asc')->get();
 
 		$data['domainId'] = $domainId;
         return View::make('equip.item-codes', $data);

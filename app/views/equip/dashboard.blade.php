@@ -8,9 +8,13 @@
 		</div>
 		<div class="col-xs-8">
 			<div class="row">
-				<div class="col-xs-12">
-					{{ View::make('widget.lastest', array('board'=>'notice_equip', 'title'=>'공지사항-장비관리')) }}
+				<div class="col-xs-6">
+					{{ View::make('widget.lastest', array('board'=>'notice_equip', 'title'=>'SEMS 공지사항')) }}
 				</div>
+				<div class="col-xs-6">
+					{{ View::make('widget.lastest', array('board'=>'equip_qna', 'title'=>'SEMS 문의사항')) }}
+				</div>
+
 			</div>
 			<div class="row">
 				<div class="col-xs-12">
