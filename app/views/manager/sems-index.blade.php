@@ -37,6 +37,10 @@
 									<td id="guard_phone"></td>
 								</tr>
 								<tr>
+									<th>일반전화</th>
+									<td id="normal_phone"></td>	
+								</tr>
+								<tr>
 									<th>휴대전화</th>
 									<td id="cellphone"></td>
 								</tr>
@@ -89,12 +93,14 @@ $(function(){
 					$("#manager_name").text("없음");
 					$("#user_account").empty();
 					$("#guard_phone").empty();
+					$("#normal_phone").empty();
 					$("#cellphone").empty();
 					$("#manager_date").empty();
 				} else {
 					$("#manager_name").text(res.user_name);
 					$("#user_account").text(res.account_name);
 					$("#guard_phone").text(res.contact_extension);
+					$("#normal_phone").text(res.contact);
 					$("#cellphone").text(res.contact_phone);
 					$("#manager_date").text(res.last_manager_changed_date);
 				};
@@ -145,12 +151,14 @@ $(function(){
 					$("#manager_name").text("없음");
 					$("#user_account").empty();
 					$("#guard_phone").empty();
+					$("#normal_phone").empty();
 					$("#cellphone").empty();
 					$("#manager_date").empty();
 				} else {
 					$("#manager_name").text(res.user_name);
 					$("#user_account").text(res.account_name);
 					$("#guard_phone").text(res.contact_extension);
+					$("#normal_phone").text("똥");
 					$("#cellphone").text(res.contact_phone);
 					$("#manager_date").text(res.last_manager_changed_date);
 				};

@@ -69,7 +69,7 @@
 							<td style="background-color: #FEE9FC">{{ round($usageT[$i], 2) }}</td>
 							<td style="background-color: #FEE9FC">{{ round($usageA[$i], 2) }}</td>
 						@else
-							<td></td>
+							<td colspan="2"></td>
 							<td></td>
 							<td></td>
 							<td></td>

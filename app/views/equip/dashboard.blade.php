@@ -12,7 +12,7 @@
 					{{ View::make('widget.lastest', array('board'=>'notice_equip', 'title'=>'SEMS 공지사항')) }}
 				</div>
 				<div class="col-xs-6">
-					{{ View::make('widget.lastest', array('board'=>'equip_qna', 'title'=>'SEMS 문의사항')) }}
+					{{ View::make('widget.lastest', array('board'=>'equip_qna', 'title'=>'SEMS 게시판')) }}
 				</div>
 
 			</div>
