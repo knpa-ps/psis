@@ -289,11 +289,19 @@ class EqSupplyController extends BaseController {
 		
 		foreach ($lowerNodes as $n) {
 			$nodeSupplies = EqItemSupply::where('to_node_id','=',$n->id)->where('supply_set_id','=',$supply->id)->get();
-			foreach ($nodeSupplies as $s) {
-				if(!$s->count == 0){
-					$count[$n->id][$s->item_type_id] = $s->count;
-				} else {
-					$count[$n->id][$s->item_type_id] = '';
+
+			// 이 부분은 보급 이후에 node 구조에 변동이 생긴 경우 이전에 입력되지 않은 부분은 보급 수량이 0인 것으로 나오게 하는 부분
+			if (sizeof($nodeSupplies)==0) {
+				foreach ($types as $t) {
+					$count[$n->id][$t->id] = '';
+				}
+			} else {
+				foreach ($nodeSupplies as $s) {
+					if(!$s->count == 0){
+						$count[$n->id][$s->item_type_id] = $s->count;
+					} else {
+						$count[$n->id][$s->item_type_id] = '';
+					}
 				}
 			}
 		}
