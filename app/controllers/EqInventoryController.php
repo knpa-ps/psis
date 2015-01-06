@@ -298,7 +298,7 @@ class EqInventoryController extends BaseController {
 
 		$data['itemCodes'] =  EqItemCode::whereHas('category', function($q) use ($domainId) {
 									$q->where('domain_id', '=', $domainId);
-								})->orderBy('code', 'asc')->orderBy('sort_order', 'asc')->get();
+								})->orderBy('sort_order', 'asc')->get();
 
 		$data['domainId'] = $domainId;
 

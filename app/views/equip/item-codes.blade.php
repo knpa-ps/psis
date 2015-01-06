@@ -35,7 +35,7 @@
 										분류
 									</th>
 									<th>
-										장비코드
+										번호
 									</th>
 									<th>
 										장비명
@@ -46,7 +46,7 @@
 								@foreach ($itemCodes as $i)
 								<tr data-id="{{ $i->id }}">
 									<td> {{ $i->category->name }}({{sizeof($i->category->codes)}}종)</td>
-									<td> {{ $i->code }} </td>
+									<td> {{ $i->sort_order }} </td>
 									<td> <a href="{{ url( URL::current().'/'.$i->code) }}">{{ $i->title }}</a> </td>
 								</tr>
 								@endforeach
@@ -67,7 +67,8 @@
 $(function() {
 	$("#items_table").DataTable({
 		columnDefs: [
-			{ visible: false, targets: 0 }
+			{ visible: false, targets: 0 },
+			{ orderable: false, targets: "_all" }
 		],
         drawCallback: function ( settings ) {
             var api = this.api();

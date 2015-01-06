@@ -279,7 +279,7 @@ class EqItemCodeController extends EquipController {
 
 		$data['itemCodes'] =  EqItemCode::whereHas('category', function($q) use ($domainId) {
 									$q->where('domain_id', '=', $domainId);
-								})->orderBy('code', 'asc')->orderBy('sort_order', 'asc')->get();
+								})->orderBy('sort_order', 'asc')->get();
 
 		$data['domainId'] = $domainId;
         return View::make('equip.item-codes', $data);
@@ -334,7 +334,7 @@ class EqItemCodeController extends EquipController {
 
 		//code는 해당 카테고리의 마지막 번호에 1을 더한거.
 		
-		$lastCode = EqItemCode::where('category_id','=',$categoryId)->orderBy('code','desc')->first();
+		$lastCode = EqItemCode::where('category_id','=',$categoryId)->orderBy('sort_order','desc')->first();
 		$codeIndex = substr($lastCode->code, 1) + 1;
 		if (strlen($codeIndex) <= 3)
 		{
