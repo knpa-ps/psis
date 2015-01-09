@@ -470,9 +470,9 @@ class EqItemCodeController extends EquipController {
 			$row['sum_row'] = 0;
 
 			foreach ($types as $t) {
-				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($parentId) {
-					$q->whereHas('ownerNode', function($qq) use ($parentId) {
-						$qq->where('parent_id','=',$parentId);
+				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($parent) {
+					$q->whereHas('ownerNode', function($qq) use ($parent) {
+						$qq->where('full_path','like',$parent->full_path.'%');
 					});
 				})->where('item_type_id','=',$t->id)->sum('count');
 				
