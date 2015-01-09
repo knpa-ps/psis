@@ -93,7 +93,7 @@ $(function(){
 			data: { nodeId: data.node.id },
 			type: "post",
 			success: function(res){
-				if (res == "") {
+				if (res.is_exist == 0) {
 					$("#manager_name").text("없음");
 					$("#user_account").empty();
 					$("#guard_phone").empty();
@@ -153,7 +153,7 @@ $(function(){
 			data: { nodeId: node_id },
 			type: "post",
 			success: function(res){
-				if (res == "") {
+				if (res.is_exist == 0) {
 					$("#manager_name").text("없음");
 					$("#user_account").empty();
 					$("#guard_phone").empty();
