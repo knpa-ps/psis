@@ -10,21 +10,49 @@ class ManagerController extends \BaseController {
 		$userId = Input::get('userId');
 		$nodeId = Input::get('nodeId');
 
+
 		if(!$userId){
 			$msg = "관리자로 지정할 사용자를 선택하세요.";
 			$code = 0; 
 			return array('msg'=>$msg, 'code'=>$code);
 		}
 		$node = EqSupplyManagerNode::find($nodeId);
+		if ($node->manager_id !== '') {
+			$predecessorId = $node->manager_id;
+		}
 		$node->manager_id = $userId[0];
 		$node->last_manager_changed_date = date('Y-m-d H:i:s');
 
+		DB::beginTransaction();
 		if (!$node->save()) {
 			return App::abort(500);
 		}
 
+		// 관리자로 지정되면 장비관리자 그룹에 넣기
+		// 지방청 관리자면 지방청관리자 그룹에 넣기
+		
+
+		
+		if ($node->type_code == 'D002') {
+			$eqMngGroup = Group::where('key','=','equip.capsaicin')->first();
+		} else {
+			$eqMngGroup = Group::where('key','=','equip.ps.admin')->first();
+		}
+		// 전임 관리자는 그룹에서 빼기
+
+		if ($predecessorId) {
+			$eqMngGroup->users()->detach($predecessorId);
+		}
+
+		$user = User::find($userId[0]);
+
+		User::find($userId[0])->groups()->attach($eqMngGroup->id);
+
 		$msg = "관리자가 변경되었습니다.";
 		$code = 1;
+
+		DB::commit();
+
 		return array('msg'=>$msg, 'code'=>$code);
 	}
 

@@ -16,10 +16,16 @@
 			</ul>
 		</small></p>
 		@if ($user->supplyNode)
-		<p><small><b><span class="glyphicon glyphicon-home"></span> {{ $user->supplyNode->node_name }} 현원/정원</small></b></p>
+		<p><small><b><span class="glyphicon glyphicon-home"></span> 현원/정원</small></b></p>
 		<p><small>
 			<ul class="list-unstyled">
-				<li>{{ $user->supplyNode->personnel.'명 / '.$user->supplyNode->capacity.'명' }} <a href="#" class="update_personnel">[수정]</a> </li>
+				<li><b>{{ $user->supplyNode->node_name }}</b><br>&nbsp{{ $user->supplyNode->personnel.'명 / '.$user->supplyNode->capacity.'명' }} <a href="#" class="update_personnel">[수정]</a> </li>
+				<li>
+					<b>산하 총계</b><br>&nbsp{{ $personnelSum.'명 / '.$capacitySum.'명' }}
+				</li>
+			</ul>
+			<ul>
+				
 			</ul>
 		</small></p>
 		@endif

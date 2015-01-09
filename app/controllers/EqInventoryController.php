@@ -211,7 +211,6 @@ class EqInventoryController extends BaseController {
 		$data['types'] = $types;
 		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first();
 		
-
 		$modifiable = false; 
 		$now = Carbon::now();
 		$includingToday = EqQuantityCheckPeriod::where('check_end','>',$now)->where('check_start','<',$now)->get();

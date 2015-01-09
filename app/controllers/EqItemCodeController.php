@@ -430,7 +430,7 @@ class EqItemCodeController extends EquipController {
 			foreach ($types as $t) {
 				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($managingNode) {
 					$q->whereHas('ownerNode', function($qq) use ($managingNode) {
-						$qq->where('full_path','like',$managingNode->full_path.':%');
+						$qq->where('full_path','like',$managingNode->full_path.'%');
 					});
 				})->where('item_type_id','=',$t->id)->sum('count');
 				
