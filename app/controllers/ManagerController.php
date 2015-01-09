@@ -50,6 +50,8 @@ class ManagerController extends \BaseController {
 		if ($manager) {
 			$manager['last_manager_changed_date'] = $node->last_manager_changed_date;
 		}
+		$manager['personnel'] = $node->personnel;
+		$manager['capacity'] = $node->capacity;
 		return $manager;
 	}
 

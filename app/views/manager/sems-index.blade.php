@@ -48,6 +48,10 @@
 									<th>관리자변경일</th>
 									<td id="manager_date"></td>
 								</tr>
+								<tr>
+									<th>현원/정원</th>
+									<td id="personnel"></td>
+								</tr>
 							</tbody>
 						</table>
 						<!-- 선택한 부서 id -->
@@ -96,6 +100,7 @@ $(function(){
 					$("#normal_phone").empty();
 					$("#cellphone").empty();
 					$("#manager_date").empty();
+					$("#personnel").empty();
 				} else {
 					$("#manager_name").text(res.user_name);
 					$("#user_account").text(res.account_name);
@@ -103,6 +108,7 @@ $(function(){
 					$("#normal_phone").text(res.contact);
 					$("#cellphone").text(res.contact_phone);
 					$("#manager_date").text(res.last_manager_changed_date);
+					$("#personnel").text(res.personnel+'/'+res.capacity);
 				};
 			}
 		});
@@ -154,13 +160,15 @@ $(function(){
 					$("#normal_phone").empty();
 					$("#cellphone").empty();
 					$("#manager_date").empty();
+					$("#personnel").empty();
 				} else {
 					$("#manager_name").text(res.user_name);
 					$("#user_account").text(res.account_name);
 					$("#guard_phone").text(res.contact_extension);
-					$("#normal_phone").text("똥");
+					$("#normal_phone").text(res.contact);
 					$("#cellphone").text(res.contact_phone);
 					$("#manager_date").text(res.last_manager_changed_date);
+					$("#personnel").text(res.personnel+'/'+res.capacity);
 				};
 			}
 		});

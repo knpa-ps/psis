@@ -6,7 +6,7 @@
 	<div class="btn-toolbar toolbar-table">
 		<div class="btn-group pull-right">
 			<button class="btn btn-primary btn-xs" id="user_add_submit">
-				<span class="glyphicon glyphicon-check"></span> 추가
+				<span class="glyphicon glyphicon-check"></span> 변경
 			</button>
 		</div>
 	</div>

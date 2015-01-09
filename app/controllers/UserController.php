@@ -115,7 +115,8 @@ class UserController extends BaseController {
 		foreach ($userGroups as $g) {
 			if(substr($g->key, -5)==="admin"){
 				$manageGroup = substr($g->key, 0, strlen($g->key)-6 );
-				$data['manageGroups'][$manageGroup] = mb_substr($g->name, 0, mb_strlen($g->name)-8);
+				$selectLabel = explode('-', $g->name)[0];
+				$data['manageGroups'][$manageGroup] = $selectLabel;
 			}
 		}
 
