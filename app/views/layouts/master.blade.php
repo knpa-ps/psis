@@ -7,7 +7,7 @@
 
     @include('parts.header')
 
-    <div class="container" id="container">
+    <div class="container" id="container" >
         <div class="row">
 
             <div class="col-xs-2 hidden-print">

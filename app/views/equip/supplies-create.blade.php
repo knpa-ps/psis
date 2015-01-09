@@ -60,7 +60,11 @@
 								</tr>
 								@foreach ($lowerNodes as $node)
 								<tr>
-									<td>{{$node->node_name}}</td>
+									@if($node->parent->type_code == 'D003')
+										<td>{{$node->parent->node_name.' '.$node->node_name}}</td>
+									@else
+										<td>{{$node->node_name}}</td>
+									@endif
 									<td id="{{'sum_node_'.$node->id}}">0</td>
 									@foreach($types as $t)
 									<td>
