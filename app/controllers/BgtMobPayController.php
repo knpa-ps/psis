@@ -1,6 +1,6 @@
 <?php
 
-class BgtMobPayController extends \BaseController {
+class BgtMobPayController extends BaseController {
 
 	private $service;
 
@@ -14,6 +14,56 @@ class BgtMobPayController extends \BaseController {
 	 *
 	 * @return Response
 	 */
+	public function download() {
+
+		//다운로드할 자료 가져오기
+		$user = Sentry::getUser();
+		$now = date("Y-m-d H:i:s");
+
+		$rows = $this->service->getMasterDataQuery($user, Input::all())->get();
+
+		$objPHPExcel = new PHPExcel();
+		$fileName = '경비동원수당'.$now; 
+		//obj 속성
+		$objPHPExcel->getProperties()
+			->setTitle($fileName)
+			->setSubject($fileName);
+		//셀 정렬(가운데)
+		//
+		$objPHPExcel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER)->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+		
+		$sheet = $objPHPExcel->setActiveSheetIndex(0);
+		$sheet->setCellValue('a1','번호');
+		$sheet->setCellValue('b1','집행일자');
+		$sheet->setCellValue('c1','집행관서');
+		$sheet->setCellValue('d1','동원상황구분');
+		$sheet->setCellValue('e1','행사명');
+		$sheet->setCellValue('f1','집행액(원)');
+		//양식 부분 끝
+		
+		//이제 사용내역 나옴
+		for ($i=1; $i <= sizeof($rows); $i++) { 
+			$sheet->setCellValue('a'.($i+1),$rows[$i-1]->id);
+			$sheet->setCellValue('b'.($i+1),$rows[$i-1]->use_date);
+			$sheet->setCellValue('c'.($i+1),$rows[$i-1]->department->full_name);
+			$sheet->setCellValue('d'.($i+1),$rows[$i-1]->situation->title);
+			$sheet->setCellValue('e'.($i+1),$rows[$i-1]->event_name);
+			$sheet->setCellValue('f'.($i+1),$rows[$i-1]->details()->sum('amount'));
+		}
+
+		//파일로 저장하기
+		$writer = PHPExcel_IOFactory::createWriter($objPHPExcel,'Excel2007');
+		header("Pragma: public");
+		header("Expires: 0");
+		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+		header("Content-Type: application/force-download");
+		header('Content-type: application/vnd.ms-excel');
+		header('Content-Encoding: UTF-8');
+		header('Content-Disposition: attachment; filename="'.$fileName.'.xlsx"');
+		header("Content-Transfer-Encoding: binary ");
+		$writer->save('php://output');
+		return;
+	}
 	public function index()
 	{
 		$type = Input::get('type');
