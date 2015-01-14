@@ -121,6 +121,7 @@ class EqSupplyController extends BaseController {
 		}
 		$user = Sentry::getUser();
 		$userNode = $user->supplyNode;
+		$lowerNodes = $userNode->managedChildren;
 		$data = array();
 
 		$types = EqItemType::where('item_id','=',$itemId)->get();
@@ -129,7 +130,17 @@ class EqSupplyController extends BaseController {
 		$data['mode'] = 'create';
 		$data['item'] = EqItem::find($itemId);
 		$data['userNode'] = $userNode;
-		$data['lowerNodes'] = $userNode->managedChildren;
+		$data['lowerNodes'] = $lowerNodes;
+		$invSum = 0;
+		foreach ($types as $t) {
+			$inv[$t->id] = EqInventoryData::whereHas('parentSet', function($q) use($userNode){
+				$q->where('node_id','=',$userNode->id);
+			})->where('item_type_id','=',$t->id)->first()->count;
+			$invSum += $inv[$t->id];
+		}
+
+		$data['inv'] = $inv;
+		$data['invSum'] = $invSum;
 		
         return View::make('equip.supplies-create',$data);
 	}

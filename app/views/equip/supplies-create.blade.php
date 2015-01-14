@@ -50,6 +50,15 @@
 							</thead>
 							<tbody>
 								<tr>
+									<td>보유량</td>
+									<td>{{ $invSum }}</td>
+									@foreach ($types as $t)
+									<td id="{{ 'inv_type_'.$t->id }}" >{{ $inv[$t->id] }}</td>
+									@endforeach
+									<td></td>
+									<td></td>
+								</tr>
+								<tr>
 									<td>계</td>
 									<td id="sum_all">0</td>
 									@foreach ($types as $t)
@@ -128,6 +137,11 @@ $(function(){
 				}
 			@endforeach
 			$("#{{'sum_type_'.$type->id}}").text(sumType);
+			var invType = $("#{{'inv_type_'.$type->id}}").text();
+			if (sumType > parseInt(invType)) {
+				$("#{{'sum_type_'.$type->id}}").css('color', 'red');
+				$("#{{'sum_type_'.$type->id}}").css('font-weight', 'bold');
+			};
 		@endforeach
 	}
 
