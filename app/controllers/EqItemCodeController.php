@@ -108,7 +108,7 @@ class EqItemCodeController extends EquipController {
 			}
 		}
 
-		$data['elements'] = Paginator::make($elements, count($elements),15);
+		$data['elements'] = $elements;
 		$data['remaining'] = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first()->children->sum('count');
 		$data['itemId'] = $itemId;
 		return View::make('equip.item-holding-detail', $data);

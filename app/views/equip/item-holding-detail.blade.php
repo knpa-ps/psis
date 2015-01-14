@@ -75,11 +75,13 @@
 							<td colspan="4">
 								내역이 없습니다.
 							</td>
+							<td class="hidden"></td>
+							<td class="hidden"></td>
+							<td class="hidden"></td>
 						</tr>
 					@endif
 					</tbody>
 				</table>
-				{{ $elements->links() }}
 			</div>
 		</div>
 	</div>
