@@ -113,7 +113,7 @@
 									<tr>
 										<td>{{$s->item->code->title}}</td>
 										<td>{{$s->started_at.'~'.$s->expired_at}}</td>
-										<td>{{ $s->responses->count()/$s->item->types->count().'/'. $user->supplyNode->managedChildren->count()}} ({{$s->responses->count()/$user->supplyNode->managedChildren->count()*100}}%)</td>
+										<td>{{ $s->responses->count()/$s->item->types->count().'/'. $user->supplyNode->managedChildren->count()}} ({{ round($s->responses->count()/$user->supplyNode->managedChildren->count()*100/$s->item->types->count(), 2)}}%)</td>
 									</tr>
 								</tbody>
 								@endforeach

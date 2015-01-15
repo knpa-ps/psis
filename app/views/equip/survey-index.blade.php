@@ -143,7 +143,7 @@
 									{{ number_format($survey->datas->sum('count')) }}
 								</td>
 								<td>
-									{{ $survey->responses->count()/$survey->item->types->count().'/'. $user->supplyNode->managedChildren->count()}} ({{$survey->responses->count()/$user->supplyNode->managedChildren->count()*100}}%)
+									{{ $survey->responses->count()/$survey->item->types->count().'/'. $user->supplyNode->managedChildren->count()}} ({{ round($survey->responses->count()/$user->supplyNode->managedChildren->count()*100/$survey->item->types->count(), 2) }}%)
 								</td>
 								<td>
 									<!-- <a href="{{ url('equips/surveys/'.$survey->id.'/edit') }}" class="btn btn-xs btn-info btn-edit">
