@@ -90,7 +90,7 @@
 								</tr>
 								<tr>
 									<th>제원</th>
-									<td colspan="3">{{$item->standard}}</td>
+									<td colspan="3">{{$item->classification}}</td>
 									<th>구입일자</th>
 									<td>{{$item->acquired_date}}</td>
 								</tr>

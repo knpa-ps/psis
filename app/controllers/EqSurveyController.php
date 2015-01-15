@@ -87,11 +87,17 @@ class EqSurveyController extends \BaseController {
 		foreach ($childrenNodes as $node) {
 			
 			$row['node'] = $node->toArray();
-			$row['sum_row'] = EqItemSurveyData::where('survey_id','=',$id)->where('target_node_id','=',$node->id)->first()->count;
+
+			$surveyData = EqItemSurveyData::where('survey_id','=',$id)->where('target_node_id','=',$node->id)->first();
+
+			$row['sum_row'] = $surveyData ? $surveyData->count() : 0;
 
 			foreach ($types as $t) {
 
 			$surveyRes = EqItemSurveyResponse::where('survey_id','=',$id)->where('node_id','=',$node->id)->where('item_type_id','=',$t->id)->first();
+
+
+
 			if (isset($surveyRes)) {
 				$row[$t->type_name] = $surveyRes->count;
 			} else {
