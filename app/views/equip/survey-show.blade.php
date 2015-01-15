@@ -7,7 +7,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-				 	<a href="{{url('equips/items?domain='.$item->code->category->domain->id)}}"><span class="glyphicon glyphicon-chevron-left"></span></a> <strong>장비상세정보</strong>
+				 	<a href="{{url('equips/items?domain='.$item->code->category->domain->id)}}"><span class="glyphicon glyphicon-chevron-left"></span></a> <strong>설문결과보기</strong>
 				</h3>
 			</div>
 
@@ -19,16 +19,6 @@
 						<input type="hidden" id="item_id" value="{{ $item->id }}">
 					</div>
 					
-					<div class="col-xs-6">
-						<div class="pull-right">
-							<a href="{{url('equips/items/'.$item->id.'/edit')}}" class="btn btn-xs btn-success">
-								<span class="glyphicon glyphicon-edit"></span> 수정
-							</a>
-							<a href="#" class="btn btn-xs btn-danger" id="delete_btn"> 
-								<span class="glyphicon glyphicon-trash"></span> 삭제
-							</a>
-						</div>
-					</div>
 				</div>
 				<div class="row">
 					<div class="col-xs-4">

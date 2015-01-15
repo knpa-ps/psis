@@ -17,11 +17,11 @@ class EquipController extends BaseController {
 		$inbounds = EqConvertSet::where('target_node_id','=',$user->supplyNode->id)->take(4)->get();
 		$outbounds = EqConvertSet::where('from_node_id','=',$user->supplyNode->id)->take(4)->get();
 
-		$surveys = EqItemSurvey::where('node_id','=',$user->supplyNode->id)->take(4)->get();
+		$surveys = EqItemSurvey::where('node_id','=',$user->supplyNode->id)->where('is_closed','=',0)->take(4)->get();
 		if ($user->supplyNode->id == 1) {
-			$toResponses = EqItemSurvey::where('node_id','=',0)->get();
+			$toResponses = EqItemSurvey::where('node_id','=',0)->where('is_closed','=',0)->get();
 		} else {
-			$toResponses = EqItemSurvey::where('node_id','=',$user->supplyNode->managedParent->id)->take(4)->get();
+			$toResponses = EqItemSurvey::where('node_id','=',$user->supplyNode->managedParent->id)->where('is_closed','=',0)->take(4)->get();
 		}
 		
 		return View::make('equip.dashboard', get_defined_vars());

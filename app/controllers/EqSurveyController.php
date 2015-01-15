@@ -54,7 +54,7 @@ class EqSurveyController extends \BaseController {
 		} else {
 			$mode = 'update';
 			foreach ($types as $t) {
-				$count[$t->id] = EqItemSurveyResponse::where('survey_id','=',$id)->where('item_type_id','=',$t->id)->first()->count;
+				$count[$t->id] = EqItemSurveyResponse::where('survey_id','=',$id)->where('node_id','=',$user->supplyNode->id)->where('item_type_id','=',$t->id)->first()->count;
 			}
 		}
 		$sum = EqItemSurveyData::where('survey_id','=',$survey->id)->where('target_node_id','=',$user->supplyNode->id)->first()->count;
@@ -70,7 +70,7 @@ class EqSurveyController extends \BaseController {
 
 		$user = Sentry::getUser();
 		$userNode = $user->supplyNode;
-		$childrenNodes = $userNode->children;
+		$childrenNodes = $userNode->managedChildren;
 
 		$row = array(
 			'node'=> (object) array(
@@ -88,9 +88,13 @@ class EqSurveyController extends \BaseController {
 			
 			$row['node'] = $node->toArray();
 
-			$surveyData = EqItemSurveyData::where('survey_id','=',$id)->where('target_node_id','=',$node->id)->first();
+			$surveyData = EqItemSurveyResponse::where('survey_id','=',$id)->where('node_id','=',$node->id)->get();
 
-			$row['sum_row'] = $surveyData ? $surveyData->count() : 0;
+			if ($surveyData) {
+				$row['sum_row'] = $surveyData->sum('count');
+			} else {
+				$row['sum_row'] = 0;
+			}
 
 			foreach ($types as $t) {
 
@@ -215,7 +219,7 @@ class EqSurveyController extends \BaseController {
 	{
 		$input = Input::all();
 		$user = Sentry::getUser();
-		$nodes = $user->supplyNode->children;
+		$nodes = $user->supplyNode->managedChildren;
 
 		DB::beginTransaction();
 			$survey = new EqItemSurvey;
@@ -243,7 +247,7 @@ class EqSurveyController extends \BaseController {
 
 		Session::flash('message', '저장되었습니다.');
 
-		return Redirect::to('equips/surveys?domain=2');
+		return Redirect::to('equips/surveys?domain=1');
 	}
 
 
