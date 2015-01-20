@@ -15,7 +15,7 @@
 				@endforeach
 			</ul>
 		</small></p>
-		@if ($user->supplyNode)
+		@if ($user->hasAccess("eq.*"))
 		<p><small><b><span class="glyphicon glyphicon-home"></span> 현원/정원</small></b></p>
 		<p><small>
 			<ul class="list-unstyled">

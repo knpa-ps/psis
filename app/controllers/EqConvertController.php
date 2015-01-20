@@ -115,6 +115,19 @@ class EqConvertController extends EquipController {
 	public function store()
 	{
 		$input = Input::all();
+		$validator = Validator::make(
+			$input, array(
+				'supply_node_id' => 'required'
+			)
+		);
+
+		if ($validator->fails()) {
+			return Redirect::back()->with('message', '대상관서를 반드시 선택해야 합니다');
+		}
+		if (array_sum($input['type_counts'])==0) {			
+			return Redirect::back()->with('message', '관리전환 수량이 입력되지 않았습니다.');
+		}
+
 		$user = Sentry::getUser();
 		$item = EqItem::find($input['item_id']);
 		$itemTypes = $item->types;

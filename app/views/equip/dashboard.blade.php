@@ -133,7 +133,7 @@
 										<td>{{$r->item->code->title}}</td>
 										<td>{{$r->started_at.'~'.$r->expired_at}}</td>
 										<td>
-										@if ($r->is_closed !== 0)
+										@if ($r->isResponsed($user->supplyNode->id))
 											<span class="label label-success">설문응답완료</span>
 										@else
 											<span class="label label-danger">미응답</span>
