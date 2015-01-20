@@ -14,9 +14,13 @@ class ManagerService extends BaseService {
 		// 사용자 그룹 필터
 		// report, budget 등 선택한 부서 key 앞부분이 $params['group']에 들어있음.
 		if(isset($params['group'])){
-			$users = User::whereHas('groups', function($q) use ($params) {
-				$q->where('key', 'like', "{$params['group']}%");
-			});
+			if ($params['group']=='all') {
+				$users = User::where('id','like','%');
+			} else {
+				$users = User::whereHas('groups', function($q) use ($params) {
+					$q->where('key', 'like', "{$params['group']}%");
+				});	
+			}
 		}
 		//조회한 이후에 셀렉트 유지되도록 수정필요
 

@@ -18,14 +18,14 @@
 								<label for="personnel" class="control-label col-xs-2">현원</label>
 								<div class="col-xs-10">
 									<input type="number" class="form-control input-sm" name="personnel" id="personnel"
-									value="{{ $node->personnel }}">
+									value="{{ $node->personnel }}" min="0">
 								</div>
 							</div>
 							<div class="form-group">
 								<label for="capacity" class="control-label col-xs-2">정원</label>
 								<div class="col-xs-10">
 									<input type="number" class="form-control input-sm" name="capacity" id="capacity"
-									value="{{ $node->capacity }}">
+									value="{{ $node->capacity }}" min="0">
 								</div>
 							</div>
 						</fieldset>
