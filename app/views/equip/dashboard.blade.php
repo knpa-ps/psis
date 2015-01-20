@@ -113,7 +113,7 @@
 									<tr>
 										<td>{{$s->item->code->title}}</td>
 										<td>{{$s->started_at.'~'.$s->expired_at}}</td>
-										<td>{{ $s->responses->count()/$s->item->types->count().'/'. $user->supplyNode->managedChildren->count()}} ({{ round($s->responses->count()/$user->supplyNode->managedChildren->count()*100/$s->item->types->count(), 2)}}%)</td>
+										<td></td>
 									</tr>
 								</tbody>
 								@endforeach
@@ -133,7 +133,7 @@
 										<td>{{$r->item->code->title}}</td>
 										<td>{{$r->started_at.'~'.$r->expired_at}}</td>
 										<td>
-										@if ($r->is_closed == 1)
+										@if ($r->is_closed !== 0)
 											<span class="label label-success">설문응답완료</span>
 										@else
 											<span class="label label-danger">미응답</span>

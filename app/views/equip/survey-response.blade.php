@@ -36,7 +36,7 @@
 								<td style="padding-top: 11px; text-align: center;" id="sum">{{ $sum }}</td>
 								@foreach ($types as $t)
 									<td>
-										<input type="text" class="input-sm form-control input-count" name="{{'count_'.$t->id}}" id="{{'count_'.$t->id}}" value="{{$count[$t->id] or ''}}">
+										<input type="number" min="0" step="1" class="input-sm form-control input-count" name="{{'count_'.$t->id}}" id="{{'count_'.$t->id}}" value="{{$count[$t->id] or ''}}">
 									</td>
 								@endforeach
 							</tr>

@@ -10,12 +10,36 @@ class ManagerController extends \BaseController {
 		$userId = Input::get('userId');
 		$nodeId = Input::get('nodeId');
 
+		$user = User::find($userId);
 
 		if(!$userId){
 			$msg = "관리자로 지정할 사용자를 선택하세요.";
 			$code = 0; 
 			return array('msg'=>$msg, 'code'=>$code);
 		}
+
+		$capsaicinGroup = Group::where('key','=','equip.capsaicin')->first();
+		$psGroup = Group::where('key','=','equip.ps.admin')->first();
+
+		// 유저가 타 관서 장비관리자였을 경우 원래 관서의 관리자 없애기
+		$prevNode = EqSupplyManagerNode::where('manager_id','=',$userId[0])->first();
+
+		if ($prevNode) {
+			$prevNode->manager_id = null;
+			if (!$prevNode->save()) {
+				return App::abort(500);
+			}
+		}
+		// 유저가 타 관서 장비관리자였을 경우 일단 관리자그룹에서 제거
+		$havingEqGroups = Group::whereHas('users', function($q) use($userId) {
+			$q->where('id','=',$userId[0]);
+		})->get();
+
+		foreach ($havingEqGroups as $g) {
+			$g->users()->detach($userId[0]);
+		};
+
+		// 선택한 노드의 관리자로 임명함
 		$node = EqSupplyManagerNode::find($nodeId);
 		if ($node->manager_id !== '') {
 			$predecessorId = $node->manager_id;
@@ -24,6 +48,7 @@ class ManagerController extends \BaseController {
 		$node->last_manager_changed_date = date('Y-m-d H:i:s');
 
 		DB::beginTransaction();
+
 		if (!$node->save()) {
 			return App::abort(500);
 		}
@@ -31,15 +56,13 @@ class ManagerController extends \BaseController {
 		// 관리자로 지정되면 장비관리자 그룹에 넣기
 		// 지방청 관리자면 지방청관리자 그룹에 넣기
 		
-
-		
 		if ($node->type_code == 'D002') {
-			$eqMngGroup = Group::where('key','=','equip.capsaicin')->first();
+			$eqMngGroup = $capsaicinGroup;
 		} else {
-			$eqMngGroup = Group::where('key','=','equip.ps.admin')->first();
+			$eqMngGroup = $psGroup;
 		}
-		// 전임 관리자는 그룹에서 빼기
 
+		// 해당 노드의 전임 관리자는 그룹에서 빼기
 		if ($predecessorId) {
 			$eqMngGroup->users()->detach($predecessorId);
 		}
