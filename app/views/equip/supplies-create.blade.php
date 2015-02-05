@@ -141,6 +141,9 @@ $(function(){
 			if (sumType > parseInt(invType)) {
 				$("#{{'sum_type_'.$type->id}}").css('color', 'red');
 				$("#{{'sum_type_'.$type->id}}").css('font-weight', 'bold');
+			} else {
+				$("#{{'sum_type_'.$type->id}}").css('color', '#000');
+				$("#{{'sum_type_'.$type->id}}").css('font-weight', 'normal');
 			};
 		@endforeach
 	}

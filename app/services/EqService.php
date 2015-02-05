@@ -4,6 +4,75 @@ use Carbon\Carbon;
 
 class EqService extends BaseService {
 
+	public function deleteSupplySet($id) {
+		$s = EqItemSupplySet::find($id);
+		if (!$s) {
+			return 'foo';
+		}
+		$datas = $s->children;
+
+		$item = $s->item;
+		
+		DB::beginTransaction();
+
+		// 보급을 삭제하면서 각 하위관서에 보급했던 수량을 다시 가져온다.
+
+		// 1. 보급한 관서의 인벤토리 수량 더하기
+		$supplierNodeId = $s->from_node_id;
+
+		$supplierInvSet = EqInventorySet::where('node_id','=',$supplierNodeId)->where('item_id','=',$item->id)->first();
+
+		foreach ($item->types as $t) {
+			$suppliedCount = EqItemSupply::where('supply_set_id','=',$s->id)->where('item_type_id','=',$t->id)->sum('count');
+			$invData = EqInventoryData::where('inventory_set_id','=',$supplierInvSet->id)->where('item_type_id','=',$t->id)->first();
+			$invData->count += $suppliedCount;
+			if (!$invData->save()) {
+				return App::abort(500);
+			}
+		} 
+
+		// 2. 보급받은 관서의 인벤토리 수량 빼기
+		foreach ($datas as $d) {
+			$itemTypeId = $d->item_type_id;
+			$toNodeId = $d->to_node_id;
+			$invSet = EqInventorySet::where('node_id','=',$toNodeId)->where('item_id','=',$s->item_id)->first();
+			$invData = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$d->item_type_id)->first();
+			
+			$invData->count -= $d->count;
+			if (!$invData->save()) {
+				return App::abort(500);
+			}
+
+			if (!$d->delete()) {
+				return App::abort(500);
+			}
+		}
+
+		if (!$s->delete()) {
+			return App::abort(500);
+		}
+
+		// 3. 하위 부서의 보급도 취소하기
+		$supplierNode = EqSupplyManagerNode::find($supplierNodeId);
+		$lowerNodes = $supplierNode->managedChildren;
+
+		if (!$lowerNodes) {
+			return;
+		}
+
+		// 하위 노드에서 보급한 내역을 찾아 지운다.
+		foreach ($lowerNodes as $n) {
+			$supSets = EqItemSupplySet::where('item_id','=',$item->id)->where('from_node_id','=',$n->id)->where('created_at','>',$s->created_at)->get();
+			foreach ($supSets as $s) {
+				$this->deleteSupplySet($s->id);
+			}
+		}
+
+		DB::commit();
+
+		return 1;
+	}
+
 	public function getScopeDept(User $user) {
 		if (!$user->isSuperUser() && $user->department->type_code != Department::TYPE_HEAD) {
 			// 사용자의 관서 종류에 따라 조회 범위 설정

@@ -1,6 +1,6 @@
 <?php
 
-class EqSupplyController extends BaseController {
+class EqSupplyController extends EquipController {
 
 	public function getSupplyTreeNodes() {
 		$parentId = Input::get('id');
@@ -354,55 +354,7 @@ class EqSupplyController extends BaseController {
 	 */
 	public function update($id)
 	{
-		// $data = Input::all();
-		// $user = Sentry::getUser();
-		// $nodes = EqSupplyManagerNode::where('parent_id','=',$user->supplyNode->id)->get();
-		// $types = EqItemType::where('item_id','=',$data['item_id'])->get();
 
-
-		// $acquiredSum = EqItemAcquire::where('item_id','=',$data['item_id'])->get()->sum('count');
-		// $supplied = EqItemSupplySet::where('item_id','=',$data['item_id'])->where('id','!=',$id)->get();
-		// $suppliedSum = 0;
-		// foreach ($supplied as $s) {
-		// 	$suppliedSum += $s->children->sum('count');
-		// }
-
-
-		// DB::beginTransaction();
-
-		// $supplySet = EqItemSupplySet::find($id);
-		// $supplySet->supplied_date = $data['supply_date'];
-
-		// $supplySet->update();
-
-		// foreach ($nodes as $node) {
-		// 	$countName = 'count_';
-		// 	$countNameNode = $countName.$node->id.'_';
-
-		// 	foreach ($types as $type) {
-		// 		$typeId = $type->id;
-		// 		$countName = $countNameNode.$typeId;
-
-		// 		$supply = EqItemSupply::where('supply_set_id','=',$id)->where('to_node_id','=',$node->id)->where('item_type_id','=',$type->id)->first();
-		// 		$supply->count = $data[$countName];
-
-		// 		$supply->update();
-		// 	}
-		// }
-
-		// $countSum = $supplySet->children->sum('count');
-
-		// $havingSum = $acquiredSum - $suppliedSum;
-		// $lack = $countSum - $havingSum;
-		// if($countSum > $havingSum){
-		// 	Session::flash('message', '보유수량이 부족합니다. (현재 보유수량: '.$havingSum.', '.$lack.'개 부족)');
-		// 	return Redirect::back();
-		// }
-
-		// DB::commit();
-
-		// Session::flash('message', '수정되었습니다.');	
-		// return Redirect::to('equips/supplies');
 	}
 
 	/**
@@ -414,55 +366,16 @@ class EqSupplyController extends BaseController {
 	public function destroy($id)
 	{
 		$s = EqItemSupplySet::find($id);
-		if (!$s) {
-			return App::abort(500);
+
+		$result = $this->service->deleteSupplySet($id);
+
+		if ($result === 1) {
+			Session::flash('message', '보급이 취소되었습니다.');
+			return Redirect::back();
+		} else {
+			Session::flash('message', '보급 취소중 오류가 발생했습니다.');
+			return Redirect::back();
 		}
-		$datas = $s->children;
-
-		$item = EqItem::find($s->item_id);
-
-		// 보급을 삭제할 경우 보급 내역을 인벤토리에서 롤백한다.
-		
-		DB::beginTransaction();
-
-		// 1. 보급한 관서의 인벤토리 수량 더하기
-		$supplierNodeId = $s->from_node_id;
-
-		$supplierInvSet = EqInventorySet::where('node_id','=',$supplierNodeId)->where('item_id','=',$item->id)->first();
-
-		foreach ($item->types as $t) {
-			$suppliedCount = EqItemSupply::where('supply_set_id','=',$s->id)->where('item_type_id','=',$t->id)->sum('count');
-			$invData = EqInventoryData::where('inventory_set_id','=',$supplierInvSet->id)->where('item_type_id','=',$t->id)->first();
-			$invData->count += $suppliedCount;
-			if (!$invData->save()) {
-				return App::abort(500);
-			}
-		} 
-
-		// 2. 보급받은 관서의 인벤토리 수량 빼기
-		foreach ($datas as $d) {
-			$itemTypeId = $d->item_type_id;
-			$toNodeId = $d->to_node_id;
-			$invSet = EqInventorySet::where('node_id','=',$toNodeId)->where('item_id','=',$s->item_id)->first();
-			$invData = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$d->item_type_id)->first();
-			
-			$invData->count -= $d->count;
-			if (!$invData->save()) {
-				return App::abort(500);
-			}
-
-			if (!$d->delete()) {
-				return App::abort(500);
-			}
-		}
-
-		if (!$s->delete()) {
-			return App::abort(500);
-		}
-
-		DB::commit();
-
-		return Redirect::back()->with('message', '해당 보급이 취소되었습니다');
 	}
 
 }

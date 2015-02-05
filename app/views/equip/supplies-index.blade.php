@@ -102,7 +102,7 @@
 									{{ $supply->id }}
 								</td>
 								<td>
-									<a href="{{ url('equips/supplies/'.$supply->id)}}">{{ $supply->item->item_code }}</a>
+									<a href="{{ url('equips/supplies/'.$supply->id)}}">{{ $supply->item->code->title.' / '.$supply->item->classification }}</a>
 								</td>
 								<td>
 									{{ $supply->item->maker_name.' / '.$supply->item->acquired_date }}

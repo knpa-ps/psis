@@ -36,9 +36,7 @@ class ManagerController extends \BaseController {
 		})->get();
 
 		foreach ($havingEqGroups as $g) {
-			if (substr($g->key, 5)==="equip") {
 				$g->users()->detach($userId[0]);
-			}
 		};
 
 		// 선택한 노드의 관리자로 임명함

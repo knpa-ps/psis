@@ -66,7 +66,7 @@
 								<thead>
 									<tr>
 										<th>중대명</th>
-										<th>사용량(L)</th>
+										<th>사용량(ℓ)</th>
 										<th>작업</th>
 									</tr>
 								</thead>
@@ -147,7 +147,7 @@
 		var amount = $('#amount').val();
 		
 		if (nodeId == '' || amount == '') {
-			return alert('값을 입력하세요');
+			return alert('동원중대를 선택하고 사용량(ℓ)을 입력하세요');
 		};
 
 		var newRow = $('#template_tbody tr').clone();
