@@ -2,30 +2,13 @@
 
 class EqConvertController extends EquipController {
 
+	public function crossHeadIndex() {
 
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
-	public function index()
-	{
 		$user = Sentry::getUser();
 		$start = Input::get('start');
 		$end = Input::get('end');
-		$isImport = Input::get('is_import');
 
-		if (!$isImport) {
-			$data['isImport'] = true;
-		} else {
-			if ($isImport=='true') {
-				$data['isImport'] = true;
-			} else {
-				$data['isImport'] = false;
-			}
-		}
-
-		//필터
+		$data['user'] = $user;
 
 		//날짜 범위 지정 관련
 		$validator = Validator::make(Input::all(), array(
@@ -60,11 +43,77 @@ class EqConvertController extends EquipController {
 			});
 		}
 
+		//청간 전환인 converts 불러오기
+		$data['converts'] = $query->where('cross_head','=',1)->paginate(15);
+
+		return View::make('equip.convert-crosshead',$data);
+	}
+
+	/**
+	 * Display a listing of the resource.
+	 *
+	 * @return Response
+	 */
+	public function index()
+	{
+		$user = Sentry::getUser();
+		$start = Input::get('start');
+		$end = Input::get('end');
+		$isImport = Input::get('is_import');
+
+		$data['user'] = $user;
+
+		if (!$isImport) {
+			$data['isImport'] = true;
+		} else {
+			if ($isImport=='true') {
+				$data['isImport'] = true;
+			} else {
+				$data['isImport'] = false;
+			}
+		}
+
+		//필터
+
+		//날짜 범위 지정 관련
+		$validator = Validator::make(Input::all(), array(
+				'start'=>'date',
+				'end'=>'date'
+			));
+
+		if ($validator->fails()) {
+			return App::abort(400);
+		}
+
+		if (!$start) {
+			$start = date('Y-m-d', strtotime('-1 year'));
+		}
+
+		if (!$end) {
+			$end = date('Y-m-d');
+		}
+
+		$data['start'] = $start;
+		$data['end'] = $end;
+
+		$query = EqConvertSet::where('converted_date', '>=', $start)->where('converted_date', '<=', $end);
+
+		//날짜 지정 관련 끝
+		//장비명
+		$itemName = Input::get('item_name');
+		if ($itemName) {
+			$query->whereHas('item', function($q) use($itemName) {
+				$q->whereHas('code', function($qry) use($itemName) {
+					$qry->where('title','like',"%$itemName%");
+				});
+			});
+		}
+
 		//converts 불러오기
 		if ($data['isImport'] == true) {
 			// 입고내역 조회
 			// convert_set 중 target_node = userNode인 것만 불러온다.
-			$data['converts'] = $query->where('target_node_id','=',$user->supplyNode->id)->paginate(15);
+			$data['converts'] = $query->where('target_node_id','=',$user->supplyNode->id)->whereRaw('cross_head = head_confirmed')->paginate(15);
 
 		} else {
 			// 출고내역 조회
@@ -124,17 +173,21 @@ class EqConvertController extends EquipController {
 		if ($validator->fails()) {
 			return Redirect::back()->with('message', '대상관서를 반드시 선택해야 합니다');
 		}
+
 		if (array_sum($input['type_counts'])==0) {			
 			return Redirect::back()->with('message', '관리전환 수량이 입력되지 않았습니다.');
 		}
 
 		$user = Sentry::getUser();
+		$userNode = $user->supplyNode;
 		$item = EqItem::find($input['item_id']);
 		$itemTypes = $item->types;
 
+		
+
 		// 보유수량이 충분한지 검사하는 로직
 
-		$inventorySet = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$item->id)->first();
+		$inventorySet = EqInventorySet::where('node_id','=',$userNode->id)->where('item_id','=',$item->id)->first();
 		
 		foreach ($itemTypes as $t) {
 			$query = EqInventoryData::where('inventory_set_id','=',$inventorySet->id);
@@ -157,8 +210,22 @@ class EqConvertController extends EquipController {
 		$convSet->explanation = $input['explanation'];
 		$convSet->is_confirmed = 0;
 
+		// 타 청으로 보내는 경우 본청 승인을 받아야 하므로 이를 검사한다.
+		$targetNode = EqSupplyManagerNode::find($input['supply_node_id']);
+
+		$targetHeadId = explode(":", $targetNode->full_path)[2];
+		$myHeadId = explode(":", $userNode->full_path)[2];
+
+		// 유저가 본청이면 이 부분을 그냥 넘어간다.
+		if ($myHeadId) {
+			// 유저가 본청이 아닐 경우 관리전환 대상 부서가 타청인지 검사
+			$convSet->cross_head = ($targetHeadId === $myHeadId) ? false : true;
+		}
+
+		$convSet->head_confirmed = false;
+
 		if (!$convSet->save()) {
-			return a::abort(500);
+			return App::abort(500);
 		}
 
 		foreach ($itemTypes as $t) {
@@ -174,7 +241,7 @@ class EqConvertController extends EquipController {
 		
 		DB::commit();
 
-		return Redirect::action('EqConvertController@index')->with('message','관리전환이 등록되었습니다.');
+		return Redirect::action('EqConvertController@index', 'is_import=false')->with('message','관리전환이 등록되었습니다.');
 	}
 
 
@@ -187,6 +254,7 @@ class EqConvertController extends EquipController {
 	public function show($id)
 	{
 		$convSet = EqConvertSet::find($id);
+		$user = Sentry::getUser();
 		$isImport = $convSet->target_node_id == Sentry::getUser()->supplyNode->id;
 		$item = EqItem::find($convSet->item_id);
 		$types = $item->types;
@@ -234,6 +302,15 @@ class EqConvertController extends EquipController {
 	public function destroy($id)
 	{
 		//
+	}
+
+	public function headConfirm($id) {
+		$convSet = EqConvertSet::find($id);
+		$convSet->head_confirmed = 1;
+		if (!$convSet->save()) {
+			return App::abort(500);
+		}
+		return Redirect::back()->with('message', '청간 관리전환이 승인되었습니다.');
 	}
 
 	public function convertConfirm($id) {

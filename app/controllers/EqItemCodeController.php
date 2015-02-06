@@ -29,7 +29,7 @@ class EqItemCodeController extends EquipController {
 		} else {
 			// 본청 아닌 경우
 			// 보급받은것
-			$beSuppliedSet = EqItemSupplySet::where('item_id','=',$itemId)->where('from_node_id','=',$user->supplyNode->parent->id)->get();
+			$beSuppliedSet = EqItemSupplySet::where('item_id','=',$itemId)->where('from_node_id','=',$user->supplyNode->managedParent->id)->get();
 			if($beSuppliedSet) {
 				foreach ($beSuppliedSet as $s) {
 					$obj = new stdClass();

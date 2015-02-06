@@ -6,7 +6,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					<strong>관리전환하기 [{{substr($item->acquired_date, 0,4).' '.$item->code->title.'('.$item->classification.')'}}]</strong>
+					<strong>관리전환하기 [{{substr($item->acquired_date, 0,4).' '.$item->code->title.' / '.$item->classification }}]</strong>
 				</h3>
 			</div>
 

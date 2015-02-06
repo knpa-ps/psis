@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class AddApprovedDateToEqConvertSetTable extends Migration {
+class AddCrossHeadColumnToEqConvertSetTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -13,7 +13,8 @@ class AddApprovedDateToEqConvertSetTable extends Migration {
 	public function up()
 	{
 		Schema::table('eq_convert_set', function(Blueprint $table) {
-			$table->date('confirmed_date')->nullable();
+			$table->boolean('cross_head');
+			$table->boolean('head_confirmed');
 		});
 	}
 
@@ -25,7 +26,14 @@ class AddApprovedDateToEqConvertSetTable extends Migration {
 	public function down()
 	{
 		Schema::table('eq_convert_set', function(Blueprint $table) {
-			$table->dropColumn('confirmed_date');
+			if (Schema::hasColumn('eq_convert_set', 'cross_head')) 
+			{
+				$table->dropColumn('cross_head');
+			}
+			if (Schema::hasColumn('eq_convert_set', 'head_confirmed')) 
+			{
+				$table->dropColumn('head_confirmed');
+			}
 		});
 	}
 

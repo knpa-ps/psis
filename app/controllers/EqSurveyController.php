@@ -206,6 +206,9 @@ class EqSurveyController extends \BaseController {
 		$user = Sentry::getUser();
 		$mode = 'create';
 		$childrenNodes = EqSupplyManagerNode::where('parent_manager_node','=',$user->supplyNode->id)->get();
+		if (!$childrenNodes) {
+			return Redirect::back()->with('message', '하위 부서가 존재하지 않습니다.');
+		}
 		return View::make('equip.survey-new', get_defined_vars());
 	}
 

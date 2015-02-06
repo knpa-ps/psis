@@ -45,6 +45,8 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::post('/supplies/create/get_classifiers', 'EqSupplyController@getClassifiers');
 
 	Route::resource('convert', 'EqConvertController');
+	Route::get('/convert_cross_head', 'EqConvertController@crossHeadIndex');
+	Route::get('/convert_cross_head/{id}/confirm', 'EqConvertController@headConfirm');
 	Route::post('/convert/{id}/confirm', 'EqConvertController@convertConfirm');
 
 });
