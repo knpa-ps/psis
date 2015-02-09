@@ -183,7 +183,13 @@ class EqConvertController extends EquipController {
 		$item = EqItem::find($input['item_id']);
 		$itemTypes = $item->types;
 
-		
+		// 입력한 숫자가 정수인지 검사한다.
+		$inputCounts = Input::get('type_counts');
+		foreach ($inputCounts as $c) {
+			if (!is_numeric($c) || $c < 0) {
+				return Redirect::back()->with('message', '수량에는 양의 정수를 입력해야 합니다.');
+			}
+		}
 
 		// 보유수량이 충분한지 검사하는 로직
 

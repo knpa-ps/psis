@@ -89,8 +89,8 @@
 					@foreach ($rows as $r)
 					<tr>
 						<td>{{ $r->date }}</td>
-						<td>{{ $r->node->node_name }}</td>
-						<td>{{ $r->user_node->node_name }}</td>
+						<td>{{ $r->node->full_name }}</td>
+						<td>{{ $r->user_node->full_name }}</td>
 						<td>{{ $r->type }}</td>
 						<td>{{ $r->location }}</td>
 						@if($r->fileName != '')

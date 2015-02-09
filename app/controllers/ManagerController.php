@@ -57,19 +57,24 @@ class ManagerController extends \BaseController {
 		// 지방청 관리자면 지방청관리자 그룹에 넣기
 		
 		if ($node->type_code == 'D002') {
-			$eqMngGroup = $capsaicinGroup;
+			User::find($userId[0])->groups()->attach($capsaicinGroup->id);
+			User::find($userId[0])->groups()->attach($psGroup->id);
 		} else {
-			$eqMngGroup = $psGroup;
+			User::find($userId[0])->groups()->attach($psGroup->id);
 		}
 
 		// 해당 노드의 전임 관리자는 그룹에서 빼기
 		if ($predecessorId) {
-			$eqMngGroup->users()->detach($predecessorId);
+			if ($node->type_code == 'D002') {
+				$capsaicinGroup->users()->detach($predecessorId);
+				$psGroup->users()->detach($predecessorId);
+			} else {
+				$psGroup->users()->detach($predecessorId);
+			}
 		}
 
 		$user = User::find($userId[0]);
 
-		User::find($userId[0])->groups()->attach($eqMngGroup->id);
 
 		$msg = "관리자가 변경되었습니다.";
 		$code = 1;

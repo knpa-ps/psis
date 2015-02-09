@@ -669,7 +669,11 @@ class AdminController extends BaseController {
 				if ($parent->id == 1) {
 					$node->full_name = $node->node_name;
 				} else {
-					$node->full_name = trim($parent->full_name." {$node->node_name}");
+					if ($node->parent_manager_node !== null) {
+						$node->full_name = trim($parent->full_name." {$node->node_name}");
+					} else {
+						$node->full_name = trim($parent->full_name);
+					}
 				}
 			}
 
@@ -710,7 +714,11 @@ class AdminController extends BaseController {
 			if ($parent->full_name == '본청') {
 				$child->full_name = $child->node_name;
 			} else {
-				$child->full_name = trim($parent->full_name." {$child->node_name}");
+				if ($child->parent_manager_node !== null or $child->type_code == "D003") {
+					$child->full_name = trim($parent->full_name." {$child->node_name}");
+				} else {
+					$child->full_name = trim($parent->full_name);
+				}
 			}
 			$child->is_terminal == 0;
 

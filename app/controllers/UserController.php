@@ -86,18 +86,38 @@ class UserController extends BaseController {
 	public function index()
 	{
 		$user = Sentry::getUser();
-		$params = Input::all();
+		$input = Input::all();
 		$userId = $user->id;
+		$params = array();
 		//초기 사용자그룹 선택되는거 만들어줘야함.
 		//Input::get('group')이 처음엔 없으니까 $params['group']에 초기값을 넣어줘야함.
-		$initSelectedGroup = Group::whereHas('users', function($q) use($userId) {
-			$q->where('id','=',$userId);
-		})->where('key','like','%.admin')->first();
 
-		if($initSelectedGroup){
-			if(!isset($params['group'])){
-				$params['group'] = substr($initSelectedGroup->key, 0, strlen($initSelectedGroup->key)-6 );
+		if (!Input::get('group')) {
+			$initSelectedGroup = Group::whereHas('users', function($q) use($userId) {
+				$q->where('id','=',$userId);
+			})->where('key','like','%.admin')->first();
+
+			if($initSelectedGroup){
+				$input['group'] = substr($initSelectedGroup->key, 0, strlen($initSelectedGroup->key)-6 );
+			} else {
+				return '관리자 그룹이 아닙니다';
 			}
+
+			$data['group'] = 'all';
+			$data['active'] = 'all';
+			$data['accountName'] = '';
+
+			$params['group'] = 'all';
+			$params['active'] = 'all';
+			$params['account_name'] = '';
+		} else {
+			$data['group'] = Input::get('group');
+			$data['active'] = Input::get('active');
+			$data['accountName'] = Input::get('account_name');
+
+			$params['group'] = Input::get('group');
+			$params['active'] = Input::get('active');
+			$params['account_name'] = Input::get('account_name');
 		}
 
 		$filteredList = $this->mngService->getFilteredUserListQuery($params);

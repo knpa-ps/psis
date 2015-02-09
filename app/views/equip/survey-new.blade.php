@@ -62,14 +62,16 @@ $(function(){
 	$('.input-count').on('change', function(){
 		//인풋이 숫자아니면 없애기
 		var input = $(this).val();
-		if (!jQuery.isNumeric(input)) {
+		var re = /^\d+$/;
+		if (!re.test(input)) {
+			alert('양의 정수만 입력하세요');
 			$(this).val('');
 		};
 
 		var sumNode = 0;
 		@foreach ($childrenNodes as $n)
 			var typeValue = $("#{{'count_'.$n->id}}").val();
-			if (jQuery.isNumeric(typeValue)) {
+			if (re.test(typeValue)) {
 				sumNode += parseInt(typeValue);
 			}
 			//노드별합계 계산

@@ -136,6 +136,7 @@ class EqSurveyController extends \BaseController {
 		$user = Sentry::getUser();
 		$start = Input::get('start');
 		$end = Input::get('end');
+		$userNode = $user->supplyNode;
 
 		$validator = Validator::make(Input::all(), array(
 				'start'=>'date',
@@ -167,17 +168,20 @@ class EqSurveyController extends \BaseController {
 		//조사하기 탭일 땐 자신이 등록한 설문조사 목록을 출력
 		if ($domain == 1) {
 
-			$query = EqItemSurvey::where('node_id','=',$user->supplyNode->id)->where('started_at', '>=', $start)->where('is_closed','=',0);
+			$query = EqItemSurvey::where('node_id','=',$userNode->id)->where('started_at', '>=', $start)->where('is_closed','=',0);
 			$items = EqItem::where('is_active','=',1)->get();
 
 		//조사응답 탭일 땐 자신이 응답해야 하는 설문조사 목록을 출력한다.
 		} else {
-			if ($user->supplyNode->id != 1) {
-				$query = EqItemSurvey::where('node_id','=',$user->supplyNode->managedParent->id)->where('started_at', '>=', $start)->where('is_closed','=',0);
+			// 조사 수량이 0인 경우 그냥 안뜨게 한다.
+			if ($user->supplyNode->type_code !== 'D001') {
+				$query = EqItemSurvey::where('node_id','=',$userNode->managedParent->id)->where('started_at', '>=', $start)->where('is_closed','=',0)
+										->whereHas('datas', function($q) use($userNode){
+											$q->where('target_node_id','=',$userNode->id)->where('count','<>',0);
+										});
 			} else {
 				$query = EqItemSurvey::where('node_id','=',0);
 			}
-			
 		}
 
 		// 장비명 필터 걸기
@@ -223,6 +227,15 @@ class EqSurveyController extends \BaseController {
 		$input = Input::all();
 		$user = Sentry::getUser();
 		$nodes = $user->supplyNode->managedChildren;
+
+		$inputSum = 0;
+		foreach ($nodes as $n) {
+			$inputSum += $input['count_'.$n->id];
+		}
+
+		if ($inputSum === 0) {
+			return Redirect::back()->with('message', '조사할 수량을 입력하세요.');
+		}
 
 		DB::beginTransaction();
 			$survey = new EqItemSurvey;

@@ -113,7 +113,7 @@
 									<tr>
 										<td>{{$s->item->code->title}}</td>
 										<td>{{$s->started_at.'~'.$s->expired_at}}</td>
-										<td></td>
+										<td>{{ number_format($s->responses->sum('count')).' / '.number_format($s->datas->sum('count')).' ('.($s->responses->sum('count')/$s->datas->sum('count')*100).'%)' }}</td>
 									</tr>
 								</tbody>
 								@endforeach

@@ -13,7 +13,7 @@
 								사용자 그룹
 							</label>
 							<div class="col-xs-8">
-								{{ Form::select('group', $manageGroups, null, array('class' => 'form-control input-sm', 'id' => 'user_group') )}}
+								{{ Form::select('group', $manageGroups, $group, array('class' => 'form-control input-sm', 'id' => 'user_group') )}}
 							</div>
 						</div>
 						<div class="form-group col-xs-6">
@@ -21,7 +21,7 @@
 								활성화 여부
 							</label>
 							<div class="col-xs-8">
-								{{ Form::select('active', array('1'=>'활성화', '0'=>'비활성화','all' => '전체'), 'all' , array('class'=>'form-control input-sm', 'id'=>'active')  ) }}
+								{{ Form::select('active', array('1'=>'활성화', '0'=>'비활성화','all' => '전체'), $active , array('class'=>'form-control input-sm', 'id'=>'active')  ) }}
 							</div>
 						</div>
 					</div>
@@ -31,7 +31,7 @@
 								계정/이름
 							</label>
 							<div class="col-xs-8">
-								<input type="text" class="input-sm form-control" id="account_name" name="account_name">
+								<input type="text" class="input-sm form-control" id="account_name" name="account_name" value="{{$accountName}}">
 							</div>
 						</div>
 					</div>
@@ -90,7 +90,7 @@
 						@endforeach
 					</tbody>
 				</table>
-				{{ $users->links() }}
+				{{ $users->appends(array('group'=>$group, 'active'=>$active, 'account_name'=>$accountName ))->links() }}
 			</div>
 		</div>
 	</div>

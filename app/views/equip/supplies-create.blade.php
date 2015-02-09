@@ -150,11 +150,15 @@ $(function(){
 
 
 	$('.input-count').on('change', function(){
-		calcSum();
 		var input = $(this).val();
-		if (!jQuery.isNumeric(input)) {
+		var re = /^\d+$/;
+
+		if (!re.test(input)) {
+			alert('양의 정수만 입력하세요');
 			$(this).val('');
 		};
+
+		calcSum();
 	});
 
 	$("#supply_form").validate({

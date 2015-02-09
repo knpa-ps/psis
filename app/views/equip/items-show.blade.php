@@ -173,7 +173,7 @@
 												))}}
 											@foreach ($inventorySet->children as $c)
 												<td style="text-align: center;">
-													<input type="number" class="form-control input-sm" value="{{$c->count}}" name="{{ 'count['.$c->id.']'}}">
+													<input type="text" class="form-control input-sm positive-int" value="{{$c->count}}" name="{{ 'count['.$c->id.']'}}">
 												</td>
 											@endforeach
 											{{ Form::close() }}
@@ -193,7 +193,7 @@
 										)) }}
 											@foreach ($inventorySet->children as $c)
 												<td style="text-align: center;">
-													<input type="text" class="form-control input-sm" value="{{$c->wrecked}}" name="{{ 'wrecked['.$c->id.']' }}">
+													<input type="text" class="form-control input-sm positive-int" value="{{$c->wrecked}}" name="{{ 'wrecked['.$c->id.']' }}">
 												</td>
 											@endforeach
 										{{ Form::close() }}
@@ -258,6 +258,17 @@
 var dataTable;
 
 $(function() {
+
+	$(".positive-int").on('change', function(){
+		var input = $(this).val();
+		var re = /^\d+$/;
+
+		if (!re.test(input)) {
+		alert('양의 정수만 입력하세요');
+		$(this).val(0);
+		};
+	});
+
 	$("#wrecked_update_btn").click(function() {
 		$("#wrecked_update_form").submit();
 	});

@@ -42,6 +42,13 @@ class EqInventoryController extends BaseController {
 		$user = Sentry::getUser();
 		$wrecked = Input::get('wrecked');
 
+		// 보유수량보다 파손수량이 많아지는 경우를 제외한다
+		$wreckedSum = 0;
+		foreach ($wrecked as $w) {
+			$wreckedSum += $w;
+		}
+
+
 		$inventory = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$item->id)->first();
 
 		if($inventory) {
@@ -50,6 +57,10 @@ class EqInventoryController extends BaseController {
 
 			foreach ($item->types as $t) {
 				$data = EqInventoryData::where('inventory_set_id','=',$inventory->id)->where('item_type_id','=',$t->id)->first();
+
+				if ((int)$wrecked[$data->id] > (int)$data->count) {
+					return Redirect::back()->with('message', '보유수량보다 파손수량이 많을 수 없습니다.');
+				}
 				$data->wrecked = $wrecked[$data->id];
 				if (!$data->save()) {
 					return App::abort(500);

@@ -161,7 +161,6 @@ class EqSupplyController extends EquipController {
 		$acquiredSum = EqItemAcquire::where('item_id','=',$data['item_id'])->get()->sum('count');
 		$supplied = EqItemSupplySet::where('item_id','=',$data['item_id'])->get();
 
-
 		//현재 보유중인 사이즈별 수량을 holdingNum[type_id]에 저장한다.
 		foreach ($types as $t) {
 			$holdingNum[$t->id] = EqInventoryData::whereHas('parentSet', function($q) use ($user) {

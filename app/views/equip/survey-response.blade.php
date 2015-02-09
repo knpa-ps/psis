@@ -8,7 +8,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					설문조사 응답하기 - {{$item->code->title.'('.$item->maker_name.','.$item->classification.')'}}
+					설문조사 응답하기 - {{$item->code->title.'('.$item->maker_name.' / '.$item->classification.')'}}
 				</h3>
 			</div>
 			<div class="panel-body">
@@ -36,7 +36,7 @@
 								<td style="padding-top: 11px; text-align: center;" id="sum">{{ $sum }}</td>
 								@foreach ($types as $t)
 									<td>
-										<input type="number" min="0" step="1" class="input-sm form-control input-count" name="{{'count_'.$t->id}}" id="{{'count_'.$t->id}}" value="{{$count[$t->id] or ''}}">
+										<input type="text" class="input-sm form-control input-count" name="{{'count_'.$t->id}}" id="{{'count_'.$t->id}}" value="{{$count[$t->id] or ''}}">
 									</td>
 								@endforeach
 							</tr>
@@ -57,15 +57,19 @@
 
 <script type="text/javascript">
 $(function(){
+
+	var sum = 0;
+
 	$('.input-count').on('change', function(){
 		//인풋이 숫자아니면 없애기
 		var input = $(this).val();
-		if (!jQuery.isNumeric(input)) {
+		var re = /^\d+$/;
+
+		if (!re.test(input)) {
+			alert('양의 정수만 입력하세요');
 			$(this).val('');
 		};
-	});
-	$('#survey_form').submit(function(event){
-		var sum = 0;
+
 		@foreach ($types as $t)
 			var count = $("#{{'count_'.$t->id}}").val();
 			if (count=='') {
@@ -73,6 +77,18 @@ $(function(){
 			};
 			sum += parseInt(count);
 		@endforeach
+
+		if (sum > {{$sum}}) {
+			alert('수량이 초과되었습니다');
+			$(this).val('');
+			return;
+		};
+
+		$('#sum').text("{{$sum}} / "+ sum);
+	});
+	
+	$('#survey_form').submit(function(event){
+		
 		if (sum != {{$sum}} ) {
 			alert("총 수량이 일치하지 않습니다.");
 			event.preventDefault();

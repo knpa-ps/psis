@@ -95,9 +95,6 @@
 								조사일자
 							</th>
 							<th>
-								총 조사수량
-							</th>
-							<th>
 								조사응답현황
 							</th>
 							<th>
@@ -140,10 +137,7 @@
 									{{ $survey->started_at }}
 								</td>
 								<td>
-									{{ number_format($survey->datas->sum('count')) }}
-								</td>
-								<td>
-									{{ $survey->responses->count()/$survey->item->types->count().'/'. $user->supplyNode->managedChildren->count()}} ({{ round($survey->responses->count()/$user->supplyNode->managedChildren->count()*100/$survey->item->types->count(), 2) }}%)
+									{{ number_format($survey->responses->sum('count')).' / '.number_format($survey->datas->sum('count')).' ('.($survey->responses->sum('count')/$survey->datas->sum('count')*100).'%)' }}
 								</td>
 								<td>
 									<!-- <a href="{{ url('equips/surveys/'.$survey->id.'/edit') }}" class="btn btn-xs btn-info btn-edit">
