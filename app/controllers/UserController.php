@@ -140,10 +140,6 @@ class UserController extends BaseController {
 			}
 		}
 
-		if ($user->hasAccess('eq.*')) {
-			$data['manageGroups']['all'] = '전체보기';
-		}
-
 		return View::make('manager.users', $data);
 	}
 

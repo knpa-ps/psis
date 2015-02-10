@@ -122,7 +122,7 @@ class ManagerController extends \BaseController {
 		if (!$childrenNodes) {
 			return Redirect::back()->with('message','관리할 하위부서가 없습니다.');
 		}
-		return View::make('manager.sems-index', array("id"=>$user->supplyNode->id));
+		return View::make('manager.sems-index', array("id"=>$user->supplyNode->id, "fullName"=>$user->supplyNode->full_name));
 	}
 
 	public function displayDashboard() {

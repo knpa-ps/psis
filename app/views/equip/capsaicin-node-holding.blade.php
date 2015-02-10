@@ -31,6 +31,7 @@
 						<th colspan="2">보유량(ℓ)</th>
 						<th colspan="3" style="background-color: #E89ECC">사용량(ℓ)</th>
 						<th colspan="3">사용횟수</th>
+						<th rowspan="2">타청지원(ℓ)</th>
 						<th rowspan="2">추가량(ℓ)</th>
 						<th rowspan="2">불용량(ℓ)</th>
 					</tr>
@@ -55,6 +56,7 @@
 						<th>{{ $timesSumSum }}</th>
 						<th>{{ $timesTSum }}</th>
 						<th>{{ $timesASum }}</th>
+						<th>{{ $crossUsageSum }}</th>
 						<th>{{ round($additionSum, 2) }}</th>
 						<th>{{ round($discardSum, 2) }}</th>
 					</tr>
@@ -77,6 +79,7 @@
 						<td>{{ $timesSum[$i] }}</td>
 						<td>{{ $timesT[$i] }}</td>
 						<td>{{ $timesA[$i] }}</td>
+						<td>{{ round($crossUsage[$i], 2) }}</td>
 						<td>{{ round($addition[$i], 2) }}</td>
 						<td>{{ round($discard[$i], 2) }}</td>
 					</tr>

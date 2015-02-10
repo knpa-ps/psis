@@ -5,7 +5,7 @@
 	<div class="col-xs-6">
 		<div class="panel panel-default" id="dept_tree_panel">
 			<div class="panel-heading">
-				<div class="panel-title"><b>장비 관리자 조직도</b></div>
+				<div class="panel-title"><b>장비 관리자 조직도 - {{ $fullName }}</b></div>
 			</div>
 			<div class="panel-body">
 				<div id="node_tree">

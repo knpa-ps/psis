@@ -182,7 +182,7 @@ class EqCapsaicinController extends EquipController {
 						$q->where('date','>',$year);
 					})->sum('amount');
 
-					$acquiresThisYear = EqCapsaicinIo::where('io','=',1)->where('acquired_date','>',$year)->sum('amount');
+					$acquiresThisYear = EqCapsaicinIo::where('io','=',1)->where('acquired_date','>',$year)->where('caption','<>','CR')->sum('amount');
 					$discardsThisYear = EqCapsaicinIo::where('io','=',0)->where('acquired_date','>',$year)->sum('amount');
 
 					$data['firstDayHolding'] = $firstDayHolding;
@@ -198,6 +198,7 @@ class EqCapsaicinController extends EquipController {
 					$data['timesSumSum'] = EqCapsaicinEvent::where('date','like',$year.'%')->count();
 					$data['timesTSum'] = EqCapsaicinEvent::where('date','like',$year.'%')->where('type_code','=','training')->count();
 					$data['timesASum'] = EqCapsaicinEvent::where('date','like',$year.'%')->where('type_code','=','assembly')->count();
+					$data['crossUsageSum'] = 0;
 					$data['additionSum'] = $acquiresThisYear;
 					$data['discardSum'] = $discardsThisYear;
 
@@ -208,6 +209,7 @@ class EqCapsaicinController extends EquipController {
 					$timesSum = array();
 					$timesT = array();
 					$timesA = array();
+					$crossUsage = array();
 					$addition = array();
 					$discard = array();
 
@@ -226,10 +228,11 @@ class EqCapsaicinController extends EquipController {
 						$consumptionUntilithMonth = EqCapsaicinUsage::whereHas('event', function($q) use($year,$lastDayofMonth){
 							$q->where('date','<=',$lastDayofMonth)->where('date','like',$year.'%');
 						})->sum('amount');
-						$acquireUntilithMonth = EqCapsaicinIo::where('io','=',1)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->sum('amount');
+						$acquireUntilithMonth = EqCapsaicinIo::where('io','=',1)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->where('caption','<>','CR')->sum('amount');
 						$discardUntilithMonth = EqCapsaicinIo::where('io','=',0)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->sum('amount');
-						$stock[$i] = $firstDayHolding - $consumptionUntilithMonth + $acquireUntilithMonth - $discardUntilithMonth;
+						$crossUsedUntilithMonth = EqCapsaicinCrossRegion::where('used_date','<=',$lastDayofMonth)->where('used_date','like',$year.'%')->sum('amount');
 
+						$stock[$i] = $firstDayHolding - $consumptionUntilithMonth + $acquireUntilithMonth - $discardUntilithMonth - $crossUsedUntilithMonth;
 
 						$month = 12;
 						if ($year == $now->year) {
@@ -245,6 +248,7 @@ class EqCapsaicinController extends EquipController {
 							$timesSum[$i] = null;
 							$timesT[$i] = null;
 							$timesA[$i] = null;
+							$crossUsage[$i] = null;
 							$addition[$i] = null;
 							$discard[$i] = null;
 							continue;
@@ -258,6 +262,7 @@ class EqCapsaicinController extends EquipController {
 							$timesSum[$i] = null;
 							$timesT[$i] = null;
 							$timesA[$i] = null;
+							$crossUsage[$i] = null;
 							$addition[$i] = null;
 							$discard[$i] = null;
 							continue;
@@ -277,7 +282,8 @@ class EqCapsaicinController extends EquipController {
 						$timesSum[$i] = EqCapsaicinEvent::where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
 						$timesT[$i] = EqCapsaicinEvent::where('type_code','=','training')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
 						$timesA[$i] = EqCapsaicinEvent::where('type_code','=','assembly')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
-						$addition[$i] = EqCapsaicinIo::where('io','=',1)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<=',$lastDayofMonth)->sum('amount');
+						$crossUsage[$i] = 0;
+						$addition[$i] = EqCapsaicinIo::where('io','=',1)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<=',$lastDayofMonth)->where('caption','<>','CR')->sum('amount');
 						$discard[$i]  = EqCapsaicinIo::where('io','=',0)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<=',$lastDayofMonth)->sum('amount');
 					}
 					$data['stock'] = $stock;
@@ -287,6 +293,7 @@ class EqCapsaicinController extends EquipController {
 					$data['timesSum'] = $timesSum;
 					$data['timesT'] = $timesT;
 					$data['timesA'] = $timesA;
+					$data['crossUsage'] = $crossUsage;
 					$data['addition'] = $addition;
 					$data['discard'] = $discard;
 				} else {
@@ -300,6 +307,7 @@ class EqCapsaicinController extends EquipController {
 
 					$acquiresThisYear = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','>',$year)->sum('amount');
 					$discardsThisYear = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','>',$year)->sum('amount');
+					$crossUsageThisYear = EqCapsaicinCrossRegion::where('node_id','=',$nodeId)->where('used_date','>',$year)->sum('amount');
 
 					$data['firstDayHolding'] = $firstDayHolding;
 
@@ -314,6 +322,7 @@ class EqCapsaicinController extends EquipController {
 					$data['timesSumSum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->count();
 					$data['timesTSum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('type_code','=','training')->count();
 					$data['timesASum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('type_code','=','assembly')->count();
+					$data['crossUsageSum'] = $crossUsageThisYear;
 					$data['additionSum'] = $acquiresThisYear;
 					$data['discardSum'] = $discardsThisYear;
 
@@ -324,6 +333,7 @@ class EqCapsaicinController extends EquipController {
 					$timesSum = array();
 					$timesT = array();
 					$timesA = array();
+					$crossUsage = array();
 					$addition = array();
 					$discard = array();
 
@@ -344,8 +354,8 @@ class EqCapsaicinController extends EquipController {
 						})->sum('amount');
 						$acquireUntilithMonth = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->sum('amount');
 						$discardUntilithMonth = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->sum('amount');
-						$stock[$i] = $firstDayHolding - $consumptionUntilithMonth + $acquireUntilithMonth - $discardUntilithMonth;
-
+						$crossUsedUntilithMonth = EqCapsaicinCrossRegion::where('node_id','=',$nodeId)->where('used_date','<=',$lastDayofMonth)->where('used_date','like',$year.'%')->sum('amount');
+						$stock[$i] = $firstDayHolding - $consumptionUntilithMonth + $acquireUntilithMonth - $discardUntilithMonth - $crossUsedUntilithMonth;
 
 						$month = 12;
 						if ($year == $now->year) {
@@ -361,6 +371,7 @@ class EqCapsaicinController extends EquipController {
 							$timesSum[$i] = null;
 							$timesT[$i] = null;
 							$timesA[$i] = null;
+							$crossUsage[$i] = null;
 							$addition[$i] = null;
 							$discard[$i] = null;
 							continue;
@@ -374,6 +385,7 @@ class EqCapsaicinController extends EquipController {
 							$timesSum[$i] = null;
 							$timesT[$i] = null;
 							$timesA[$i] = null;
+							$crossUsage[$i] = null;
 							$addition[$i] = null;
 							$discard[$i] = null;
 							continue;
@@ -393,9 +405,11 @@ class EqCapsaicinController extends EquipController {
 						$timesSum[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
 						$timesT[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('type_code','=','training')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
 						$timesA[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('type_code','=','assembly')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
+						$crossUsage[$i] = EqCapsaicinCrossRegion::where('node_id','=',$nodeId)->where('used_date','>',$firstDayofMonth)->where('used_date','<=',$lastDayofMonth)->sum('amount');
 						$addition[$i] = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<=',$lastDayofMonth)->sum('amount');
 						$discard[$i]  = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<=',$lastDayofMonth)->sum('amount');
 					}
+
 					$data['stock'] = $stock;
 					$data['usageSum'] = $usageSum;
 					$data['usageT'] = $usageT;
@@ -403,6 +417,7 @@ class EqCapsaicinController extends EquipController {
 					$data['timesSum'] = $timesSum;
 					$data['timesT'] = $timesT;
 					$data['timesA'] = $timesA;
+					$data['crossUsage'] = $crossUsage;
 					$data['addition'] = $addition;
 					$data['discard'] = $discard;
 				}
@@ -586,6 +601,33 @@ class EqCapsaicinController extends EquipController {
 			if (!$usage->save()) {
 				return App::abort(500);
 			}
+
+			$nodeId = $input['nodeId'][$i];
+			$node = EqSupplyManagerNode::find($nodeId);
+
+			// 타 청에서 동원된 경우
+			// 1. 해당 청에 추가량 등록
+			if ($node->region()->id !== $input['node']) {
+				$addition = new EqCapsaicinIo;
+				$addition->node_id = $input['node'];
+				$addition->amount = $input['amount'][$i];
+				$addition->acquired_date = $input['date'];
+				$addition->caption = 'CR';
+				$addition->io = 1;
+
+				if (!$addition->save()) {
+					return App::abort(500);
+				}			
+			// 2. 동원한 지방청에서 타청사용량 추가
+				$crossUsage = new EqCapsaicinCrossRegion;
+				$crossUsage->node_id = $node->region()->id;
+				$crossUsage->amount = $input['amount'][$i];
+				$crossUsage->used_date = $input['date'];
+
+				if (!$crossUsage->save()) {
+					return App::abort(500);
+				}
+			}
 		}
 
 		DB::commit();
@@ -734,6 +776,7 @@ class EqCapsaicinController extends EquipController {
 
 			$acquiresThisYear = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','>',$year)->sum('amount');
 			$discardsThisYear = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','>',$year)->sum('amount');
+			$crossUsageThisYear = EqCapsaicinCrossRegion::where('node_id','=',$nodeId)->where('used_date','>',$year)->sum('amount');
 
 			$data['firstDayHolding'] = $firstDayHolding;
 
@@ -747,6 +790,7 @@ class EqCapsaicinController extends EquipController {
 			$data['timesSumSum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->count();
 			$data['timesTSum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('type_code','=','training')->count();
 			$data['timesASum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('type_code','=','assembly')->count();
+			$data['crossUsageSum'] = $crossUsageThisYear;
 			$data['additionSum'] = $acquiresThisYear;
 			$data['discardSum'] = $discardsThisYear;
 
@@ -757,6 +801,7 @@ class EqCapsaicinController extends EquipController {
 			$timesSum = array();
 			$timesT = array();
 			$timesA = array();
+			$crossUsage = array();
 			$addition = array();
 			$discard = array();
 
@@ -777,8 +822,8 @@ class EqCapsaicinController extends EquipController {
 				})->sum('amount');
 				$acquireUntilithMonth = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->sum('amount');
 				$discardUntilithMonth = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->sum('amount');
-				$stock[$i] = $firstDayHolding - $consumptionUntilithMonth + $acquireUntilithMonth - $discardUntilithMonth;
-
+				$crossUsedUntilithMonth = EqCapsaicinCrossRegion::where('node_id','=',$nodeId)->where('used_date','<=',$lastDayofMonth)->where('used_date','like',$year.'%')->sum('amount');
+				$stock[$i] = $firstDayHolding - $consumptionUntilithMonth + $acquireUntilithMonth - $discardUntilithMonth - $crossUsedUntilithMonth;
 
 				$month = 12;
 				if ($year == $now->year) {
@@ -794,6 +839,7 @@ class EqCapsaicinController extends EquipController {
 					$timesSum[$i] = null;
 					$timesT[$i] = null;
 					$timesA[$i] = null;
+					$crossUsage[$i] = null;
 					$addition[$i] = null;
 					$discard[$i] = null;
 					continue;
@@ -807,6 +853,7 @@ class EqCapsaicinController extends EquipController {
 					$timesSum[$i] = null;
 					$timesT[$i] = null;
 					$timesA[$i] = null;
+					$crossUsage[$i] = null;
 					$addition[$i] = null;
 					$discard[$i] = null;
 					continue;
@@ -825,6 +872,7 @@ class EqCapsaicinController extends EquipController {
 				$timesSum[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
 				$timesT[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('type_code','=','training')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
 				$timesA[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('type_code','=','assembly')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
+				$crossUsage[$i] = EqCapsaicinCrossRegion::where('node_id','=',$nodeId)->where('used_date','>',$firstDayofMonth)->where('used_date','<=',$lastDayofMonth)->sum('amount');
 				$addition[$i] = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<=',$lastDayofMonth)->sum('amount');
 				$discard[$i] = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<=',$lastDayofMonth)->sum('amount');
 
@@ -837,6 +885,7 @@ class EqCapsaicinController extends EquipController {
 			$data['timesSum'] = $timesSum;
 			$data['timesT'] = $timesT;
 			$data['timesA'] = $timesA;
+			$data['crossUsage'] = $crossUsage;
 			$data['addition'] = $addition;
 			$data['discard'] = $discard;
 

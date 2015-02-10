@@ -30,7 +30,6 @@ class EqSupplyManagerNode extends Eloquent {
 	public function managedParent() {
 		return $this->belongsTo('EqSupplyManagerNode', 'parent_manager_node','id');
 	}
-
 	/**
 	 * 해당 부서의 자식 노드 중 관리자가 존재하는 가장 가까운 노드들을 리턴한
 	 * @return EqSupplyManagerNode
@@ -50,7 +49,7 @@ class EqSupplyManagerNode extends Eloquent {
 			return null;
 		}
 
-		return Department::find($paths[0]);
+		return EqSupplyManagerNode::find($paths[1]);
 	}
 
 	public function scopeRegions($query) {
