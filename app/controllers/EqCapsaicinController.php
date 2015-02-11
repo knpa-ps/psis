@@ -622,6 +622,8 @@ class EqCapsaicinController extends EquipController {
 			// 2. 동원한 지방청에서 타청사용량 추가
 				$crossUsage = new EqCapsaicinCrossRegion;
 				$crossUsage->node_id = $node->region()->id;
+				$crossUsage->usage_id = $usage->id;
+				$crossUsage->io_id = $addition->id;
 				$crossUsage->amount = $input['amount'][$i];
 				$crossUsage->used_date = $input['date'];
 
@@ -915,13 +917,9 @@ class EqCapsaicinController extends EquipController {
 
 	public function updateUsage($usageId) {
 
-		$user = Sentry::getUser();
-		$node = $user->supplyNode;
-
 		$input = Input::all();
 		$usage = EqCapsaicinUsage::find($usageId);
 		$event = $usage->event;
-
 
 		DB::beginTransaction();
 
@@ -933,6 +931,26 @@ class EqCapsaicinController extends EquipController {
 			return App::abort(500);
 		}
 
+		// 기존 사용내역을 삭제한다.
+		// 기존 사용내역이 타청지원이었다면 그거도 지워주고
+		if ($usage->cross) {
+			$cross = $usage->cross;
+			$io = $cross->io;
+			if (!$io->delete()) {
+				return Redirect::back()->with('message','타청지원 추가량 삭제 중 오류가 발생했습니다');
+			}
+			if (!$cross->delete()) {
+				return Redirect::back()->with('message','타청지원내역 삭제 중 오류가 발생했습니다.');
+			}
+		}
+		// 이제 사용내역 지운다
+		if (!$usage->delete()) {
+			return Redirect::back()->with('message','캡사이신 희석액 사용내역 삭제 중 오류가 발생했습니다');
+		}
+
+		// 이제 새로 사용내역을 등록한다.
+		$usage = new EqCapsaicinUsage;
+		$usage->event_id = $event->id;
 		$usage->user_node_id = $input['user_node_id'];
 		$usage->amount = $input['amount'];
 
@@ -940,27 +958,69 @@ class EqCapsaicinController extends EquipController {
 			return App::abort(500);
 		}
 
+		$userNode = EqSupplyManagerNode::find($input['user_node_id']);
+
+		if ($event->node_id !== $userNode->region()->id) {
+		// 타 청에서 동원된 경우
+		// 1. 해당 청에 추가량 등록
+			$addition = new EqCapsaicinIo;
+			$addition->node_id = $event->node_id;
+			$addition->amount = $input['amount'];
+			$addition->acquired_date = $input['event_date'];
+			$addition->caption = 'CR';
+			$addition->io = 1;
+
+			if (!$addition->save()) {
+				return App::abort(500);
+			}			
+		// 2. 동원한 지방청에서 타청사용량 추가
+			$crossUsage = new EqCapsaicinCrossRegion;
+			$crossUsage->node_id = $event->node_id;
+			$crossUsage->usage_id = $usage->id;
+			$crossUsage->io_id = $addition->id;
+			$crossUsage->amount = $input['amount'];
+			$crossUsage->used_date = $input['event_date'];
+
+			if (!$crossUsage->save()) {
+				return App::abort(500);
+			}
+		}
+
 		DB::commit();
 
-		return Redirect::action('EqCapsaicinController@displayNodeState', $node->id )->with('message', '수정되었습니다.');
+		return Redirect::action('EqCapsaicinController@displayNodeState', $event->node_id )->with('message', '수정되었습니다.');
 	}
 
 	public function deleteUsage($usageId) {
-
 		$usage = EqCapsaicinUsage::find($usageId);
 
 		$event = $usage->event;
-		$siblingNum = $event->children->count();
 
-		if ($siblingNum == 1) {
-			if (!$event->delete()) {
-				return '캡사이신 희석액 사용 행사 삭제 중 오류가 발생했습니다';
+		DB::beginTransaction();
+
+		// 타청에서 사용한걸 삭제할 경우 타청사용량에서 제거해줘야 함.
+		if ($usage->cross) {
+			$cross = $usage->cross;
+			$io = $cross->io;
+			if (!$io->delete()) {
+				return '타청지원 추가량 삭제 중 오류가 발생했습니다';
+			}
+			if (!$cross->delete()) {
+				return '타청지원내역 삭제 중 오류가 발생했습니다.';
 			}
 		}
+		// 이제 사용내역 삭제함
 		if (!$usage->delete()) {
 			return '캡사이신 희석액 사용내역 삭제 중 오류가 발생했습니다';
 		}
 
+		if ($event->children->count() == 0) {
+			if (!$event->delete()) {
+				return '캡사이신 희석액 사용 행사 삭제 중 오류가 발생했습니다';
+			}
+		}
+
+		DB::commit();
 		return '해당 사용내역이 삭제되었습니다.'; 
 	}
 

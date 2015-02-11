@@ -22,7 +22,7 @@ class DeleteEqCapsaicinInventoryTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::table('eq_capsaicin_inventory', function(Blueprint $table) {
+		Schema::create('eq_capsaicin_inventory', function(Blueprint $table) {
 			$table->increments('id');
 			$table->integer('node_id');
 			$table->float('stock');

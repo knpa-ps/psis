@@ -15,4 +15,8 @@ class EqCapsaicinUsage extends Eloquent {
 	public function node() {
 		return $this->belongsTo('EqSupplyManagerNode','user_node_id','id');
 	}
+
+	public function cross() {
+		return $this->hasOne('EqCapsaicinCrossRegion', 'usage_id', 'id');
+	}
 }

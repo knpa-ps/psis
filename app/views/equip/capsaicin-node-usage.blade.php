@@ -73,10 +73,10 @@
 					<tr>
 						<th>일자</th>
 						<th>관서명</th>
-						<th>중대</th>
-						<th>행사유형</th>
-						<th>사용장소</th>
 						<th>행사명</th>
+						<th>사용장소</th>
+						<th>행사유형</th>
+						<th>중대</th>
 						<th style="background-color: #E89ECC">사용량(ℓ)</th>
 						<th></th>
 					</tr>
@@ -91,13 +91,13 @@
 					<tr id="{{$r->id}}">
 						<td>{{ $r->date }}</td>
 						<td>{{ $r->node->full_name }}</td>
-						<td>{{ $r->user_node->full_name }}</td>
-						<td>{{ $r->type }}</td>
+						<td>{{ $r->event_name }}</td>
 						<td>{{ $r->location }}</td>
+						<td>{{ $r->type }}</td>
+						<td>{{ $r->user_node->full_name }}</td>
 						@if($r->fileName != '')
 						<td><a href="{{ url('uploads/docs/'.$r->fileName) }}">{{ $r->event_name }}</a></td>
 						@else
-						<td>{{ $r->event_name }}</td>
 						@endif
 						<td style="background-color: #FEE9FC">{{ round($r->amount, 2) }}</td>
 						<td>

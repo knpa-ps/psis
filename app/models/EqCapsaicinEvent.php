@@ -11,4 +11,8 @@ class EqCapsaicinEvent extends Eloquent {
 	public function children(){
 		return $this->hasMany('EqCapsaicinUsage','event_id','id');
 	}
+
+	public function regionNode() {
+		return $this->belongsTo('EqSupplyManagerNode', 'node_id', 'id');
+	}
 }

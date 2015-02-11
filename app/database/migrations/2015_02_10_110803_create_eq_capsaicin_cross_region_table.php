@@ -15,6 +15,8 @@ class CreateEqCapsaicinCrossRegionTable extends Migration {
 		Schema::create('eq_capsaicin_cross_region', function(Blueprint $table) {
 			$table->increments('id');
 			$table->integer('node_id')->unsigned()->index();
+			$table->integer('usage_id')->unsigned()->index();
+			$table->integer('io_id')->unsigned()->index();
 			$table->float('amount')->unsigned();
 			$table->date('used_date');
 			$table->timestamps();
