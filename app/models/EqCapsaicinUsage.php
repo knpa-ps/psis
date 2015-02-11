@@ -11,4 +11,8 @@ class EqCapsaicinUsage extends Eloquent {
 	public function event() {
 		return $this->belongsTo('EqCapsaicinEvent','event_id','id');
 	}
+
+	public function node() {
+		return $this->belongsTo('EqSupplyManagerNode','user_node_id','id');
+	}
 }

@@ -26,7 +26,7 @@
 							행사명
 						</label>
 						<div class="col-xs-9">
-							<input type="text" class="input-sm form-control" id="event_name" name="event_name">
+							<input type="text" class="input-sm form-control" id="event_name" name="event_name" value="{{ $eventName ? $eventName : ''}}">
 						</div>
 					</div>
 				</div>
@@ -78,6 +78,7 @@
 						<th>사용장소</th>
 						<th>행사명</th>
 						<th style="background-color: #E89ECC">사용량(ℓ)</th>
+						<th></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -87,7 +88,7 @@
 					</tr>
 					@else
 					@foreach ($rows as $r)
-					<tr>
+					<tr id="{{$r->id}}">
 						<td>{{ $r->date }}</td>
 						<td>{{ $r->node->full_name }}</td>
 						<td>{{ $r->user_node->full_name }}</td>
@@ -99,6 +100,10 @@
 						<td>{{ $r->event_name }}</td>
 						@endif
 						<td style="background-color: #FEE9FC">{{ round($r->amount, 2) }}</td>
+						<td>
+							<a href="{{url('equips/capsaicin_usage/'.$r->id.'/edit')}}" class="label label-success"><span class="glyphicon glyphicon-pencil"></span> 수정</a><br />
+							<a href="#" class="delete-usage label label-danger"><span class="glyphicon glyphicon-remove"></span> 삭제</a>
+						</td>
 					</tr>
 					@endforeach
 					
@@ -108,12 +113,31 @@
 					<tr>
 						<td colspan="6">{{ $start }} ~ {{$end}} 총 사용량</td>
 						<td>{{ round($totalUsage, 2) }}</td>
+						<td></td>
 					</tr>
 				</tfoot>
-				{{ $rows->appends(array('is_state'=>'false') )->links() }}
+				{{ $rows->appends(array('is_state'=>'false', 'start'=>$start, 'end'=>$end, 'event_name'=>$eventName, 'event_type' => $eventType) )->links() }}
 				</table>
 			</div>
 		</div>
-
 	</div>
 </div>
+
+<script type="text/javascript">
+$(function(){
+	$(".delete-usage").on('click', function(){
+		if (!confirm('정말 삭제하시겠습니까?')) {
+			return;
+		};
+		var usageId = $(this).parent().parent().attr('id');
+		$.ajax({
+			url : base_url+'/equips/capsaicin_usage/'+usageId,
+			type : 'delete',
+			success : function(res) {
+				alert(res);
+				location.reload();
+			}
+		});
+	});
+})
+</script>

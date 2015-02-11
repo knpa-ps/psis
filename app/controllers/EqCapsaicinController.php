@@ -472,6 +472,7 @@ class EqCapsaicinController extends EquipController {
 					$usages = $e->children;
 					foreach ($usages as $u) {
 						$row = new stdClass;
+						$row->id = $u->id;
 						$row->date = $e->date;
 						$row->node = EqSupplyManagerNode::find($e->node_id);
 						$row->user_node = EqSupplyManagerNode::find($u->user_node_id);
@@ -743,6 +744,7 @@ class EqCapsaicinController extends EquipController {
 				$usages = $e->children;
 				foreach ($usages as $u) {
 					$row = new stdClass;
+					$row->id = $u->id;
 					$row->date = $e->date;
 					$row->node = EqSupplyManagerNode::find($e->node_id);
 					$row->user_node = EqSupplyManagerNode::find($u->user_node_id);
@@ -901,6 +903,65 @@ class EqCapsaicinController extends EquipController {
 		$data['year'] = $year;
 		
 		return View::make('equip.capsaicin-per-node',$data);
+	}
+
+	public function editUsage($usageId) {
+		
+		$usage = EqCapsaicinUsage::find($usageId);
+		$event = $usage->event;
+
+		return View::make('equip.capsaicin-usage-edit', get_defined_vars());
+	}
+
+	public function updateUsage($usageId) {
+
+		$user = Sentry::getUser();
+		$node = $user->supplyNode;
+
+		$input = Input::all();
+		$usage = EqCapsaicinUsage::find($usageId);
+		$event = $usage->event;
+
+
+		DB::beginTransaction();
+
+		$event->date = $input['event_date'];
+		$event->type_code = $input['event_type'];
+		$event->event_name = $input['event_name'];
+		$event->location = $input['location'];
+		if (!$event->save()) {
+			return App::abort(500);
+		}
+
+		$usage->user_node_id = $input['user_node_id'];
+		$usage->amount = $input['amount'];
+
+		if (!$usage->save()) {
+			return App::abort(500);
+		}
+
+		DB::commit();
+
+		return Redirect::action('EqCapsaicinController@displayNodeState', $node->id )->with('message', '수정되었습니다.');
+	}
+
+	public function deleteUsage($usageId) {
+
+		$usage = EqCapsaicinUsage::find($usageId);
+
+		$event = $usage->event;
+		$siblingNum = $event->children->count();
+
+		if ($siblingNum == 1) {
+			if (!$event->delete()) {
+				return '캡사이신 희석액 사용 행사 삭제 중 오류가 발생했습니다';
+			}
+		}
+		if (!$usage->delete()) {
+			return '캡사이신 희석액 사용내역 삭제 중 오류가 발생했습니다';
+		}
+
+		return '해당 사용내역이 삭제되었습니다.'; 
 	}
 
 }
