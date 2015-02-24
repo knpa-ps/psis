@@ -97,7 +97,10 @@
 {{ HTML::dataTables() }}
 <script type="text/javascript">
 $(function() {
+
 	$("#items_table").DataTable({
+
+		pageLength: 50,
 
 		columnDefs: [
 			{ visible: false, targets: 0 },
@@ -111,7 +114,7 @@ $(function() {
             api.column(0, {page:'current'} ).data().each( function ( group, i ) {
                 if ( last !== group ) {
                     $(rows).eq( i ).before(
-                        '<tr class="group"><td colspan="6" class="group-cell">'+group+'</td></tr>'
+                        '<tr class="group"><td colspan="6" class="group-cell">'+group+" -"+'</td></tr>'
                     );
  
                     last = group;
@@ -119,6 +122,15 @@ $(function() {
             } );
         }
 	});
+	$(document.body).on('click', '.group', function(){
+		$(this).nextUntil('tr.group').slideToggle();
+		var origin = $(this).find('td').text();
+		var group = origin.substring(0, origin.length-1);
+		var flag = origin.substring(origin.length-1,origin.length);
+		flag == '-' ? $(this).find('td').text(group+'+') : $(this).find('td').text(group+'-');
+	})
+
+	$(".group").trigger('click');
 });
 </script>
 @stop

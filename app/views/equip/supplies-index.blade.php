@@ -58,10 +58,10 @@
 							<select name="item" id="item_to_supply" class="form-control">
 								@if(count($items)>0)
 									@foreach($items as $i)
-										<option value="{{$i->id}}">{{$i->code->title}} ({{substr($i->acquired_date, 0, 4).' '.$i->maker_name.' '.$i->classification}})</option>
+										<option value="{{$i->id}}">{{substr($i->acquired_date, 0, 4).' '.$i->code->title}} ({{$i->maker_name.' '.$i->classification}})</option>
 									@endforeach
 								@else
-									<option value="0">보유중인 장비가 없습니다.</option>
+									<option value="0">올해 취득한 장비가 없습니다.</option>
 								@endif
 								
 							</select>

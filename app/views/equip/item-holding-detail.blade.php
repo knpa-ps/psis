@@ -43,7 +43,7 @@
 							현재 보유수량
 						</th>
 						<th>
-							{{ $remaining }}
+							{{ number_format($remaining) }}
 						</th>
 						<th>
 							
@@ -60,10 +60,10 @@
 									{{ $e->date }}
 								</td>
 								<td>
-									{{ $e->income==0 ? '' : $e->income }}
+									{{ $e->income==0 ? '' : number_format($e->income) }}
 								</td>
 								<td>
-									{{ $e->outgoings == 0 ? '' : $e->outgoings }}
+									{{ $e->outgoings == 0 ? '' : number_format($e->outgoings) }}
 								</td>
 								<td>
 									{{ $e->classification }}

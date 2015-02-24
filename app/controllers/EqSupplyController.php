@@ -99,9 +99,8 @@ class EqSupplyController extends EquipController {
 		}
 
 		$supplies = $query->paginate(15);
-
 		$items = EqItem::where('is_active','=',1)->whereHas('inventories', function($q) use ($nodeId) {
-			$q->where('node_id','=',$nodeId);
+			$q->where('node_id','=',$nodeId)->where('acquired_date','>=',date("Y"));
 		})->get();
 
         return View::make('equip.supplies-index', get_defined_vars());

@@ -32,7 +32,11 @@
 						<tbody>
 							@foreach($childrenNodes as $n)
 								<tr>
-									<td style="padding-top: 11px; text-align: center;">{{$n->node_name}}</td>
+									@if($n->parent->type_code == 'D003')
+										<td style="padding-top: 11px; text-align: center;">{{$n->parent->node_name.' '.$n->node_name}}</td>
+									@else
+										<td style="padding-top: 11px; text-align: center;">{{$n->node_name}}</td>
+									@endif
 									<td>
 										<input type="text" class="input-sm form-control input-count" name="{{'count_'.$n->id}}" id="{{'count_'.$n->id}}" value="{{$count[$n->id] or ''}}">
 									</td>

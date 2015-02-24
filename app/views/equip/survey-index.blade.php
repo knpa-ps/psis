@@ -16,7 +16,7 @@
 		<div class="panel-default panel">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					<strong>수요수량조사관리</strong>
+					<strong>수요조사관리</strong>
 				</h3>
 			</div>
 			<div class="panel-body">
@@ -69,7 +69,7 @@
 						<div class="col-xs-9">
 							<select name="item" id="item_to_survey" class="form-control">
 								@foreach($items as $i)
-									<option value="{{$i->id}}">{{$i->code->title}} ({{$i->classification.'/'.$i->maker_name}})</option>
+									<option value="{{$i->id}}">{{substr($i->acquired_date, 0, 4).' '.$i->code->title}} ({{$i->maker_name.' '.$i->classification}})</option>
 								@endforeach
 							</select>
 						</div>

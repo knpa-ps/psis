@@ -73,7 +73,7 @@
 							<select name="item" id="item_to_convert" class="form-control">
 								@if(count($items)>0)
 									@foreach($items as $i)
-										<option value="{{$i->id}}">{{$i->code->title}} ({{$i->classification.' '.$i->maker_name}})</option>
+										<option value="{{$i->id}}">{{substr($i->acquired_date, 0, 4).' '.$i->code->title}} ({{$i->maker_name.' '.$i->classification}})</option>
 									@endforeach
 								@else
 									<option value="0">보유중인 장비가 없습니다.</option>
@@ -130,11 +130,11 @@
 								</td>
 								@if ($isImport!=true)
 									<td>
-										{{ $convert->targetNode->full_name }}
+										{{ explode(' ', $convert->targetNode->full_name)[0] }}
 									</td>
 								@else
 									<td>
-										{{ $convert->fromNode->full_name }}
+										{{ explode(' ', $convert->fromNode->full_name)[0] }}
 									</td>
 								@endif
 								<td>
