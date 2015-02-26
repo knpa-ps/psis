@@ -1,5 +1,11 @@
 @extends('layouts.master')
-
+@section('styles')
+<style type="text/css">
+.group-cell:hover {
+	background-color: #5bc0de !important;
+}
+</style>
+@stop
 @section('content')
 
 <div class="row">
@@ -73,15 +79,17 @@
 								</tr>
 							</thead>
 							<tbody>
-								@foreach ($itemCodes as $i)
-								<tr data-id="{{ $i->id }}">
-									<td> {{ $i->category->name }}({{sizeof($i->category->codes)}}종) </td>
-									<td> {{ $i->sort_order}} </td>
-									<td> <a href="{{ url('equips/inventories/'.$i->code) }}">{{ $i->title }}</a> </td>
-									<td> {{ $acquiredSum[$i->id] }}</td>
-									<td> {{ $wreckedSum[$i->id] }}</td>
-									<td> {{ $availSum[$i->id] }}</td>
-								</tr>
+								@foreach ($categories as $ctgr)
+									@for ($i=0; $i < sizeof($ctgr->codes); $i++)
+									<tr data-id="{{ $ctgr->codes[$i]->id }}">
+										<td> {{ $ctgr->sort_order.'. '.$ctgr->codes[$i]->category->name }}({{sizeof($ctgr->codes[$i]->category->codes)}}종) </td>
+										<td> {{ $i+1 }} </td>
+										<td> <a href="{{ url('equips/inventories/'.$ctgr->codes[$i]->code) }}">{{ $ctgr->codes[$i]->title }}</a> </td>
+										<td> {{ $acquiredSum[$ctgr->codes[$i]->id] }}</td>
+										<td> {{ $wreckedSum[$ctgr->codes[$i]->id] }}</td>
+										<td> {{ $availSum[$ctgr->codes[$i]->id] }}</td>
+									</tr>
+									@endfor
 								@endforeach
 							</tbody>
 						</table>
@@ -131,6 +139,7 @@ $(function() {
 	})
 
 	$(".group").trigger('click');
+
 });
 </script>
 @stop

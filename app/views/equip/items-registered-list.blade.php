@@ -40,7 +40,11 @@
 						@foreach ($items as $i)
 						<tr data-id="{{ $i->id }}">
 							<td> {{ substr($i->acquired_date,0,4) }}</td>
-							<td> <a href="{{ url(URL::current().'/'.$i->id) }}">{{ $i->maker_name }}</a> </td>
+							@if ($timeover[$i->id] !== 0)
+								<td> <a style="color: red;" href="{{ URL::current().'/'.$i->id }}">{{ $i->maker_name.'('.$timeover[$i->id].'년 초과)' }}</a> </td>
+							@else
+								<td> <a href="{{ URL::current().'/'.$i->id }}">{{ $i->maker_name }}</a> </td>
+							@endif
 							<td> {{ $i->classification }} </td>
 							<td> {{ $i->persist_years }} </td>
 							<td> {{ $i->supplier }} </td>

@@ -363,7 +363,22 @@ class EqItemCodeController extends EquipController {
 		$code = EqItemCode::where('code','=',$code)->first();
 		$data['code'] = $code;
 		$data['items'] = $code->items;
+		//item 별 연한 초과 여부를 저장하는 배열
+		$timeover = array();
+		foreach ($code->items as $i) {
+			//불용연한 지났는지 여부 판단
+			$acquired_date = $i->acquired_date;
+			$acqDate = strtotime($acquired_date);
+			$persist = $i->persist_years;
+			$endDate = strtotime('+'.$persist.' years', $acqDate);
+			$diff = (time() - $endDate)/31536000;
 
+
+			time() > $endDate ? $timeover[$i->id] = ceil($diff) : $timeover[$i->id] = 0 ;
+		}
+
+		$data['timeover'] = $timeover;
+		
 		return View::make('equip.items-registered-list', $data);
 	}
 

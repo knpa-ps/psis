@@ -658,9 +658,7 @@ class AdminController extends BaseController {
 			if ($node === null) {
 				throw new Exception('node does not exists with id='.$nodeId);
 			}
-
 			$parent = $node->parent()->first();
-
 			if ($parent === null) {
 				$node->full_path = ":{$node->id}:";
 				$node->full_name = $node->node_name;
@@ -669,6 +667,12 @@ class AdminController extends BaseController {
 				if ($parent->id == 1) {
 					$node->full_name = $node->node_name;
 				} else {
+					if (preg_match('/^[)]*/', $node->node_name)) {
+						return $node->node_name;
+						$newNodeName = explode(')', $node->node_name)[1];
+						$node->node_name = $newNodeName;
+						$node->save();
+					}
 					if ($node->parent_manager_node !== null) {
 						$node->full_name = trim($parent->full_name." {$node->node_name}");
 					} else {

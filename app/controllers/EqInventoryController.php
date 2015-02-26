@@ -309,9 +309,8 @@ class EqInventoryController extends BaseController {
 		$data['itemCodes'] =  EqItemCode::whereHas('category', function($q) use ($domainId) {
 									$q->where('domain_id', '=', $domainId);
 								})->orderBy('sort_order', 'asc')->get();
-
+		$data['categories'] = EqCategory::all();
 		$data['domainId'] = $domainId;
-
 		foreach ($data['itemCodes'] as $c) {
 
 			$data['acquiredSum'][$c->id]=0;
