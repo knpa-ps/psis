@@ -11,6 +11,6 @@ class EqCategory extends Eloquent {
 	}
 
 	public function codes() {
-		return $this->hasMany('EqItemCode', 'category_id', 'id');
+		return $this->hasMany('EqItemCode', 'category_id', 'id')->orderBy('sort_order');
 	}
 }
