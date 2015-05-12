@@ -30,7 +30,7 @@ class UploadController extends BaseController {
 		return View::make('upload-result', array('result'=>$result));
 	}
 
-	public function capsaicinDoc() {
+	public function document() {
 		$validator = Validator::make(Input::all(), array(
 				'doc'=>'required'
 			));

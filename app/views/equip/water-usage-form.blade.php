@@ -6,13 +6,13 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					<strong>{{$node->node_name}} 캡사이신 사용내역 추가</strong>
+					<strong>{{$node->node_name}} 살수차 사용내역 추가</strong>
 				</h3>
 			</div>
 
 			<div class="panel-body">
 				{{ Form::open(array(
-						'url'=> $mode=='create'?'equips/capsaicin':'equips/capsaicin/'.$capsaicin->id,
+						'url'=> $mode=='create'?'equips/water_affair':'equips/water_affair/'.$water->id,
 						'method'=>$mode=='create'?'post':'put',
 						'id'=>'basic_form',
 						'class'=>'form-horizontal'
@@ -27,16 +27,6 @@
 								<div class="col-xs-10">
 									<input type="text" class="form-control input-sm" name="event_name" id="event_name"
 									value="">
-								</div>
-							</div>
-
-							<div class="form-group">
-								<label for="classification" class="control-label col-xs-2">행사구분</label>
-								<div class="col-xs-10">
-									<select name="classification" id="classification" class="form-control input-sm">
-										<option value="assembly">집회</option>
-										<option value="training">훈련</option>
-									</select>
 								</div>
 							</div>
 							
@@ -55,55 +45,31 @@
 									value="">
 								</div>
 							</div>
-						</fieldset>
-						<fieldset id="fieldset" {{ $mode=='create'? '': 'class="hidden"' }}>
-							<legend><h4>동원 중대별 정보</h4>
-								<span class="help-block">
-									집회시위관리 주관 지방청에서 최종입력
-								</span>
-							</legend>
-							<table class="table table-condensed table-striped table-bordered">
-								<thead>
-									<tr>
-										<th>중대명</th>
-										<th>사용량(ℓ)</th>
-										<th>작업</th>
-									</tr>
-								</thead>
-								<tbody id="tbody">
-									<tr>
-										<td>
-											{{ View::make('widget.dept-selector', array('id'=>'user_node_id', 'inputClass'=>'select-node')) }}
-										</td>
-										<td>
-											<input type="number" min="0" step="0.01" class="form-control input-sm" id="amount">
-										</td>
-										<td>
-											<button type="button" id="add_unit" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-plus"></span> 추가</button>
-											<button type="button" id="delete-row" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></span> 제거</button>
-										</td>
-									</tr>
-									
-								</tbody>
-							</table>
+
+							<div class="form-group">
+								<label for="amount" class="control-label col-xs-2">사용량(ton)</label>
+								<div class="col-xs-10">
+									<input type="text" class="form-control input-sm" name="amount" id="amount"
+									value="">
+								</div>
+							</div>
+
 						</fieldset>
 						<!-- 집행관서 hidden으로 -->
 						<input type="hidden" name="node" value="{{$node->id}}">
 						<!-- 업로드한 파일 명 hidden으로 -->
 						<input type="hidden" name="file_name" value="" id="file_name">
 				{{ Form::close(); }}
-				<div class="col-xs-12">
 					<div class="form-group">
-						<label for="doc" class="control-label col-xs-2">첨부문서</label>
+						<label align="right" for="doc" class="control-label col-xs-2">첨부문서&nbsp&nbsp</label>
 						<div class="col-xs-4">
 							<form id="upload_form" action="{{ url('upload/doc') }}" target="upload_target"  method="post" enctype="multipart/form-data">
 								<input type="file" name="doc" id="doc" />
 							</form>
 						</div>
-						<button class="btn btn-xs col-xs-3 btn-info" type="button" id="upload_submit"><span class="glyphicon glyphicon-upload"></span> 업로드</button>
+						<button class="btn btn-xs col-xs-3 btn-info" id="upload_submit"><span class="glyphicon glyphicon-upload"></span> 업로드</button>
 						<a href="{{ url('/static/img/no_image_available_big.gif') }}" class="btn btn-xs col-xs-3 btn-primary"><span class="glyphicon glyphicon-download"></span> 양식 다운로드</a>
 					</div>
-				</div>
 				<iframe id="upload_target" name="upload_target" src="" frameborder="0" style="width:0;height:0;border:0px solid #fff;"></iframe>
 				<input type="button" id="submit_btn" class="btn btn-lg btn-block btn-primary" value="제출">
 				
@@ -202,16 +168,13 @@
 			date: {
 				required: true,
 				dateISO: true
+			},
+			amount: {
+				required: true,
+				number: true
 			}
 		},
 		submitHandler: function(form) {
-			var basic_form = $(form);
-			var len = $("#tbody .unit_info").length;
-			if (len == 0) {
-				return alert('최소 한개의 동원중대를 입력해야 합니다.')
-			};
-			$('.input-amount').removeAttr("disabled");
-		    // do other things for a valid form
 		    form.submit();
 		}
 	});

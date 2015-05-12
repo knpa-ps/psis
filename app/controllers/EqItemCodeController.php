@@ -29,8 +29,9 @@ class EqItemCodeController extends EquipController {
 		} else {
 			// 본청 아닌 경우
 			// 보급받은것
-			$beSuppliedSet = EqItemSupplySet::where('item_id','=',$itemId)->where('from_node_id','=',$user->supplyNode->managedParent->id)->get();
-			if($beSuppliedSet) {
+			if(!$user->supplyNode->typecode="D001")
+				$beSuppliedSet = EqItemSupplySet::where('item_id','=',$itemId)->where('from_node_id','=',$user->supplyNode->managedParent->id)->get();
+			if(isset($beSuppliedSet)) {
 				foreach ($beSuppliedSet as $s) {
 					$obj = new stdClass();
 					$obj->date = $s['supplied_date'];

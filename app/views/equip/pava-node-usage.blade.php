@@ -1,6 +1,6 @@
 <div class="panel panel-default">
 	<div class="panel-heading">
-		<h3 class="panel-title"><strong>{{ $node->node_name }} 캡사이신 희석액 사용내역</strong></h3>
+		<h3 class="panel-title"><strong>{{ $node->node_name }} PAVA 사용내역</strong></h3>
 	</div>
 	<div class="panel-body">
 		<div class="well well-sm">
@@ -58,7 +58,7 @@
 		</div>
 
 		<div class="toolbar-table">
-			<a href="{{url('equips/capsaicin/create?nodeId='.$node->id)}}" class="btn btn-info btn-xs pull-right">
+			<a href="{{url('equips/pava/create?nodeId='.$node->id)}}" class="btn btn-info btn-xs pull-right">
 				<span class="glyphicon glyphicon-plus"></span> 사용내역 추가
 			</a>	
 			<a href="{{URL::current().'?is_state=false&export=true&event_type='.$eventType.'&start='.$start.'&end='.$end.'&event_name='.$eventName}}" class="btn btn-success btn-xs pull-right">
@@ -68,7 +68,7 @@
 		</div>
 		<div class="row">
 			<div class="col-xs-12">
-				<table class="table table-condensed table-hover table-striped table-bordered" id="capsaicin_table">
+				<table class="table table-condensed table-hover table-striped table-bordered" id="pava_table">
 				<thead>
 					<tr>
 						<th>일자</th>
@@ -101,7 +101,7 @@
 						@endif
 						<td style="background-color: #FEE9FC">{{ round($r->amount, 2) }}</td>
 						<td>
-							<a href="{{url('equips/capsaicin_usage/'.$r->id.'/edit')}}" class="label label-success"><span class="glyphicon glyphicon-pencil"></span> 수정</a><br />
+							<a href="{{url('equips/pava_usage/'.$r->id.'/edit')}}" class="label label-success"><span class="glyphicon glyphicon-pencil"></span> 수정</a><br />
 							<a href="#" class="delete-usage label label-danger"><span class="glyphicon glyphicon-remove"></span> 삭제</a>
 						</td>
 					</tr>
@@ -131,7 +131,7 @@ $(function(){
 		};
 		var usageId = $(this).parent().parent().attr('id');
 		$.ajax({
-			url : base_url+'/equips/capsaicin_usage/'+usageId,
+			url : base_url+'/equips/pava_usage/'+usageId,
 			type : 'delete',
 			success : function(res) {
 				alert(res);

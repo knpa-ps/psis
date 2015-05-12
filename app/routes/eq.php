@@ -42,6 +42,12 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::post('/capsaicin_usage/{usageId}/update', 'EqCapsaicinController@updateUsage');
 	Route::delete('/capsaicin_usage/{usageId}', 'EqCapsaicinController@deleteUsage');
 
+	Route::resource('pava', 'EqPavaController');
+	Route::get('/pava/node/{nodeId}', 'EqPavaController@displayNodeState');
+	Route::get('/pava_usage/{usageId}/edit', 'EqPavaController@editUsage');
+	Route::post('/pava_usage/{usageId}/update', 'EqPavaController@updateUsage');
+	Route::delete('/pava_usage/{usageId}', 'EqPavaController@deleteUsage');
+
 	Route::resource('supplies', 'EqSupplyController');
 	Route::put('/supplies/{id}/detail', 'EqSupplyController@addSupply');
 	Route::delete('/supplies/{id}/detail/{detailId}', 'EqSupplyController@removeSupply');
@@ -52,5 +58,8 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::get('/convert_cross_head/{id}/confirm', 'EqConvertController@headConfirm');
 	Route::post('/convert/{id}/confirm', 'EqConvertController@convertConfirm');
 
+	Route::resource('water_affair', 'EqWaterController');
+	Route::get('water_region', 'EqWaterController@index_by_region');
+	Route::post('water_region/get_consumption_by_month', 'EqWaterController@getConsumptionPerMonth');
 });
 

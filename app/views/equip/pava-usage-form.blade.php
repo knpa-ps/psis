@@ -6,13 +6,13 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					<strong>{{$node->node_name}} 캡사이신 사용내역 추가</strong>
+					<strong>{{$node->node_name}} PAVA 사용내역 추가</strong>
 				</h3>
 			</div>
 
 			<div class="panel-body">
 				{{ Form::open(array(
-						'url'=> $mode=='create'?'equips/capsaicin':'equips/capsaicin/'.$capsaicin->id,
+						'url'=> $mode=='create'?'equips/pava':'equips/pava/'.$pava->id,
 						'method'=>$mode=='create'?'post':'put',
 						'id'=>'basic_form',
 						'class'=>'form-horizontal'
@@ -96,11 +96,11 @@
 					<div class="form-group">
 						<label for="doc" class="control-label col-xs-2">첨부문서</label>
 						<div class="col-xs-4">
-							<form id="upload_form" action="{{ url('upload/doc') }}" target="upload_target"  method="post" enctype="multipart/form-data">
+							<form action="{{ url('upload/pava_doc') }}" target="upload_target"  method="post" enctype="multipart/form-data">
 								<input type="file" name="doc" id="doc" />
 							</form>
 						</div>
-						<button class="btn btn-xs col-xs-3 btn-info" type="button" id="upload_submit"><span class="glyphicon glyphicon-upload"></span> 업로드</button>
+						<button class="btn btn-xs col-xs-3 btn-info" type="submit"><span class="glyphicon glyphicon-upload"></span> 업로드</button>
 						<a href="{{ url('/static/img/no_image_available_big.gif') }}" class="btn btn-xs col-xs-3 btn-primary"><span class="glyphicon glyphicon-download"></span> 양식 다운로드</a>
 					</div>
 				</div>
@@ -183,10 +183,6 @@
 
 	$("#submit_btn").on('click', function(){
 		$("#basic_form").submit();
-	})
-
-	$("#upload_submit").on('click', function(){
-		$("#upload_form").submit();
 	})
 
 	$("#basic_form").validate({

@@ -75,7 +75,7 @@ class Department extends Eloquent {
 	 * @return Collection<Department> 지방청들 
 	 */
 	public function scopeRegions($query) {
-		return $query->whereNull('parent_id');
+		return $query->whereNull('parent_id')->where('type_code','=','D002');
 	}
 
 	public function scopeAlive($query) {

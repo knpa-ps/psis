@@ -157,7 +157,7 @@ class EqService extends BaseService {
 		//xls obj 생성
 		$objPHPExcel = new PHPExcel();
 		if (isset($node)) {
-			$fileName = $node->node_name.' 캡사이신 희석액 사용내역'; 
+			$fileName = $node->node_name.' 사용내역'; 
 		} else {
 			$fileName = '캡사이신 희석액 사용내역'; 
 		}
@@ -205,13 +205,61 @@ class EqService extends BaseService {
 		return;
 	}
 
+	public function exportWaterByEvent($rows, $node, $now) {
+		//xls obj 생성
+		$objPHPExcel = new PHPExcel();
+		if (isset($node)) {
+			$fileName = $node->node_name.' 물 사용내역'; 
+		} else {
+			$fileName = '물 사용내역'; 
+		}
+		//obj 속성
+		$objPHPExcel->getProperties()
+			->setTitle($fileName)
+			->setSubject($fileName);
+		//셀 정렬(가운데)
+		$objPHPExcel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER)->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+		
+		$sheet = $objPHPExcel->setActiveSheetIndex(0);
+		
+		$sheet->setCellValue('a1','일자');
+		$sheet->setCellValue('b1','관서명');
+		$sheet->setCellValue('c1','사용장소');
+		$sheet->setCellValue('d1','행사명');
+		$sheet->setCellValue('e1','사용량(ton)');
+		//양식 부분 끝
+		//이제 사용내역 나옴
+		for ($i=1; $i <= sizeof($rows); $i++) { 
+			$sheet->setCellValue('a'.($i+1),$rows[$i-1]->date);
+			$sheet->setCellValue('b'.($i+1),$rows[$i-1]->node->node_name);
+			$sheet->setCellValue('c'.($i+1),$rows[$i-1]->location);
+			$sheet->setCellValue('d'.($i+1),$rows[$i-1]->event_name);
+			$sheet->setCellValue('e'.($i+1),round(($i+1),$rows[$i-1]->amount, 2));
+		}
+		
+
+		//파일로 저장하기
+		$writer = PHPExcel_IOFactory::createWriter($objPHPExcel,'Excel2007');
+		header("Pragma: public");
+		header("Expires: 0");
+		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+		header("Content-Type: application/force-download");
+		header('Content-type: application/vnd.ms-excel');
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Encoding: UTF-8');
+		header('Content-Disposition: attachment; filename="'.$fileName.' '.$now.'.xlsx"');
+		header("Content-Transfer-Encoding: binary ");
+		$writer->save('php://output');
+		return;
+	}
+
 	public function exportCapsaicinByMonth($data, $node, $now, $year){
 		//xls obj 생성
 		$objPHPExcel = new PHPExcel();
 		if (isset($node)) {
-			$fileName = $node->full_name.' '.$year.' 캡사이신 희석액 현황'; 
+			$fileName = $node->full_name.' '.$year.' 현황'; 
 		} else {
-			$fileName = $year.' 캡사이신 희석액 현황'; 
+			$fileName = $year.' 현황'; 
 		}
 		//obj 속성
 		$objPHPExcel->getProperties()
