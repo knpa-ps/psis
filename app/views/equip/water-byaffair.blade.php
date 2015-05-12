@@ -11,7 +11,7 @@
 <div class="row">
 	<div class="col-xs-12" style="overflow: auto;">
 		<ul class="nav nav-tabs">
-			<li><a href="{{url('equips/water_region')}}">지방청별/월별 보기</a></li>
+			<li><a href="{{url('equips/water_region')}}">월별 보기</a></li>
 			<li class="active"><a href="{{url('equips/water_affair')}}">행사별 보기</a></li>
 		</ul>
 		<div class="panel panel-default">

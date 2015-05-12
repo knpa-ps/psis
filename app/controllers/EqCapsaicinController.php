@@ -12,7 +12,7 @@ class EqCapsaicinController extends EquipController {
 	{
 		$user = Sentry::getUser();
 
-		if ($user->supplyNode->id !== 1) {
+		if ($user->supplyNode->id != 1) {
 			if ($user->supplyNode->managedParent->id == 1) {
 				return Redirect::action('EqCapsaicinController@displayNodeState', $user->supplyNode->id);
 			} else {

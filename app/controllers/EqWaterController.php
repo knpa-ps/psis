@@ -41,7 +41,13 @@ class EqWaterController extends EquipController {
 
 	public function index_by_region()
 	{
+		$user = Sentry::getUser();
 		$year = Carbon::now()->year;
+
+		if ($user->supplyNode->type_code == "D002") {
+			return View::make('equip.water-bymonth', get_defined_vars());
+		}
+
 		$regions = EqSupplyManagerNode::where('type_code','=',"D002")->get();
 
 		$consumption = array();
