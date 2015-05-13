@@ -122,10 +122,11 @@ class EqWaterController extends EquipController {
 			$query->where('node_id','=',$regionId);
 		}
 
-		$data['rows'] = $query->orderBy('date','DESC')->paginate(15);
-		$totalUsage = $data['rows']->sum('amount');
 
-		$data['totalUsage'] = $totalUsage;
+		$data['totalUsage'] = $query->get()->sum('amount');
+
+		$data['rows'] = $query->orderBy('date','DESC')->paginate(15);
+
 
 		if (Input::get('export')) {
 			$this->service->exportWaterByEvent($data['rows'], EqSupplyManagerNode::find($regionId), $now);

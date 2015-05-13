@@ -126,7 +126,7 @@
 									<td></td>
 								</tr>
 							</tfoot>
-							{{ $rows->links() }}
+							{{ $rows->appends(array('start'=>$start, 'end'=>$end, 'event_name'=>$eventName, 'region' => $region) )->links() }}
 						</table>
 					</div>
 				</div>

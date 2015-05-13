@@ -117,7 +117,7 @@
 							<td>{{ round($totalUsage, 2) }}</td>
 						</tr>
 					</tfoot>
-					{{ $rows->appends(array('tab_id' => '3' ))->links() }}
+					{{ $rows->appends(array('tab_id' => '3', 'start'=>$start, 'end'=>$end, 'event_name'=>$eventName, 'event_type' => $eventType ))->links() }}
 				</table>
 			</div>
 		</div>
