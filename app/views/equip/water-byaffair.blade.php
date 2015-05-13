@@ -70,7 +70,6 @@
 								<div class="clearfix"></div>
 							</div>
 						</div>
-						<input type="hidden" name="tab_id" value="3">
 					</form>
 				</div>
 				<div class="toolbar-table">

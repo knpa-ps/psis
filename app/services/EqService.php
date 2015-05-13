@@ -186,7 +186,7 @@ class EqService extends BaseService {
 			$sheet->setCellValue('d'.($i+1),$rows[$i-1]->type);
 			$sheet->setCellValue('e'.($i+1),$rows[$i-1]->location);
 			$sheet->setCellValue('f'.($i+1),$rows[$i-1]->event_name);
-			$sheet->setCellValue('g'.($i+1),round(($i+1),$rows[$i-1]->amount, 2));
+			$sheet->setCellValue('g'.($i+1),round($rows[$i-1]->amount, 2));
 		}
 		
 

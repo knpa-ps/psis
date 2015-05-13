@@ -42,7 +42,13 @@ class EqWaterController extends EquipController {
 	public function index_by_region()
 	{
 		$user = Sentry::getUser();
-		$year = Carbon::now()->year;
+		$nowYear = Carbon::now()->year;
+
+		$selectedYear = Input::get('year') ? Input::get('year') : $nowYear;
+
+		$oldest = EqWaterEvent::orderBy('date','ASC')->first()->date;
+
+		$initYear = substr($oldest, 0, 4);
 
 		if ($user->supplyNode->type_code == "D002") {
 			return View::make('equip.water-bymonth', get_defined_vars());
@@ -58,13 +64,12 @@ class EqWaterController extends EquipController {
 
 		foreach ($regions as $r) {
 
-			$consumption[$r->id] = EqWaterEvent::where('node_id','=',$r->id)->where('date','>=',$year)->sum('amount');
-			$count[$r->id] = EqWaterEvent::where('node_id','=',$r->id)->where('date','>=',$year)->count();
+			$consumption[$r->id] = EqWaterEvent::where('node_id','=',$r->id)->where('date','>=',$selectedYear)->where('date','<=',$selectedYear+1)->sum('amount');
+			$count[$r->id] = EqWaterEvent::where('node_id','=',$r->id)->where('date','>=',$selectedYear)->where('date','<=',$selectedYear+1)->count();
 
 			$consumptionSum += $consumption[$r->id];
 			$countSum += $count[$r->id];
 		}
-		
         return View::make('equip.water-byregion', get_defined_vars());	
 	}
 	/**
@@ -76,7 +81,16 @@ class EqWaterController extends EquipController {
 	{
 		$user = Sentry::getUser();
 		$userNode = $user->supplyNode;
-		$userNode->type_code == "D002" ? $data['isRegion'] = true : $data['isRegion'] = false;
+
+		if ($userNode->type_code == "D001") {
+			$data['isRegion'] = false;
+			$regionId = Input::get('region');
+			$data['regions'] = EqSupplyManagerNode::where('type_code','=','D002')->get();
+		} else {
+			$data['isRegion'] = true;
+			$regionId = $userNode->id;
+			$data['regions'] = array(0 => $userNode);
+		}
 
 		$data['nodeId'] = $userNode->id;
 
@@ -84,7 +98,7 @@ class EqWaterController extends EquipController {
 		$end = Input::get('end');
 		$eventName = Input::get('event_name');
 		$data['eventName'] = $eventName;
-		$regionId = Input::get('region');
+
 		$data['region'] = $regionId;
 		$year = Carbon::now()->year;
 		$data['year'] = $year;
@@ -117,7 +131,6 @@ class EqWaterController extends EquipController {
 		}
 		
 		//지방청 필터 검
-		$data['regions'] = EqSupplyManagerNode::where('type_code','=','D002')->get();
 		if ($regionId) {
 			$query->where('node_id','=',$regionId);
 		}

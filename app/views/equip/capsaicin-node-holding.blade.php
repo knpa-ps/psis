@@ -56,7 +56,7 @@
 						<th>{{ $timesSumSum }}</th>
 						<th>{{ $timesTSum }}</th>
 						<th>{{ $timesASum }}</th>
-						<th>{{ $crossUsageSum }}</th>
+						<th>{{ round($crossUsageSum, 2) }}</th>
 						<th>{{ round($additionSum, 2) }}</th>
 						<th>{{ round($discardSum, 2) }}</th>
 					</tr>

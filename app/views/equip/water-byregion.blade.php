@@ -16,64 +16,81 @@
 		</ul>
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title"><strong>{{ $year }} 물 사용량 현황</strong></h3>
+				<h3 class="panel-title"><strong>{{ $selectedYear }} 물 사용량 현황</strong></h3>
 			</div>
 			<div class="panel-body">
-				<div class="col-xs-6">
-					<h3><b>지방청별 사용량</b></h3>
-					<table class="table table-condensed table-hover table-striped table-bordered" id="capsaicin_table">
-						<thead>
-							<tr>
-								<th>지방청</th>
-								<th>사용량(ton)</th>
-								<th>사용횟수</th>
-							</tr>
-						</thead>
-						<tbody>
-							@foreach ($regions as $r)
-							<tr>
-								<td><a href="#" id="{{$r->id}}" class="region">{{ $r->node_name }}</a></td>
-								<td>{{ round($consumption[$r->id], 2) }}</td>
-								<td>{{ $count[$r->id] }}</td>
-							</tr>
-							@endforeach
-						</tbody>
-						<tfoot>
-							<tr>
-								<td><b>합계</b></td>
-								<td>{{ round($consumptionSum, 2) }}</td>
-								<td>{{ $countSum }}</td>
-							</tr>
-						</tfoot>
-					</table>
+				<div class="row">
+					<div class="col-xs-6">
+						<form>
+							<div class="form-group">
+								<label for="year" class="control-label">조회연도</label>
+								<select name="year" id="year_select">
+								@for ($i=$initYear; $i <= $nowYear; $i++)
+									<option value="{{$i}}" {{ $i == $selectedYear ? 'selected' : ''}}>{{$i}}</option>
+								@endfor
+								</select>
+								<button type="submit" class="btn btn-xs btn-primary">조회</button>
+							</div>
+						</form>
+					</div>
 				</div>
-				<div class="col-xs-6">
-					<h3><b id="selected_region"></b></h3>
-					<table class="table table-condensed table-hover table-striped table-bordered" id="capsaicin_table">
-						<thead>
-							<tr>
-								<th>월</th>
-								<th>사용량(ton)</th>
-								<th>사용횟수</th>
-							</tr>
-						</thead>
-						<tbody>
-						@for ($i=1; $i <= 12; $i++)
-							<tr>
-								<td>{{$i}}월</td>
-								<td id="{{ 'consumption_'.$i }}"></td>
-								<td id="{{ 'count_'.$i }}"></td>
-							</tr>
-						@endfor
-						</tbody>
-						<tfoot>
-							<tr>
-								<td><b>합계</b></td>
-								<td id="consumptionSum"></td>
-								<td id="countSum"></td>
-							</tr>
-						</tfoot>
-					</table>
+				<div class="row">
+					<div class="col-xs-6">
+						<h3><b>지방청별 사용량</b></h3>
+						<table class="table table-condensed table-hover table-striped table-bordered" id="capsaicin_table">
+							<thead>
+								<tr>
+									<th>지방청</th>
+									<th>사용량(ton)</th>
+									<th>사용횟수</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach ($regions as $r)
+								<tr>
+									<td><a href="#" id="{{$r->id}}" class="region">{{ $r->node_name }}</a></td>
+									<td>{{ round($consumption[$r->id], 2) }}</td>
+									<td>{{ $count[$r->id] }}</td>
+								</tr>
+								@endforeach
+							</tbody>
+							<tfoot>
+								<tr>
+									<td><b>합계</b></td>
+									<td>{{ round($consumptionSum, 2) }}</td>
+									<td>{{ $countSum }}</td>
+								</tr>
+							</tfoot>
+						</table>
+					</div>
+					<div class="col-xs-6">
+						<h3><b id="selected_region"></b></h3>
+						<table class="table table-condensed table-hover table-striped table-bordered" id="capsaicin_table">
+							<thead>
+								<tr>
+									<th>월</th>
+									<th>사용량(ton)</th>
+									<th>사용횟수</th>
+								</tr>
+							</thead>
+							<tbody>
+							@for ($i=1; $i <= 12; $i++)
+								<tr>
+									<td>{{$i}}월</td>
+									<td id="{{ 'consumption_'.$i }}"></td>
+									<td id="{{ 'count_'.$i }}"></td>
+								</tr>
+							@endfor
+							</tbody>
+							<tfoot>
+								<tr>
+									<td><b>합계</b></td>
+									<td id="consumptionSum"></td>
+									<td id="countSum"></td>
+								</tr>
+							</tfoot>
+						</table>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -86,7 +103,7 @@
 {{ HTML::datepicker() }}계
 <script type="text/javascript">
 $(function(){
-	var year = {{ $year }};
+	var year = {{ $selectedYear }};
 	var initDept = {{ $regions[0]->id }};
 	
 	var consumptionSum;
@@ -110,7 +127,7 @@ $(function(){
 
 					consumptionSum+=res[0][i];
 					countSum+=res[1][i];
-					$("#consumptionSum").text(consumptionSum);
+					$("#consumptionSum").text(consumptionSum.toFixed(2));
 					$("#countSum").text(countSum);
 					$("#selected_region").text(res[2]+" 월별 사용량");
 				};

@@ -72,7 +72,7 @@
 				<thead>
 					<tr>
 						<th>일자</th>
-						<th>관서명</th>
+						<th>지방청</th>
 						<th>행사명</th>
 						<th>사용장소</th>
 						<th>행사유형</th>
