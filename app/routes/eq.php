@@ -61,5 +61,13 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::resource('water_affair', 'EqWaterController');
 	Route::get('water_region', 'EqWaterController@index_by_region');
 	Route::post('water_region/get_consumption_by_month', 'EqWaterController@getConsumptionPerMonth');
+
+	//살수차(PAVA) 메뉴 관련
+	Route::resource('water_pava', 'EqWaterPavaController');
+	Route::get('water_per_month', 'EqWaterPavaController@waterPerMonth');
+	Route::post('get_water_consumption_by_month', 'EqWaterPavaController@getConsumptionPerMonth');
+	Route::get('pava_per_month', 'EqWaterPavaController@pavaPerMonth');
+	Route::resource('pava_io', 'EqPavaIOController');
+
 });
 

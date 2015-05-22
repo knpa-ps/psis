@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateEqPavaEvent extends Migration {
+class CreateEqPavaIoTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,14 +12,12 @@ class CreateEqPavaEvent extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('eq_pava_event', function(Blueprint $table) {
+		Schema::create('eq_pava_io', function(Blueprint $table) {
 			$table->increments('id');
-			$table->string('type_code');
-			$table->string('event_name');
-			$table->integer('node_id')->unsigned();
-			$table->string('location');
+			$table->integer('node_id');
 			$table->date('date');
-			$table->string('attached_file_name');
+			$table->string('sort');
+			$table->float('amount');
 			$table->timestamps();
 		});
 	}
@@ -32,7 +30,7 @@ class CreateEqPavaEvent extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('eq_pava_event');
+		Schema::drop('eq_pava_io');
 	}
 
 }

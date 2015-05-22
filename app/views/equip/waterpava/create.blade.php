@@ -12,14 +12,14 @@
 
 			<div class="panel-body">
 				{{ Form::open(array(
-						'url'=> $mode=='create'?'equips/water_affair':'equips/water_affair/'.$water->id,
+						'url'=> $mode=='create'?'equips/water_pava':'equips/water_pava/'.$water_pava->id,
 						'method'=>$mode=='create'?'post':'put',
 						'id'=>'basic_form',
 						'class'=>'form-horizontal'
 					)) }}
 						<fieldset>
 							<legend>
-								<h4>기본정보</h4>
+								<h4>행사정보</h4>
 							</legend>
 									
 							<div class="form-group">
@@ -45,54 +45,55 @@
 									value="">
 								</div>
 							</div>
-
-							<div class="form-group">
-								<label for="amount" class="control-label col-xs-2">사용량(ton)</label>
-								<div class="col-xs-10">
-									<input type="text" class="form-control input-sm" name="amount" id="amount"
-									value="">
-								</div>
-							</div>
-
 						</fieldset>
-						<!-- 집행관서 hidden으로 -->
-						<input type="hidden" name="node" value="{{$node->id}}">
-						<!-- 업로드한 파일 명 hidden으로 -->
+						<fieldset>
+							<legend>
+								<span style="font-size: 19px;">살수정보</span>
+								<input type="checkbox" id="ispava"><span style="font-size: 12px;"> PAVA 혼합여부</span>
+								<input type="checkbox" id="isdye"><span style="font-size: 12px;"> 염료 혼합여부</span>
+							</legend>
+							<table class="table table-condensed table-bordered table-striped" id="count_table">
+								<thead>
+									<tr id="table-head">
+										<th style='text-align: center;'>경고살수량(ton)</th>
+										<th style='text-align: center;'>직사살수량(ton)</th>
+										<th style='text-align: center;'>곡사살수량(ton)</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr id="table-body">
+										<td><input style="width:100%;" type="text" name="warn"></td>
+										<td><input style="width:100%;" type="text" name="direct"></td>
+										<td><input style="width:100%;" type="text" name="high_angle"></td>
+									</tr>
+								</tbody>
+							</table>
+						</fieldset>
 						<input type="hidden" name="file_name" value="" id="file_name">
+						<input type="hidden" name="node_id" value="{{$node->id}}">
+
 				{{ Form::close(); }}
+					<div class="row col-xs-12">
+						
+					</div>
+					<hr>
+				<div class="form-horizontal">
 					<div class="form-group">
-						<label align="right" for="doc" class="control-label col-xs-2">첨부문서&nbsp&nbsp</label>
+						<label for="doc" class="control-label col-xs-2">첨부문서</label>
 						<div class="col-xs-4">
 							<form id="upload_form" action="{{ url('upload/doc') }}" target="upload_target"  method="post" enctype="multipart/form-data">
 								<input type="file" name="doc" id="doc" />
 							</form>
 						</div>
-						<button class="btn btn-xs col-xs-3 btn-info" id="upload_submit"><span class="glyphicon glyphicon-upload"></span> 업로드</button>
-						<a href="{{ url('/static/img/no_image_available_big.gif') }}" class="btn btn-xs col-xs-3 btn-primary"><span class="glyphicon glyphicon-download"></span> 양식 다운로드</a>
+						<div class="col-xs-6">
+							<button class="btn btn-xs col-xs-6 btn-info" type="button" id="upload_submit"><span class="glyphicon glyphicon-upload"></span> 업로드</button>
+							<a href="{{ url('/static/img/no_image_available_big.gif') }}" class="btn btn-xs col-xs-6 btn-primary"><span class="glyphicon glyphicon-download"></span> 양식 다운로드</a>
+						</div>
 					</div>
+				</div>
+
 				<iframe id="upload_target" name="upload_target" src="" frameborder="0" style="width:0;height:0;border:0px solid #fff;"></iframe>
 				<input type="button" id="submit_btn" class="btn btn-lg btn-block btn-primary" value="제출">
-				
-				<table>
-					<tbody id="template_tbody">
-						<tr class="hidden unit_info">
-							<td class="node_name">
-								<!-- 관서명 들어감 -->
-								<span class="unit_name"></span>
-								<input type="text" class="hidden">
-								<!-- value는 node id로 넣어줌 -->
-							</td>
-							<td class="amount">
-								<input type="text" class="form-control input-sm input-amount" disabled>
-								<!-- name은 amount[#], value는 입력한 값을 넣어줌 -->
-							</td>
-							<td>
-								
-							</td>
-						</tr>
-					</tbody>
-				</table>
-				
 			</div>
 		</div>
 	</div>
@@ -108,45 +109,38 @@
 {{ HTML::script('static/vendor/bootstrap-datepicker/js/defaults.js') }}
 
 <script type="text/javascript">
-	$('#add_unit').on('click', function(){
-		var length = $("#tbody .unit_info").length;
-		var nodeId = $('#user_node_id').val();
-		var amount = $('#amount').val();
-		
-		if (nodeId == '' || amount == '') {
-			return alert('동원중대를 선택하고 사용량(ℓ)을 입력하세요');
-		};
+	var pavacheck = $("#ispava");
+	var dyecheck = $("#isdye");
 
-		var newRow = $('#template_tbody tr').clone();
-		$.ajax({
-			url : base_url+'/equips/get_node_name/'+nodeId,
-			type : 'post',
-			success : function(res) {
-				newRow.find('.unit_name').html(res);
-			}
-		});
-		newRow.removeClass('hidden');
-		newRow.find('.node_name input').val(nodeId);
-		newRow.find('.node_name input').attr('name', 'nodeId['+length+']');
-		newRow.find('.amount input').val(amount);
-		newRow.find('.amount input').attr('name', 'amount['+length+']');
-		$("#tbody").append(newRow);
-	});
-
-	function removeRow(){
-		var rowNum = $("#tbody .unit_info").length;
-		if (rowNum == 1) {
-			alert('최소 한 종류를 입력해야 합니다.');
-			return;
-		}
-
-		$("#tbody .unit_info").last().remove();
+	if (pavacheck.is(':checked')) {
+		$("#table-head").append("<th id='pava-label' style='text-align: center;'>PAVA 사용량(ℓ)</th>");
+		$("#table-body").append("<td id='pava-input'><input style='width:100%;' type='text' name='pava'></td>");
 	}
+	if (dyecheck.is(':checked')) {
+		$("#table-head").append("<th id='dye-label' style='text-align: center;'>염료 사용량(ℓ)</th>");
+		$("#table-body").append("<td id='dye-input'><input style='width:100%;' type='text' name='dye'></td>");
+	} 
 
-	$("#delete-row").on('click', function(){
-		removeRow();
+	pavacheck.on('click', function(){
+		if (pavacheck.is(':checked')) {
+			$("#table-head").append("<th id='pava-label' style='text-align: center;'>PAVA 사용량(ℓ)</th>");
+			$("#table-body").append("<td id='pava-input'><input style='width:100%;' type='text' name='pava'></td>");
+		} else {
+			$("#pava-label").remove();
+			$("#pava-input").remove();
+		}
 	})
 
+	dyecheck.on('click', function(){
+		if (dyecheck.is(':checked')) {
+			$("#table-head").append("<th id='dye-label' style='text-align: center;'>염료 사용량(ℓ)</th>");
+			$("#table-body").append("<td id='dye-input'><input style='width:100%;' type='text' name='dye'></td>");
+		} else {
+			$("#dye-label").remove();
+			$("#dye-input").remove();
+		}
+	})
+	
 	$("#submit_btn").on('click', function(){
 		$("#basic_form").submit();
 	})
@@ -169,10 +163,18 @@
 				required: true,
 				dateISO: true
 			},
-			amount: {
+			warn: {
 				required: true,
-				number: true
-			}
+				number:true
+			},
+			direct: {
+				required: true,
+				number:true
+			},
+			high_angle: {
+				required: true,
+				number:true
+			},
 		},
 		submitHandler: function(form) {
 		    form.submit();

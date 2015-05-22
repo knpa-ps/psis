@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateEqPavaUsage extends Migration {
+class CreateEqPavaInitHoldingTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,11 +12,11 @@ class CreateEqPavaUsage extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('eq_pava_usage', function(Blueprint $table) {
+		Schema::create('eq_pava_init_holding', function(Blueprint $table) {
 			$table->increments('id');
-			$table->integer('event_id')->unsigned();
+			$table->integer('node_id');
+			$table->string('year');
 			$table->float('amount');
-			$table->integer('user_node_id')->unsigned();
 			$table->timestamps();
 		});
 	}
@@ -29,7 +29,7 @@ class CreateEqPavaUsage extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('eq_pava_usage');
+		Schema::drop('eq_pava_init_holding');
 	}
 
 }

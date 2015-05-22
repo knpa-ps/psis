@@ -1,8 +1,8 @@
 <?php
 
-class EqWaterEvent extends Eloquent {
+class EqWaterPavaEvent extends Eloquent {
 
-	protected $table = "eq_water_event";
+	protected $table = "eq_waterpava_event";
 
 	protected $guarded = array();
 
