@@ -67,6 +67,8 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::get('water_per_month', 'EqWaterPavaController@waterPerMonth');
 	Route::post('get_water_consumption_by_month', 'EqWaterPavaController@getConsumptionPerMonth');
 	Route::get('pava_per_month', 'EqWaterPavaController@pavaPerMonth');
+	Route::post('pava_per_month_data', 'EqWaterPavaController@pavaPerMonthData');
+	
 	Route::resource('pava_io', 'EqPavaIOController');
 
 });

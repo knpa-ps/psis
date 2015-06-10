@@ -3,117 +3,37 @@ use Carbon\Carbon;
 
 class EqWaterPavaController extends EquipController {
 
+	public function pavaPerMonthData() {
+
+		$year = Input::get('year');
+		$nodeId = Input::get('regionId');
+
+		return $this->service->getPavaPerMonthData($year, $nodeId);
+	}
+
 	public function pavaPerMonth()
 	{
 		$user = Sentry::getuser();
-		$nodeId = $user->supplyNode->id;
+		$node = $user->supplyNode;
 		$year = Input::get('year');
 
-		$now = Carbon::now();
-		if ($year == null) {
-			$year = $now->year;
+		$nowYear = Carbon::now()->year;
+
+		$selectedYear = Input::get('year') ? Input::get('year') : $nowYear;
+
+		if ($node->type_code == "D001") {
+
+			$regions = EqSupplyManagerNode::where('type_code','=',"D002")->get();
+			$selectedNodeId = Input::get("nodeId") ? Input::get("nodeId") : 2;
+			$data = $this->service->getPavaPerMonthData($selectedYear, $selectedNodeId);
+			$data['regions'] = $regions;
+			$selectedNode = EqSupplyManagerNode::find($selectedNodeId);
+			$data['selectedNode'] = $selectedNode;
+			return View::make("equip.waterpava.pava-per-month-head", $data);
 		}
-		$data['node']=$user->supplyNode;
-		$data['year'] = $year;
-		$data['nowYear'] = $now->year;
-		$data['initYears'] = EqPavaInitHolding::select('year')->distinct()->get();
 
-		$yearInitHolding = EqPavaInitHolding::where('year','=',$year)->where('node_id','=',$nodeId)->first()->amount;
-		$data['yearInitHolding'] = $yearInitHolding;
 
-		$events = EqWaterPavaEvent::whereNotNull('pava_amount')->where('node_id','=',$nodeId)->where('date','like',$year.'%')->get();
-		$trainings = EqPavaIO::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('sort','=','training')->get();
-
-		$stock = array();
-		$usageSum = array();
-		$usageT = array();
-		$usageA = array();
-		$timesSum = array();
-		$timesT = array();
-		$timesA = array();
-		$lost = array();
-
-		$now = Carbon::now();
-		//올해면 아직 안 온 달은 비워둔다.
-		$data['presentStock'] = null;
-		
-		for ($i=1; $i <= 12; $i++) {
-			
-			$firstDayofMonth = Carbon::createFromDate($year, $i, 1, 'Asia/Seoul')->subDay();
-			if ($i != 12) {
-				$lastDayofMonth = Carbon::createFromDate($year, $i+1, 1, 'Asia/Seoul')->subDay();
-			} else {
-				$lastDayofMonth = Carbon::createFromDate($year, $i, 31, 'Asia/Seoul');
-			}
-
-			$eventsUntilithMonth = EqWaterPavaEvent::whereNotNull('pava_amount')->where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('date','<=',$lastDayofMonth)->get();
-			$trainingsUntilithMonth = EqPavaIO::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('date','<=',$lastDayofMonth)->where('sort','=','training')->get();
-			$consumptionUntilithMonth = $eventsUntilithMonth->sum('pava_amount') + $trainingsUntilithMonth->sum('amount');
-
-			$lostUntilithMonth = EqPavaIO::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('date','<=',$lastDayofMonth)->where('sort','=','lost')->sum('amount');
-			$stock[$i] = $yearInitHolding - $consumptionUntilithMonth - $lostUntilithMonth;
-
-			$month = 12;
-			if ($year == $now->year) {
-				$month = $now->month;
-				if ($month == $i) {
-					$data['presentStock'] = $stock[$i];
-				} 
-			} elseif ($year > $now->year) {
-				$stock[$i] = null;
-				$usageSum[$i] = null;
-				$usageT[$i] = null;
-				$usageA[$i] = null;
-				$timesSum[$i] = null;
-				$timesT[$i] = null;
-				$timesA[$i] = null;
-				$lost[$i] = null;
-				continue;
-			}
-
-			if ($month < $i) {
-				$stock[$i] = null;
-				$usageSum[$i] = null;
-				$usageT[$i] = null;
-				$usageA[$i] = null;
-				$timesSum[$i] = null;
-				$timesT[$i] = null;
-				$timesA[$i] = null;
-				$lost[$i] = null;
-				continue;
-			}
-
-			$eventsThisMonth = EqWaterPavaEvent::whereNotNull('pava_amount')->where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->get();
-			$trainingsThisMonth = EqPavaIO::where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->where('sort','=','training')->get();
-			$lostThisMonth = EqPavaIO::where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->where('sort','=','lost')->get();
-
-			
-			$usageT[$i] = $trainingsThisMonth->sum('amount');
-			$usageA[$i] = $eventsThisMonth->sum('pava_amount');
-			$usageSum[$i] = $usageT[$i] + $usageA[$i];
-
-			$timesSum[$i] = $eventsThisMonth->count() + $trainingsThisMonth->count();
-			$timesT[$i] = $trainingsThisMonth->count();
-			$timesA[$i] = $eventsThisMonth->count();
-			$lost[$i]  = $lostThisMonth->sum('amount');
-		}
-		$data['stockSum'] = array_sum($stock);
- 		$data['usageSumSum'] = array_sum($usageSum);
- 		$data['usageTSum'] = array_sum($usageT);
- 		$data['usageASum'] = array_sum($usageA);
- 		$data['timesSumSum'] = array_sum($timesSum);
- 		$data['timesTSum'] = array_sum($timesT);
- 		$data['timesASum'] = array_sum($timesA);
- 		$data['lostSum'] = array_sum($lost);
-
-		$data['stock'] = $stock;
-		$data['usageSum'] = $usageSum;
-		$data['usageT'] = $usageT;
-		$data['usageA'] = $usageA;
-		$data['timesSum'] = $timesSum;
-		$data['timesT'] = $timesT;
-		$data['timesA'] = $timesA;
-		$data['lost'] = $lost;
+		$data = $this->service->getPavaPerMonthData($selectedYear, $node->id);
 
 		return View::make('equip.waterpava.pava-per-month', $data);
 	}
@@ -147,7 +67,7 @@ class EqWaterPavaController extends EquipController {
 			$sum = $warn+$direct+$highAngle;
 
 			$count = $events->count();
-
+			
 			$warnPerMonth[] = round($warn,2);
 			$directPerMonth[] = round($direct,2);
 			$highAnglePerMonth[] = round($highAngle,2);
@@ -215,6 +135,7 @@ class EqWaterPavaController extends EquipController {
 		$end = Input::get('end');
 		$eventName = Input::get('event_name');
 		$data['eventName'] = $eventName;
+		$selectedRegionId = Input::get('region');
 
 		$validator = Validator::make(Input::all(), array(
 			'start'=>'date',
@@ -242,6 +163,20 @@ class EqWaterPavaController extends EquipController {
 			$query->where('event_name','like',"%$eventName%");
 		}
 
+		// 본청계정이 아닌 경우 자기 지방청에서 올린것만 볼 수 있음
+		if ($node->type_code=="D002") {
+			$query->where('node_id','=',$node->id);
+		}
+
+		// 본청계정인 경우 지방청 필터 관련 데이터 넣어줌
+		if ($node->type_code == "D001") {
+			if ($selectedRegionId) {
+				$query->where('node_id','=',$selectedRegionId);
+			}
+			$data['regions'] = EqSupplyManagerNode::where('type_code','=',"D002")->get();
+			$data['region'] = $selectedRegionId;
+		}
+
 		$events = $query->orderBy('date','DESC')->paginate(15);
 
 		$data['events'] = $events;
@@ -250,7 +185,6 @@ class EqWaterPavaController extends EquipController {
 		// 	$this->service->exportCapsaicinByEvent($rows, EqSupplyManagerNode::find($regionId), $now);
 		// 	return;
 		// }
-
 
         return View::make('equip.waterpava.index',$data);
 	}

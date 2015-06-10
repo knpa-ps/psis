@@ -18,6 +18,8 @@ class EqPavaIOController extends BaseController {
 		$data['eventName'] = $eventName;
 		$sort = Input::get('sort');
 		$data['sort'] = $sort;
+		$selectedRegionId = Input::get('region');
+		$data['region'] = $selectedRegionId;
 
 		$validator = Validator::make(Input::all(), array(
 			'start'=>'date',
@@ -49,6 +51,13 @@ class EqPavaIOController extends BaseController {
 			$query->where('sort','=',$sort);
 		}
 
+		// 본청계정인 경우 지방청필터
+		if ($node->type_code == "D001") {
+			if ($selectedRegionId) {
+				$query->where('node_id','=',$selectedRegionId);			
+			}
+			$data['regions'] = EqSupplyManagerNode::where('type_code','=',"D002")->get();
+		}
 		$events = $query->orderBy('date','DESC')->paginate(15);
 
 		$data['events'] = $events;
@@ -57,6 +66,10 @@ class EqPavaIOController extends BaseController {
 		// 	$this->service->exportCapsaicinByEvent($rows, EqSupplyManagerNode::find($regionId), $now);
 		// 	return;
 		// }
+		
+		if ($node->type_code == "D001") {
+			return View::make('equip.pava.index-head', $data);
+		}
 
         return View::make('equip.pava.index', $data);
 	}

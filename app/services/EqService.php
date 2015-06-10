@@ -4,6 +4,116 @@ use Carbon\Carbon;
 
 class EqService extends BaseService {
 
+	public function getPavaPerMonthData($year, $nodeId) {
+
+		$now = Carbon::now();
+		if ($year == null) {
+			$year = $now->year;
+		}
+		$data['node']=EqSupplyManagerNode::find($nodeId);
+		$data['year'] = $year;
+		$data['nowYear'] = $now->year;
+		$data['initYears'] = EqPavaInitHolding::select('year')->distinct()->get();
+
+		$yearInitHolding = EqPavaInitHolding::where('year','=',$year)->where('node_id','=',$nodeId)->first()->amount;
+		$data['yearInitHolding'] = $yearInitHolding;
+
+		$events = EqWaterPavaEvent::whereNotNull('pava_amount')->where('node_id','=',$nodeId)->where('date','like',$year.'%')->get();
+		$trainings = EqPavaIO::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('sort','=','training')->get();
+
+		$stock = array();
+		$usageSum = array();
+		$usageT = array();
+		$usageA = array();
+		$timesSum = array();
+		$timesT = array();
+		$timesA = array();
+		$lost = array();
+
+		$now = Carbon::now();
+		//올해면 아직 안 온 달은 비워둔다.
+		$data['presentStock'] = null;
+		
+		for ($i=1; $i <= 12; $i++) {
+			
+			$firstDayofMonth = Carbon::createFromDate($year, $i, 1, 'Asia/Seoul')->subDay();
+			if ($i != 12) {
+				$lastDayofMonth = Carbon::createFromDate($year, $i+1, 1, 'Asia/Seoul')->subDay();
+			} else {
+				$lastDayofMonth = Carbon::createFromDate($year, $i, 31, 'Asia/Seoul');
+			}
+
+			$eventsUntilithMonth = EqWaterPavaEvent::whereNotNull('pava_amount')->where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('date','<=',$lastDayofMonth)->get();
+			$trainingsUntilithMonth = EqPavaIO::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('date','<=',$lastDayofMonth)->where('sort','=','training')->get();
+			$consumptionUntilithMonth = $eventsUntilithMonth->sum('pava_amount') + $trainingsUntilithMonth->sum('amount');
+
+			$lostUntilithMonth = EqPavaIO::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('date','<=',$lastDayofMonth)->where('sort','=','lost')->sum('amount');
+			$stock[$i] = $yearInitHolding - $consumptionUntilithMonth - $lostUntilithMonth;
+
+			$month = 12;
+			if ($year == $now->year) {
+				$month = $now->month;
+				if ($month == $i) {
+					$data['presentStock'] = $stock[$i];
+				} 
+			} elseif ($year > $now->year) {
+				$stock[$i] = null;
+				$usageSum[$i] = null;
+				$usageT[$i] = null;
+				$usageA[$i] = null;
+				$timesSum[$i] = null;
+				$timesT[$i] = null;
+				$timesA[$i] = null;
+				$lost[$i] = null;
+				continue;
+			}
+
+			if ($month < $i) {
+				$stock[$i] = null;
+				$usageSum[$i] = null;
+				$usageT[$i] = null;
+				$usageA[$i] = null;
+				$timesSum[$i] = null;
+				$timesT[$i] = null;
+				$timesA[$i] = null;
+				$lost[$i] = null;
+				continue;
+			}
+
+			$eventsThisMonth = EqWaterPavaEvent::whereNotNull('pava_amount')->where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->get();
+			$trainingsThisMonth = EqPavaIO::where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->where('sort','=','training')->get();
+			$lostThisMonth = EqPavaIO::where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->where('sort','=','lost')->get();
+
+			
+			$usageT[$i] = $trainingsThisMonth->sum('amount');
+			$usageA[$i] = $eventsThisMonth->sum('pava_amount');
+			$usageSum[$i] = $usageT[$i] + $usageA[$i];
+
+			$timesSum[$i] = $eventsThisMonth->count() + $trainingsThisMonth->count();
+			$timesT[$i] = $trainingsThisMonth->count();
+			$timesA[$i] = $eventsThisMonth->count();
+			$lost[$i]  = $lostThisMonth->sum('amount');
+		}
+		$data['stockSum'] = array_sum($stock);
+ 		$data['usageSumSum'] = array_sum($usageSum);
+ 		$data['usageTSum'] = array_sum($usageT);
+ 		$data['usageASum'] = array_sum($usageA);
+ 		$data['timesSumSum'] = array_sum($timesSum);
+ 		$data['timesTSum'] = array_sum($timesT);
+ 		$data['timesASum'] = array_sum($timesA);
+ 		$data['lostSum'] = array_sum($lost);
+
+		$data['stock'] = $stock;
+		$data['usageSum'] = $usageSum;
+		$data['usageT'] = $usageT;
+		$data['usageA'] = $usageA;
+		$data['timesSum'] = $timesSum;
+		$data['timesT'] = $timesT;
+		$data['timesA'] = $timesA;
+		$data['lost'] = $lost;
+
+		return $data;
+	}
 	public function deleteSupplySet($id) {
 		$s = EqItemSupplySet::find($id);
 		if (!$s) {

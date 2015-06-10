@@ -18,7 +18,7 @@
 		</ul>
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title"><strong>{{ $node->node_name }} {{ $year }} 월별 PAVA 사용내역 <span style="color: red; font-size: 12px;" class="blink">사용결과 보고는 일일보고임.</span></strong></h3>
+				<h3 class="panel-title"><strong>{{ $year }} 지방청별 월별 PAVA 사용내역 <span style="color: red; font-size: 12px;" class="blink">사용결과 보고는 일일보고임.</span></strong></h3>
 			</div>
 			<div class="panel-body">
 				<div class="row">
@@ -40,7 +40,20 @@
 					</div> --}}
 				</div>
 				<div class="row">
-					<div class="col-xs-12">
+					<div class="col-xs-2">
+						<table class="table table-condensed table-hover table-striped table-bordered" id="node_table">
+							<tr>
+								<th>지방청 선택</th>
+							</tr>
+							@foreach ($regions as $r)
+							<tr>
+								<td><a href="{{URL::current().'?nodeId='.$r->id}}" id="{{$r->id}}" class="region">{{$r->node_name}}</a></td>
+							</tr>
+							@endforeach
+						</table>
+					</div>
+					<div class="col-xs-10">
+						<strong>{{ $selectedNode->node_name }} 월별 PAVA 사용내역</strong>
 						<table class="table table-condensed table-hover table-striped table-bordered" id="capsaicin_table">
 						<thead>
 							<tr>

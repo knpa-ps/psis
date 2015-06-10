@@ -119,7 +119,7 @@ $(function(){
 				$("#high_angle_sum").text(highAngleSum);
 				$("#sum_sum").text(sumSum);
 				$("#count_sum").text(countSum);
-				$("#panel-title").text(res[5]+' '+year+" 월별 살수내역");
+				$("#panel-title").html(res[5]+' '+year+" 월별 살수내역 " + "<span style='color: red; font-size: 12px;' class='blink'>사용결과 보고는 일일보고임.</span>");
 			};
 		}
 	});

@@ -2,6 +2,20 @@ tbody tr.group>td.group-cell {
   background-color: #d9edf7;
   font-weight: bold;
 }
+.blink {
+  animation: blink 1s steps(5, start) infinite;
+  -webkit-animation: blink 1s steps(5, start) infinite;
+}
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+@-webkit-keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
 .dataTables_processing {
   position: absolute;
   top: 50%;
