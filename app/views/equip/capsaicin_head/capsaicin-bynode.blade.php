@@ -40,7 +40,7 @@
 				<tbody>
 					@foreach ($nodes as $n)
 					<tr>
-						<th><a href="{{ url('/equips/capsaicin/node/'.$n->id) }}">{{$n->node_name}}</a></th>
+						<th><a href="{{ url('/equips/capsaicin/node/'.$n->id).'/holding' }}">{{$n->node_name}}</a></th>
 						<td>{{ round($stock[$n->id],2)}}</td>
 						<td style="background-color: #FEE9FC">{{ round($usageSum[$n->id],2) }}</td>
 						<td style="background-color: #FEE9FC">{{ round($usageT[$n->id], 2) }}</td>

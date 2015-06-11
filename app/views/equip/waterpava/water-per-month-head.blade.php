@@ -108,7 +108,7 @@ $(function(){
 		var countSum=0;
 
 		var regionId = $(this).attr('id');
-		params = { regionId: regionId, year: year };
+		var params = { regionId: regionId, year: year };
 
 		$.ajax({
 			url: url("equips/get_water_consumption_by_month"),

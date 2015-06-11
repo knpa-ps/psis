@@ -37,7 +37,13 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::get('/items/list/{codeId}', 'EqItemCodeController@showRegisteredList');
 
 	Route::resource('capsaicin', 'EqCapsaicinController');
-	Route::get('/capsaicin/node/{nodeId}', 'EqCapsaicinController@displayNodeState');
+	Route::get('/capsaicin/node/{nodeId}/holding', 'EqCapsaicinController@nodeHolding');
+	Route::get('/capsaicin/node/{nodeId}/events', 'EqCapsaicinController@nodeEvents');
+	Route::post('/capsaicin/get_events', 'EqCapsaicinController@getEvents');
+	Route::get('/capsaicin/node/{nodeId}/add_event', 'EqCapsaicinController@addEvent');
+	Route::post('/capsaicin/node/{nodeId}/add_event', 'EqCapsaicinController@storeNewEvent');
+	Route::post('/capsaicin/delete_event/{eventId}', 'EqCapsaicinController@deleteEvent');
+
 	Route::get('/capsaicin_usage/{usageId}/edit', 'EqCapsaicinController@editUsage');
 	Route::post('/capsaicin_usage/{usageId}/update', 'EqCapsaicinController@updateUsage');
 	Route::delete('/capsaicin_usage/{usageId}', 'EqCapsaicinController@deleteUsage');

@@ -19,7 +19,7 @@
 		
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title"><strong>{{ $node->node_name }} 살수차 사용내역 <span style="color: red; font-size: 12px;" class="blink">사용결과 보고는 일일보고임.</span></strong></h3>
+				<h3 class="panel-title"><strong>{{ $node->type_code != "D001" ? $node->node_name : ''}} 살수차 사용내역 <span style="color: red; font-size: 12px;" class="blink">사용결과 보고는 일일보고임.</span></strong></h3>
 			</div>
 			<div class="panel-body">
 				<div class="well well-sm">
