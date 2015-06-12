@@ -778,23 +778,25 @@ class EqCapsaicinController extends EquipController {
 		$data['eventType'] = $eventType;
 		$events = $query->orderBy('date','DESC')->get();
 		$totalUsage = 0;
+
+		$nodeFullPath = $node->full_path;
 		foreach ($events as $e) {
-			$usages = $e->children;
+			$usages = EqCapsaicinUsage::where('event_id','=',$e->id)->whereHas('node', function($q) use($nodeFullPath) {
+				$q->where('full_path','like',$nodeFullPath.'%');
+			})->get();
 			foreach ($usages as $u) {
-				if ($u->user_node_id == $userNode->id) {
-					$row = new stdClass;
-					$row->id = $u->id;
-					$row->date = $e->date;
-					$row->node = EqSupplyManagerNode::find($e->node_id);
-					$row->user_node = EqSupplyManagerNode::find($u->user_node_id);
-					$row->type = $this->service->getEventType($e->type_code);
-					$row->location = $e->location;
-					$row->event_name = $e->event_name;
-					$row->amount = $u->amount;
-					$row->fileName = $e->attached_file_name;
-					array_push($rows, $row);
-					$totalUsage += $u->amount;
-				}
+				$row = new stdClass;
+				$row->id = $u->id;
+				$row->date = $e->date;
+				$row->node = EqSupplyManagerNode::find($e->node_id);
+				$row->user_node = EqSupplyManagerNode::find($u->user_node_id);
+				$row->type = $this->service->getEventType($e->type_code);
+				$row->location = $e->location;
+				$row->event_name = $e->event_name;
+				$row->amount = $u->amount;
+				$row->fileName = $e->attached_file_name;
+				array_push($rows, $row);
+				$totalUsage += $u->amount;
 			}
 		}
 		$currentPage = Input::get('page')== null ? 0 : Input::get('page') - 1;

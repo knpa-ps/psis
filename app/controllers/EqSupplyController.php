@@ -93,7 +93,7 @@ class EqSupplyController extends EquipController {
 		if ($itemName) {
 			$query->whereHas('item', function($q) use($itemName) {
 				$q->whereHas('code', function($qry) use($itemName) {
-					$qry->where('title','like',"%$itemName%");
+					$qry->where('title','like',"%".$itemName."%");
 				});
 			});
 		}
