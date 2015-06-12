@@ -48,6 +48,7 @@
 								</div>
 							</div>
 						</fieldset>
+						<input type="text" class="hidden" id="file_name" name="file_name">
 				{{ Form::close(); }}
 				<div class="col-xs-12">
 					<div class="form-group">

@@ -281,7 +281,7 @@ class EqService extends BaseService {
 		$sheet = $objPHPExcel->setActiveSheetIndex(0);
 		
 		$sheet->setCellValue('a1','일자');
-		$sheet->setCellValue('b1','관서명');
+		$sheet->setCellValue('b1','관할청');
 		$sheet->setCellValue('c1','중대');
 		$sheet->setCellValue('d1','행사유형');
 		$sheet->setCellValue('e1','사용장소');
@@ -292,7 +292,7 @@ class EqService extends BaseService {
 		for ($i=1; $i <= sizeof($rows); $i++) { 
 			$sheet->setCellValue('a'.($i+1),$rows[$i-1]->date);
 			$sheet->setCellValue('b'.($i+1),$rows[$i-1]->node->node_name);
-			$sheet->setCellValue('c'.($i+1),$rows[$i-1]->user_node->node_name);
+			$sheet->setCellValue('c'.($i+1),$rows[$i-1]->user_node->full_name);
 			$sheet->setCellValue('d'.($i+1),$rows[$i-1]->type);
 			$sheet->setCellValue('e'.($i+1),$rows[$i-1]->location);
 			$sheet->setCellValue('f'.($i+1),$rows[$i-1]->event_name);

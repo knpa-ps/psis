@@ -96,9 +96,9 @@
 							<tr>
 								<th>일자</th>
 								<th>관할청</th>
-								<th>행사명</th>
-								<th>사용장소</th>
 								<th>중대</th>
+								<th>사용장소</th>
+								<th>행사명</th>
 								<th style="background-color: #E89ECC">사용량(ℓ)</th>
 								<th></th>
 							</tr>
@@ -113,15 +113,14 @@
 							<tr id="{{$r->id}}">
 								<td>{{ $r->date }}</td>
 								<td>{{ $r->node->node_name }}</td>
-								<td>{{ $r->event_name }}</td>
-								<td>{{ $r->location }}</td>
 								<td>{{ $r->user_node->full_name }}</td>
-								@if($r->fileName != '')
-								<td><a href="{{ url('uploads/docs/'.$r->fileName) }}">{{ $r->event_name }}</a></td>
-								@else
-								@endif
+								<td>{{ $r->location }}</td>
+								<td>{{ $r->event_name }}</td>
 								<td style="background-color: #FEE9FC">{{ round($r->amount, 2) }}</td>
 								<td>
+									@if($r->fileName != '')
+									<a href="{{ url('uploads/docs/'.$r->fileName) }}" class="label label-primary"><span class="glyphicon glyphicon-download"></span> 사용보고서</a>
+									@endif
 									<a href="#" class="delete-usage label label-danger"><span class="glyphicon glyphicon-remove"></span> 삭제</a>
 								</td>
 							</tr>

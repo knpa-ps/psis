@@ -641,6 +641,7 @@ class EqCapsaicinController extends EquipController {
 			$usage->event_id = $event->id;
 			$usage->amount = $input['amount'];
 			$usage->user_node_id = $node->id;
+			$usage->attached_file_name = $input['file_name'];
 
 			if (!$usage->save()) {
 				return App::abort(500);
@@ -745,6 +746,8 @@ class EqCapsaicinController extends EquipController {
 		$eventType = Input::get('event_type');
 		$rows = array();
 		$data['year'] = $year;
+
+		$now = Carbon::now();
 		//필터 관련
 		//날짜
 		$validator = Validator::make(Input::all(), array(
@@ -794,7 +797,7 @@ class EqCapsaicinController extends EquipController {
 				$row->location = $e->location;
 				$row->event_name = $e->event_name;
 				$row->amount = $u->amount;
-				$row->fileName = $e->attached_file_name;
+				$row->fileName = $u->attached_file_name;
 				array_push($rows, $row);
 				$totalUsage += $u->amount;
 			}
