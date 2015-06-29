@@ -2,9 +2,9 @@
 use Carbon\Carbon;
 
 class EqCapsaicinController extends EquipController {
-	public function showRegionConfirm() {
+	public function showRegionConfirm($nodeId) {
 		$user = Sentry::getUser();
-		$node = $user->supplyNode;
+		$node = EqSupplyManagerNode::find($nodeId);
 
 		$data['node'] = $node;
 
