@@ -15,6 +15,9 @@
 			<li><a href="{{url('equips/pava_per_month')}}">월별 PAVA사용내역</a></li>
 			<li class="active"><a href="{{url('equips/water_pava')}}">집회시 사용내역</a></li>
 			<li><a href="{{url('equips/pava_io')}}">집회 외 PAVA소모내역</a></li>
+			@if ( in_array($node->type_code, array("D001")) )
+			<li><a href="{{url('equips/pava_confirm')}}">삭제요청</a></li>
+			@endif
 		</ul>
 		
 		<div class="panel panel-default">
@@ -158,9 +161,9 @@
 				if (!confirm('정말 삭제하시겠습니까?')) {
 					return;
 				};
-				var usageId = $(this).parent().parent().attr('id');
+				var eventId = $(this).parent().parent().attr('id');
 				$.ajax({
-					url : base_url+'/equips/water_pava/'+usageId,
+					url : base_url+'/equips/pava/'+eventId,
 					type : 'delete',
 					success : function(res) {
 						alert(res);

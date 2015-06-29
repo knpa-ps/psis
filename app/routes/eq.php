@@ -39,6 +39,7 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::resource('capsaicin', 'EqCapsaicinController');
 	Route::get('/capsaicin/node/{nodeId}/holding', 'EqCapsaicinController@nodeHolding');
 	Route::get('/capsaicin/node/{nodeId}/events', 'EqCapsaicinController@nodeEvents');
+	Route::get('/capsaicin/node/{nodeId}/confirm', 'EqCapsaicinController@showRegionConfirm');
 	Route::post('/capsaicin/get_events', 'EqCapsaicinController@getEvents');
 	Route::get('/capsaicin/node/{nodeId}/add_event', 'EqCapsaicinController@addEvent');
 	Route::post('/capsaicin/node/{nodeId}/add_event', 'EqCapsaicinController@storeNewEvent');
@@ -46,13 +47,7 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 
 	Route::get('/capsaicin_usage/{usageId}/edit', 'EqCapsaicinController@editUsage');
 	Route::post('/capsaicin_usage/{usageId}/update', 'EqCapsaicinController@updateUsage');
-	Route::delete('/capsaicin_usage/{usageId}', 'EqCapsaicinController@deleteUsage');
-
-	Route::resource('pava', 'EqPavaController');
-	Route::get('/pava/node/{nodeId}', 'EqPavaController@displayNodeState');
-	Route::get('/pava_usage/{usageId}/edit', 'EqPavaController@editUsage');
-	Route::post('/pava_usage/{usageId}/update', 'EqPavaController@updateUsage');
-	Route::delete('/pava_usage/{usageId}', 'EqPavaController@deleteUsage');
+	Route::delete('/capsaicin_usage/{usageId}', 'EqCapsaicinController@deleteUsageRequest');
 
 	Route::resource('supplies', 'EqSupplyController');
 	Route::put('/supplies/{id}/detail', 'EqSupplyController@addSupply');
@@ -74,8 +69,13 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::post('get_water_consumption_by_month', 'EqWaterPavaController@getConsumptionPerMonth');
 	Route::get('pava_per_month', 'EqWaterPavaController@pavaPerMonth');
 	Route::post('pava_per_month_data', 'EqWaterPavaController@pavaPerMonthData');
+	Route::get('pava_confirm', 'EqWaterPavaController@showRegionConfirm');
+	Route::delete('pava/{eventId}', 'EqWaterPavaController@deleteEventRequest');
 	
 	Route::resource('pava_io', 'EqPavaIOController');
+
+	// 본청 - 캡사이신, 파바 보고내역 삭제 확인
+	Route::delete('confirm_delete/{reqId}', 'EquipController@deleteConfirm');
 
 });
 

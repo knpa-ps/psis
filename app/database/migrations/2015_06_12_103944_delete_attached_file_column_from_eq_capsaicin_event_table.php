@@ -14,9 +14,11 @@ class DeleteAttachedFileColumnFromEqCapsaicinEventTable extends Migration {
 	{
 		Schema::table('eq_capsaicin_event', function(Blueprint $table) {
 			$table->dropColumn('attached_file_name');
+			$table->dropColumn('location');
 		});
 		Schema::table('eq_capsaicin_usage', function(Blueprint $table) {
 			$table->string('attached_file_name');
+			$table->string('location');
 		});
 	}
 
@@ -29,9 +31,11 @@ class DeleteAttachedFileColumnFromEqCapsaicinEventTable extends Migration {
 	{
 		Schema::table('eq_capsaicin_event', function(Blueprint $table) {
 			$table->string('attached_file_name');
+			$table->string('location');
 		});
 		Schema::table('eq_capsaicin_usage', function(Blueprint $table) {
 			$table->dropColumn('attached_file_name');
+			$table->dropColumn('location');
 		});
 	}
 

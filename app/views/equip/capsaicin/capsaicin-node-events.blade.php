@@ -12,6 +12,7 @@
 	<div class="col-xs-12" style="overflow: auto;">
 		<ul class="nav nav-tabs">
 			@if ( in_array($node->type_code, array("D001","D002")) )
+			<li><a href="{{url('equips/capsaicin/node/'.$node->id.'/confirm')}}">삭제요청</a></li>
 			<li><a href="{{url('equips/capsaicin/node/'.$node->id.'/holding')}}">월별보기</a></li>
 			@endif
 			<li class="active"><a href="{{url('equips/capsaicin/node/'.$node->id.'/events')}}">집회별 보기</a></li>

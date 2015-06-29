@@ -15,6 +15,9 @@
 			<li class="active"><a href="{{url('equips/pava_per_month')}}">월별 PAVA사용내역</a></li>
 			<li><a href="{{url('equips/water_pava')}}">집회시 사용내역</a></li>
 			<li><a href="{{url('equips/pava_io')}}">집회 외 PAVA소모내역</a></li>
+			@if ( in_array($node->type_code, array("D001")) )
+			<li><a href="{{url('equips/pava_confirm')}}">삭제요청</a></li>
+			@endif
 		</ul>
 		<div class="panel panel-default">
 			<div class="panel-heading">

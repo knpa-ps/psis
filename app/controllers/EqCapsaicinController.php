@@ -2,15 +2,52 @@
 use Carbon\Carbon;
 
 class EqCapsaicinController extends EquipController {
+	public function showRegionConfirm() {
+		$user = Sentry::getUser();
+		$node = $user->supplyNode;
+
+		$data['node'] = $node;
+
+		$requests = EqDeleteRequest::where('confirmed','=','0')->where('type','=','cap')->get();
+		$rows = array();
+
+		foreach ($requests as $r) {
+			$usage = EqCapsaicinUsage::find($r->usage_id);
+			$event = $usage->event;
+
+			$row = new stdClass;
+			$row->id = $r->id;
+			$row->date = $event->date;
+			$row->node = EqSupplyManagerNode::find($event->node_id);
+			$row->user_node = EqSupplyManagerNode::find($usage->user_node_id);
+			$row->type = $this->service->getEventType($event->type_code);
+			$row->location = $usage->location;
+			$row->event_name = $event->event_name;
+			$row->amount = $usage->amount;
+			$row->fileName = $usage->attached_file_name;
+			array_push($rows, $row);
+		}
+
+		$currentPage = Input::get('page')== null ? 0 : Input::get('page') - 1;
+		$pagedRows = array_slice($rows, $currentPage * 15, 15);
+
+		$data['rows'] = Paginator::make($pagedRows, count($rows), 15);
+
+		return View::make('equip.capsaicin.capsaicin-region-confirm', $data);
+	}
 
 	public function deleteEvent($eventId) {
+
 		$event = EqCapsaicinEvent::find($eventId);
 
 		if (!$event->delete()) {
 			return App::abort(500);
 		}
-		return "삭제되었습니다";
+
+		return "삭제되었습니다.";
+
 	}
+
 	public function storeNewEvent($nodeId) {
 
 		$input = Input::all();
@@ -19,7 +56,6 @@ class EqCapsaicinController extends EquipController {
 		$event->type_code = "assembly";
 		$event->event_name = $input['event_name'];
 		$event->node_id = $nodeId;
-		$event->location = $input['location'];
 		$event->date = $input['date'];
 
 		if (!$event->save()) {
@@ -29,6 +65,7 @@ class EqCapsaicinController extends EquipController {
 		return "저장되었습니다";
 
 	}
+
 	public function addEvent($nodeId) {
 		$node = EqSupplyManagerNode::find($nodeId);
 
@@ -526,7 +563,7 @@ class EqCapsaicinController extends EquipController {
 						$row->node = EqSupplyManagerNode::find($e->node_id);
 						$row->user_node = EqSupplyManagerNode::find($u->user_node_id);
 						$row->type = $this->service->getEventType($e->type_code);
-						$row->location = $e->location;
+						$row->location = $u->location;
 						$row->event_name = $e->event_name;
 						$row->fileName = $e->attached_file_name;
 						$row->amount = $u->amount;
@@ -640,6 +677,7 @@ class EqCapsaicinController extends EquipController {
 			$usage = new EqCapsaicinUsage;
 			$usage->event_id = $event->id;
 			$usage->amount = $input['amount'];
+			$usage->location = $input['location'];
 			$usage->user_node_id = $node->id;
 			$usage->attached_file_name = $input['file_name'];
 
@@ -649,7 +687,7 @@ class EqCapsaicinController extends EquipController {
 
 			// 타 청에서 동원된 경우
 			// 1. 해당 청에 추가량 등록
-			if ($node->region()->id !== $input['region']) {
+			if ($node->region()->id != $input['region']) {
 				$addition = new EqCapsaicinIo;
 				$addition->node_id = $input['region'];
 				$addition->amount = $input['amount'];
@@ -787,6 +825,7 @@ class EqCapsaicinController extends EquipController {
 			$usages = EqCapsaicinUsage::where('event_id','=',$e->id)->whereHas('node', function($q) use($nodeFullPath) {
 				$q->where('full_path','like',$nodeFullPath.'%');
 			})->get();
+			
 			foreach ($usages as $u) {
 				$row = new stdClass;
 				$row->id = $u->id;
@@ -794,7 +833,7 @@ class EqCapsaicinController extends EquipController {
 				$row->node = EqSupplyManagerNode::find($e->node_id);
 				$row->user_node = EqSupplyManagerNode::find($u->user_node_id);
 				$row->type = $this->service->getEventType($e->type_code);
-				$row->location = $e->location;
+				$row->location = $u->location;
 				$row->event_name = $e->event_name;
 				$row->amount = $u->amount;
 				$row->fileName = $u->attached_file_name;
@@ -819,12 +858,15 @@ class EqCapsaicinController extends EquipController {
 	}
 
 	public function nodeHolding($nodeId) {
+
 		$node = EqSupplyManagerNode::find($nodeId);
+
 		$data['node'] = $node;
 		$year = Input::get('year');
 		if ($year == null) {
 			$year = Carbon::now()->year;
 		}
+
 		$now = Carbon::now();
 		$data['year'] = $year;
 		$data['initYears'] = EqCapsaicinFirstday::where('node_id','=',$nodeId)->get();
@@ -1042,37 +1084,18 @@ class EqCapsaicinController extends EquipController {
 		return Redirect::action('EqCapsaicinController@nodeEvents', $node->id )->with('message', '수정되었습니다.');
 	}
 
-	public function deleteUsage($usageId) {
-		$usage = EqCapsaicinUsage::find($usageId);
+	public function deleteUsageRequest($usageId) {
+		
+		$delReq = new EqDeleteRequest;
+		$delReq->usage_id = $usageId;
+		$delReq->type = "cap";
+		$delReq->confirmed = 0;
 
-		$event = $usage->event;
-
-		DB::beginTransaction();
-
-		// 타청에서 사용한걸 삭제할 경우 타청사용량에서 제거해줘야 함.
-		if ($usage->cross) {
-			$cross = $usage->cross;
-			$io = $cross->io;
-			if (!$io->delete()) {
-				return '타청지원 추가량 삭제 중 오류가 발생했습니다';
-			}
-			if (!$cross->delete()) {
-				return '타청지원내역 삭제 중 오류가 발생했습니다.';
-			}
-		}
-		// 이제 사용내역 삭제함
-		if (!$usage->delete()) {
-			return '캡사이신 희석액 사용내역 삭제 중 오류가 발생했습니다';
+		if (!$delReq->save()) {
+			return App::abort(500);
 		}
 
-		if ($event->children->count() == 0) {
-			if (!$event->delete()) {
-				return '캡사이신 희석액 사용 행사 삭제 중 오류가 발생했습니다';
-			}
-		}
-
-		DB::commit();
-		return '해당 사용내역이 삭제되었습니다.'; 
+		return "본청 관리자 승인 후 삭제됩니다.";
 	}
 
 }

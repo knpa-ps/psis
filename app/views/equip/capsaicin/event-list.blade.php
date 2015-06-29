@@ -26,7 +26,6 @@
 							<thead>
 								<tr>
 									<th>행사명</th>
-									<th>장소</th>
 									<th></th>
 								</tr>
 							</thead>
@@ -39,7 +38,6 @@
 								@foreach ($events as $e)
 								<tr id="{{$e->id}}">
 									<td>{{ $e->event_name }}</td>
-									<td>{{ $e->location }}</td>
 									<td>
 										<a href="#" class="delete label label-danger"><span class="glyphicon glyphicon-remove"></span> 삭제</a>
 									</td>
@@ -55,7 +53,6 @@
 								)) }}
 								<tr>
 									<td><input type="text" class="input-sm col-xs-12" id="event_name" name="event_name"></td>
-									<td><input type="text" class="input-sm col-xs-12" id="location" name="location"></td>
 									<td>
 										<a href="#" class="add-usage btn btn-xs btn-success" id="add_event"><span class="glyphicon glyphicon-plus"></span> 추가</a>
 									</td>

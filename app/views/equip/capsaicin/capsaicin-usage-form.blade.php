@@ -40,6 +40,12 @@
 									</select>
 								</div>
 							</div>
+							<div class="form-group">
+								<label for="location" class="control-label col-xs-2">장소</label>
+								<div class="col-xs-10">
+									<input name="location" id="location" class="form-control input-sm" type="text">
+								</div>
+							</div>
 							
 							<div class="form-group">
 								<label for="amount" class="control-label col-xs-2">사용량(ℓ)</label>
@@ -137,7 +143,7 @@
 			},
 			amount: {
 				required: true,
-				digits: true
+				number: true
 			}
 		},
 		submitHandler: function(form) {

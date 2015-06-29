@@ -3,6 +3,30 @@ use Carbon\Carbon;
 
 class EqWaterPavaController extends EquipController {
 
+	public function deleteEventRequest($eventId) {
+		
+		$delReq = new EqDeleteRequest;
+		$delReq->usage_id = $eventId;
+		$delReq->type = "pava";
+		$delReq->confirmed = 0;
+
+		if (!$delReq->save()) {
+			return App::abort(500);
+		}
+
+		return "본청 관리자 승인 후 삭제됩니다.";
+	}
+
+	public function showRegionConfirm() {
+		$user = Sentry::getUser();
+		$node = $user->supplyNode;
+
+		$data['node'] = $node;
+		$data['requests'] = EqDeleteRequest::where('confirmed','=','0')->where('type','=','pava')->paginate(15);
+
+		return View::make('equip.waterpava.pava-region-confirm', $data);
+	}
+
 	public function pavaPerMonthData() {
 
 		$year = Input::get('year');
@@ -91,6 +115,7 @@ class EqWaterPavaController extends EquipController {
 	public function waterPerMonth()
 	{
 		$user = Sentry::getUser();
+		$node = $user->supplyNode;
 		$nowYear = Carbon::now()->year;
 
 		$selectedYear = Input::get('year') ? Input::get('year') : $nowYear;

@@ -52,4 +52,61 @@ class EquipController extends BaseController {
 
 		return array('msg'=>"관할부서 인원이 변경되었습니다.");
 	}
+
+	public function deleteConfirm($reqId) {
+
+		$req = EqDeleteRequest::find($reqId);
+
+		DB::beginTransaction();
+
+		switch ($req->type) {
+			case 'cap':
+				$usage = EqCapsaicinUsage::find($req->usage_id);
+
+				$event = $usage->event;
+
+				// 타청에서 사용한걸 삭제할 경우 타청사용량에서 제거해줘야 함.
+				if ($usage->cross) {
+					$cross = $usage->cross;
+					$io = $cross->io;
+					if (!$io->delete()) {
+						return '타청지원 추가량 삭제 중 오류가 발생했습니다';
+					}
+					if (!$cross->delete()) {
+						return '타청지원내역 삭제 중 오류가 발생했습니다.';
+					}
+				}
+				// 이제 사용내역 삭제함
+				if (!$usage->delete()) {
+					return '캡사이신 희석액 사용내역 삭제 중 오류가 발생했습니다';
+				}
+
+				if ($event->children->count() == 0) {
+					if (!$event->delete()) {
+						return '캡사이신 희석액 사용 행사 삭제 중 오류가 발생했습니다';
+					}
+				}
+
+				break;
+			case 'pava':
+				$event = EqWaterPavaEvent::find($req->usage_id);
+				if (!$event->delete()) {
+					return App::abort(500);
+				}
+				break;
+			default:
+				return "wrong type.";
+				break;
+		}
+
+		$req->confirmed = 1;
+		if (!$req->save()) {
+			return App::abort(500);
+		}
+
+		DB::commit();
+
+		return "삭제되었습니다";
+
+	}
 }

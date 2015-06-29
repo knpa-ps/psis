@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateEqPavaInitHoldingTable extends Migration {
+class CreateEqDeleteRequestTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,11 +12,11 @@ class CreateEqPavaInitHoldingTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('eq_pava_init_holding', function(Blueprint $table) {
+		Schema::create('eq_delete_request', function(Blueprint $table) {
 			$table->increments('id');
-			$table->integer('node_id');
-			$table->string('year');
-			$table->float('amount');
+			$table->integer('usage_id');
+			$table->string('type');
+			$table->tinyinteger('confirmed');
 			$table->timestamps();
 		});
 	}
@@ -29,7 +29,7 @@ class CreateEqPavaInitHoldingTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('eq_pava_init_holding');
+		Schema::drop('eq_delete_request');
 	}
 
 }
