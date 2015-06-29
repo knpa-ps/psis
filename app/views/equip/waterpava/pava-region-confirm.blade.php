@@ -64,7 +64,9 @@
 									<td>{{ round($r->event->pava_amount, 2) }}</td>
 									<td>{{ round($r->event->dye_amount, 2) }}</td>
 									<td>
-										{{-- <a href="{{url('equips/water_pava/'.$r->event()->id.'/edit')}}" class="label label-success"><span class="glyphicon glyphicon-pencil"></span> 수정</a><br /> --}}
+										@if($r->event->attached_file_name != '')
+										<a href="{{ url('uploads/docs/'.$r->event->attached_file_name) }}" class="label label-primary"><span class="glyphicon glyphicon-download"></span> 사용보고서</a>
+										@endif
 										<a href="#" class="delete-usage label label-danger"><span class="glyphicon glyphicon-remove"></span> 삭제</a>
 									</td>
 								</tr>

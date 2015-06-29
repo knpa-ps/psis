@@ -260,6 +260,11 @@ class EqWaterPavaController extends EquipController {
 			}
 		}
 
+		if (array_key_exists('file_name', $input)) {
+			$event->attached_file_name = $input['file_name'];
+		}
+
+
 		if (!$event->save()) {
 			return App::abort(500);
 		}
