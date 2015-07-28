@@ -169,7 +169,7 @@ class EqSurveyController extends \BaseController {
 		if ($domain == 1) {
 
 			$query = EqItemSurvey::where('node_id','=',$userNode->id)->where('started_at', '>=', $start)->where('is_closed','=',0);
-			$items = EqItem::where('is_active','=',1)->get();
+			$items = EqItem::where('is_active','=',1)->where('acquired_date','>=',date("Y"))->get();
 
 		//조사응답 탭일 땐 자신이 응답해야 하는 설문조사 목록을 출력한다.
 		} else {

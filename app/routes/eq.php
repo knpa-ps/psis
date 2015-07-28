@@ -76,6 +76,6 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 
 	// 본청 - 캡사이신, 파바 보고내역 삭제 확인
 	Route::delete('confirm_delete/{reqId}', 'EquipController@deleteConfirm');
-
+	
 });
 

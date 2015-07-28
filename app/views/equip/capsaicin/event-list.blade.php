@@ -16,7 +16,7 @@
 							<input type="text" class="col-xs-8 input-sm input-datepicker" name="date" id="date" value="{{ $selectedDate }}"> 
 						</div>
 						<div class="col-xs-6">
-							<button class="btn btn-xs btn-primary col-xs-2">조회</button>
+							<button id="show" class="hidden btn btn-xs btn-primary col-xs-2">조회</button>
 						</div>
 					</form>
 				</div>
@@ -74,6 +74,9 @@
 
 <script type="text/javascript">
 $(function(){
+	$("#date").on('change', function() {
+		$("#show").trigger('click');
+	})
 
 	$("#add_event").on('click', function() {
 		var formData = $("#event_form").serialize();
