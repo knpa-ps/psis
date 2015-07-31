@@ -65,6 +65,7 @@ class ManagerController extends \BaseController {
 		}
 		$user = User::find($userId[0]);
 		
+		// 해당 계정이 승인되어있지 않으면 승인해준다
 		if (!$user->activated) {
 			$user->activated = true;
 			if (!$user->save()) {

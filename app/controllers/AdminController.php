@@ -646,94 +646,61 @@ class AdminController extends BaseController {
 		return View::make('admin.depts');
 	}
 
-	public function adjustHierarchy($nodeId = 1) {
-		Log::info('Start adjusting... nodeId = '.$nodeId);
+	public function adjustHierarchy() {
+
+		$headNode = EqSupplyManagerNode::where('type_code','=','D001')->first();
+
 		DB::beginTransaction();
 
-		if ($nodeId === null) {
-			$node = null;
-		} else {
-			$node = EqSupplyManagerNode::with('children')->find($nodeId);
-
-			if ($node === null) {
-				throw new Exception('node does not exists with id='.$nodeId);
-			}
-			$parent = $node->parent()->first();
-			if ($parent === null) {
-				$node->full_path = ":{$node->id}:";
-				$node->full_name = $node->node_name;
-			} else {
-				$node->full_path = rtrim($parent->full_path, ':').":{$node->id}:";
-				if ($parent->id == 1) {
-					$node->full_name = $node->node_name;
-				} else {
-					if (preg_match('/^[)]*/', $node->node_name)) {
-						return $node->node_name;
-						$newNodeName = explode(')', $node->node_name)[1];
-						$node->node_name = $newNodeName;
-						$node->save();
-					}
-					if ($node->parent_manager_node !== null) {
-						$node->full_name = trim($parent->full_name." {$node->node_name}");
-					} else {
-						$node->full_name = trim($parent->full_name);
-					}
-				}
-			}
-
-			$node->is_terminal = 0;
-
-			if (!$node->save()) {
-				throw new Exception('failed to update node data. '.$child);
-				Log::warning("failed to update node data");
-			}
-
-		}
-		Log::info('go down to lower node');
-		$this->doAdjustHierarchy($node);
-
+		$this->doAdjustHierarchy($headNode, null);
 
 		DB::commit();		
 	}
 
-	private function doAdjustHierarchy(EqSupplyManagerNode $parent = null) {
-
-		Log::info("doAdjustHierarchy Method get started");
+	private function doAdjustHierarchy(EqSupplyManagerNode $parent = null, $parentManagerNodeId ) {
 
 		if ($parent === null) {
-			$children = EqSupplyManagerNode::regions()->get();
-			$parent = new stdClass;
-			$parent->full_path = '';
-			$parent->full_name = '';
+			return "parent_node error.";
 		} else {
-			$children = $parent->children()->with('children')->get();
+			$children = $parent->children;
+		}
+		if (sizeof($children) == 0) {
+			$parent->is_terminal = 1;
+			if (!$parent->save()) {
+				return "is_terminal save failed.";
+			}
 		}
 
-		Log::info("children length is ".sizeof($children));
-		// break point : 하위 부서가 없으면 break
 		foreach ($children as $child) {
 
 			// 하위부서의 계층 정보를 업데이트
-			$child->full_path = rtrim($parent->full_path, ':').":{$child->id}:";
-			if ($parent->full_name == '본청') {
+			$child->full_path = $parent->full_path."{$child->id}:";
+			$child->parent_manager_node = $parentManagerNodeId;
+
+			if ($child->is_selectable == 0) {
+				$child->parent_manager_node = null;
+			}
+
+			if ($parent->type_code == 'D001') {
 				$child->full_name = $child->node_name;
 			} else {
-				if ($child->parent_manager_node !== null or $child->type_code == "D003") {
-					$child->full_name = trim($parent->full_name." {$child->node_name}");
+				if ($child->is_selectable == 1 or $child->type_code=="D003") {
+					$child->full_name = $parent->full_name." {$child->node_name}";
 				} else {
-					$child->full_name = trim($parent->full_name);
+					$child->full_name = $parent->full_name;
 				}
 			}
-			$child->is_terminal == 0;
 
 			if (!$child->save()) {
-				throw new Exception('failed to update node data. '.$child->full_name);
-				Log::info('failed to update node data. '.$child->full_name);
+				return "child node save failed.";
 			}
 
 			// traverse
-			Log::info('go down again to its lower node');
-			$this->doAdjustHierarchy($child);
+			if ($child->is_selectable == 0) {
+				$this->doAdjustHierarchy($child, $parentManagerNodeId);
+			} else {
+				$this->doAdjustHierarchy($child, $child->id);
+			}
 		}
 	}
 }

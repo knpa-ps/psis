@@ -4,6 +4,10 @@ use Carbon\Carbon;
 
 class EqService extends BaseService {
 
+	public function inventoryWithdraw($inventorySet, $datas) {
+		//장비를 빼는 기능 및 장비 빼고 음수가 안 나오도록 체크하는 기능을 넣음
+	}
+
 	public function getPavaPerMonthData($year, $nodeId) {
 
 		$now = Carbon::now();
