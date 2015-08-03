@@ -15,7 +15,7 @@
 			<li><a href="{{url('equips/capsaicin/node/'.$node->id.'/confirm')}}">삭제요청</a></li>
 			<li><a href="{{url('equips/capsaicin/node/'.$node->id.'/holding')}}">월별보기</a></li>
 			@endif
-			<li class="active"><a href="{{url('equips/capsaicin/node/'.$node->id.'/events')}}">집회별 보기</a></li>
+			<li class="active"><a href="{{url('equips/capsaicin/node/'.$node->id.'/events')}}">행사별 보기</a></li>
 		</ul>
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -82,9 +82,12 @@
 						<span class="glyphicon glyphicon-plus"></span> 행사명 등록
 					</a>
 					@endif
-					<a href="{{url('equips/capsaicin/create?nodeId='.$node->id)}}" class="btn btn-info btn-xs pull-right">
-						<span class="glyphicon glyphicon-plus"></span> 사용내역 추가
-					</a>	
+					<a href="{{url('equips/capsaicin/create?nodeId='.$node->id.'&type=event')}}" class="btn btn-info btn-xs pull-right">
+						<span class="glyphicon glyphicon-plus"></span> 행사내역 추가
+					</a>
+					<a href="{{url('equips/capsaicin/create?nodeId='.$node->id.'&type=training')}}" class="btn btn-primary btn-xs pull-right">
+						<span class="glyphicon glyphicon-plus"></span> 훈련내역 추가
+					</a>
 					<a href="{{URL::current().'?export=true&event_type='.$eventType.'&start='.$start.'&end='.$end.'&event_name='.$eventName}}" class="btn btn-success btn-xs pull-right">
 						<span class="glyphicon glyphicon-download"></span> 다운로드(.xlsx)
 					</a>

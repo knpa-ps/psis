@@ -652,7 +652,7 @@ class AdminController extends BaseController {
 
 		DB::beginTransaction();
 
-		$this->doAdjustHierarchy($headNode, null);
+		$this->doAdjustHierarchy($headNode, 1);
 
 		DB::commit();		
 	}

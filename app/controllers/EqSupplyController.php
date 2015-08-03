@@ -213,8 +213,12 @@ class EqSupplyController extends EquipController {
 
 					// 보급하는 노드에서 보유수량을 줄인다
 					$supplyInvData = EqInventoryData::where('inventory_set_id','=',$supplyInvSet->id)->where('item_type_id','=',$typeId)->first();
-					$supplyInvData->count -= $data[$countName];
-					$supplyInvData->save();
+					
+					try {
+						$this->service->inventoryWithdraw($supplyInvData, $data[$countName]);
+					} catch (Exception $e) {
+						return Redirect::to('equips/supplies')->with('message', $e->getMessage() );
+					}
 
 					// 보급받는 노드에서 보유수량을 늘인다
 
@@ -245,8 +249,11 @@ class EqSupplyController extends EquipController {
 
 					// 보급하는 노드에서 보유수량을 줄인다
 					$supplyInvData = EqInventoryData::where('inventory_set_id','=',$supplyInvSet->id)->where('item_type_id','=',$typeId)->first();
-					$supplyInvData->count -= $data[$countName];
-					$supplyInvData->save();
+					try {
+						$this->service->inventoryWithdraw($supplyInvData, $data[$countName]);
+					} catch (Exception $e) {
+						return Redirect::to('equips/supplies')->with('message', $e->getMessage() );
+					}
 
 					// 보급받는 노드에서 보유수량을 늘린다.
 					$receiveInvData = EqInventoryData::where('inventory_set_id','=',$receiveInvSet->id)->where('item_type_id','=',$typeId)->first();
@@ -257,16 +264,6 @@ class EqSupplyController extends EquipController {
 		}
 
 		//사이즈별 보급 수량을 계산하여 보유수량보다 적으면 빠꾸먹인다.
-
-		foreach ($types as $t) {
-			$supplyNum[$t->id] = EqItemSupply::where('supply_set_id','=',$supplySet->id)->where('item_type_id','=',$t->id)->sum('count');
-
-			if ($supplyNum[$t->id] > $holdingNum[$t->id]) {
-				$lack = $supplyNum[$t->id] - $holdingNum[$t->id];
-				Session::flash('message', '해당 사이즈의 보유수량이 부족합니다. \n(현재 '.$t->type_name.' 보유수량: '.$holdingNum[$t->id].', '.$lack.'개 부족)');
-				return Redirect::back();
-			}
-		}
 
 		DB::commit();
 

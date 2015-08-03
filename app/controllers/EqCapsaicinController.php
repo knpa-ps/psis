@@ -98,7 +98,7 @@ class EqCapsaicinController extends EquipController {
 	{
 		$user = Sentry::getUser();
 		$node = $user->supplyNode;
-		if ($node->id != 1) {
+		if ($node->type_code != "D001") {
 			if ($node->type_code == "D002") {
 				return Redirect::action('EqCapsaicinController@nodeHolding', $node->id);
 			} else {
@@ -177,7 +177,7 @@ class EqCapsaicinController extends EquipController {
 		 		if (Input::get('export')) {
 					//xls obj 생성
 					$objPHPExcel = new PHPExcel();
-					$fileName = $year.'년 지방청별 캡사이신 희석액 현황'; 
+					$fileName = $year.'π액 현황'; 
 					//obj 속성
 					$objPHPExcel->getProperties()
 						->setCreator($user->user_name)
@@ -650,12 +650,30 @@ class EqCapsaicinController extends EquipController {
 	 */
 	public function create()
 	{
-		$data['node'] = EqSupplyManagerNode::find(Input::get('nodeId'));
-		$data['mode'] = 'create';
-		$data['regions'] = EqSupplyManagerNode::where('type_code','=','D002')->get();
-		$data['region'] = Input::get('region_id');
-		
-		return View::make('equip.capsaicin.capsaicin-usage-form',$data);
+		switch (Input::get('type')) {
+			case 'event':
+				$data['node'] = EqSupplyManagerNode::find(Input::get('nodeId'));
+				$data['mode'] = 'create';
+				$data['regions'] = EqSupplyManagerNode::where('type_code','=','D002')->get();
+				$data['region'] = Input::get('region_id');
+				
+				return View::make('equip.capsaicin.capsaicin-usage-form',$data);
+
+				break;
+
+			case 'training':
+
+				$data['node'] = EqSupplyManagerNode::find(Input::get('nodeId'));
+				$data['region'] = Input::get('region_id');
+
+				return View::make('equip.capsaicin.capsaicin-training-form', $data);
+
+				break;
+			
+			default:
+				# code...
+				break;
+		}
 	}
 
 
@@ -1086,16 +1104,24 @@ class EqCapsaicinController extends EquipController {
 
 	public function deleteUsageRequest($usageId) {
 		
-		$delReq = new EqDeleteRequest;
-		$delReq->usage_id = $usageId;
-		$delReq->type = "cap";
-		$delReq->confirmed = 0;
+		$delReq = EqDeleteRequest::where('usage_id','=',$usageId)->first();
 
-		if (!$delReq->save()) {
-			return App::abort(500);
+		if (!$delReq) {
+			$delReq = new EqDeleteRequest;
+			$delReq->usage_id = $usageId;
+			$delReq->type = "cap";
+			$delReq->confirmed = 0;
+
+			if (!$delReq->save()) {
+				return App::abort(500);
+			}	
+			
+			return "지방청 관리자 승인 후 삭제됩니다.";
+
+		} else {
+			return "삭제 대기중입니다.";
 		}
 
-		return "본청 관리자 승인 후 삭제됩니다.";
 	}
 
 }

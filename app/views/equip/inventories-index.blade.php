@@ -36,12 +36,14 @@
 							'class'=>'form-horizontal'
 						)) }}
 							<fieldset>
-								<h5>총괄표 다운로드</h5>
+								
 								<div class="form-group">
-									<label for="supply_node_id" class="col-xs-2 control-label">대상관서</label>
+									@if(sizeof($user->supplyNode->managedChildren) !== 0 )
+									<label for="supply_node_id" class="col-xs-2 control-label">다운로드할 관서 선택</label>
 									<div class="col-xs-4">
 										{{ View::make('widget.dept-selector', array('id'=>'supply_node_id', 'inputClass'=>'select-node', 'initNodeId'=> $node->id )) }}
 									</div>
+									@endif
 									<div class="col-xs-6">
 										<button type="submit" class="col-xs-12 pull-right btn btn-info btn-sm"><span class="glyphicon glyphicon-download" ></span> 총괄표 다운로드 (.xlsx)</button>
 									</div>

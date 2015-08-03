@@ -123,7 +123,7 @@
 									{{ $convert->converted_date }}
 								</td>
 								<td>
-									<a href="{{ url('equips/convert/'.$convert->id)}}">{{ $convert->item->code->title }}</a>
+									<a href="{{ url('equips/convert/'.$convert->id)}}">{{ substr($convert->item->acquired_date, 0, 4).' '.$convert->item->code->title }}</a>
 								</td>
 								<td>
 									{{ $convert->item->classification.' / '.$convert->item->maker_name }}

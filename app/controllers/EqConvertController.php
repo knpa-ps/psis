@@ -123,7 +123,7 @@ class EqConvertController extends EquipController {
 
 
 		// 보유장비 목록 보여주기
-		$data['items'] = $items = EqItem::where('is_active','=',1)->whereHas('inventories', function($q) use ($user) {
+		$data['items'] = EqItem::where('is_active','=',1)->whereHas('inventories', function($q) use ($user) {
 			$q->where('node_id','=',$user->supplyNode->id);
 		})->get();
 		
@@ -386,10 +386,12 @@ class EqConvertController extends EquipController {
 		// 주는 쪽은 인벤토리가 이미 있으므로 없는 경우를 생각할 필요가 없음.
 		foreach ($types as $t) {
 			$fromInvData = EqInventoryData::where('inventory_set_id','=',$fromInvSet->id)->where('item_type_id','=',$t->id)->first();
-			$fromInvData->count -= EqConvertData::where('convert_set_id','=',$convSet->id)->where('item_type_id','=',$t->id)->first()->count;
-			//저장
-			if (!$fromInvData->save()) {
-				return App::abort(500);
+			$subValue = EqConvertData::where('convert_set_id','=',$convSet->id)->where('item_type_id','=',$t->id)->first()->count;
+			// 인벤토리에서 빼고 저장하는 함수
+			try {
+				$this->service->inventoryWithdraw($fromInvData, $subValue);
+			} catch (Exception $e) {
+				return Redirect::back()->with('message', $e->getMessage() );
 			}
 		}
 		//주는 쪽 끝

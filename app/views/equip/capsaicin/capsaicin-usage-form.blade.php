@@ -70,27 +70,6 @@
 				</div>
 				<iframe id="upload_target" name="upload_target" src="" frameborder="0" style="width:0;height:0;border:0px solid #fff;"></iframe>
 				<input type="button" id="submit_btn" class="btn btn-lg btn-block btn-primary" value="제출">
-				
-				<table>
-					<tbody id="template_tbody">
-						<tr class="hidden unit_info">
-							<td class="node_name">
-								<!-- 관서명 들어감 -->
-								<span class="unit_name"></span>
-								<input type="text" class="hidden">
-								<!-- value는 node id로 넣어줌 -->
-							</td>
-							<td class="amount">
-								<input type="text" class="form-control input-sm input-amount" disabled>
-								<!-- name은 amount[#], value는 입력한 값을 넣어줌 -->
-							</td>
-							<td>
-								
-							</td>
-						</tr>
-					</tbody>
-				</table>
-				
 			</div>
 		</div>
 	</div>

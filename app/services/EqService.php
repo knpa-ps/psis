@@ -4,8 +4,17 @@ use Carbon\Carbon;
 
 class EqService extends BaseService {
 
-	public function inventoryWithdraw($inventorySet, $datas) {
+	public function inventoryWithdraw($invData, $value) {
 		//장비를 빼는 기능 및 장비 빼고 음수가 안 나오도록 체크하는 기능을 넣음
+		if ($invData->count > $value) {
+			$invData->count -= $value;
+			if (!$invData->save()) {
+				return App::abort(500);
+			}
+		} else {
+			$type = EqItemType::find($invData->item_type_id);
+			throw new Exception($invData->parentSet->ownerNode->full_name."이 보유한 ".$type->type_name." 수량이 ".($value-$invData->count)."개 부족합니다.");
+		}
 	}
 
 	public function getPavaPerMonthData($year, $nodeId) {
