@@ -113,7 +113,7 @@ return array(
         'Way\Generators\GeneratorsServiceProvider',
         'Cartalyst\Sentry\SentryServiceProvider',
         'Chumper\Datatable\DatatableServiceProvider',
-        'Intervention\Image\ImageServiceProvider'
+        'Intervention\Image\ImageServiceProvider',
     ),
 
 	/*

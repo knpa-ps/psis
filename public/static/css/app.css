@@ -2,6 +2,20 @@ tbody tr.group>td.group-cell {
   background-color: #d9edf7;
   font-weight: bold;
 }
+.blink {
+  animation: blink 1s steps(5, start) infinite;
+  -webkit-animation: blink 1s steps(5, start) infinite;
+}
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+@-webkit-keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
 .dataTables_processing {
   position: absolute;
   top: 50%;
@@ -164,4 +178,18 @@ body {
 .navbar .navbar-nav .open .dropdown-menu > .disabled > a:focus {
   color: #999 !important;
   background-color: transparent !important;
+}
+.nav-stacked li a:hover {
+   background-color: #008cba;
+   color : #fff;
+}
+
+.carousel-indicators .active {
+  background-color: #000;
+}
+.carousel-indicators > li {
+  border: 1px solid gray;
+}
+.carousel.slide {
+  background: none !important;
 }

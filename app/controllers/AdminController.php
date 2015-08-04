@@ -645,4 +645,62 @@ class AdminController extends BaseController {
 		
 		return View::make('admin.depts');
 	}
+
+	public function adjustHierarchy() {
+
+		$headNode = EqSupplyManagerNode::where('type_code','=','D001')->first();
+
+		DB::beginTransaction();
+
+		$this->doAdjustHierarchy($headNode, 1);
+
+		DB::commit();		
+	}
+
+	private function doAdjustHierarchy(EqSupplyManagerNode $parent = null, $parentManagerNodeId ) {
+
+		if ($parent === null) {
+			return "parent_node error.";
+		} else {
+			$children = $parent->children;
+		}
+		if (sizeof($children) == 0) {
+			$parent->is_terminal = 1;
+			if (!$parent->save()) {
+				return "is_terminal save failed.";
+			}
+		}
+
+		foreach ($children as $child) {
+
+			// 하위부서의 계층 정보를 업데이트
+			$child->full_path = $parent->full_path."{$child->id}:";
+			$child->parent_manager_node = $parentManagerNodeId;
+
+			if ($child->is_selectable == 0) {
+				$child->parent_manager_node = null;
+			}
+
+			if ($parent->type_code == 'D001') {
+				$child->full_name = $child->node_name;
+			} else {
+				if ($child->is_selectable == 1 or $child->type_code=="D003") {
+					$child->full_name = $parent->full_name." {$child->node_name}";
+				} else {
+					$child->full_name = $parent->full_name;
+				}
+			}
+
+			if (!$child->save()) {
+				return "child node save failed.";
+			}
+
+			// traverse
+			if ($child->is_selectable == 0) {
+				$this->doAdjustHierarchy($child, $parentManagerNodeId);
+			} else {
+				$this->doAdjustHierarchy($child, $child->id);
+			}
+		}
+	}
 }

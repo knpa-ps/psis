@@ -43,7 +43,6 @@
 							<div class="col-xs-12">
 								<div class="pull-right">
 									<button class="btn btn-primary btn-xs" type="submit"><span class="glyphicon glyphicon-ok"></span> 조회</button>
-									<!-- <button class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-download"></span> 다운로드</button> -->
 								</div>
 								<div class="clearfix"></div>
 							</div>
@@ -53,8 +52,23 @@
 				</div>
 		
 				<div class="toolbar-table">
-					<a href="{{url('equips/supplies/create')}}" class="btn-xs pull-right btn btn-info"><span class="glyphicon glyphicon-plus"></span> 보급내역추가</a>
-					<div class="clearfix"></div>
+					<form action="{{url('equips/supplies/create')}}">
+						<label style="margin-top: 9px; text-align: center;" for="item_to_supply" class="control-label col-xs-1">장비선택</label>
+						<div class="col-xs-9">
+							<select name="item" id="item_to_supply" class="form-control">
+								@if(count($items)>0)
+									@foreach($items as $i)
+										<option value="{{$i->id}}">{{substr($i->acquired_date, 0, 4).' '.$i->code->title}} ({{$i->maker_name.' '.$i->classification}})</option>
+									@endforeach
+								@else
+									<option value="0">올해 취득한 장비가 없습니다.</option>
+								@endif
+								
+							</select>
+						</div>
+						<button type="submit" style="margin-top: 3px;" class="col-xs-2 btn-xs pull-right btn btn-info"><span class="glyphicon glyphicon-plus"></span> 보급하기</button>
+						<div class="clearfix"></div>
+					</form>
 				</div>
 
 				<table class="table table-condensed table-bordered table-hover table-striped" id="data_table">
@@ -65,9 +79,6 @@
 							</th>
 							<th>
 								장비명
-							</th>
-							<th>
-								보급내역
 							</th>
 							<th>
 								취득구분 (제조사/취득일)
@@ -84,38 +95,32 @@
 						</tr>
 					</thead>
 					<tbody>
-					@if (count($data) > 0) 
-						@foreach ($data as $row)
-							<tr data-id="{{$row->id}}">
+					@if (sizeof($supplies) > 0) 
+						@foreach ($supplies as $supply)
+							<tr data-id="{{$supply->id}}">
 								<td>
-									{{ $row->id }}
+									{{ $supply->id }}
 								</td>
 								<td>
-									{{ $row->item->name }}
+									<a href="{{ url('equips/supplies/'.$supply->id)}}">{{ $supply->item->code->title.' / '.$supply->item->classification }}</a>
 								</td>
 								<td>
-									<a href="{{url('equips/supplies/'.$row->id)}}">{{ $row->title }}</a>
+									{{ $supply->item->maker_name.' / '.$supply->item->acquired_date }}
 								</td>
 								<td>
-									{{ $row->inventory->model_name.' / '.$row->inventory->acq_date }}
+									{{ $supply->supplied_date }}
 								</td>
 								<td>
-									{{ $row->supply_date }}
+									{{ number_format($supply->children->sum('count')) }}
 								</td>
 								<td>
-									{{ number_format($row->details->sum('count')) }}
-								</td>
-								<td>
-									<a href="{{ url('equips/supplies/'.$row->id.'/edit') }}" class="btn btn-xs btn-info btn-edit">
-										<span class="glyphicon glyphicon-edit"></span> 수정
-									</a>
 									{{ Form::open(array(
-											'url'=>url('equips/supplies/'.$row->id),
+											'url'=>url('equips/supplies/'.$supply->id),
 											'method'=>'delete',
 											'class'=>'form-delete'
 										)) }}
 										<button type="submit" class="btn btn-xs btn btn-danger btn-delete">
-											<span class="glyphicon glyphicon-remove"></span> 삭제
+											<span class="glyphicon glyphicon-remove"></span> 보급취소
 										</button>
 									{{ Form::close() }}
 								</td>
@@ -123,14 +128,14 @@
 						@endforeach
 					@else
 						<tr>
-							<td colspan="6">
+							<td colspan="7">
 								내역이 없습니다.
 							</td>
 						</tr>
 					@endif
 					</tbody>
 				</table>
-				{{ $data->links() }}
+				{{ $supplies->links() }}
 			</div>
 		</div>
 	</div>

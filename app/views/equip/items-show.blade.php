@@ -6,7 +6,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-				 	<a href="{{url('equips/items?domain='.$item->category->domain->id)}}"><span class="glyphicon glyphicon-chevron-left"></span></a> <strong>장비상세정보</strong>
+				 	<a href="{{url('equips/items?domain='.$domainId)}}"><span class="glyphicon glyphicon-chevron-left"></span></a> <strong>장비상세정보</strong>
 				</h3>
 			</div>
 
@@ -14,18 +14,20 @@
 				{{-- 기본정보 --}}
 				<div class="row">
 					<div class="col-xs-6">
-						<h4 class="block-header"><small>{{ $item->category->name }}</small> {{ $item->name }}</h4>
+						<h4 class="block-header"><small>{{ $category->name }}</small> {{ $item->code->title }}</h4>
 						<input type="hidden" id="item_id" value="{{ $item->id }}">
 					</div>
 					
 					<div class="col-xs-6">
 						<div class="pull-right">
-							<a href="{{url('equips/items/'.$item->id.'/edit')}}" class="btn btn-xs btn-success">
+							@if(Sentry::getUser()->supplyNode->type_code == "D001")
+							<a href="{{url('admin/item/'.$item->id.'/edit')}}" class="btn btn-xs btn-success">
 								<span class="glyphicon glyphicon-edit"></span> 수정
 							</a>
 							<a href="#" class="btn btn-xs btn-danger" id="delete_btn"> 
-								<span class="glyphicon glyphicon-trash"></span> 삭제
+								<span class="glyphicon glyphicon-trash"></span> 일괄폐기
 							</a>
+							@endif
 						</div>
 					</div>
 				</div>
@@ -42,14 +44,14 @@
 							<div class="carousel-inner">
 								@if ($item->images->count() == 0) 
 									<div class="item active">
-										<img src="{{ url('/static/img/no_image_available_big.gif') }}" alt="" />
+										<img src="{{ url('/static/img/no_image_available_big.gif') }}" alt=""  />
 									</div>
 								@else
 									@foreach ($item->images as $idx=>$i)
 									
 									<div class="item {{ $idx==0?'active':'' }}">
-										<a class="fancybox" rel="gallery" href="{{ $i->url }}">
-											<img src="{{ $i->url }}" alt="" />
+										<a class="fancybox" rel="gallery" href="{{ $i->url }}" >
+											<img src="{{ $i->url }}" alt="" style="width:100%;" />
 										</a>
 									</div>
 
@@ -71,21 +73,27 @@
 							<tbody>
 								<tr>
 									<th>장비명</th>
-									<td colspan="5"><strong> {{ $item->name }} </strong></td>
+									<td colspan="5"><strong> {{ $item->code->title }} </strong></td>
 								</tr>
 								<tr>
-									<th>기능</th>
-									<td> {{ $item->category->domain->name }} </td>
+									<th>보급부서</th>
+									<td> {{ $item->supplier }} </td>
 									<th>분류</th>
-									<td colspan="3"> {{ $item->category->name }} </td>
+									<td colspan="3"> {{ $category->name }} </td>
 								</tr>
 								<tr>
-									<th>제원</th>
-									<td> {{$item->standard}} </td>
-									<th>단위</th>
-									<td>{{ $item->unit }}</td>
+									<th>제조사명</th>
+									<td> {{$item->maker_name}} </td>
+									<th>연락처</th>
+									<td>{{ $item->maker_phone }}</td>
 									<th>내구연한</th>
 									<td> {{ $item->persist_years }} </td>
+								</tr>
+								<tr>
+									<th>구분</th>
+									<td colspan="3">{{$item->classification}}</td>
+									<th>구입일자</th>
+									<td>{{$item->acquired_date}}</td>
 								</tr>
 							</tbody>
 						</table>
@@ -126,46 +134,106 @@
 						{{-- 기타정보 목록 끝 --}}
 					</div>
 				</div>{{-- 기본정보 끝 --}}
-
+				
+				<div class="row" style="margin-top: 15px;">
+					<div class="col-xs-6">
+						<h4 class="block-header">보유현황 <small><a href="{{ url('equips/items/'.$item->id.'/holding')}}">[상세]</a></small></h4>
+					</div>
+					<div class="col-xs-6">
+						@if($modifiable)
+						<button class="btn btn-xs btn-warning pull-right" id="count_update_btn"><span class="glyphicon glyphicon-pencil"></span> 보유수량 수정</button>
+						@endif
+						<button class="btn btn-xs btn-success pull-right" id="wrecked_update_btn"><span class="glyphicon glyphicon-ok"></span> 파손수량 수정</button>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">
+						
+						<table class="table table-condensed table-bordered table-striped" style="table-layout: fixed;">
+							<thead>
+								<tr>
+									<td style="text-align: center;"><b>사이즈</b></td>
+								<td style="text-align: center;"><b>합계</b></td>
+									@foreach($item->types as $t)
+										<td style="text-align: center;"><b>{{$t->type_name}}</b></td>
+									@endforeach
+									
+								</tr>
+							</thead>
+							@if ($inventorySet !== null)
+								<tbody>
+									<tr>
+										<td style="text-align: center;"><b>보유수량</b></td>
+										<td style="text-align: center;">{{ $inventorySet->children->sum('count') }}</td>
+										@if($modifiable)
+											{{ Form::open(array(
+													'url'=>'/equips/items/'.$item->id.'/count_update',
+													'method'=>'post',
+													'id'=>'count_update_form'
+												))}}
+											@foreach ($inventorySet->children as $c)
+												<td style="text-align: center;">
+													<input type="text" class="form-control input-sm positive-int" value="{{$c->count}}" name="{{ 'count['.$c->id.']'}}">
+												</td>
+											@endforeach
+											{{ Form::close() }}
+										@else
+											@foreach($inventorySet->children as $c)
+												<td style="text-align: center;">{{$c->count}}</td>
+											@endforeach
+										@endif
+									</tr>
+									<tr>
+										<td style="text-align: center;"><b>파손수량</b></td>
+										<td style="text-align: center;">{{ $inventorySet->children->sum('wrecked') }}</td>
+										{{ Form::open(array(
+											'url'=> '/equips/items/'.$item->id.'/wrecked_update',
+											'method'=> 'post',
+											'id'=>'wrecked_update_form'
+										)) }}
+											@foreach ($inventorySet->children as $c)
+												<td style="text-align: center;">
+													<input type="text" class="form-control input-sm positive-int" value="{{$c->wrecked}}" name="{{ 'wrecked['.$c->id.']' }}">
+												</td>
+											@endforeach
+										{{ Form::close() }}
+									</tr>
+								</tbody>
+								<tfoot>
+									<tr>
+										<td style="text-align: center;"><b>가용수량</b></td>
+										<td style="text-align: center">{{ $inventorySet->children->sum('count') - $inventorySet->children->sum('wrecked') }}</td>
+										@foreach ($inventorySet->children as $c)
+											<td style="text-align: center">{{ $c->count - $c->wrecked }}</td>
+										@endforeach
+									</tr>
+								</tfoot>
+							@else
+								<tr>
+									<td colspan="{{ sizeof($types)+2 }}" align="center">보유수량이 없습니다.</td>
+								</tr>
+							@endif
+						</table>
+					</div>
+				</div>
 				<div class="row" id="data_container">
 					<div class="col-xs-12">
-						<h4>보급/보유현황</h4>
+						<h4>하위부서 보유현황</h4>
 						
-						<div class="well well-sm">
-							<form class="form-inline">
-								<div class="form-group">
-									<label for="year">조회연도</label>
-									<input type="text" class="input-sm form-control" id="year" name="year" placeholder="yyyy" 
-									value="{{date('Y')}}">
-								</div>
-								<button type="button" id="data_view" class="btn-xs btn btn-primary">조회</button>
-								<div class="pull-right">
-									<button type="button" class="btn btn-info btn-xs">보급내역</button>
-									<button type="button" class="btn btn-info btn-xs">보유현황</button>
-								</div>
-							</form>
-						</div>
-						<table class="table table-condensed table-striped table-hover table-bordered" id="data_table">
-							<colgroup>
-								<col class="col-xs-4">
-								<col class="col-xs-3">
-								<col class="col-xs-3">
-								<col class="col-xs-2">
-							</colgroup>
+						<table style="table-layout: fixed;" class="table table-condensed table-striped table-hover table-bordered" id="data_table">
 							<thead>
 								<tr>
 									<th>
-										관서명
+										구분
 									</th>
 									<th>
-										보급수량(A)
+										총계
 									</th>
+									@foreach ($types as $t)
 									<th>
-										보유수량(B)
+										{{ $t->type_name }}
 									</th>
-									<th>
-										차이(A-B)
-									</th>
+									@endforeach
 								</tr>
 							</thead>
 							<tbody>
@@ -191,10 +259,26 @@ var dataTable;
 
 $(function() {
 
+	$(".positive-int").on('change', function(){
+		var input = $(this).val();
+		var re = /^\d+$/;
+
+		if (!re.test(input)) {
+		alert('양의 정수만 입력하세요');
+		$(this).val(0);
+		};
+	});
+
+	$("#wrecked_update_btn").click(function() {
+		$("#wrecked_update_form").submit();
+	});
+	$("#count_update_btn").click(function() {
+		$("#count_update_form").submit();
+	});
 	$(".detail-title").click(function() {
 		var detailId = $(this).data('id');
 		var itemId = $(this).data('item-id');
-		popup(itemId+"/detail/"+detailId, 800, 900);
+		popup(base_url+'/equips/items/'+itemId+"/detail/"+detailId, 800, 900);
 	});
 
 	$("#data_view").click(function() {
@@ -207,23 +291,23 @@ $(function() {
 	});
 	$("#item_detail_btn").click(function() {
 		var id = $(this).attr('data-item-id');
-		popup(id+"/details", 800, 900);
+		popup(base_url+'/equips/items/'+id+'/details', 800, 900);
 	});
 
 	$("#delete_btn").click(function() {
-		if (!confirm('삭제하시겠습니까?')) {
+		if (!confirm('일괄 폐기하시겠습니까?')) {
 			return;
 		}
 
 		var id = $("#item_id").val();
 
 		$.ajax({
-			url: url("equips/items/"+id),
+			url: url("admin/item/"+id),
 			type: "delete",
 			success: function(res){ 
 				alert(res.message);
 				if (res.result == 0) {
-					redirect('equips/items');
+					redirect('equips/inventories');
 				}
 			}
 		});
@@ -239,23 +323,24 @@ $(function() {
 		ajax: url("equips/items/{{$item->id}}/data"),
 		columns: [
 			{ 
-				data: "dept.full_name",
+				data: "node.node_name",
 				render: function (data, type, row, meta) {
 					if (type != 'display') {
 						return data;
 					}
 
-					if (row.dept.is_terminal) {
+					if (row.node.is_terminal) {
 						return data;
 					} else {
-						return '<a href="#data_table" onclick="loadData('+row.dept.id+')">'+data+'</a>'
+						return '<a href="#data_table" onclick="loadData('+row.node.id+')">'+data+'</a>'
 					}
 
 				}
 			},
-			{ data: "supplies" },
-			{ data: "inventories" },
-			{ data: "difference" }
+			{ data: "sum_row" },
+			@foreach ($types as $t)
+				{{ '{ data: "'.$t->type_name.'" },'}}
+			@endforeach
 		]
 	});
 });
@@ -263,9 +348,7 @@ function loadData(parentId) {
 
 	parentId = parentId || "";
 
-	var year = $("#year").val();
-
-	dataTable.ajax.url(url("equips/items/{{$item->id}}/data?parent="+parentId+"&year="+year)).load();
+	dataTable.ajax.url(url("equips/items/{{$item->id}}/data?parent="+parentId)).load();
 }
 </script>
 @stop

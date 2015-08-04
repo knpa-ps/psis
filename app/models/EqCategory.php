@@ -10,7 +10,7 @@ class EqCategory extends Eloquent {
 		return $this->belongsTo('EqDomain', 'domain_id', 'id');
 	}
 
-	public function items() {
-		return $this->hasMany('EqItem', 'category_id', 'id');
+	public function codes() {
+		return $this->hasMany('EqItemCode', 'category_id', 'id')->orderBy('sort_order');
 	}
 }

@@ -5,24 +5,13 @@
 
 <div class="row">
 	<div class="col-xs-12">
-
-<ul class="nav nav-tabs">
-	@foreach ($domains as $d)
-		@if ($d->id == $domainId)
-			<li class="active"><a href="{{url('equips/items?domain='.$d->id)}}">{{ $d->name }}</a></li>
-		@else
-			<li><a href="{{url('equips/items?domain='.$d->id)}}">{{ $d->name }}</a></li>
-		@endif
-	@endforeach
-</ul>
-
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title"><strong>장비 목록</strong></h3>
+				<h3 class="panel-title"><strong>{{$code->title}} 목록</strong></h3>
 			</div>
 			<div class="panel-body">
 				<div class="toolbar-table">
-					<a href="{{ url('equips/items/create') }}" class="btn btn-info btn-xs pull-right">
+					<a href="{{ url('admin/item/create?code='.$code->code) }}" class="btn btn-info btn-xs pull-right">
 						<span class="glyphicon glyphicon-plus"></span> 장비추가
 					</a>
 					<div class="clearfix"></div>
@@ -31,30 +20,34 @@
 					<thead>
 						<tr>
 							<th>
-								분류
+								연도
 							</th>
 							<th>
-								장비명
+								업체명
 							</th>
 							<th>
-								제원
+								구분
 							</th>
 							<th>
-								단위
+								사용연한
 							</th>
 							<th>
-								내구연한
+								보급부서
 							</th>
 						</tr>
 					</thead>
 					<tbody>
 						@foreach ($items as $i)
 						<tr data-id="{{ $i->id }}">
-							<td> {{ $i->category->name }} </td>
-							<td> <a href="{{ url('equips/items/'.$i->id) }}">{{ $i->name }}</a> </td>
-							<td> {{ $i->standard }} </td>
-							<td> {{ $i->unit }} </td>
+							<td> {{ substr($i->acquired_date,0,4) }}</td>
+							@if ($timeover[$i->id] !== 0)
+								<td> <a style="color: red;" href="{{ URL::current().'/'.$i->id }}">{{ $i->maker_name.'('.$timeover[$i->id].'년 초과)' }}</a> </td>
+							@else
+								<td> <a href="{{ URL::current().'/'.$i->id }}">{{ $i->maker_name }}</a> </td>
+							@endif
+							<td> {{ $i->classification }} </td>
 							<td> {{ $i->persist_years }} </td>
+							<td> {{ $i->supplier }} </td>
 						</tr>
 						@endforeach
 					</tbody>

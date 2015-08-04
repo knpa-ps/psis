@@ -11,7 +11,7 @@
 			<div class="panel-body">
 				
 				{{ Form::open(array(
-						'url'=> $type=='create'?'equips/categories':'equips/categories/'.$category->id,
+						'url'=> $type=='create'?'admin/categories':'admin/categories/'.$category->id,
 						'method'=> $type=='create'?'post':'put',
 						'id'=>'detail_form',
 						'class'=>'form-horizontal'

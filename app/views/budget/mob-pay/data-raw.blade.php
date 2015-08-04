@@ -69,7 +69,11 @@
 		</div>
 	</div>
 </div>
-
+<div class="row">
+	<div class="col-xs-12">
+		<button onclick="download()" id="download" class="btn btn-info btn-xs pull-right" >다운로드(.xlsx)</button>
+	</div>
+</div>
 <div class="row">
 	<div class="col-xs-12">
 		{{ View::make('datatable.template', array(
@@ -92,7 +96,14 @@
 {{ HTML::script('static/vendor/datatables/js/jquery.dataTables.min.js') }}
 {{ HTML::script('static/vendor/datatables/js/jquery.dataTables.plugins.js') }}
 <script type="text/javascript">
+var params = $("#data_table_form").serializeArray();
+var queryString = decodeURIComponent($.param(params));
+
+function download(){
+	window.open(base_url+'/budgets/mob-pay/download?'+queryString);
+}
 $(function() {
+
 	var oTable = $("#data_table").dataTable(dt_get_options({
 		"bFilter": false,
 		"bSort": false,
@@ -109,8 +120,12 @@ $(function() {
 	}));
 
 	$("#data_table_form").submit(function() {
+		params = $("#data_table_form").serializeArray();
+		queryString = decodeURIComponent($.param(params));
+
 		oTable.fnDraw();
 		return false;
+
 	});
 });
 </script>

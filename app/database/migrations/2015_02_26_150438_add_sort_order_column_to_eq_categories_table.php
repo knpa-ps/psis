@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class AddInventoryIdToEqSuppliesTable extends Migration {
+class AddSortOrderColumnToEqCategoriesTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,8 +12,8 @@ class AddInventoryIdToEqSuppliesTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::table('eq_supplies', function(Blueprint $table) {
-			$table->integer('inventory_id')->unsigned()->index();
+		Schema::table('eq_categories', function(Blueprint $table) {
+			$table->integer('sort_order');
 		});
 	}
 
@@ -24,8 +24,8 @@ class AddInventoryIdToEqSuppliesTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::table('eq_supplies', function(Blueprint $table) {
-			$table->dropColumn('inventory_id');
+		Schema::table('eq_categories', function(Blueprint $table) {
+			$table->dropColumn('sort_order');
 		});
 	}
 

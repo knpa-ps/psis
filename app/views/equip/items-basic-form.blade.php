@@ -6,13 +6,13 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					<strong>{{ $mode=='create'?'장비추가':'장비수정' }}</strong>
+					<strong>{{$code->title}} {{ $mode=='create'?'장비추가':'장비수정' }}</strong>
 				</h3>
 			</div>
 
 			<div class="panel-body">
 				{{ Form::open(array(
-						'url'=> $mode=='create'?'equips/items':'equips/items/'.$item->id,
+						'url'=> $mode=='create'?'admin/item':'admin/item/'.$item->id,
 						'method'=>$mode=='create'?'post':'put',
 						'id'=>'basic_form',
 						'class'=>'form-horizontal'
@@ -21,45 +21,51 @@
 							<legend>
 								<h4>기본정보</h4>
 							</legend>
-
+									
 							<div class="form-group">
-								<label for="item_name" class="control-label col-xs-2">장비명</label>
+								<label for="item_classification" class="control-label col-xs-2">구분</label>
 								<div class="col-xs-10">
-									<input type="text" class="form-control input-sm" name="item_name" id="item_name" 
-									value="{{ $item->name or '' }}">
+									<input type="text" class="form-control input-sm" name="item_classification" id="item_classification"
+									value="{{ $item->classification or '' }}">
 								</div>
 							</div>
-
 							<div class="form-group">
-								<label for="item_category_id" class="control-label col-xs-2">분류</label>
+								<label for="supplier" class="control-label col-xs-2">보급부서</label>
 								<div class="col-xs-10">
-									<select name="item_category_id" id="item_category_id" class="form-control">
-										@foreach ($categories as $c)
-										
-										@if (isset($item) && $item->category_id == $c->id)
-											<option value="{{ $c->id }}" selected>[{{ $c->domain->name }}] {{ $c->name }}</option>
-										@else	
-											<option value="{{ $c->id }}">[{{ $c->domain->name }}] {{ $c->name }}</option>
-										@endif
-
-										@endforeach
+									<select name="supplier" id="supplier" class="form-control input-sm">
+									@if(!isset($item))
+										<option value="경비" >경비</option>
+										<option value="장비" >장비</option>
+										<option value="경무" >경무</option>
+									@else
+										<option value="경비" {{$item->supplier =='경비' ? 'selected':''}} >경비</option>
+										<option value="장비"  {{$item->supplier =='장비' ? 'selected':''}} >장비</option>
+										<option value="경무"  {{$item->supplier =='경무' ? 'selected':''}} >경무</option>
+									@endif
 									</select>
 								</div>
 							</div>
-
 							<div class="form-group">
-								<label for="item_standard" class="control-label col-xs-2">제원</label>
+								<label for="item_maker_name" class="control-label col-xs-2">제조사명</label>
 								<div class="col-xs-10">
-									<input type="text" class="form-control input-sm" name="item_standard" id="item_standard"
-									value="{{ $item->standard or '' }}">
+									<input type="text" class="form-control input-sm" name="item_maker_name" id="item_maker_name"
+									value="{{ $item->maker_name or '' }}">
+								</div>
+							</div>
+							
+							<div class="form-group">
+								<label for="item_maker_phone" class="control-label col-xs-2">제조사 연락처</label>
+								<div class="col-xs-10">
+									<input type="text" class="form-control input-sm" name="item_maker_phone" id="item_maker_phone"
+									value="{{ $item->maker_phone or '' }}">
 								</div>
 							</div>
 
 							<div class="form-group">
-								<label for="item_unit" class="control-label col-xs-2">단위</label>
+								<label for="item_acquired_date" class="control-label col-xs-2">구입일자</label>
 								<div class="col-xs-10">
-									<input type="text" class="form-control input-sm" name="item_unit" id="item_unit"
-									value="{{ $item->unit or '' }}">
+									<input type="text" class="form-control input-datepicker input-sm" name="item_acquired_date" id="item_acquired_date"
+									value="{{ $item->acquired_date or '' }}">
 								</div>
 							</div>
 
@@ -72,9 +78,29 @@
 
 							</div>
 						</fieldset>
+						<fieldset id="fieldset" {{ $mode=='create'? '': 'class="hidden"' }}>
+							<legend><h4>사이즈 종류 입력</h4><span class="help-block">예) S, M, L, XL ...</span>
+								<div class="form-group">
+									<div class="col-xs-offset-2 col-xs-10">
+										<button type="button" id="add_details" class="btn btn-sm btn-success col-xs-6"><span class="glyphicon glyphicon-plus"></span> 사이즈 종류 추가</button>
+										<button type="button" id="remove_detail" class="col-xs-6 btn btn-sm btn-danger"><span class="glyphicon glyphicon-remove"></span> 제거</button>
+									</div>
+								</div>
+							</legend>
+						</fieldset>
+						<!-- 장비코드 hidden으로 -->
+						<input type="hidden" name="item_code" value="{{$code->code}}">
 
 				{{ Form::close(); }}
-
+				
+				<div class="hide" id="type_template">
+					<div class="form-group type_input">
+						<label for="type[]" class="type-label control-label col-xs-2">사이즈 종류 #</label>
+						<div class="col-xs-4">
+							<input type="text" class="type form-control input-sm" name="type[]">
+						</div>
+					</div>
+				</div>
 
 				@for ($i=0; $i<5; $i++)
 				<form method="post" target="iframe_upload" 
@@ -117,25 +143,70 @@
 {{ HTML::script('static/vendor/validate/jquery.validate.min.js') }}
 {{ HTML::script('static/vendor/validate/additional-methods.min.js') }}
 {{ HTML::script('static/vendor/validate/messages_ko.js') }}
+{{ HTML::script('static/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js') }}
+{{ HTML::script('static/vendor/bootstrap-datepicker/js/locales/bootstrap-datepicker.kr.js') }}
+{{ HTML::script('static/vendor/bootstrap-datepicker/js/defaults.js') }}
+
 <script type="text/javascript">
+$("#year").datepicker( {
+		format: "yyyy",
+		viewMode: "years",
+		minViewMode: "years"
+	});
 $(function() {
+
+	addRow();
+
+	$("#remove_detail").on('click', function(){
+		removeRow();	
+	});
+
+	$("#add_details").on('click', addRow);
+
+	function removeRow(){
+		var rowNum = $("#fieldset .type_input").length;
+		if (rowNum == 1) {
+			alert('최소 한 종류를 입력해야 합니다.');
+			return;
+		}
+
+		$("#fieldset .type_input").last().remove();
+	}
+
+	function addRow(){
+		var newRow = $("#type_template .type_input").clone();
+		$("#fieldset").append(newRow);
+		onRowAdded(newRow);
+	}
+
+	function onRowAdded(row) {
+		var rows = $("#fieldset .type_input");
+		var id = rows.length-1;
+		row.find("input.type").prop('name', 'type['+id+']');
+		row.find(".type-label").html("사이즈 종류 #"+rows.length);
+	}
+
 	$("#submit_btn").click(function() {
 		$("#basic_form").submit();
 	});
 
 	$("#basic_form").validate({
 		rules: {
-			item_name: {
+			item_classification: {
 				required: true,
 				maxlength: 255
 			},
-			item_standard: {
+			item_maker_name: {
 				required: true,
 				maxlength: 255
 			},
-			item_unit: {
+			item_maker_phone: {
 				required: true,
 				maxlength: 255
+			},
+			item_acquired_date: {
+				required: true,
+				dateISO: true
 			},
 			item_persist_years: {
 				required: true,
@@ -182,4 +253,5 @@ $(function() {
 @section('styles')
 
 {{ HTML::style('static/css/eq.css') }}
+{{ HTML::style('static/vendor/bootstrap-datepicker/css/datepicker3.css') }}
 @stop

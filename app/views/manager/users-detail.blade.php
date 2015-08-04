@@ -100,7 +100,7 @@
                                 @lang('auth.lb_office')
                             </label>
                             <div class="col-xs-8">
-                                {{ View::make('widget.dept-selector', array('id'=>'dept_id', 'default'=>$form['userDept']))->with('mngDeptId', $mngDeptId) }}
+                                {{ View::make('widget.dept-selector', array('id'=>'dept_id', 'default'=>$form['userDept'])) }}
                             </div>
                             
                         </div>

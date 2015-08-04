@@ -26,7 +26,7 @@ $app = new Illuminate\Foundation\Application;
 
 $env = $app->detectEnvironment(array(
 
-	'local' => array('iMac-dev', '1160An'),
+	'local' => array('iMac-dev'),
 
 ));
 

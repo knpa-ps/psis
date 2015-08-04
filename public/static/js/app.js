@@ -52,7 +52,7 @@ $(function() {
 
 $( document ).ajaxError(function( event, jqxhr, settings, exception ) {
 	if (jqxhr.getAllResponseHeaders()) 
-		alert('서버에서 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.');
+		alert(exception);
 });
 
 var $modal;
@@ -72,23 +72,38 @@ $(function() {
 
 		var container_id = $(this).parent().prop('id');
 		var mng_dept_id = $(this).parent().attr('mngdeptid');
+		var init_node_id = $(this).parent().attr('initnodeid');
 		var data = {
 			container_id: container_id,
+			id : init_node_id
 		};
 		if (typeof mng_dept_id != 'undefined') {
 			data.mngDeptId = mng_dept_id;
 		};
 
-		$modal.load(base_url+"/ajax/dept_select_tree", data, function() {
-			$modal.modal({
-				modalOverflow: true
+		if (!$(".dept-name").hasClass("select-node")) {
+			$modal.load(base_url+"/ajax/dept_select_tree", data, function() {
+				$modal.modal({
+					modalOverflow: true
+				});
 			});
-		});
+		} else {
+			$modal.load(base_url+"/ajax/node_select_tree", data, function() {
+				$modal.modal({
+					modalOverflow: true
+				});
+			});
+		}
+		
 	});
 	
 	$(".dept-selector").on('select.dept-selector', function(e, data) {
 		$(this).find(".dept-name").val(data.full_name);
 		$(this).find(".dept-id").val(data.dept_id);
+	});
+
+	$(".update_personnel").on('click', function(){
+		popup(base_url+'/equips/update_personnel/show', 400, 250);
 	});
 });
 

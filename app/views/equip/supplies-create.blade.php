@@ -2,6 +2,11 @@
 
 @section('styles')
 {{ HTML::style('static/vendor/bootstrap-datepicker/css/datepicker3.css') }}
+<style>
+	td, th {
+		 text-align: center;
+	}
+</style>
 @stop
 
 @section('content')
@@ -22,42 +27,67 @@
 				)) }}
 					<fieldset>
 						<legend>
-							<h4>기본정보</h4>
+							<h4>[{{$userNode->node_name}}] {{$item->code->title}} ({{$item->maker_name}}, {{substr($item->acquired_date, 0,4)}}년) 보급하기</h4>
 						</legend>
+						<input type="text" style="display: none;" name="item_id" value="{{$item->id}}">
 						<div class="form-group">
-							<label for="item_name" class="control-label col-xs-2">장비명</label>
-							<div class="col-xs-10">
-								<select name="item" id="item_name" class="form-control">
-								@foreach($items as $i)
-									<option value="{{$i->id}}">{{$i->name}}</option>
+							<label for="supply_date" class="control-label col-xs-1">보급일자</label>
+							<div class="col-xs-2">
+								<input type="text" class="form-control input-datepicker input-sm" name="supply_date" id="supply_date" value="{{ $supply->supplied_date or ''}}">
+							</div>
+						</div>
+						<table class="table table-condensed table-bordered" style="table-layout: fixed;" >
+							<thead>
+								<tr style="background-color: #F5F5F5;">
+									<th>구분</th>
+									<th>총계</th>
+									@foreach($types as $t)
+										<th>{{$t->type_name}}</th>
+									@endforeach
+									<th>현원</th>
+									<th>정원</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>보유량</td>
+									<td>{{ $invSum }}</td>
+									@foreach ($types as $t)
+									<td id="{{ 'inv_type_'.$t->id }}" >{{ $inv[$t->id] }}</td>
+									@endforeach
+									<td></td>
+									<td></td>
+								</tr>
+								<tr>
+									<td>계</td>
+									<td id="sum_all">0</td>
+									@foreach ($types as $t)
+									<td id="{{'sum_type_'.$t->id}}">0</td>
+									@endforeach
+									<td>{{$lowerNodes->sum('personnel')}}</td>
+									<td>{{$lowerNodes->sum('capacity')}}</td>
+								</tr>
+								@foreach ($lowerNodes as $node)
+								<tr>
+									@if($node->parent->type_code == 'D003')
+										<td>{{$node->parent->node_name.' '.$node->node_name}}</td>
+									@else
+										<td>{{$node->node_name}}</td>
+									@endif
+									<td id="{{'sum_node_'.$node->id}}">0</td>
+									@foreach($types as $t)
+									<td>
+										<input class="input-count input-sm form-control" style="width:100%;" type="text" id="count_{{$node->id}}_{{$t->id}}" name="count_{{$node->id}}_{{$t->id}}" value="{{$mode === 'create' ? '' : $count[$node->id][$t->id] }}">
+									</td>
+									@endforeach
+									<td>{{$node->personnel}}</td>
+									<td>{{$node->capacity}}</td>
+								</tr>
 								@endforeach
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="classifier" class="control-label col-xs-2">취득구분</label>
-							<div class="col-xs-10">
-								<select name="classifier" id="classifier" class="form-control">
-									<!-- 장비를 선택하면 해당 장비의 취득시기/제조업체 출력-->
-
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="title" class="control-label col-xs-2">보급내역</label>
-							<div class="col-xs-10">
-								<input type="text" class="form-control input-sm" name="title" id="title" value="{{ $supply->title or '' }}">
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="supply_date" class="control-label col-xs-2">보급일자</label>
-							<div class="col-xs-10">
-								<input type="text" class="form-control input-datepicker input-sm" name="supply_date" id="supply_date" value="{{ $supply->supply_date or ''}}">
-							</div>
-						</div>
-
-						<button class="btn btn-lg btn-block btn-primary" type="submit" >제출</button>
+							</tbody>
+						</table>
 					</fieldset>
+					<button class="btn btn-lg btn-block btn-primary" type="submit">제출</button>
 				{{ Form::close() }}
 			</div>
 		</div>
@@ -76,47 +106,63 @@
 
 <script type="text/javascript">
 $(function(){
-
-	// Load initial selected equip's classifiers.
-	$.ajax({
-		url : base_url+'/equips/supplies/create/get_classifiers',
-		type : 'post',
-		data : { 'item_id' : $("#item_name").children(":selected").attr("value") },
-		success : function(res){
-			if(res.code===1){
-				$("#classifier").html(res.body);
-			} else {
-				alert(res.body);
-			}
-		}
-	});
-	// Load selected equip's classifiers.
-	$("#item_name").on("change",function(){
-		$.ajax({
-			url : base_url+'/equips/supplies/create/get_classifiers',
-			type : 'post',
-			data : { 'item_id' : $(this).children(":selected").attr("value") },
-			success : function(res){
-				if(res.code===1){
-					$("#classifier").html(res.body);
-				} else {
-					alert(res.body);
+	calcSum();	
+	
+	//입력된 숫자에 따라 각 합계를 표시해줌
+	function calcSum(){
+		var sumAll = 0;
+		@foreach ($lowerNodes as $node)
+			// 지급노드별 합계 넣기
+			var sumNode = 0;
+			@foreach ($types as $type)
+				var typeValue = $("#{{'count_'.$node->id.'_'.$type->id}}").val();
+				if (jQuery.isNumeric(typeValue)) {
+					sumNode += parseInt(typeValue);
 				}
-			}
-		});
+				//노드별합계 계산
+			@endforeach
+			$("#{{'sum_node_'.$node->id}}").text(sumNode);
+			//노드별 합계를 넣었다.
+			//총 합계 계산
+			sumAll += parseInt(sumNode);
+		@endforeach
+		$("#sum_all").text(sumAll);
+		//총 합계를 넣었다.
+		@foreach($types as $type)
+			var sumType = 0;
+			@foreach($lowerNodes as $node)
+				var nodeValue = $("#{{'count_'.$node->id.'_'.$type->id}}").val();
+				if(jQuery.isNumeric(nodeValue)){
+					sumType += parseInt(nodeValue);
+				}
+			@endforeach
+			$("#{{'sum_type_'.$type->id}}").text(sumType);
+			var invType = $("#{{'inv_type_'.$type->id}}").text();
+			if (sumType > parseInt(invType)) {
+				$("#{{'sum_type_'.$type->id}}").css('color', 'red');
+				$("#{{'sum_type_'.$type->id}}").css('font-weight', 'bold');
+			} else {
+				$("#{{'sum_type_'.$type->id}}").css('color', '#000');
+				$("#{{'sum_type_'.$type->id}}").css('font-weight', 'normal');
+			};
+		@endforeach
+	}
+
+
+	$('.input-count').on('change', function(){
+		var input = $(this).val();
+		var re = /^\d+$/;
+
+		if (!re.test(input)) {
+			alert('양의 정수만 입력하세요');
+			$(this).val('');
+		};
+
+		calcSum();
 	});
+
 	$("#supply_form").validate({
 		rules: {
-			item_name: {
-				required: true,
-				maxlength: 255
-			},
-			classifier: {
-				required: true
-			},
-			description: {
-				maxlength: 255
-			},
 			supply_date: {
 				required: true,
 				dateISO: true

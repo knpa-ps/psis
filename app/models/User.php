@@ -7,6 +7,10 @@ class User extends Cartalyst\Sentry\Users\Eloquent\User {
 		return $this->belongsTo('Code', 'user_rank', 'code')->where('category_code', '=', 'H001');
 	}
 
+	public function supplyNode() {
+		return $this->hasOne('EqSupplyManagerNode', 'manager_id', 'id');
+	}
+
 	public function department()
 	{
 		return $this->belongsTo('Department', 'dept_id', 'id');
@@ -15,6 +19,10 @@ class User extends Cartalyst\Sentry\Users\Eloquent\User {
 	public function groups()
 	{
 		return $this->belongsToMany('Group', 'users_groups', 'user_id', 'group_id');
+	}
+
+	public function surveys(){
+		return $this->hasMany('EqItemSurvey','creator_id','id');
 	}
 
 	public function modifyRequests(){

@@ -12,7 +12,7 @@ class EqCategoryController extends EquipController {
 		
 		$data['categories'] = $this->service->getVisibleCategoriesQuery($user)->paginate(10);
 		$data['user'] = $user;
-
+		
         return View::make('equip.categories', $data);
 	}
 
@@ -87,7 +87,7 @@ class EqCategoryController extends EquipController {
 		$c->name = Input::get('category_name');
 		$c->save();
 		Session::flash('message', '수정되었습니다.');
-		return Redirect::to('equips/categories/'.$id);
+		return Redirect::action('EqCategoryController@index');
 	}
 
 	/**
@@ -99,7 +99,7 @@ class EqCategoryController extends EquipController {
 	public function destroy($id)
 	{
 		$c = EqCategory::find($id);	
-		if ($c->items->count() > 0) {
+		if ($c->codes->count() > 0) {
 			return array('result'=>-1, 'message'=>'귀속된 장비 항목이 있는 분류는 삭제할 수 없습니다.');
 		}
 		$c->delete();
