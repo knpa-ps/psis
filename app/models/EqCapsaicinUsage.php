@@ -8,6 +8,7 @@ class EqCapsaicinUsage extends Eloquent {
 
 	public static $rules = array();
 
+
 	public function event() {
 		return $this->belongsTo('EqCapsaicinEvent','event_id','id');
 	}

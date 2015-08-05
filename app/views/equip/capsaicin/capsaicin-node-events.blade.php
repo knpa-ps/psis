@@ -58,7 +58,7 @@
 									<select name="event_type" id="event_type" class="input-sm form-control">
 										<option value="" {{$eventType == '' ? 'selected' : '' }}>전체</option>
 										<option value="assembly" {{$eventType == 'assembly' ? 'selected' : '' }}>집회</option>
-										<option value="training" {{$eventType == 'training' ? 'selected' : '' }}>훈련</option>
+										<option value="drill" {{$eventType == 'drill' ? 'selected' : '' }}>훈련</option>
 									</select>
 								</div>
 							</div>
@@ -85,7 +85,7 @@
 					<a href="{{url('equips/capsaicin/create?nodeId='.$node->id.'&type=event')}}" class="btn btn-info btn-xs pull-right">
 						<span class="glyphicon glyphicon-plus"></span> 행사내역 추가
 					</a>
-					<a href="{{url('equips/capsaicin/create?nodeId='.$node->id.'&type=training')}}" class="btn btn-primary btn-xs pull-right">
+					<a href="{{url('equips/capsaicin/create?nodeId='.$node->id.'&type=drill')}}" class="btn btn-primary btn-xs pull-right">
 						<span class="glyphicon glyphicon-plus"></span> 훈련내역 추가
 					</a>
 					<a href="{{URL::current().'?export=true&event_type='.$eventType.'&start='.$start.'&end='.$end.'&event_name='.$eventName}}" class="btn btn-success btn-xs pull-right">

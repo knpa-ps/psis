@@ -39,7 +39,7 @@
 							<select name="event_type" id="event_type" class="input-sm form-control">
 								<option value="" {{$eventType == '' ? 'selected' : '' }}>전체</option>
 								<option value="assembly" {{$eventType == 'assembly' ? 'selected' : '' }}>집회</option>
-								<option value="training" {{$eventType == 'training' ? 'selected' : '' }}>훈련</option>
+								<option value="drill" {{$eventType == 'drill' ? 'selected' : '' }}>훈련</option>
 							</select>
 						</div>
 					</div>

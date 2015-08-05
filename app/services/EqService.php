@@ -32,7 +32,7 @@ class EqService extends BaseService {
 		$data['yearInitHolding'] = $yearInitHolding;
 
 		$events = EqWaterPavaEvent::whereNotNull('pava_amount')->where('node_id','=',$nodeId)->where('date','like',$year.'%')->get();
-		$trainings = EqPavaIO::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('sort','=','training')->get();
+		$drills = EqPavaIO::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('sort','=','drill')->get();
 
 		$stock = array();
 		$usageSum = array();
@@ -57,8 +57,8 @@ class EqService extends BaseService {
 			}
 
 			$eventsUntilithMonth = EqWaterPavaEvent::whereNotNull('pava_amount')->where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('date','<=',$lastDayofMonth)->get();
-			$trainingsUntilithMonth = EqPavaIO::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('date','<=',$lastDayofMonth)->where('sort','=','training')->get();
-			$consumptionUntilithMonth = $eventsUntilithMonth->sum('pava_amount') + $trainingsUntilithMonth->sum('amount');
+			$drillsUntilithMonth = EqPavaIO::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('date','<=',$lastDayofMonth)->where('sort','=','drill')->get();
+			$consumptionUntilithMonth = $eventsUntilithMonth->sum('pava_amount') + $drillsUntilithMonth->sum('amount');
 
 			$lostUntilithMonth = EqPavaIO::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('date','<=',$lastDayofMonth)->where('sort','=','lost')->sum('amount');
 			$stock[$i] = $yearInitHolding - $consumptionUntilithMonth - $lostUntilithMonth;
@@ -94,16 +94,16 @@ class EqService extends BaseService {
 			}
 
 			$eventsThisMonth = EqWaterPavaEvent::whereNotNull('pava_amount')->where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->get();
-			$trainingsThisMonth = EqPavaIO::where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->where('sort','=','training')->get();
+			$drillsThisMonth = EqPavaIO::where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->where('sort','=','drill')->get();
 			$lostThisMonth = EqPavaIO::where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->where('sort','=','lost')->get();
 
 			
-			$usageT[$i] = $trainingsThisMonth->sum('amount');
+			$usageT[$i] = $drillsThisMonth->sum('amount');
 			$usageA[$i] = $eventsThisMonth->sum('pava_amount');
 			$usageSum[$i] = $usageT[$i] + $usageA[$i];
 
-			$timesSum[$i] = $eventsThisMonth->count() + $trainingsThisMonth->count();
-			$timesT[$i] = $trainingsThisMonth->count();
+			$timesSum[$i] = $eventsThisMonth->count() + $drillsThisMonth->count();
+			$timesT[$i] = $drillsThisMonth->count();
 			$timesA[$i] = $eventsThisMonth->count();
 			$lost[$i]  = $lostThisMonth->sum('amount');
 		}
@@ -215,7 +215,7 @@ class EqService extends BaseService {
 			case 'assembly':
 				$eventType = '집회';
 				break;
-			case 'training':
+			case 'drill':
 				$eventType = '훈련';
 				break;
 			default:

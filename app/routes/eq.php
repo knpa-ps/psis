@@ -45,6 +45,7 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::post('/capsaicin/node/{nodeId}/add_event', 'EqCapsaicinController@storeNewEvent');
 	Route::post('/capsaicin/delete_event/{eventId}', 'EqCapsaicinController@deleteEvent');
 
+
 	Route::get('/capsaicin_usage/{usageId}/edit', 'EqCapsaicinController@editUsage');
 	Route::post('/capsaicin_usage/{usageId}/update', 'EqCapsaicinController@updateUsage');
 	Route::delete('/capsaicin_usage/{usageId}', 'EqCapsaicinController@deleteUsageRequest');

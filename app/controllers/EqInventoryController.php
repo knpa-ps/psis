@@ -1,13 +1,7 @@
 <?php
 use Carbon\Carbon;
 
-class EqInventoryController extends BaseController {
-
-	private $service;
-
-	public function __construct() {
-		$this->service = new EqService;
-	}
+class EqInventoryController extends EquipController {
 
 	public function countUpdate($itemId) {
 		$item = EqItem::find($itemId);
@@ -100,13 +94,11 @@ class EqInventoryController extends BaseController {
 
 		//날짜 입력했는지 확인
 		$validator = Validator::make($input, array(
-				'discard_date' => 'required'
-			));
+				'file_name' => 'required'
+		));
 		if ($validator->fails()) {
-			return Redirect::back()->with('message','폐기일자를 입력하세요');
+			return Redirect::back()->with('message','사유서 파일을 업로드하세요');
 		}
-
-
 
 		DB::beginTransaction();
 
@@ -118,14 +110,12 @@ class EqInventoryController extends BaseController {
 		$dSet->item_id = $itemId;
 		$dSet->category = $input['category'];
 		$dSet->node_id = $user->supplyNode->id;
-		$dSet->cause = $input['cause'];
-
-		
+		$dSet->file_name = $input['file_name'];
 
 		if (!$dSet->save()) {
 			return App::abort(500);
 		}
-		
+
 		foreach ($types as $t) {
 			$dData = new EqItemDiscardData;
 			$dData->discard_set_id = $dSet->id;
@@ -136,7 +126,12 @@ class EqInventoryController extends BaseController {
 			}
 
 			$iData = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$t->id)->first();
-			$iData->count -= $dData->count;
+
+			try {
+				$this->service->inventoryWithdraw($iData, $dData->count);
+			} catch (Exception $e) {
+				return Redirect::back()->with('message', $e->getMessage() );
+			}
 
 			if ($iData->count < 0) {
 				return Redirect::back()->with('message', '폐기수량이 보유수량을 초과합니다.');
@@ -155,7 +150,7 @@ class EqInventoryController extends BaseController {
 
 		DB::commit();
 
-		return Redirect::back()->with('message', '물품폐기 등록이 완료되었습니다.');
+		return Redirect::action('EqInventoryController@showDetail')->with('message', '물품폐기 등록이 완료되었습니다.');
 	}
 
 	/**
@@ -164,7 +159,7 @@ class EqInventoryController extends BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	
+
 	public function show($itemCode) {
 		$data['code']=EqItemCode::where('code','=',$itemCode)->first();
 		$user = Sentry::getUser();
@@ -176,7 +171,7 @@ class EqInventoryController extends BaseController {
 		$timeover = array();
 
 		foreach ($items as $i) {
-			
+
 			$data['acquiredSum'][$i->id] = EqItemSupply::whereHas('supplySet', function($q) use($i) {
 				$q->where('item_id','=',$i->id);
 			})->where('to_node_id','=',$user->supplyNode->id)->sum('count');
@@ -221,8 +216,8 @@ class EqInventoryController extends BaseController {
 		$data['item'] = $item;
 		$data['types'] = $types;
 		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first();
-		
-		$modifiable = false; 
+
+		$modifiable = false;
 		$now = Carbon::now();
 		$includingToday = EqQuantityCheckPeriod::where('check_end','>',$now)->where('check_start','<',$now)->get();
 		if (sizeof($includingToday) !== 0) {
@@ -257,7 +252,7 @@ class EqInventoryController extends BaseController {
 			DB::commit();
 		}
 		$data['inventorySet'] = $invSet;
-		
+
 		return View::make('equip.items-show', $data);
 	}
 
@@ -292,7 +287,7 @@ class EqInventoryController extends BaseController {
 		if (count($data['domains']) == 0) {
 			return App::abort(403);
 		};
-		
+
 		$domainId = Input::get('domain');
 
 		if (!$domainId) {
@@ -377,14 +372,14 @@ class EqInventoryController extends BaseController {
 		$invSet = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$data['classification'])->first();
 		// Inventory에 해당 물품이 존재한다면 불러오고 없으면 만든다.
 		if ($invSet == null) {
-			$invSet = new EqInventorySet;	
+			$invSet = new EqInventorySet;
 			$invSet->item_id = $data['classification'];
 			$invSet->node_id = $user->supplyNode->id;
 			if (!$invSet->save()) {
 				return App::abort(400);
 			}
 
-			for ($i=0; $i < sizeof($ids); $i++) { 
+			for ($i=0; $i < sizeof($ids); $i++) {
 				$acq = new EqItemAcquire;
 				$acq->item_id = $data['classification'];
 				$acq->item_type_id = $ids[$i];
@@ -403,7 +398,7 @@ class EqInventoryController extends BaseController {
 				}
 			}
 		} else {
-			for ($i=0; $i < sizeof($ids); $i++) { 
+			for ($i=0; $i < sizeof($ids); $i++) {
 				if ($counts[$i] !== '') {
 					$acq = new EqItemAcquire;
 					$acq->item_id = $data['item'];
@@ -421,7 +416,7 @@ class EqInventoryController extends BaseController {
 			}
 		}
 
-		
+
 
 		DB::commit();
 
@@ -429,7 +424,7 @@ class EqInventoryController extends BaseController {
 		return Redirect::action('EqInventoryController@index');
 	}
 
-	
+
 
 	/**
 	 * Show the form for editing the specified resource.
@@ -439,7 +434,7 @@ class EqInventoryController extends BaseController {
 	 */
 	public function edit($id)
 	{
-		
+
 	}
 
 	/**

@@ -21,7 +21,7 @@
 							<legend>
 								<h4>캡사이신 사용정보</h4>
 							</legend>
-									
+
 							<div class="form-group">
 								<label for="region" class="control-label col-xs-2">행사관할 지방청</label>
 								<div class="col-xs-10">
@@ -46,7 +46,7 @@
 									<input name="location" id="location" class="form-control input-sm" type="text">
 								</div>
 							</div>
-							
+
 							<div class="form-group">
 								<label for="amount" class="control-label col-xs-2">사용량(ℓ)</label>
 								<div class="col-xs-10">
@@ -54,8 +54,10 @@
 								</div>
 							</div>
 						</fieldset>
-						<input type="text" class="hidden" id="file_name" name="file_name">
+						<input type="text" class="hidden" name="type" value="event">
+						<input type="text" class="hidden" name="file_name">
 				{{ Form::close(); }}
+
 				<div class="col-xs-12">
 					<div class="form-group">
 						<label for="doc" class="control-label col-xs-2">사용보고서</label>
@@ -69,6 +71,7 @@
 					</div>
 				</div>
 				<iframe id="upload_target" name="upload_target" src="" frameborder="0" style="width:0;height:0;border:0px solid #fff;"></iframe>
+
 				<input type="button" id="submit_btn" class="btn btn-lg btn-block btn-primary" value="제출">
 			</div>
 		</div>
@@ -122,7 +125,8 @@
 			},
 			amount: {
 				required: true,
-				number: true
+				number: true,
+				min: 0
 			}
 		},
 		submitHandler: function(form) {

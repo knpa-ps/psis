@@ -12,7 +12,7 @@
 
 			<div class="panel-body">
 				{{ Form::open(array(
-						'url'=> 'equips/capsaicin/training',
+						'url'=> 'equips/capsaicin/',
 						'method' => 'post',
 						'id'=>'basic_form',
 						'class'=>'form-horizontal'
@@ -23,7 +23,7 @@
 							</legend>
 							{{-- use DatePicker plugin --}}
 							<div class="form-group">
-								<label for="region" class="control-label col-xs-2">훈련날짜</label>
+								<label for="date" class="control-label col-xs-2">훈련날짜</label>
 								<div class="col-xs-10">
 									<input type="text" class="form-control input-datepicker input-sm" name="date" id="date">
 								</div>
@@ -50,10 +50,11 @@
 								</div>
 							</div>
 						</fieldset>
-						<input type="text" class="hidden" id="file_name" name="file_name">
-				{{ Form::close(); }}
+						<input type="text" class="hidden" id="file_name" name="type" value="drill">
 
-				<input type="button" id="submit_btn" class="btn btn-lg btn-block btn-primary" value="제출">
+
+				{{ Form::close(); }}
+				<input type="submit" id="submit_btn" class="btn btn-lg btn-block btn-primary" value="제출">
 			</div>
 		</div>
 	</div>
@@ -89,7 +90,8 @@
 			},
 			amount: {
 				required: true,
-				number: true
+				number: true,
+				min: 0
 			} 
 		},
 

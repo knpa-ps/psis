@@ -33,7 +33,7 @@
 								<div class="col-xs-10">
 									<select name="event_type" id="event_type" class="form-control input-sm">
 										<option value="assembly" {{$event->type_code == 'assembly' ? 'selected' : ''}}>집회</option>
-										<option value="training" {{$event->type_code == 'training' ? 'selected' : ''}}>훈련</option>
+										<option value="drill" {{$event->type_code == 'drill' ? 'selected' : ''}}>훈련</option>
 									</select>
 								</div>
 							</div>
@@ -89,7 +89,7 @@
 $(function() {
 	$("#submit_btn").on('click', function(){
 		$("#asdf").submit();
-	})
+	});
 
 	$("#asdf").validate({
 		rules: {

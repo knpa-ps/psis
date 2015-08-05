@@ -17,14 +17,14 @@
 						<h4 class="block-header"><small>{{ $category->name }}</small> {{ $item->code->title }}</h4>
 						<input type="hidden" id="item_id" value="{{ $item->id }}">
 					</div>
-					
+
 					<div class="col-xs-6">
 						<div class="pull-right">
 							@if(Sentry::getUser()->supplyNode->type_code == "D001")
 							<a href="{{url('admin/item/'.$item->id.'/edit')}}" class="btn btn-xs btn-success">
 								<span class="glyphicon glyphicon-edit"></span> 수정
 							</a>
-							<a href="#" class="btn btn-xs btn-danger" id="delete_btn"> 
+							<a href="#" class="btn btn-xs btn-danger" id="delete_btn">
 								<span class="glyphicon glyphicon-trash"></span> 일괄폐기
 							</a>
 							@endif
@@ -42,13 +42,13 @@
 							</ol>
 
 							<div class="carousel-inner">
-								@if ($item->images->count() == 0) 
+								@if ($item->images->count() == 0)
 									<div class="item active">
 										<img src="{{ url('/static/img/no_image_available_big.gif') }}" alt=""  />
 									</div>
 								@else
 									@foreach ($item->images as $idx=>$i)
-									
+
 									<div class="item {{ $idx==0?'active':'' }}">
 										<a class="fancybox" rel="gallery" href="{{ $i->url }}" >
 											<img src="{{ $i->url }}" alt="" style="width:100%;" />
@@ -103,14 +103,14 @@
 							<div class="col-xs-6">
 								<h5 class="block-header">기타정보</h5>
 							</div>
-							
+
 							<div class="col-xs-6">
 								<a href="#" data-item-id="{{ $item->id }}" id="item_detail_btn" class="btn btn-xs btn-default pull-right">
 									<span class="glyphicon glyphicon-share-alt"></span> 자세히
 								</a>
 							</div>
 						</div>
-						
+
 						<table class="table table-condensed table-hover table-bordered table-striped" id="details_table">
 							<colgroup>
 								<col class="col-xs-8">
@@ -134,21 +134,22 @@
 						{{-- 기타정보 목록 끝 --}}
 					</div>
 				</div>{{-- 기본정보 끝 --}}
-				
+
 				<div class="row" style="margin-top: 15px;">
 					<div class="col-xs-6">
-						<h4 class="block-header">보유현황 <small><a href="{{ url('equips/items/'.$item->id.'/holding')}}">[상세]</a></small></h4>
+						<h4 class="block-header">보유현황</h4>
 					</div>
 					<div class="col-xs-6">
 						@if($modifiable)
 						<button class="btn btn-xs btn-warning pull-right" id="count_update_btn"><span class="glyphicon glyphicon-pencil"></span> 보유수량 수정</button>
 						@endif
 						<button class="btn btn-xs btn-success pull-right" id="wrecked_update_btn"><span class="glyphicon glyphicon-ok"></span> 파손수량 수정</button>
+						<a href={{url('equips/items/'.$item->id.'/discard')}} class="btn btn-xs btn-danger pull-right" id="discard_btn"><span class="glyphicon glyphicon-ok"></span> 분실/폐기내역 등록</a>
 					</div>
 				</div>
 				<div class="row">
 					<div class="col-xs-12">
-						
+
 						<table class="table table-condensed table-bordered table-striped" style="table-layout: fixed;">
 							<thead>
 								<tr>
@@ -157,7 +158,7 @@
 									@foreach($item->types as $t)
 										<td style="text-align: center;"><b>{{$t->type_name}}</b></td>
 									@endforeach
-									
+
 								</tr>
 							</thead>
 							@if ($inventorySet !== null)
@@ -219,7 +220,7 @@
 				<div class="row" id="data_container">
 					<div class="col-xs-12">
 						<h4>하위부서 보유현황</h4>
-						
+
 						<table style="table-layout: fixed;" class="table table-condensed table-striped table-hover table-bordered" id="data_table">
 							<thead>
 								<tr>
@@ -237,7 +238,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								
+
 							</tbody>
 						</table>
 					</div>
@@ -304,7 +305,7 @@ $(function() {
 		$.ajax({
 			url: url("admin/item/"+id),
 			type: "delete",
-			success: function(res){ 
+			success: function(res){
 				alert(res.message);
 				if (res.result == 0) {
 					redirect('equips/inventories');
@@ -322,7 +323,7 @@ $(function() {
 		paging: false,
 		ajax: url("equips/items/{{$item->id}}/data"),
 		columns: [
-			{ 
+			{
 				data: "node.node_name",
 				render: function (data, type, row, meta) {
 					if (type != 'display') {
