@@ -15,7 +15,7 @@
 				<div class="col-xs-12">
 					{{ Form::open(array(
 						'url' => 'equips/surveys/'.$survey->id.'/response',
-						'method' => $mode === 'create' ? 'post':'put', 
+						'method' => $mode === 'create' ? 'post':'put',
 						'class' => 'form-horizontal',
 						'id' => 'survey_form'
 					)) }}
@@ -61,6 +61,8 @@ $(function(){
 	var sum = 0;
 
 	$('.input-count').on('change', function(){
+
+		sum = 0;
 		//인풋이 숫자아니면 없애기
 		var input = $(this).val();
 		var re = /^\d+$/;
@@ -86,9 +88,9 @@ $(function(){
 
 		$('#sum').text("{{$sum}} / "+ sum);
 	});
-	
+
 	$('#survey_form').submit(function(event){
-		
+
 		if (sum != {{$sum}} ) {
 			alert("총 수량이 일치하지 않습니다.");
 			event.preventDefault();

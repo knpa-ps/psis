@@ -57,7 +57,7 @@ class EqSurveyController extends \BaseController {
 				$count[$t->id] = EqItemSurveyResponse::where('survey_id','=',$id)->where('node_id','=',$user->supplyNode->id)->where('item_type_id','=',$t->id)->first()->count;
 			}
 		}
-		$sum = EqItemSurveyData::where('survey_id','=',$survey->id)->where('target_node_id','=',$user->supplyNode->id)->first()->count;
+		$sum = EqItemSurveyData::where('survey_id','=',$survey->id)->where('target_node_id','=',$user->supplyNode->id)->sum('count');
 
 		return View::make('equip.survey-response',get_defined_vars());
 	}
@@ -88,7 +88,7 @@ class EqSurveyController extends \BaseController {
 
 			$node->parent->type_code == 'D003' ? $row['node'] = array( 'node_name' => $node->parent->node_name.' '.$node->node_name) : $row['node'] = array( 'node_name' => $node->node_name);
 
-			$surveyData = EqItemSurveyResponse::where('survey_id','=',$id)->where('node_id','=',$node->id)->get();
+			$surveyData = EqItemSurveyData::where('survey_id','=',$id)->where('target_node_id','=',$node->id)->get();
 
 			if ($surveyData) {
 				$row['sum_row'] = $surveyData->sum('count');
