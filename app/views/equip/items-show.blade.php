@@ -136,15 +136,16 @@
 				</div>{{-- 기본정보 끝 --}}
 
 				<div class="row" style="margin-top: 15px;">
-					<div class="col-xs-6">
+					<div class="col-xs-3">
 						<h4 class="block-header">보유현황</h4>
 					</div>
-					<div class="col-xs-6">
+					<div class="col-xs-9">
 						@if($modifiable)
 						<button class="btn btn-xs btn-warning pull-right" id="count_update_btn"><span class="glyphicon glyphicon-pencil"></span> 보유수량 수정</button>
 						@endif
-						<button class="btn btn-xs btn-success pull-right" id="wrecked_update_btn"><span class="glyphicon glyphicon-ok"></span> 파손수량 수정</button>
-						<a href={{url('equips/items/'.$item->id.'/discard')}} class="btn btn-xs btn-danger pull-right" id="discard_btn"><span class="glyphicon glyphicon-ok"></span> 분실/폐기내역 등록</a>
+						<button class="btn btn-xs btn-success pull-right" id="wrecked_update_btn"><span class="glyphicon glyphicon-pencil"></span> 파손수량 수정</button>
+						<button class="btn btn-xs btn-danger pull-right" id="discard_register_btn"><span class="glyphicon glyphicon-ok"></span> 분실/폐기내역 등록</button>
+						<button class="btn btn-xs btn-default pull-right" id="discard_history_btn"><span class="glyphicon glyphicon-th-list"></span> 분실/폐기내역</button>
 					</div>
 				</div>
 				<div class="row">
@@ -155,7 +156,7 @@
 								<tr>
 									<td style="text-align: center;"><b>사이즈</b></td>
 								<td style="text-align: center;"><b>합계</b></td>
-									@foreach($item->types as $t)
+									@foreach($types as $t)
 										<td style="text-align: center;"><b>{{$t->type_name}}</b></td>
 									@endforeach
 
@@ -224,7 +225,7 @@
 						<table style="table-layout: fixed;" class="table table-condensed table-striped table-hover table-bordered" id="data_table">
 							<thead>
 								<tr>
-									<th>
+									<th style="width:170px;">
 										구분
 									</th>
 									<th>
@@ -270,12 +271,20 @@ $(function() {
 		};
 	});
 
-	$("#wrecked_update_btn").click(function() {
-		$("#wrecked_update_form").submit();
-	});
 	$("#count_update_btn").click(function() {
 		$("#count_update_form").submit();
 	});
+	$("#wrecked_update_btn").click(function() {
+		$("#wrecked_update_form").submit();
+	});
+	$("#discard_register_btn").click(function(){
+		popup(base_url+'/equips/items/{{$item->id}}/discard',800,900);
+	});
+	$("#discard_history_btn").click(function(){
+		popup(base_url+'/equips/items/{{$item->id}}/discard_list',800,900);
+	});
+
+
 	$(".detail-title").click(function() {
 		var detailId = $(this).data('id');
 		var itemId = $(this).data('item-id');
@@ -330,7 +339,7 @@ $(function() {
 						return data;
 					}
 
-					if (row.node.is_terminal) {
+					if (row.node.is_terminal == 1) {
 						return data;
 					} else {
 						return '<a href="#data_table" onclick="loadData('+row.node.id+')">'+data+'</a>'

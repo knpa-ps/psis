@@ -3,7 +3,7 @@
 @section('content')
 <div class="row">
 	<div class="col-xs-12">
-		
+
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
@@ -18,7 +18,7 @@
 						<h4 class="block-header"><small>{{ $item->code->category->name }}</small> {{ $item->code->title }}</h4>
 						<input type="hidden" id="item_id" value="{{ $item->id }}">
 					</div>
-					
+
 				</div>
 				<div class="row">
 					<div class="col-xs-4">
@@ -31,13 +31,13 @@
 							</ol>
 
 							<div class="carousel-inner">
-								@if ($item->images->count() == 0) 
+								@if ($item->images->count() == 0)
 									<div class="item active">
 										<img src="{{ url('/static/img/no_image_available_big.gif') }}" alt="" />
 									</div>
 								@else
 									@foreach ($item->images as $idx=>$i)
-									
+
 									<div class="item {{ $idx==0?'active':'' }}">
 										<a class="fancybox" rel="gallery" href="{{ $i->url }}">
 											<img src="{{ $i->url }}" alt="" />
@@ -92,14 +92,14 @@
 							<div class="col-xs-6">
 								<h5 class="block-header">기타정보</h5>
 							</div>
-							
+
 							<div class="col-xs-6">
 								<a href="#" data-item-id="{{ $item->id }}" id="item_detail_btn" class="btn btn-xs btn-default pull-right">
 									<span class="glyphicon glyphicon-share-alt"></span> 자세히
 								</a>
 							</div>
 						</div>
-						
+
 						<table class="table table-condensed table-hover table-bordered table-striped" id="details_table">
 							<colgroup>
 								<col class="col-xs-8">
@@ -145,7 +145,7 @@
 				<div class="row" id="data_container">
 					<div class="col-xs-12">
 						<h4>설문조사현황</h4>
-						
+
 						<table style="table-layout: fixed;" class="table table-condensed table-striped table-hover table-bordered" id="data_table">
 							<thead>
 								<tr>
@@ -163,7 +163,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								
+
 							</tbody>
 						</table>
 					</div>
@@ -210,7 +210,7 @@ $(function() {
 		$.ajax({
 			url: url("equips/items/"+id),
 			type: "delete",
-			success: function(res){ 
+			success: function(res){
 				alert(res.message);
 				if (res.result == 0) {
 					redirect('equips/items');
@@ -228,7 +228,7 @@ $(function() {
 		paging: false,
 		ajax: url("equips/surveys/{{$survey->id}}/data"),
 		columns: [
-			{ 
+			{
 				data: "node.node_name",
 				render: function (data, type, row, meta) {
 					return data;

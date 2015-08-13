@@ -21,7 +21,7 @@
 			<div class="panel-body">
 				<form id="mod_detail" class="form-horizontal" role='form'>
 					<fieldset>
-							
+
 						<table class="table table-striped" id="detail_table">
 							<tbody>
 								<tr>
@@ -38,7 +38,7 @@
 								</tr>
 								<tr>
 									<th>일반전화</th>
-									<td id="normal_phone"></td>	
+									<td id="normal_phone"></td>
 								</tr>
 								<tr>
 									<th>휴대전화</th>
@@ -143,7 +143,7 @@ $(function(){
 			$modal.modal({
 				modalOverflow: true
 			});
-		});	
+		});
 	});
 
 	$("#ajax_modal").on("users_added.psis", function() {

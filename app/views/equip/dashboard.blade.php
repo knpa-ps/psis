@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('content')
-	
+
 	<div class="row">
 		<div class="col-xs-4">
 			<img src="{{ url('/static/img/eq_main.gif') }}" alt="" class="col-xs-12" style="padding:0px; border: 1px solid transparent; box-shadow: 0 1px 1px rgba(0,0,0,0.05);" />
@@ -108,15 +108,15 @@
 										<th>응답현황</th>
 									</tr>
 								</thead>
-								@foreach ($surveys as $s)
-								<tbody>
-									<tr>
-										<td>{{$s->item->code->title}}</td>
-										<td>{{$s->started_at.'~'.$s->expired_at}}</td>
-										<td>{{ number_format($s->responses->sum('count')).' / '.number_format($s->datas->sum('count')).' ('.($s->responses->sum('count')/$s->datas->sum('count')*100).'%)' }}</td>
-									</tr>
-								</tbody>
-								@endforeach
+									@foreach ($surveys as $s)
+									<tbody>
+										<tr>
+											<td>{{$s->item->code->title}}</td>
+											<td>{{$s->started_at.'~'.$s->expired_at}}</td>
+											<td>{{ number_format($s->responses->sum('count')).' / '.number_format($s->datas->sum('count')).' ('.($s->responses->sum('count')/$s->datas->sum('count')*100).'%)' }}</td>
+										</tr>
+									</tbody>
+									@endforeach
 							</table>
 							<span class="label label-warning">조사응답</span>
 							<table class="table table-condensed table-striped table-hover">

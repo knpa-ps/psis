@@ -21,7 +21,7 @@
 							<legend>
 								<h4>행사정보</h4>
 							</legend>
-									
+
 							<div class="form-group">
 								<label for="event_name" class="control-label col-xs-2">행사명</label>
 								<div class="col-xs-10">
@@ -29,7 +29,7 @@
 									value="">
 								</div>
 							</div>
-							
+
 							<div class="form-group">
 								<label for="date" class="control-label col-xs-2">날짜</label>
 								<div class="col-xs-10">
@@ -55,16 +55,12 @@
 							<table class="table table-condensed table-bordered table-striped" id="count_table">
 								<thead>
 									<tr id="table-head">
-										<th style='text-align: center;'>경고살수량(ton)</th>
-										<th style='text-align: center;'>직사살수량(ton)</th>
-										<th style='text-align: center;'>곡사살수량(ton)</th>
+										<th style='text-align: center;'>살수량(ton)</th>
 									</tr>
 								</thead>
 								<tbody>
 									<tr id="table-body">
-										<td><input style="width:100%;" type="text" name="warn"></td>
-										<td><input style="width:100%;" type="text" name="direct"></td>
-										<td><input style="width:100%;" type="text" name="high_angle"></td>
+										<td><input style="width:100%;" type="text" name="water"></td>
 									</tr>
 								</tbody>
 							</table>
@@ -74,7 +70,7 @@
 
 				{{ Form::close(); }}
 					<div class="row col-xs-12">
-						
+
 					</div>
 					<hr>
 				<div class="form-horizontal">
@@ -119,7 +115,7 @@
 	if (dyecheck.is(':checked')) {
 		$("#table-head").append("<th id='dye-label' style='text-align: center;'>염료 사용량(ℓ)</th>");
 		$("#table-body").append("<td id='dye-input'><input style='width:100%;' type='text' name='dye'></td>");
-	} 
+	}
 
 	pavacheck.on('click', function(){
 		if (pavacheck.is(':checked')) {
@@ -140,7 +136,7 @@
 			$("#dye-input").remove();
 		}
 	})
-	
+
 	$("#submit_btn").on('click', function(){
 		$("#basic_form").submit();
 	})
@@ -163,18 +159,10 @@
 				required: true,
 				dateISO: true
 			},
-			warn: {
+			water: {
 				required: true,
 				number:true
-			},
-			direct: {
-				required: true,
-				number:true
-			},
-			high_angle: {
-				required: true,
-				number:true
-			},
+			}
 		},
 		submitHandler: function(form) {
 		    form.submit();

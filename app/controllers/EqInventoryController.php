@@ -71,6 +71,25 @@ class EqInventoryController extends EquipController {
 	}
 
 
+
+	public function displayDiscardList($itemId){
+		$user = Sentry::getUser();
+		$data['item'] = EqItem::find($itemId);
+		$data['sets'] = EqItemDiscardSet::where('item_id','=',$data['item']->id)->where('node_id','=',$user->supplyNode->id)->get();
+
+		$types = EqItem::find($itemId)->types;
+		$data['types'] = $types;
+		foreach ($data['sets'] as $set) {
+			foreach ($types as $t) {
+				$data['count'][$set->id][$t->id] = EqItemDiscardData::where('discard_set_id','=',$set->id)->where('item_type_id','=',$t->id)->first()->count;
+			}
+		}
+		
+		return View::make('equip.inventories-discard-list',$data);
+	}
+
+
+
 	public function displayDiscardForm($itemId) {
 		$user = Sentry::getUser();
 
@@ -150,7 +169,7 @@ class EqInventoryController extends EquipController {
 
 		DB::commit();
 
-		return Redirect::action('EqInventoryController@showDetail')->with('message', '물품폐기 등록이 완료되었습니다.');
+		return Redirect::back()->with('message', '물품폐기 등록이 완료되었습니다.');
 	}
 
 	/**
@@ -209,14 +228,13 @@ class EqInventoryController extends EquipController {
 		if ($item == null) {
 			return App::abort(404);
 		}
-		$types = EqItemType::where('item_id','=',$itemId)->get();
-
+		$types = $item->types;
 		$data['domainId'] = $item->code->category->domain->id;
 		$data['category'] = $item->code->category;
 		$data['item'] = $item;
 		$data['types'] = $types;
-		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first();
 
+		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first();
 		$modifiable = false;
 		$now = Carbon::now();
 		$includingToday = EqQuantityCheckPeriod::where('check_end','>',$now)->where('check_start','<',$now)->get();

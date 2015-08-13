@@ -4,7 +4,7 @@ use Carbon\Carbon;
 class EqWaterPavaController extends EquipController {
 
 	public function deleteEventRequest($eventId) {
-		
+
 		$delReq = new EqDeleteRequest;
 		$delReq->usage_id = $eventId;
 		$delReq->type = "pava";
@@ -67,12 +67,8 @@ class EqWaterPavaController extends EquipController {
 		$regionId = Input::get('regionId');
 		$year = Input::get('year');
 
-		//월별 경고, 직사, 곡사, 사용횟수 합 구하기
-		$warnPerMonth = array();
-		$directPerMonth = array();
-		$highAnglePerMonth = array();
-		$sumPerMonth = array();
-
+		//월별 살수량 합 사용횟수 합 구하기
+		$amountPerMonth = array();
 		$countPerMonth = array();
 
 		for ($i=1; $i <= 12; $i++) {
@@ -85,27 +81,18 @@ class EqWaterPavaController extends EquipController {
 			}
 
 			$events = EqWaterPavaEvent::where('node_id','=',$regionId)->where('date','>=',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->get();
-			$warn = $events->sum('warn_amount');
-			$direct = $events->sum('direct_amount');
-			$highAngle = $events->sum('high_angle_amount');
-			$sum = $warn+$direct+$highAngle;
+			$sum = $events->sum('amount');
 
 			$count = $events->count();
-			
-			$warnPerMonth[] = round($warn,2);
-			$directPerMonth[] = round($direct,2);
-			$highAnglePerMonth[] = round($highAngle,2);
-			$sumPerMonth[] = round($sum,2);
+
+			$amountPerMonth[] = round($sum,2);
 			$countPerMonth[] = $count;
 
 		}
 
 		$regionName = EqSupplyManagerNode::find($regionId)->node_name;
 
-		$data[] = $warnPerMonth;
-		$data[] = $directPerMonth;
-		$data[] = $highAnglePerMonth;
-		$data[] = $sumPerMonth;
+		$data[] = $amountPerMonth;
 		$data[] = $countPerMonth;
 		$data[] = $regionName;
 
@@ -142,7 +129,7 @@ class EqWaterPavaController extends EquipController {
 		foreach ($regions as $r) {
 
 			$events = EqWaterPavaEvent::where('node_id','=',$r->id)->where('date','>=',$selectedYear)->where('date','<=',$selectedYear+1)->get();
-			
+
 		}
         return View::make('equip.waterpava.water-per-month-head', get_defined_vars());
 	}
@@ -241,9 +228,7 @@ class EqWaterPavaController extends EquipController {
 		$event->node_id = $input['node_id'];
 		$event->location = $input['location'];
 		$event->date = $input['date'];
-		$event->warn_amount = $input['warn'];
-		$event->direct_amount = $input['direct'];
-		$event->high_angle_amount = $input['high_angle'];
+		$event->amount = $input['water'];
 
 		if (array_key_exists('pava', $input)) {
 			if (is_numeric($input['pava'])) {
@@ -318,8 +303,8 @@ class EqWaterPavaController extends EquipController {
 		if (!$event->delete()) {
 			return '사용내역 삭제 도중 오류가 발생했습니다.';
 		}
-		
-		return '해당 사용내역이 삭제되었습니다.'; 
+
+		return '해당 사용내역이 삭제되었습니다.';
 	}
 
 }

@@ -42,7 +42,7 @@ class EqItemCodeController extends EquipController {
 				}
 			}
 		}
-		
+
 		//보급준것
 		$suppliedSet = EqItemSupplySet::where('item_id','=', $itemId)->where('from_node_id','=',$user->supplyNode->id)->get();
 
@@ -115,7 +115,7 @@ class EqItemCodeController extends EquipController {
 		return View::make('equip.item-holding-detail', $data);
 
 	}
-	
+
 	public function showRegisteredList($codeId) {
 
 		$code = EqItemCode::find($codeId);
@@ -163,7 +163,7 @@ class EqItemCodeController extends EquipController {
 		$input = Input::all();
 		$files = json_decode($input['files']);
 		$fileToDelete = json_decode($input['file_to_delete']);
-		
+
 		DB::beginTransaction();
 
 
@@ -175,7 +175,7 @@ class EqItemCodeController extends EquipController {
 				}
 			}
 		}
-	
+
 		$detail = EqItemDetail::find($id);
 		$detail->title = $input['title'];
 		$detail->content = $input['input_body'];
@@ -222,12 +222,12 @@ class EqItemCodeController extends EquipController {
 	}
 
 	public function doPost($itemId){
-	
+
 		$input = Input::all();
 		$user = Sentry::getUser();
 		$files = json_decode($input['files']);
 
-		DB::beginTransaction();		
+		DB::beginTransaction();
 
 		$detail = new EqItemDetail;
 		$detail->title = $input['title'];
@@ -299,7 +299,7 @@ class EqItemCodeController extends EquipController {
 		$data['types'] = $types;
 		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first();
 		$data['inventorySet'] = $invSet;
-		$modifiable = false; 
+		$modifiable = false;
 		$now = Carbon::now();
 		$includingToday = EqQuantityCheckPeriod::where('check_end','>',$now)->where('check_start','<',$now)->get();
 		if (sizeof($includingToday) !== 0) {
@@ -319,7 +319,7 @@ class EqItemCodeController extends EquipController {
 		$categories = EqCategory::all();
 		return View::make('equip.item-code-add', get_defined_vars());
 	}
-	
+
 
 	/**
 	 * Store a newly created resource in storage.
@@ -334,7 +334,7 @@ class EqItemCodeController extends EquipController {
 		$code->category_id = $categoryId;
 
 		//code는 해당 카테고리의 마지막 번호에 1을 더한거.
-		
+
 		$lastCode = EqItemCode::where('category_id','=',$categoryId)->orderBy('sort_order','desc')->first();
 		$codeIndex = substr($lastCode->code, 1) + 1;
 		if (strlen($codeIndex) <= 3)
@@ -350,7 +350,7 @@ class EqItemCodeController extends EquipController {
 		}
 
 		Session::flash('message', '추가되었습니다.');
-		return Redirect::action('EqItemCodeController@index'); 
+		return Redirect::action('EqItemCodeController@index');
 	}
 
 	/**
@@ -379,7 +379,7 @@ class EqItemCodeController extends EquipController {
 		}
 
 		$data['timeover'] = $timeover;
-		
+
 		return View::make('equip.items-registered-list', $data);
 	}
 
@@ -391,7 +391,7 @@ class EqItemCodeController extends EquipController {
 	 */
 	public function edit($id)
 	{
-		
+
 	}
 
 	/**
@@ -402,7 +402,7 @@ class EqItemCodeController extends EquipController {
 	 */
 	public function update($id)
 	{
-		
+
 	}
 
 	/**
@@ -414,7 +414,7 @@ class EqItemCodeController extends EquipController {
 	 */
 	public function destroy($id)
 	{
-		
+
 	}
 
 	public function getData($id) {
@@ -426,30 +426,31 @@ class EqItemCodeController extends EquipController {
 		if ($validator->fails()) {
 			return App::abort(400);
 		}
-		
-		$parentId = Input::get('parent');
 
-		if (!$parentId || $parentId == 1) {
-			
-			$user = Sentry::getUser();
+		$parentId = Input::get('parent');
+		$user = Sentry::getUser();
+		$userNode = $user->supplyNode;
+
+		if (!$parentId || $parentId == $userNode->id ) {
+
 			$managingNode = $user->supplyNode;
 			$nodes = EqSupplyManagerNode::where('parent_id','=',$managingNode->id)->get();
 
 			// 총계
 			$row = array(
 				'node'=> (object) array(
-					'node_name'=>'계', 
-					'is_terminal'=>true, 
-				));	
+					'node_name'=> $userNode->node_name.' 산하 총계',
+					'is_terminal'=>true,
+				));
 
 			$row['sum_row'] = 0;
 			foreach ($types as $t) {
 				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($managingNode) {
 					$q->whereHas('ownerNode', function($qq) use ($managingNode) {
-						$qq->where('full_path','like',$managingNode->full_path.'%');
+						$qq->where('full_path','like',$managingNode->full_path.'%')->where('full_path','!=',$managingNode->full_path);
 					});
 				})->where('item_type_id','=',$t->id)->sum('count');
-				
+
 				$row['sum_row'] += $row[$t->type_name];
 			}
 			$row['row_type']=0;
@@ -461,14 +462,14 @@ class EqItemCodeController extends EquipController {
 				return App::abort(400);
 			}
 			$nodes = $parent->children()->get();
-			
+
 			$row = array(
 						'node'=> (object) array(
-							'id'=>$parent->parent_id, 
-							'node_name'=>'상위부서로', 
-							'is_terminal'=>false, 
+							'id'=>$parent->parent_id,
+							'node_name'=>'상위부서로',
+							'is_terminal'=>false,
 							'parent_id'=>$parent->parent_id
-						));	
+						));
 			$row['sum_row'] = '';
 			foreach ($types as $t) {
 				$row[$t->type_name]='';
@@ -476,57 +477,110 @@ class EqItemCodeController extends EquipController {
 
 			$row['row_type']=0;
 			$data[] = $row;
-			
+
+			/**
+			*	만약 현재 parent node가 managable node이면 해당 node의 보유수량을 보여주고 아니면 만다.
+			*/
+			if ($parent->is_selectable==1) {
+				$row = array(
+					'node'=> (object) array(
+						'node_name'=> $parent->node_name.' 보유',
+						'is_terminal'=>true,
+					));
+
+				$row['sum_row'] = 0;
+
+				foreach ($types as $t) {
+					$invData = EqInventoryData::whereHas('parentSet', function($q) use ($parent) {
+						$q->where('node_id','=',$parent->id);
+					})->where('item_type_id','=',$t->id)->first();
+
+					if ($invData != null) {
+						$row[$t->type_name] = $invData->count;
+					} else {
+						$row[$t->type_name] = 0;
+					}
+
+					$row['sum_row'] += $row[$t->type_name];
+				}
+
+				$row['row_type']=0;
+				$data[] = $row;
+
+				$row = array(
+					'node'=> (object) array(
+						'node_name'=> $parent->node_name.' 파손',
+						'is_terminal'=>true,
+					));
+
+				$row['sum_row'] = 0;
+
+				foreach ($types as $t) {
+					$invData = EqInventoryData::whereHas('parentSet', function($q) use ($parent) {
+						$q->where('node_id','=',$parent->id);
+					})->where('item_type_id','=',$t->id)->first();
+
+					if ($invData != null) {
+						$row[$t->type_name] = $invData->wrecked;
+					} else {
+						$row[$t->type_name] = 0;
+					}
+
+					$row['sum_row'] += $row[$t->type_name];
+				}
+
+				$row['row_type']=0;
+				$data[] = $row;
+			}
+
 			$row = array(
 				'node'=> (object) array(
-					'node_name'=>'계', 
-					'is_terminal'=>true, 
-				));	
+					'node_name'=> $parent->node_name.' 산하 총계',
+					'is_terminal'=>true,
+				));
 
 			$row['sum_row'] = 0;
 
 			foreach ($types as $t) {
 				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($parent) {
 					$q->whereHas('ownerNode', function($qq) use ($parent) {
-						$qq->where('full_path','like',$parent->full_path.'%');
+						$qq->where('full_path','like',$parent->full_path.'%')->where('full_path','!=',$parent->full_path);
 					});
 				})->where('item_type_id','=',$t->id)->sum('count');
-				
+
 				$row['sum_row'] += $row[$t->type_name];
 			}
-			
+
 			$row['row_type']=0;
 			$data[] = $row;
 		}
 
 
 		foreach ($nodes as $node) {
-			
+
 
 			$row['node'] = $node->toArray();
+			$node->is_terminal == 1 ? $row['node']['node_name'] .= ' 보유' : $row['node']['node_name'] .= ' 산하 총계';
+
 			$row['sum_row'] = 0;
 
 			foreach ($types as $t) {
 
-			$invData = EqInventoryData::whereHas('parentSet', function($q) use ($node) {
-				$q->where('node_id','=',$node->id);
-			})->where('item_type_id','=',$t->id)->first();
+				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($node) {
+					$q->whereHas('ownerNode', function($qq) use ($node) {
+						$qq->where('full_path','like',$node->full_path.'%');
+					});
+				})->where('item_type_id','=',$t->id)->sum('count');
 
-			if ($invData != null) {
-				$row[$t->type_name] = $invData->count;
-			} else {
-				$row[$t->type_name] = 0;
-			}
+				$row['sum_row'] += $row[$t->type_name];
 
-			$row['sum_row'] += $row[$t->type_name];
+				if ($row[$t->type_name]==0) {
+					$row[$t->type_name] = '';
+				}
 
-			if ($row[$t->type_name]==0) {
-				$row[$t->type_name] = '';
-			}
-
-			if ($row['sum_row']==0) {
-				$row['sum_row'] = '';
-			}
+				if ($row['sum_row']==0) {
+					$row['sum_row'] = '';
+				}
 
 			}
 			$row['row_type'] = 1;
@@ -534,9 +588,9 @@ class EqItemCodeController extends EquipController {
 
 			// 파손수량 행 추가
 			$row['node'] = (object) array(
-							'id'=>'', 
-							'node_name'=>'파손수량', 
-							'is_terminal'=>true, 
+							'id'=>'',
+							'node_name'=> $node->is_terminal == 1 ? $node->node_name.' 파손' : $node->node_name.' 산하 파손 총계',
+							'is_terminal'=>true,
 							'parent_id'=>''
 						);
 			$row['sum_row'] = 0;
@@ -568,6 +622,6 @@ class EqItemCodeController extends EquipController {
 			$data[] = $row;
 		}
 
-		return array('data'=>$data);		
+		return array('data'=>$data);
 	}
 }

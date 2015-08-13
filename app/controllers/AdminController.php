@@ -13,7 +13,7 @@ class AdminController extends BaseController {
 	public function savePermission() {
 		$keys = Input::get('permission_keys');
 		$groupId = Input::get('group_id');
-		$group = Group::find($groupId);
+	$group = Group::find($groupId);
 
 		if ($group === null) {
 			return App::abort(400);
@@ -41,7 +41,7 @@ class AdminController extends BaseController {
 		}
 
 		$permissions = Permission::all();
-		
+
 		return View::make('admin.permission-list', array('permissions'=>$permissions, 'group'=>$group));
 	}
 	public function displayPermissionMng() {
@@ -179,7 +179,7 @@ class AdminController extends BaseController {
 	 * 그룹에서 사용자 제거
 	 */
 	public function removeUsersFromUserGroup() {
-		
+
 		$group = Group::find(Input::get('group_id'));
 
 		if ($group === null) {
@@ -187,7 +187,7 @@ class AdminController extends BaseController {
 		}
 
 		$inputIds = Input::json();
-		
+
 		DB::beginTransaction();
 
 		foreach ($inputIds as $id) {
@@ -259,7 +259,7 @@ class AdminController extends BaseController {
 				$builder->where('departments.full_path','like', "%:{$user->dept_id}:%");
 			}
 		}
-		
+
 		return Datatables::of($builder)->make();
 	}
 
@@ -285,7 +285,7 @@ class AdminController extends BaseController {
         {
         	$user = new User;
         }
-		
+
 		// @todo
 		$groups = Group::where('id','!=',1);
 		if (!Sentry::getUser()->isSuperUser()) {
@@ -314,7 +314,7 @@ class AdminController extends BaseController {
 		}
 		$groups = Sentry::findAllGroups();
 		$modules = Module::all();
-		return View::make('admin.permissions', array('modules'=>$modules, 'permissions'=>$permissions, 
+		return View::make('admin.permissions', array('modules'=>$modules, 'permissions'=>$permissions,
 			'groups'=>$groups, 'currentModule'=>$currentModule));
 	}
 
@@ -331,17 +331,17 @@ class AdminController extends BaseController {
 			}
 		}
 
-		
+
 		foreach ($ids as $id)
 		{
 			$user = User::find($id);
-			if ($user->account_name === 'admin') 
+			if ($user->account_name === 'admin')
 			{
 				return Lang::get('strings.cannot_update_admin');
 			}
 
 			$user->activated = $activated;
-			if ($activated) 
+			if ($activated)
 			{
 				$user->activated_at = date('Y-m-d H:i:s');
 			}
@@ -361,18 +361,18 @@ class AdminController extends BaseController {
 			}
 		}
 
-		
+
 		foreach ($ids as $id)
 		{
 			$user = User::find($id);
-			if ($user->account_name === 'admin') 
+			if ($user->account_name === 'admin')
 			{
 				return Lang::get('strings.cannot_delete_admin');
 			}
 			$user->delete();
 		}
 	}
-	
+
 	public function updateUser($userId)
 	{
 		$codes = Code::in('H001');
@@ -489,11 +489,11 @@ class AdminController extends BaseController {
 				return Lang::get('strings.server_error');
 			}
 		}
-		
+
 		foreach ($ids as $id)
 		{
 			$g = Sentry::findGroupById($id);
-			if ($g->name === '관리자') 
+			if ($g->name === '관리자')
 			{
 				return Lang::get('strings.cannot_delete_admin');
 			}
@@ -521,10 +521,10 @@ class AdminController extends BaseController {
 		$group->name = $gname;
 		$group->key = $key;
 		if($group->save()){
-			return Redirect::to('admin/groups')->with('message', Lang::get('strings.success'));	
+			return Redirect::to('admin/groups')->with('message', Lang::get('strings.success'));
 		}
 		else{
-			return Redirect::to('admin/groups')->with('message', Lang::get('strings.server_error'));	
+			return Redirect::to('admin/groups')->with('message', Lang::get('strings.server_error'));
 		}
 	}
 
@@ -534,7 +534,7 @@ class AdminController extends BaseController {
 
 		$permissions = Permission::where('module_id','=',$mid)->get();
 		$groups = Sentry::findAllGroups();
-		
+
 		foreach ($groups as $group)
 		{
 			$groupPerms = array();
@@ -575,10 +575,10 @@ class AdminController extends BaseController {
 		for ($i=0; $i<$maxDepth; $i++)
 		{
 			DB::insert(DB::raw('INSERT INTO departments (id, full_path, full_name, depth)
-			SELECT 
+			SELECT
 			id,
 			(
-				SELECT 
+				SELECT
 				IF(parent_id=0 OR parent_id IS NULL,"",CONCAT(":",parent_id))
 				FROM departments AS b
 				WHERE b.id = TRIM(LEADING ":" FROM LEFT(sub.full_path, LOCATE(":",sub.full_path,2)-1))
@@ -586,13 +586,13 @@ class AdminController extends BaseController {
 			(
 				(SELECT IFNULL(CONCAT(dept_name, " "), "")
 					FROM departments
-					WHERE id = (SELECT 
+					WHERE id = (SELECT
 				parent_id
 				FROM departments AS b
 				WHERE b.id = TRIM(LEADING ":" FROM LEFT(sub.full_path, LOCATE(":",sub.full_path,2)-1))))
 			) as newName,
 			(
-				SELECT 
+				SELECT
 				IF(parent_id=0 OR parent_id IS NULL,0,1)
 				FROM departments AS b
 				WHERE b.id = TRIM(LEADING ":" FROM LEFT(sub.full_path, LOCATE(":",sub.full_path,2)-1))
@@ -600,7 +600,7 @@ class AdminController extends BaseController {
 
 			FROM departments AS sub
 
-			ON DUPLICATE KEY UPDATE 
+			ON DUPLICATE KEY UPDATE
 				full_path = CONCAT(VALUES(full_path),departments.full_path),
 				full_name = CONCAT(VALUES(full_name),departments.full_name),
 				depth = departments.depth+VALUES(depth) '));
@@ -610,7 +610,7 @@ class AdminController extends BaseController {
 		DB::insert(DB::raw('INSERT INTO departments
 							(id, is_terminal, is_alive)
 							SELECT
-							id, 
+							id,
 							(SELECT
 							COUNT(*) = 0
 							FROM departments AS c
@@ -642,7 +642,7 @@ class AdminController extends BaseController {
 	}
 
 	public function showDepts() {
-		
+
 		return View::make('admin.depts');
 	}
 
@@ -654,7 +654,7 @@ class AdminController extends BaseController {
 
 		$this->doAdjustHierarchy($headNode, 1);
 
-		DB::commit();		
+		DB::commit();
 	}
 
 	private function doAdjustHierarchy(EqSupplyManagerNode $parent = null, $parentManagerNodeId ) {

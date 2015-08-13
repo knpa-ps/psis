@@ -20,6 +20,7 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::post('/inventories/create/get_items_in_code', 'EqInventoryController@getItemsInCode');
 	Route::post('/inventories/create/get_items_in_category', 'EqInventoryController@getItemsInCategory');
 	Route::get('/items/{itemId}/discard', 'EqInventoryController@displayDiscardForm');
+	Route::get('/items/{itemId}/discard_list', 'EqInventoryController@displayDiscardList');
 	Route::post('/items/{itemId}/discard', 'EqInventoryController@discardItem');
 	Route::post('/items/{itemId}/wrecked_update', 'EqInventoryController@wreckedUpdate');
 	Route::post('/items/{itemId}/count_update', 'EqInventoryController@countUpdate');

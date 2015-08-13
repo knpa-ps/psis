@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 class MenuComposer {
 	public function compose($view) {
@@ -19,7 +19,7 @@ class MenuComposer {
 		} else {
 			$menus['sidebar'] = $menus['navbar'];
 		}
-		
+
 
 		$view->with(array(
 			'menus'=>$menus

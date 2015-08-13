@@ -25,31 +25,26 @@
 				<h3 class="panel-title"><strong>캡사이신 사용보고 삭제요청 목록</strong></h3>
 			</div>
 			<div class="panel-body">
-				
+
 				<div class="row">
 					<div class="col-xs-12">
 						<table class="table table-condensed table-hover table-striped table-bordered" id="capsaicin_table">
 						<thead>
 							<tr>
-								<th rowspan="2">일자</th>
-								<th rowspan="2">지방청</th>
-								<th rowspan="2">행사명</th>
-								<th rowspan="2">사용장소</th>
-								<th colspan="3" style="background-color: #C6FFFA">살수량(ton)</th>
-								<th rowspan="2" style="background-color: #63E3DE">PAVA혼합량(ℓ)</th>	
-								<th rowspan="2" style="background-color: #E2FFA8">염료혼합량(ℓ)</th>
-								<th rowspan="2"></th>
-							</tr>
-							<tr>
-								<th style="background-color: #C6FFFA">경고</th>
-								<th style="background-color: #C6FFFA">직사</th>
-								<th style="background-color: #C6FFFA">곡사</th>
+								<th>일자</th>
+								<th>지방청</th>
+								<th>행사명</th>
+								<th>사용장소</th>
+								<th style="background-color: #C6FFFA">살수량(ton)</th>
+								<th style="background-color: #63E3DE">PAVA혼합량(ℓ)</th>
+								<th style="background-color: #E2FFA8">염료혼합량(ℓ)</th>
+								<th></th>
 							</tr>
 						</thead>
 						<tbody>
 							@if(sizeof($requests)==0)
 							<tr>
-								<td colspan="10">내역이 없습니다.</td>
+								<td colspan="8">내역이 없습니다.</td>
 							</tr>
 							@else
 								@foreach ($requests as $r)
@@ -58,9 +53,7 @@
 									<td>{{ $r->event->node->node_name }}</td>
 									<td>{{ $r->event->event_name }}</td>
 									<td>{{ $r->event->location }}</td>
-									<td>{{ round($r->event->warn_amount, 2) }}</td>
-									<td>{{ round($r->event->direct_amount, 2) }}</td>
-									<td>{{ round($r->event->high_angle_amount, 2) }}</td>
+									<td>{{ round($r->event->amount, 2) }}</td>
 									<td>{{ round($r->event->pava_amount, 2) }}</td>
 									<td>{{ round($r->event->dye_amount, 2) }}</td>
 									<td>

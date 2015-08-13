@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 use Carbon\Carbon;
 
@@ -6,7 +6,7 @@ class EqService extends BaseService {
 
 	public function inventoryWithdraw($invData, $value) {
 		//장비를 빼는 기능 및 장비 빼고 음수가 안 나오도록 체크하는 기능을 넣음
-		if ($invData->count > $value) {
+		if ($invData->count >= $value) {
 			$invData->count -= $value;
 			if (!$invData->save()) {
 				return App::abort(500);
@@ -46,9 +46,9 @@ class EqService extends BaseService {
 		$now = Carbon::now();
 		//올해면 아직 안 온 달은 비워둔다.
 		$data['presentStock'] = null;
-		
+
 		for ($i=1; $i <= 12; $i++) {
-			
+
 			$firstDayofMonth = Carbon::createFromDate($year, $i, 1, 'Asia/Seoul')->subDay();
 			if ($i != 12) {
 				$lastDayofMonth = Carbon::createFromDate($year, $i+1, 1, 'Asia/Seoul')->subDay();
@@ -68,7 +68,7 @@ class EqService extends BaseService {
 				$month = $now->month;
 				if ($month == $i) {
 					$data['presentStock'] = $stock[$i];
-				} 
+				}
 			} elseif ($year > $now->year) {
 				$stock[$i] = null;
 				$usageSum[$i] = null;
@@ -97,7 +97,7 @@ class EqService extends BaseService {
 			$drillsThisMonth = EqPavaIO::where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->where('sort','=','drill')->get();
 			$lostThisMonth = EqPavaIO::where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->where('sort','=','lost')->get();
 
-			
+
 			$usageT[$i] = $drillsThisMonth->sum('amount');
 			$usageA[$i] = $eventsThisMonth->sum('pava_amount');
 			$usageSum[$i] = $usageT[$i] + $usageA[$i];
@@ -135,7 +135,7 @@ class EqService extends BaseService {
 		$datas = $s->children;
 
 		$item = $s->item;
-		
+
 		DB::beginTransaction();
 
 		// 보급을 삭제하면서 각 하위관서에 보급했던 수량을 다시 가져온다.
@@ -152,7 +152,7 @@ class EqService extends BaseService {
 			if (!$invData->save()) {
 				return App::abort(500);
 			}
-		} 
+		}
 
 		// 2. 보급받은 관서의 인벤토리 수량 빼기
 		foreach ($datas as $d) {
@@ -160,7 +160,7 @@ class EqService extends BaseService {
 			$toNodeId = $d->to_node_id;
 			$invSet = EqInventorySet::where('node_id','=',$toNodeId)->where('item_id','=',$s->item_id)->first();
 			$invData = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$d->item_type_id)->first();
-			
+
 			$invData->count -= $d->count;
 			if (!$invData->save()) {
 				return App::abort(500);
@@ -227,7 +227,7 @@ class EqService extends BaseService {
 
 	/**
 	 * 사용자에게 허용된 도메인의 카테고리들을 가져온다
-	 * @param User $user 
+	 * @param User $user
 	 * @return Collection<EqCategory>
 	 */
 	public function getVisibleCategoriesQuery(User $user) {
@@ -242,7 +242,7 @@ class EqService extends BaseService {
 
 		$query->whereIn('domain_id', $visibleDomainIds);
 		return $query;
-	}	
+	}
 
 	public function getVisibleDomains(User $user) {
 		return EqDomain::all()->filter(function($domain) use ($user) {
@@ -280,9 +280,9 @@ class EqService extends BaseService {
 		//xls obj 생성
 		$objPHPExcel = new PHPExcel();
 		if (isset($node)) {
-			$fileName = $node->node_name.' 사용내역'; 
+			$fileName = $node->node_name.' 사용내역';
 		} else {
-			$fileName = '캡사이신 희석액 사용내역'; 
+			$fileName = '캡사이신 희석액 사용내역';
 		}
 		//obj 속성
 		$objPHPExcel->getProperties()
@@ -290,9 +290,9 @@ class EqService extends BaseService {
 			->setSubject($fileName);
 		//셀 정렬(가운데)
 		$objPHPExcel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER)->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
-		
+
 		$sheet = $objPHPExcel->setActiveSheetIndex(0);
-		
+
 		$sheet->setCellValue('a1','일자');
 		$sheet->setCellValue('b1','관할청');
 		$sheet->setCellValue('c1','중대');
@@ -302,7 +302,7 @@ class EqService extends BaseService {
 		$sheet->setCellValue('g1','사용량(ℓ)');
 		//양식 부분 끝
 		//이제 사용내역 나옴
-		for ($i=1; $i <= sizeof($rows); $i++) { 
+		for ($i=1; $i <= sizeof($rows); $i++) {
 			$sheet->setCellValue('a'.($i+1),$rows[$i-1]->date);
 			$sheet->setCellValue('b'.($i+1),$rows[$i-1]->node->node_name);
 			$sheet->setCellValue('c'.($i+1),$rows[$i-1]->user_node->full_name);
@@ -311,7 +311,7 @@ class EqService extends BaseService {
 			$sheet->setCellValue('f'.($i+1),$rows[$i-1]->event_name);
 			$sheet->setCellValue('g'.($i+1),round($rows[$i-1]->amount, 2));
 		}
-		
+
 
 		//파일로 저장하기
 		$writer = PHPExcel_IOFactory::createWriter($objPHPExcel,'Excel2007');
@@ -332,9 +332,9 @@ class EqService extends BaseService {
 		//xls obj 생성
 		$objPHPExcel = new PHPExcel();
 		if (isset($node)) {
-			$fileName = $node->node_name.' 물 사용내역'; 
+			$fileName = $node->node_name.' 물 사용내역';
 		} else {
-			$fileName = '물 사용내역'; 
+			$fileName = '물 사용내역';
 		}
 		//obj 속성
 		$objPHPExcel->getProperties()
@@ -342,9 +342,9 @@ class EqService extends BaseService {
 			->setSubject($fileName);
 		//셀 정렬(가운데)
 		$objPHPExcel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER)->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
-		
+
 		$sheet = $objPHPExcel->setActiveSheetIndex(0);
-		
+
 		$sheet->setCellValue('a1','일자');
 		$sheet->setCellValue('b1','관서명');
 		$sheet->setCellValue('c1','사용장소');
@@ -352,14 +352,14 @@ class EqService extends BaseService {
 		$sheet->setCellValue('e1','사용량(ton)');
 		//양식 부분 끝
 		//이제 사용내역 나옴
-		for ($i=1; $i <= sizeof($rows); $i++) { 
+		for ($i=1; $i <= sizeof($rows); $i++) {
 			$sheet->setCellValue('a'.($i+1),$rows[$i-1]->date);
 			$sheet->setCellValue('b'.($i+1),$rows[$i-1]->node->node_name);
 			$sheet->setCellValue('c'.($i+1),$rows[$i-1]->location);
 			$sheet->setCellValue('d'.($i+1),$rows[$i-1]->event_name);
 			$sheet->setCellValue('e'.($i+1),round(($i+1),$rows[$i-1]->amount, 2));
 		}
-		
+
 
 		//파일로 저장하기
 		$writer = PHPExcel_IOFactory::createWriter($objPHPExcel,'Excel2007');
@@ -380,9 +380,9 @@ class EqService extends BaseService {
 		//xls obj 생성
 		$objPHPExcel = new PHPExcel();
 		if (isset($node)) {
-			$fileName = $node->full_name.' '.$year.' 현황'; 
+			$fileName = $node->full_name.' '.$year.' 현황';
 		} else {
-			$fileName = $year.' 현황'; 
+			$fileName = $year.' 현황';
 		}
 		//obj 속성
 		$objPHPExcel->getProperties()
@@ -390,7 +390,7 @@ class EqService extends BaseService {
 			->setSubject($fileName);
 		//셀 정렬(가운데)
 		$objPHPExcel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER)->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
-		
+
 		$sheet = $objPHPExcel->setActiveSheetIndex(0);
 		$sheet->mergeCells('a1:a3');
 		$sheet->mergeCells('b1:c1');
@@ -399,7 +399,7 @@ class EqService extends BaseService {
 		$sheet->mergeCells('j1:j2');
 		$sheet->mergeCells('k1:k2');
 
-		for ($i=1; $i <=12 ; $i++) { 
+		for ($i=1; $i <=12 ; $i++) {
 			$sheet->mergeCells('b'.($i+3).':c'.($i+3));
 		}
 
@@ -429,8 +429,8 @@ class EqService extends BaseService {
 		$sheet->setCellValue('k3',round($data['discardSum'], 2));
 		//양식 부분 끝
 		//이제 월별 자료 나옴
-		
-		for ($i=1; $i <=12 ; $i++) { 
+
+		for ($i=1; $i <=12 ; $i++) {
 			$sheet->setCellValue('A'.($i+3), $i.'월');
 			if (isset($data['stock'][$i])) {
 				$sheet->setCellValue('B'.($i+3), round($data['stock'][$i], 2) );
@@ -438,7 +438,7 @@ class EqService extends BaseService {
 				$sheet->setCellValue('E'.($i+3), round($data['usageT'][$i], 2) );
 				$sheet->setCellValue('F'.($i+3), round($data['usageA'][$i], 2) );
 			}
-			
+
 			$sheet->setCellValue('G'.($i+3), $data['timesSum'][$i] );
 			$sheet->setCellValue('H'.($i+3), $data['timesT'][$i] );
 			$sheet->setCellValue('I'.($i+3), $data['timesA'][$i] );
@@ -469,15 +469,15 @@ class EqService extends BaseService {
 		$categories = EqCategory::where('domain_id','=',1)->get();
 
 		$objPHPExcel = new PHPExcel();
-		$fileName = '집회시위 관리장비 점검 총괄표('.$node->full_name.')'; 
-		
+		$fileName = '집회시위 관리장비 점검 총괄표('.$node->full_name.')';
+
 		//obj 속성
 		$objPHPExcel->getProperties()
 			->setTitle($fileName)
 			->setSubject($fileName);
 		//셀 정렬(가운데)
 		$objPHPExcel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER)->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
-		
+
 		$sheet = $objPHPExcel->setActiveSheetIndex(0);
 
 		//양식 만들기
@@ -505,7 +505,7 @@ class EqService extends BaseService {
 		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'2','사용가능');
 
 		//4개년 열 추가
-		for ($i=0; $i <= 3; $i++) { 
+		for ($i=0; $i <= 3; $i++) {
 			$lastColIdx = PHPExcel_Cell::columnIndexFromString($sheet->getHighestDataColumn());
 
 			$sheet->mergeCells(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1:'.PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'1');
@@ -515,7 +515,7 @@ class EqService extends BaseService {
 			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+1).'2','파손');
 			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'2','사용가능');
 		}
-		
+
 		$threeYearsAgo = Carbon::now()->subYears(3)->firstOfYear();
 
 		//장비별 행, 행별 자료 입력
@@ -527,14 +527,14 @@ class EqService extends BaseService {
 			$sheet->setCellValue('b'.($lastRow+1), $c->name);
 			$sheet->mergeCells('b'.($lastRow+1).':b'.($lastRow+sizeof($itemsInCategory)));
 
-			
-			for ($i=1; $i<=sizeof($itemsInCategory) ; $i++) { 
+
+			for ($i=1; $i<=sizeof($itemsInCategory) ; $i++) {
 				$sheet->setCellValue('c'.($lastRow+$i), $itemsInCategory[$i-1]->code);
 				$sheet->setCellValue('d'.($lastRow+$i), $itemsInCategory[$i-1]->title);
 
 				//TODO
 				//총괄표 양식에 자료 넣기
-				
+
 				$itemCode = $itemsInCategory[$i-1];
 				$items = $itemCode->items;
 
@@ -568,7 +568,7 @@ class EqService extends BaseService {
 				$sheet->setCellValue('f'.($lastRow+$i), $wreckedSum);
 				//inventory에서 count - wrecked의 sum
 				$sheet->setCellValue('g'.($lastRow+$i), $holdingSum);
-				
+
 				$suppliedSumBefore4years = EqItemSupply::where('to_node_id','=',$node->id)->whereHas('supplySet', function($q) use ($itemCode, $threeYearsAgo){
 					$q->whereHas('item', function($q) use ($itemCode, $threeYearsAgo){
 						$q->where('supplied_date','<',$threeYearsAgo)->whereHas('code', function($q) use ($itemCode){
@@ -598,7 +598,7 @@ class EqService extends BaseService {
 				$sheet->setCellValue('i'.($lastRow+$i), $wreckedSumBefore4years);
 				$sheet->setCellValue('j'.($lastRow+$i), $availSumBefore4years);
 
-				for ($j=0; $j <=3 ; $j++) { 
+				for ($j=0; $j <=3 ; $j++) {
 					$ColIdx = 10+3*$j;
 					// TODO
 					// 연도별 수량 입력할 곳

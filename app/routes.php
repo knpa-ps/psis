@@ -38,7 +38,7 @@ Route::group(array('before'=>'auth'), function() {
 
     Route::any('/migrate', array('uses'=>'HomeController@migrateV2'));
 
-    Route::get('/reports', array('uses'=>'HomeController@displayDashboard'));    
+    Route::get('/reports', array('uses'=>'HomeController@displayDashboard'));
     Route::get('/reports/list', array('uses'=>'HomeController@displayDashboard'));
 
     Route::get('logout', 'AuthController@doLogout');
@@ -46,10 +46,10 @@ Route::group(array('before'=>'auth'), function() {
 });
 
 /**
- *  조직도 조회 관련 ajax methods 
+ *  조직도 조회 관련 ajax methods
  */
 Route::group(array('before'=>'ajax', 'prefix'=>'ajax'), function() {
-    
+
     Route::post('dept_select_tree', function() {
         return View::make('widget.dept-selector-tree', Input::all());
     });
@@ -61,6 +61,14 @@ Route::group(array('before'=>'ajax', 'prefix'=>'ajax'), function() {
     Route::any('dept_tree', 'DepartmentController@getTreeNodes');
 
     Route::any('supply_node_tree', 'EqSupplyController@getSupplyTreeNodes');
+});
+
+Route::get('fuck', function() {
+  for ($i=181; $i < 186 ; $i++) {
+      $type = new EqItemType;
+      $type->item_id = $i;
+      $type->save();
+  }
 });
 
 include('routes/users.php');

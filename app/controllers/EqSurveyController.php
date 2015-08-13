@@ -75,7 +75,7 @@ class EqSurveyController extends \BaseController {
 		$row = array(
 			'node'=> (object) array(
 				'node_name'=>'계',
-			));	
+			));
 
 		$row['sum_row'] = EqItemSurveyData::where('survey_id','=',$id)->sum('count');
 		foreach ($types as $t) {
@@ -85,8 +85,8 @@ class EqSurveyController extends \BaseController {
 		$data[] = $row;
 
 		foreach ($childrenNodes as $node) {
-			
-			$row['node'] = $node->toArray();
+
+			$node->parent->type_code == 'D003' ? $row['node'] = array( 'node_name' => $node->parent->node_name.' '.$node->node_name) : $row['node'] = array( 'node_name' => $node->node_name);
 
 			$surveyData = EqItemSurveyResponse::where('survey_id','=',$id)->where('node_id','=',$node->id)->get();
 
@@ -122,7 +122,7 @@ class EqSurveyController extends \BaseController {
 		}
 
 
-		return array('data'=>$data);		
+		return array('data'=>$data);
 	}
 
 
@@ -210,7 +210,7 @@ class EqSurveyController extends \BaseController {
 		$user = Sentry::getUser();
 		$mode = 'create';
 		$childrenNodes = EqSupplyManagerNode::where('parent_manager_node','=',$user->supplyNode->id)->get();
-		if (!$childrenNodes) {
+		if (sizeof($childrenNodes)==0) {
 			return Redirect::back()->with('message', '하위 부서가 존재하지 않습니다.');
 		}
 		return View::make('equip.survey-new', get_defined_vars());
@@ -307,7 +307,7 @@ class EqSurveyController extends \BaseController {
 		foreach ($childrenNodes as $n) {
 			$count[$n->id] = EqItemSurveyData::where('survey_id','=',$id)->where('target_node_id','=',$n->id)->first()->count;
 		}
-			
+
         return View::make('equip.survey-new',get_defined_vars());
 	}
 

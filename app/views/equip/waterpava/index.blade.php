@@ -19,7 +19,7 @@
 			<li><a href="{{url('equips/pava_confirm')}}">삭제요청</a></li>
 			@endif
 		</ul>
-		
+
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title"><strong>{{ $node->type_code != "D001" ? $node->node_name : ''}} 살수차 사용내역 <span style="color: red; font-size: 12px;" class="blink">사용결과 보고는 일일보고임.</span></strong></h3>
@@ -35,7 +35,7 @@
 								</label>
 								<div class="col-xs-9">
 									<div class="input-daterange input-group">
-									    <input type="text" class="input-sm form-control" name="start" 
+									    <input type="text" class="input-sm form-control" name="start"
 									    value="{{ $start }}">
 									    <span class="input-group-addon">~</span>
 									    <input type="text" class="input-sm form-control" name="end"
@@ -85,7 +85,7 @@
 				<div class="toolbar-table">
 					<a href="{{url('equips/water_pava/create?nodeId='.$node->id)}}" class="btn btn-info btn-xs pull-right">
 						<span class="glyphicon glyphicon-plus"></span> 사용내역 추가
-					</a>	
+					</a>
 					{{-- <a href="{{URL::current().'?export=true&start='.$start.'&end='.$end.'&event_name='.$eventName}}" class="btn btn-success btn-xs pull-right">
 						<span class="glyphicon glyphicon-download"></span> 다운로드(.xlsx)
 					</a> --}}
@@ -97,25 +97,20 @@
 						<table class="table table-condensed table-hover table-striped table-bordered" id="capsaicin_table">
 						<thead>
 							<tr>
-								<th rowspan="2">일자</th>
-								<th rowspan="2">지방청</th>
-								<th rowspan="2">행사명</th>
-								<th rowspan="2">사용장소</th>
-								<th colspan="3" style="background-color: #C6FFFA">살수량(ton)</th>
-								<th rowspan="2" style="background-color: #63E3DE">PAVA혼합량(ℓ)</th>	
-								<th rowspan="2" style="background-color: #E2FFA8">염료혼합량(ℓ)</th>
-								<th rowspan="2"></th>
-							</tr>
-							<tr>
-								<th style="background-color: #C6FFFA">경고</th>
-								<th style="background-color: #C6FFFA">직사</th>
-								<th style="background-color: #C6FFFA">곡사</th>
+								<th>일자</th>
+								<th>지방청</th>
+								<th>행사명</th>
+								<th>사용장소</th>
+								<th style="background-color: #C6FFFA">살수량(ton)</th>
+								<th style="background-color: #63E3DE">PAVA혼합량(ℓ)</th>
+								<th style="background-color: #E2FFA8">염료혼합량(ℓ)</th>
+								<th></th>
 							</tr>
 						</thead>
 						<tbody>
 							@if(sizeof($events)==0)
 							<tr>
-								<td colspan="10">내역이 없습니다.</td>
+								<td colspan="8">내역이 없습니다.</td>
 							</tr>
 							@else
 								@foreach ($events as $e)
@@ -124,9 +119,7 @@
 									<td>{{ $e->node->node_name }}</td>
 									<td>{{ $e->event_name }}</td>
 									<td>{{ $e->location }}</td>
-									<td>{{ round($e->warn_amount, 2) }}</td>
-									<td>{{ round($e->direct_amount, 2) }}</td>
-									<td>{{ round($e->high_angle_amount, 2) }}</td>
+									<td>{{ round($e->amount, 2) }}</td>
 									<td>{{ round($e->pava_amount, 2) }}</td>
 									<td>{{ round($e->dye_amount, 2) }}</td>
 									<td>
@@ -142,9 +135,7 @@
 						<tfoot>
 							<tr>
 								<td colspan="4">조회내역 합계</td>
-								<td>{{ round($events->sum('warn_amount'), 2) }}</td>
-								<td>{{ round($events->sum('direct_amount'), 2) }}</td>
-								<td>{{ round($events->sum('high_angle_amount'), 2) }}</td>
+								<td>{{ round($events->sum('amount'), 2) }}</td>
 								<td>{{ round($events->sum('pava_amount'), 2) }}</td>
 								<td>{{ round($events->sum('dye_amount'), 2) }}</td>
 								<td></td>

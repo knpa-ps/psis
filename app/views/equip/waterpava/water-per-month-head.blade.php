@@ -58,9 +58,6 @@
 							<thead>
 								<tr>
 									<th>월</th>
-									<th>경고살수량(ton)</th>
-									<th>곡사살수량(ton)</th>
-									<th>직사살수량(ton)</th>
 									<th>총 살수량(ton)</th>
 									<th>살수차 사용횟수</th>
 								</tr>
@@ -69,10 +66,7 @@
 							@for ($i=1; $i <= 12; $i++)
 								<tr>
 									<td>{{$i}}월</td>
-									<td id="{{ 'warn_'.$i }}"></td>
-									<td id="{{ 'direct_'.$i }}"></td>
-									<td id="{{ 'high_angle_'.$i }}"></td>
-									<td id="{{ 'sum_'.$i }}"></td>
+									<td id="{{ 'amount_'.$i }}"></td>
 									<td id="{{ 'count_'.$i }}"></td>
 								</tr>
 							@endfor
@@ -80,10 +74,7 @@
 							<tfoot>
 								<tr bgcolor="#fee9fc">
 									<td><b>합계</b></td>
-									<td id="warn_sum"></td>
-									<td id="direct_sum"></td>
-									<td id="high_angle_sum"></td>
-									<td id="sum_sum"></td>
+									<td id="amount_sum"></td>
 									<td id="count_sum"></td>
 								</tr>
 							</tfoot>
@@ -104,10 +95,7 @@ $(function(){
 	var year = {{ $selectedYear }};
 
 	$(".region").on('click', function(){
-		var warnSum=0;
-		var directSum=0;
-		var highAngleSum=0;
-		var sumSum=0;
+		var amountSum=0;
 		var countSum=0;
 
 		var regionId = $(this).attr('id');
@@ -116,29 +104,19 @@ $(function(){
 		$.ajax({
 			url: url("equips/get_water_consumption_by_month"),
 			type: "post",
-			data: params, 
+			data: params,
 			success: function(res){
 				for (var i = 0; i < 12; i++) {
 
-					$("#warn_"+(i+1)).text(res[0][i]);
-					$("#direct_"+(i+1)).text(res[1][i]);
-					$("#high_angle_"+(i+1)).text(res[2][i]);
-					$("#sum_"+(i+1)).text(res[3][i]);
-					$("#count_"+(i+1)).text(res[4][i]);
+					$("#amount_"+(i+1)).text(res[0][i]);
+					$("#count_"+(i+1)).text(res[1][i]);
 
-					warnSum+=res[0][i];
-					directSum+=res[1][i];
-					highAngleSum+=res[2][i];
-					sumSum+=res[3][i];
-					countSum+=res[4][i];
-
-					$("#warn_sum").text(warnSum);
-					$("#direct_sum").text(directSum);
-					$("#high_angle_sum").text(highAngleSum);
-					$("#sum_sum").text(sumSum);
+					amountSum+=res[0][i];
+					countSum+=res[1][i];
+					$("#amount_sum").text(amountSum);
 					$("#count_sum").text(countSum);
 
-					$("#table_title").text(res[5]+" 월별 살수내역");
+					$("#table_title").text(res[2]+" 월별 살수내역");
 				};
 			}
 		});
