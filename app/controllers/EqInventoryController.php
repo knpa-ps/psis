@@ -3,6 +3,7 @@ use Carbon\Carbon;
 
 class EqInventoryController extends EquipController {
 
+	// 보유수량 수정
 	public function countUpdate($itemId) {
 		$item = EqItem::find($itemId);
 		$user = Sentry::getUser();
@@ -13,13 +14,17 @@ class EqInventoryController extends EquipController {
 
 			DB::beginTransaction();
 
+			$countSum=0;
 			foreach ($item->types as $t) {
 				$data = EqInventoryData::where('inventory_set_id','=',$inventory->id)->where('item_type_id','=',$t->id)->first();
 				$data->count = $count[$data->id];
+				$countSum+=$count[$data->id];
 				if (!$data->save()) {
 					return App::abort(500);
 				}
 			}
+			//캐시에 등록
+			Cache::forever("avail_sum_".$user->supplyNode->id."_".$itemId,$countSum);
 
 			DB::commit();
 
@@ -31,6 +36,7 @@ class EqInventoryController extends EquipController {
 
 	}
 
+	// 파손수량 수정
 	public function wreckedUpdate($itemId) {
 		$item = EqItem::find($itemId);
 		$user = Sentry::getUser();
@@ -41,14 +47,16 @@ class EqInventoryController extends EquipController {
 		foreach ($wrecked as $w) {
 			$wreckedSum += $w;
 		}
-
-
 		$inventory = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$item->id)->first();
 
 		if($inventory) {
 
 			DB::beginTransaction();
-
+			# 이전에 저장된 파손수량과 비교를 해야하는데..
+			# 이전에 저장된 파손수량보다 커지면?
+			# 이전에 저장된 파손수량보다 작아지면?
+			$wreckedSum=Cache::get("wrecked_sum_".$user->supplyNode->id."_".$itemId);
+			$wreckedSumChanged=0;
 			foreach ($item->types as $t) {
 				$data = EqInventoryData::where('inventory_set_id','=',$inventory->id)->where('item_type_id','=',$t->id)->first();
 
@@ -56,10 +64,14 @@ class EqInventoryController extends EquipController {
 					return Redirect::back()->with('message', '보유수량보다 파손수량이 많을 수 없습니다.');
 				}
 				$data->wrecked = $wrecked[$data->id];
+				$wreckedSumChanged += $wrecked[$data->id];
 				if (!$data->save()) {
 					return App::abort(500);
 				}
 			}
+			//캐시에 등록
+			Cache::forever("wrecked_sum_".$user->supplyNode->id."_".$itemId,$wreckedSumChanged);
+			Cache::forever("avail_sum_".$user->supplyNode->id."_".$itemId,Cache::get("avail_sum_".$user->supplyNode->id."_".$itemId)-($wreckedSumChanged-$wreckedSum));
 
 			DB::commit();
 
@@ -200,7 +212,7 @@ class EqInventoryController extends EquipController {
 
 
 
-		
+
 
 		foreach ($items as $i) {
 
@@ -342,7 +354,7 @@ class EqInventoryController extends EquipController {
 			$data['availSum'][$c->id]=0;
 
 			foreach ($c->items as $i) {
-				
+
 				if (!Cache::has('is_cached_'.$userNode->id)) {
 					$this->service->makeCache($userNode->id);
 				}
@@ -356,7 +368,7 @@ class EqInventoryController extends EquipController {
 				$data['acquiredSum'][$c->id] += $acquiredSum;
 
 			}
-			
+
 		}
 		//Excel로 총괄표 export
 		$node = $user->supplyNode;
