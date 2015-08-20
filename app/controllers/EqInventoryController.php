@@ -84,7 +84,7 @@ class EqInventoryController extends EquipController {
 				$data['count'][$set->id][$t->id] = EqItemDiscardData::where('discard_set_id','=',$set->id)->where('item_type_id','=',$t->id)->first()->count;
 			}
 		}
-		
+
 		return View::make('equip.inventories-discard-list',$data);
 	}
 
@@ -135,6 +135,8 @@ class EqInventoryController extends EquipController {
 			return App::abort(500);
 		}
 
+		$discardTotal = 0;
+
 		foreach ($types as $t) {
 			$dData = new EqItemDiscardData;
 			$dData->discard_set_id = $dSet->id;
@@ -165,7 +167,13 @@ class EqInventoryController extends EquipController {
 			}
 
 			$iData->save();
+
+			$discardTotal += $dData->count;
+
 		}
+
+		$prevCache = Cache::get('wrecked_sum_'.$user->supplyNode->id.'_'.$itemId);
+		Cache::forever('wrecked_sum_'.$user->supplyNode->id.'_'.$itemId, $prevCache-$discardTotal);
 
 		DB::commit();
 
@@ -182,6 +190,7 @@ class EqInventoryController extends EquipController {
 	public function show($itemCode) {
 		$data['code']=EqItemCode::where('code','=',$itemCode)->first();
 		$user = Sentry::getUser();
+		$userNode = $user->supplyNode;
 		$data['user']= $user;
 		$items = EqItem::where('item_code','=',$itemCode)->where('is_active','=',1)->get();
 		$data['items']= $items;
@@ -189,22 +198,23 @@ class EqInventoryController extends EquipController {
 		//item 별 연한 초과 여부를 저장하는 배열
 		$timeover = array();
 
+
+
+		
+
 		foreach ($items as $i) {
 
-			$data['acquiredSum'][$i->id] = EqItemSupply::whereHas('supplySet', function($q) use($i) {
-				$q->where('item_id','=',$i->id);
-			})->where('to_node_id','=',$user->supplyNode->id)->sum('count');
+			if (!Cache::has('is_cached_'.$userNode->id)) {
+					$this->service->makeCache($userNode->id);
+			}
 
-			$holdingSum = EqInventoryData::whereHas('parentSet', function($q) use ($i, $user) {
-				$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
-			})->sum('count');
+			$wreckedSum = Cache::get('wrecked_sum_'.$userNode->id.'_'.$i->id);
+			$availSum = Cache::get('avail_sum_'.$userNode->id.'_'.$i->id);
+			$acquiredSum = Cache::get('acquired_sum_'.$userNode->id.'_'.$i->id);
 
-
-			$data['wreckedSum'][$i->id] = EqInventoryData::whereHas('parentSet', function($q) use ($i, $user) {
-				$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
-			})->sum('wrecked');
-
-			$data['availSum'][$i->id] = $holdingSum - $data['wreckedSum'][$i->id];
+			$data['wreckedSum'][$i->id] = $wreckedSum;
+			$data['availSum'][$i->id] = $availSum;
+			$data['acquiredSum'][$i->id] = $acquiredSum;
 
 			//불용연한 지났는지 여부 판단
 			$acquired_date = $i->acquired_date;
@@ -299,6 +309,7 @@ class EqInventoryController extends EquipController {
 	public function index()
 	{
 		$user = Sentry::getUser();
+		$userNode = $user->supplyNode;
 
 		$data['domains'] = $this->service->getVisibleDomains($user);
 
@@ -317,7 +328,7 @@ class EqInventoryController extends EquipController {
 		}
 
 		$data['user'] = $user;
-		$data['node'] = $user->supplyNode;
+		$data['node'] = $userNode;
 
 		$data['itemCodes'] =  EqItemCode::whereHas('category', function($q) use ($domainId) {
 									$q->where('domain_id', '=', $domainId);
@@ -327,25 +338,25 @@ class EqInventoryController extends EquipController {
 		foreach ($data['itemCodes'] as $c) {
 
 			$data['acquiredSum'][$c->id]=0;
-			$data['holdingSum'][$c->id]=0;
 			$data['wreckedSum'][$c->id]=0;
+			$data['availSum'][$c->id]=0;
+
 			foreach ($c->items as $i) {
-				$itemAcquiredSum = EqItemSupply::whereHas('supplySet', function($q) use ($i) {
-					$q->where('item_id','=',$i->id);
-				})->where('to_node_id','=',$user->supplyNode->id)->sum('count');
-				$data['acquiredSum'][$c->id] += $itemAcquiredSum;
+				
+				if (!Cache::has('is_cached_'.$userNode->id)) {
+					$this->service->makeCache($userNode->id);
+				}
 
-				$itemWreckedSum = EqInventoryData::whereHas('parentSet', function($q) use ($i, $user) {
-					$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
-				})->sum('wrecked');
-				$data['wreckedSum'][$c->id] += $itemWreckedSum;
+				$wreckedSum = Cache::get('wrecked_sum_'.$userNode->id.'_'.$i->id);
+				$availSum = Cache::get('avail_sum_'.$userNode->id.'_'.$i->id);
+				$acquiredSum = Cache::get('acquired_sum_'.$userNode->id.'_'.$i->id);
 
-				$itemHoldingSum = EqInventoryData::whereHas('parentSet', function($q) use ($i, $user) {
-					$q->where('item_id','=',$i->id)->where('node_id','=',$user->supplyNode->id);
-				})->sum('count');
-				$data['holdingSum'][$c->id] += $itemHoldingSum;
+				$data['wreckedSum'][$c->id] += $wreckedSum;
+				$data['availSum'][$c->id] += $availSum;
+				$data['acquiredSum'][$c->id] += $acquiredSum;
+
 			}
-			$data['availSum'][$c->id] = $data['holdingSum'][$c->id] - $data['wreckedSum'][$c->id];
+			
 		}
 		//Excel로 총괄표 export
 		$node = $user->supplyNode;

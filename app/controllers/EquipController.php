@@ -13,17 +13,23 @@ class EquipController extends BaseController {
 	 */
 	public function index() {
 		$user = Sentry::getUser();
+		$userNode = $user->supplyNode;
 
-		$inbounds = EqConvertSet::where('target_node_id','=',$user->supplyNode->id)->take(4)->get();
-		$outbounds = EqConvertSet::where('from_node_id','=',$user->supplyNode->id)->take(4)->get();
+		$inbounds = EqConvertSet::where('target_node_id','=',$userNode->id)->take(4)->get();
+		$outbounds = EqConvertSet::where('from_node_id','=',$userNode->id)->take(4)->get();
 
-		$surveys = EqItemSurvey::where('node_id','=',$user->supplyNode->id)->where('is_closed','=',0)->take(4)->get();
-		if ($user->supplyNode->type_code === 'D001') {
+		$surveys = EqItemSurvey::where('node_id','=',$userNode->id)->where('is_closed','=',0)->take(4)->get();
+		if ($userNode->type_code === 'D001') {
 			$toResponses = EqItemSurvey::where('node_id','=',0)->where('is_closed','=',0)->get();
 		} else {
-			$toResponses = EqItemSurvey::where('node_id','=',$user->supplyNode->managedParent->id)->where('is_closed','=',0)->whereHas('datas', function($q) use($user){
-											$q->where('target_node_id','=',$user->supplyNode->id)->where('count','<>',0);
+			$toResponses = EqItemSurvey::where('node_id','=',$userNode->managedParent->id)->where('is_closed','=',0)->whereHas('datas', function($q) use($userNode){
+											$q->where('target_node_id','=',$userNode->id)->where('count','<>',0);
 										})->take(4)->get();
+		}
+
+		if (!Cache::has('is_cached_'.$userNode->id)) {
+			// 기존 캐시가 없는 경우 item별 합계 캐시를 만들어준다.
+			$this->service->makeCache($userNode->id);
 		}
 		
 		return View::make('equip.dashboard', get_defined_vars());

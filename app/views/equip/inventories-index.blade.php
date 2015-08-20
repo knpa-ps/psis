@@ -29,14 +29,14 @@
 				<div class="row">
 					<div class="col-xs-12">
 						<div class="well">
-							
+
 						{{ Form::open(array(
 							'url'=> URL::current(),
 							'method'=>'get',
 							'class'=>'form-horizontal'
 						)) }}
 							<fieldset>
-								
+
 								<div class="form-group">
 									@if(sizeof($user->supplyNode->managedChildren) !== 0 )
 									<label for="supply_node_id" class="col-xs-2 control-label">다운로드할 관서 선택</label>
@@ -89,7 +89,7 @@
 										<td> <a href="{{ url('equips/inventories/'.$ctgr->codes[$i]->code) }}">{{ $ctgr->codes[$i]->title }}</a> </td>
 										<td> {{ $acquiredSum[$ctgr->codes[$i]->id] }}</td>
 										<td> {{ $wreckedSum[$ctgr->codes[$i]->id] }}</td>
-										<td> {{ $availSum[$ctgr->codes[$i]->id] }}</td>
+										<td>{{ $availSum[$ctgr->codes[$i]->id] }}</td>
 									</tr>
 									@endfor
 								@endforeach
@@ -120,13 +120,13 @@ $(function() {
             var api = this.api();
             var rows = api.rows( {page:'current'} ).nodes();
             var last=null;
- 
+
             api.column(0, {page:'current'} ).data().each( function ( group, i ) {
                 if ( last !== group ) {
                     $(rows).eq( i ).before(
                         '<tr class="group"><td colspan="6" class="group-cell">'+group+" -"+'</td></tr>'
                     );
- 
+
                     last = group;
                 }
             } );
@@ -145,4 +145,3 @@ $(function() {
 });
 </script>
 @stop
-

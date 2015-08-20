@@ -4,8 +4,54 @@ use Carbon\Carbon;
 
 class EqService extends BaseService {
 
+
+
+	public function makeCache($nodeId) {
+
+		// 메인 화면에 들어올 때
+		// 기존 캐시가 없는 경우
+		// item별 보유수량 합계 캐시하기
+
+		$itemCodes = EqItemCode::all();
+
+		foreach ($itemCodes as $c) {
+			$items = $c->items;
+
+			foreach ($items as $i) {
+				$invSet = EqInventorySet::where('node_id','=',$nodeId)->where('item_id','=',$i->id)->first();
+				if ($invSet !== null) {
+					$countSum = EqInventoryData::where('inventory_set_id','=',$invSet->id)->get()->sum('count');
+					$wreckedSum = EqInventoryData::where('inventory_set_id','=',$invSet->id)->get()->sum('wrecked');
+					$acquiredSum = EqItemSupply::whereHas('supplySet', function($q) use ($i) {
+						$q->where('item_id','=',$i->id);
+					})->where('to_node_id','=',$nodeId)->sum('count');
+
+					Cache::forever('avail_sum_'.$nodeId.'_'.$i->id, $countSum-$wreckedSum);
+					Cache::forever('wrecked_sum_'.$nodeId.'_'.$i->id, $wreckedSum);
+					Cache::forever('acquired_sum_'.$nodeId.'_'.$i->id, $acquiredSum);
+				} else {
+					Cache::forever('avail_sum_'.$nodeId.'_'.$i->id, 0);
+					Cache::forever('wrecked_sum_'.$nodeId.'_'.$i->id, 0);
+					Cache::forever('acquired_sum_'.$nodeId.'_'.$i->id, 0);
+				}
+			}
+		}
+
+		Cache::forever('is_cached_'.$nodeId, 1);
+	}
+
+	/**
+	 * Todo
+	 * 보유수량 더하는 함수(invData늘리면서 합계 Cache도 늘려줌)
+	 * 파손수량 빼는 함수(파손물품폐기, 파손수량 변경에서 줄이는 경우 쓰인다)
+ 	 */
+
 	public function inventoryWithdraw($invData, $value) {
 		//장비를 빼는 기능 및 장비 빼고 음수가 안 나오도록 체크하는 기능을 넣음
+		$ownerNode = $invData->parentSet->ownerNode;
+		$itemId = $invData->parentSet->item_id;
+
+
 		if ($invData->count >= $value) {
 			$invData->count -= $value;
 			if (!$invData->save()) {
@@ -13,7 +59,7 @@ class EqService extends BaseService {
 			}
 		} else {
 			$type = EqItemType::find($invData->item_type_id);
-			throw new Exception($invData->parentSet->ownerNode->full_name."이 보유한 ".$type->type_name." 수량이 ".($value-$invData->count)."개 부족합니다.");
+			throw new Exception($ownerNode->full_name."이 보유한 ".$type->type_name." 수량이 ".($value-$invData->count)."개 부족합니다.");
 		}
 	}
 
@@ -529,8 +575,8 @@ class EqService extends BaseService {
 
 
 			for ($i=1; $i<=sizeof($itemsInCategory) ; $i++) {
-				$sheet->setCellValue('c'.($lastRow+$i), $itemsInCategory[$i-1]->code);
-				$sheet->setCellValue('d'.($lastRow+$i), $itemsInCategory[$i-1]->title);
+				$sheet->mergeCells('c'.($lastRow+$i).':d'.($lastRow+$i));
+				$sheet->setCellValue('c'.($lastRow+$i), $itemsInCategory[$i-1]->title);
 
 				//TODO
 				//총괄표 양식에 자료 넣기
@@ -539,62 +585,36 @@ class EqService extends BaseService {
 				$items = $itemCode->items;
 
 				//supply의 target이 node인것들 합
-				$suppliedSum = EqItemSupply::where('to_node_id','=',$node->id)->whereHas('supplySet', function($q) use ($itemCode){
-					$q->whereHas('item', function($q) use ($itemCode){
-						$q->whereHas('code', function($q) use ($itemCode){
-							$q->where('item_code','=',$itemCode->code);
-						});
-					});
-				})->sum('count');
 
-				$wreckedSum = EqInventoryData::whereHas('parentSet', function($q) use($node, $itemCode) {
-					$q->where('node_id','=',$node->id)->whereHas('item', function($q) use ($itemCode) {
-						$q->whereHas('code', function($q) use ($itemCode){
-							$q->where('item_code','=',$itemCode->code);
-						});
-					});
-				})->sum('wrecked');
+				$availSum = 0;
+				$wreckedSum = 0;
+				$acquiredSum = 0;
+				$availSumBefore4years = 0;
+				$wreckedSumBefore4years = 0;
+				$acquiredSumBefore4years = 0;
 
-				$holdingSum = EqInventoryData::whereHas('parentSet', function($q) use($node, $itemCode) {
-					$q->where('node_id','=',$node->id)->whereHas('item', function($q) use ($itemCode) {
-						$q->whereHas('code', function($q) use ($itemCode){
-							$q->where('item_code','=',$itemCode->code);
-						});
-					});
-				})->sum('count') - $wreckedSum;
+				foreach ($items as $item) {
+					$acquiredSum += Cache::get('acquired_sum_'.$node->id.'_'.$item->id);
+					$wreckedSum += Cache::get('wrecked_sum_'.$node->id.'_'.$item->id);
+					$availSum += Cache::get('avail_sum_'.$node->id.'_'.$item->id);
 
-				$sheet->setCellValue('e'.($lastRow+$i), $suppliedSum);
-				//inventory에서 해당 물품의 wrecked sum
+					if ($item->acquired_date < $threeYearsAgo) {
+						$acquiredSumBefore4years += Cache::get('acquired_sum_'.$node->id.'_'.$item->id);
+						$wreckedSumBefore4years += Cache::get('wrecked_sum_'.$node->id.'_'.$item->id);
+						$availSumBefore4years += Cache::get('avail_sum_'.$node->id.'_'.$item->id);
+					}
+
+				}
+
+				//총 지급수량
+				$sheet->setCellValue('e'.($lastRow+$i), $acquiredSum);
+				//총 파손수량
 				$sheet->setCellValue('f'.($lastRow+$i), $wreckedSum);
-				//inventory에서 count - wrecked의 sum
-				$sheet->setCellValue('g'.($lastRow+$i), $holdingSum);
-
-				$suppliedSumBefore4years = EqItemSupply::where('to_node_id','=',$node->id)->whereHas('supplySet', function($q) use ($itemCode, $threeYearsAgo){
-					$q->whereHas('item', function($q) use ($itemCode, $threeYearsAgo){
-						$q->where('supplied_date','<',$threeYearsAgo)->whereHas('code', function($q) use ($itemCode){
-							$q->where('item_code','=',$itemCode->code);
-						});
-					});
-				})->sum('count');
-
-				$wreckedSumBefore4years = EqInventoryData::whereHas('parentSet', function($q) use($node, $itemCode, $threeYearsAgo) {
-					$q->where('node_id','=',$node->id)->whereHas('item', function($q) use ($itemCode, $threeYearsAgo) {
-						$q->where('acquired_date','<',$threeYearsAgo)->whereHas('code', function($q) use ($itemCode){
-							$q->where('item_code','=',$itemCode->code);
-						});
-					});
-				})->sum('wrecked');
-
-				$availSumBefore4years = EqInventoryData::whereHas('parentSet', function($q) use($node, $itemCode, $threeYearsAgo) {
-					$q->where('node_id','=',$node->id)->whereHas('item', function($q) use ($itemCode, $threeYearsAgo) {
-						$q->where('acquired_date','<',$threeYearsAgo)->whereHas('code', function($q) use ($itemCode){
-							$q->where('item_code','=',$itemCode->code);
-						});
-					});
-				})->sum('count') - $wreckedSumBefore4years;
+				//총 가용수량
+				$sheet->setCellValue('g'.($lastRow+$i), $availSum);
 
 				//supply의 target이 node인 것 중 supplied date가 4년 이전인것
-				$sheet->setCellValue('h'.($lastRow+$i), $suppliedSumBefore4years);
+				$sheet->setCellValue('h'.($lastRow+$i), $acquiredSumBefore4years);
 				$sheet->setCellValue('i'.($lastRow+$i), $wreckedSumBefore4years);
 				$sheet->setCellValue('j'.($lastRow+$i), $availSumBefore4years);
 
@@ -606,31 +626,19 @@ class EqService extends BaseService {
 					$lastDayOfLastYear = Carbon::parse('last day of December '.($year-1));
 					$firstDayOfNextYear = Carbon::parse('first day of January '.($year+1));
 
-					$suppliedSumInYear = EqItemSupply::where('to_node_id','=',$node->id)->whereHas('supplySet', function($q) use ($itemCode, $lastDayOfLastYear, $firstDayOfNextYear){
-						$q->whereHas('item', function($q) use ($itemCode, $lastDayOfLastYear, $firstDayOfNextYear){
-							$q->where('supplied_date','>', $lastDayOfLastYear)->where('supplied_date','<', $firstDayOfNextYear)->whereHas('code', function($q) use ($itemCode){
-								$q->where('item_code','=',$itemCode->code);
-							});
-						});
-					})->sum('count');
+					$acquiredSumInYear=0;
+					$wreckedSumInYear=0;
+					$availSumInYear=0;
 
-					$wreckedSumInYear = EqInventoryData::whereHas('parentSet', function($q) use($node, $itemCode, $lastDayOfLastYear, $firstDayOfNextYear) {
-						$q->where('node_id','=',$node->id)->whereHas('item', function($q) use ($itemCode, $lastDayOfLastYear, $firstDayOfNextYear) {
-							$q->where('acquired_date','>', $lastDayOfLastYear)->where('acquired_date','<', $firstDayOfNextYear)->whereHas('code', function($q) use ($itemCode){
-								$q->where('item_code','=',$itemCode->code);
-							});
-						});
-					})->sum('wrecked');
+					foreach($items as $item){
+						if($lastDayOfLastYear < $item->acquired_date && $item->acquired_date < $firstDayOfNextYear){
+							$acquiredSumInYear += Cache::get('acquired_sum_'.$node->id.'_'.$item->id);
+							$wreckedSumInYear += Cache::get('wrecked_sum_'.$node->id.'_'.$item->id);
+							$availSumInYear += Cache::get('avail_sum_'.$node->id.'_'.$item->id);
+						}
+					}
 
-					$availSumInYear = EqInventoryData::whereHas('parentSet', function($q) use($node, $itemCode, $lastDayOfLastYear, $firstDayOfNextYear) {
-						$q->where('node_id','=',$node->id)->whereHas('item', function($q) use ($itemCode, $lastDayOfLastYear, $firstDayOfNextYear) {
-							$q->where('acquired_date','>', $lastDayOfLastYear)->where('acquired_date','<', $firstDayOfNextYear)->whereHas('code', function($q) use ($itemCode){
-								$q->where('item_code','=',$itemCode->code);
-							});
-						});
-					})->sum('count') - $wreckedSumInYear;
-
-					$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($ColIdx).($lastRow+$i), $suppliedSumInYear);
+					$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($ColIdx).($lastRow+$i), $acquiredSumInYear);
 					$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($ColIdx+1).($lastRow+$i), $wreckedSumInYear);
 					$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($ColIdx+2).($lastRow+$i), $availSumInYear);
 				}

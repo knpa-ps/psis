@@ -1,6 +1,6 @@
 <?php
 
-class EqSurveyController extends \BaseController {
+class EqSurveyController extends EquipController {
 
 	public function updateResponse($id) {
 		$survey = EqItemSurvey::find($id);

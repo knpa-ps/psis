@@ -13,11 +13,12 @@ class UploadController extends BaseController {
 		}
 
 		$fileName = str_random(40).'.'.Input::file('image')->getClientOriginalExtension();
-		$filePath = public_path('uploads/'.$fileName);
+		$filePath = public_path('uploads');
 
-		Image::make(Input::file('image')->getRealPath())
-				->resize(800, 800, true, false)
-				->save($filePath);
+		// Image::make(Input::file('image')->getRealPath())
+		// 		->resize(800, 800, true, false)
+		// 		->save($filePath);
+		Input::file('image')->move($filePath, $fileName);
 
 		$target = Input::get('target');
 		$result = array(

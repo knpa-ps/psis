@@ -1,6 +1,6 @@
 <?php
 
-class EqPavaIOController extends BaseController {
+class EqPavaIOController extends EquipController {
 
 	/**
 	 * Display a listing of the resource.
