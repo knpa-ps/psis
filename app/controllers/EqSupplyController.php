@@ -15,7 +15,7 @@ class EqSupplyController extends EquipController {
 					'id' => $supNode->id,
 					'text' => $supNode->node_name,
 					'children' => $supNode->is_terminal?array():true,
-					'li_attr' => array( 
+					'li_attr' => array(
 						'data-full-name' => $supNode->full_name,
 						'data-selectable' => $supNode->is_selectable
 						)
@@ -25,7 +25,7 @@ class EqSupplyController extends EquipController {
 					'id' => $supNode->id,
 					'text' => $supNode->node_name,
 					'children' => $supNode->is_terminal?array():true,
-					'li_attr' => array( 
+					'li_attr' => array(
 						'data-full-name' => $supNode->full_name,
 						'data-selectable' => $supNode->is_selectable
 						),
@@ -34,7 +34,7 @@ class EqSupplyController extends EquipController {
 						)
 				);
 			}
-			
+
 		}
 		return $nodes;
 	}
@@ -124,7 +124,7 @@ class EqSupplyController extends EquipController {
 		$data = array();
 
 		$types = EqItemType::where('item_id','=',$itemId)->get();
-		
+
 		$data['types'] = $types;
 		$data['mode'] = 'create';
 		$data['item'] = EqItem::find($itemId);
@@ -140,7 +140,7 @@ class EqSupplyController extends EquipController {
 
 		$data['inv'] = $inv;
 		$data['invSum'] = $invSum;
-		
+
         return View::make('equip.supplies-create',$data);
 	}
 
@@ -181,19 +181,21 @@ class EqSupplyController extends EquipController {
 			$countNameNode = $countName.$node->id.'_';
 
 			// 보급하는 노드의 인벤토리 - $supplyInvSet
-			$supplyInvSet = EqInventorySet::where('item_id','=',$data['item_id'])->where('node_id','=',$user->supplyNode->id)->first();
-
+			$supplyInvSet = EqInventorySet::where('item_id','=',$data['item_id'])->where('node_id','=',$userNode->id)->first();
 			// 보급받는 노드의 인벤토리 - $receiveInvSet
 			$receiveInvSet = EqInventorySet::where('item_id','=',$data['item_id'])->where('node_id','=',$node->id)->first();
 
 			if($receiveInvSet == null) {
 				// 보급받는 노드에서 이 아이템을 기존에 보유한 적이 없는 경우
+				$supplyNodeSum=0;
+
 				$receiveInvSet = new EqInventorySet;
 				$receiveInvSet->item_id = $data['item_id'];
 				$receiveInvSet->node_id = $node->id;
 				if (!$receiveInvSet->save()) {
 					return App::abort(500);
 				}
+				// 이 아이템에 대한 캐시를 만들어주고 0으로 초기화한다.
 				foreach ($types as $type) {
 					$typeId = $type->id;
 					$countName = $countNameNode.$typeId;
@@ -207,10 +209,8 @@ class EqSupplyController extends EquipController {
 					if (!$supply->save()) {
 						return App::abort(500);
 					}
-
 					// 보급하는 노드에서 보유수량을 줄인다
 					$supplyInvData = EqInventoryData::where('inventory_set_id','=',$supplyInvSet->id)->where('item_type_id','=',$typeId)->first();
-					
 					try {
 						$this->service->inventoryWithdraw($supplyInvData, $data[$countName]);
 					} catch (Exception $e) {
@@ -222,14 +222,17 @@ class EqSupplyController extends EquipController {
 					$invData = new EqInventoryData;
 					$invData->inventory_set_id = $receiveInvSet->id;
 					$invData->item_type_id = $type->id;
-					$invData->count = $data[$countName];
-
-					if (!$invData->save()) {
+					$invData->count=$data[$countName];
+			    if (!$invData->save()) {
 						return App::abort(500);
 					}
+					$supplyNodeSum+=$data[$countName];
 				}
+				Cache::forever('acquired_sum_'.$node->id.'_'.$data['item_id'],$supplyNodeSum);
+				Cache::forever('avail_sum_'.$node->id.'_'.$data['item_id'],$supplyNodeSum);
 			} else {
 				// 보급받는 노드에서 기존에 그 아이템을 보유한 경우
+
 				foreach ($types as $type) {
 					$typeId = $type->id;
 					$countName = $countNameNode.$typeId;
@@ -243,7 +246,6 @@ class EqSupplyController extends EquipController {
 					if (!$supply->save()) {
 						return App::abort(500);
 					}
-
 					// 보급하는 노드에서 보유수량을 줄인다
 					$supplyInvData = EqInventoryData::where('inventory_set_id','=',$supplyInvSet->id)->where('item_type_id','=',$typeId)->first();
 					try {
@@ -251,20 +253,20 @@ class EqSupplyController extends EquipController {
 					} catch (Exception $e) {
 						return Redirect::to('equips/supplies')->with('message', $e->getMessage() );
 					}
-
 					// 보급받는 노드에서 보유수량을 늘린다.
 					$receiveInvData = EqInventoryData::where('inventory_set_id','=',$receiveInvSet->id)->where('item_type_id','=',$typeId)->first();
-					$receiveInvData->count += $data[$countName];
-					$receiveInvData->save();
+					try {
+						$this->service->inventorySupply($receiveInvData, $data[$countName]);
+					} catch (Exception $e) {
+						return Redirect::to('equips/supplies')->with('message', $e->getMessage() );
+					}
 				}
 			}
 		}
-
 		//사이즈별 보급 수량을 계산하여 보유수량보다 적으면 빠꾸먹인다.
-
 		DB::commit();
 
-		Session::flash('message', '저장되었습니다.');	
+		Session::flash('message', '저장되었습니다.');
 		return Redirect::to('equips/supplies');
 	}
 
@@ -289,7 +291,7 @@ class EqSupplyController extends EquipController {
 		$data['supply'] = $supply;
 		$data['item'] = $supply->item;
 		$data['lowerNodes'] = $lowerNodes;
-		
+
 		foreach ($lowerNodes as $n) {
 			$nodeSupplies = EqItemSupply::where('to_node_id','=',$n->id)->where('supply_set_id','=',$supply->id)->get();
 
@@ -334,7 +336,7 @@ class EqSupplyController extends EquipController {
 				$count[$n->id][$t->id] = EqItemSupply::where('supply_set_id','=',$id)->where('to_node_id','=',$n->id)->where('item_type_id','=',$t->id)->first()->count;
 			}
 		}
-		
+
         return View::make('equip.supplies-create',get_defined_vars());
 	}
 
@@ -355,8 +357,7 @@ class EqSupplyController extends EquipController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
-	{
+	public function destroy($id){
 		$s = EqItemSupplySet::find($id);
 
 		$result = $this->service->deleteSupplySet($id);

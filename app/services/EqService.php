@@ -1,4 +1,4 @@
-<?php
+ <?php
 
 use Carbon\Carbon;
 
@@ -40,6 +40,21 @@ class EqService extends BaseService {
 		Cache::forever('is_cached_'.$nodeId, 1);
 	}
 
+  public function inventorySupply($invData, $value){
+    $childNode=$invData->parentSet;
+    $itemId=$invData->parentSet->item_id;
+
+    $acquiredBefore=Cache::get('acquired_sum_'.$childNode->node_id.'_'.$itemId);
+    $availBefore=Cache::get('avail_sum_'.$childNode->node_id.'_'.$itemId);
+
+    $invData->count += $value;
+    if (!$invData->save()) {
+			return App::abort(500);
+		}
+
+    Cache::forever('acquired_sum_'.$childNode->node_id.'_'.$itemId,$acquiredBefore+$value);
+    Cache::forever('avail_sum_'.$childNode->node_id.'_'.$itemId, $availBefore+$value);
+  }
 	/**
 	 * Todo
 	 * 보유수량 더하는 함수(invData늘리면서 합계 Cache도 늘려줌)
@@ -50,10 +65,12 @@ class EqService extends BaseService {
 		//장비를 빼는 기능 및 장비 빼고 음수가 안 나오도록 체크하는 기능을 넣음
 		$ownerNode = $invData->parentSet->ownerNode;
 		$itemId = $invData->parentSet->item_id;
-
+    //기존의 캐시 데이터를 availSum에 저장한다.
+		$availSum=Cache::get('avail_sum_'.$ownerNode->id.'_'.$itemId);
 
 		if ($invData->count >= $value) {
 			$invData->count -= $value;
+      Cache::forever('avail_sum_'.$ownerNode->id.'_'.$itemId, $availSum-$value);
 			if (!$invData->save()) {
 				return App::abort(500);
 			}
@@ -188,6 +205,9 @@ class EqService extends BaseService {
 
 		// 1. 보급한 관서의 인벤토리 수량 더하기
 		$supplierNodeId = $s->from_node_id;
+    $availSum=Cache::get('avail_sum_'.$supplierNodeId.'_'.$s->item_id);
+    // 보급수량 초기화
+    $supplySum=0;
 
 		$supplierInvSet = EqInventorySet::where('node_id','=',$supplierNodeId)->where('item_id','=',$item->id)->first();
 
@@ -195,10 +215,12 @@ class EqService extends BaseService {
 			$suppliedCount = EqItemSupply::where('supply_set_id','=',$s->id)->where('item_type_id','=',$t->id)->sum('count');
 			$invData = EqInventoryData::where('inventory_set_id','=',$supplierInvSet->id)->where('item_type_id','=',$t->id)->first();
 			$invData->count += $suppliedCount;
+      $supplySum += $suppliedCount;
 			if (!$invData->save()) {
 				return App::abort(500);
 			}
 		}
+    Cache::forever('avail_sum_'.$supplierNodeId.'_'.$s->item_id,$availSum+$supplySum);
 
 		// 2. 보급받은 관서의 인벤토리 수량 빼기
 		foreach ($datas as $d) {
