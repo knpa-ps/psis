@@ -212,7 +212,7 @@ class EqSupplyController extends EquipController {
 					// 보급하는 노드에서 보유수량을 줄인다
 					$supplyInvData = EqInventoryData::where('inventory_set_id','=',$supplyInvSet->id)->where('item_type_id','=',$typeId)->first();
 					try {
-						$this->service->inventoryWithdraw($supplyInvData, $data[$countName]);
+						$this->service->inventoryWithdraw($supplyInvData, $data[$countName],false);
 					} catch (Exception $e) {
 						return Redirect::to('equips/supplies')->with('message', $e->getMessage() );
 					}
@@ -249,14 +249,14 @@ class EqSupplyController extends EquipController {
 					// 보급하는 노드에서 보유수량을 줄인다
 					$supplyInvData = EqInventoryData::where('inventory_set_id','=',$supplyInvSet->id)->where('item_type_id','=',$typeId)->first();
 					try {
-						$this->service->inventoryWithdraw($supplyInvData, $data[$countName]);
+						$this->service->inventoryWithdraw($supplyInvData, $data[$countName],false);
 					} catch (Exception $e) {
 						return Redirect::to('equips/supplies')->with('message', $e->getMessage() );
 					}
 					// 보급받는 노드에서 보유수량을 늘린다.
 					$receiveInvData = EqInventoryData::where('inventory_set_id','=',$receiveInvSet->id)->where('item_type_id','=',$typeId)->first();
 					try {
-						$this->service->inventorySupply($receiveInvData, $data[$countName]);
+						$this->service->inventorySupply($receiveInvData, $data[$countName],true);
 					} catch (Exception $e) {
 						return Redirect::to('equips/supplies')->with('message', $e->getMessage() );
 					}

@@ -40,44 +40,53 @@ class EqService extends BaseService {
 		Cache::forever('is_cached_'.$nodeId, 1);
 	}
 
-  public function inventorySupply($invData, $value){
-    $childNode=$invData->parentSet;
+  public function inventorySupply($invData, $value, $isChild){
     $itemId=$invData->parentSet->item_id;
-
-    $acquiredBefore=Cache::get('acquired_sum_'.$childNode->node_id.'_'.$itemId);
-    $availBefore=Cache::get('avail_sum_'.$childNode->node_id.'_'.$itemId);
-
+    if($isChild){
+      $nodeId=$invData->parentSet->node_id;
+      $acquiredBefore=Cache::get('acquired_sum_'.$nodeId.'_'.$itemId);
+      $availBefore=Cache::get('avail_sum_'.$nodeId.'_'.$itemId);
+      Cache::forever('acquired_sum_'.$nodeId.'_'.$itemId,$acquiredBefore+$value);
+      Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, $availBefore+$value);
+    }else{
+      $nodeId = $invData->parentSet->ownerNode->id;
+      $availBefore=Cache::get('avail_sum_'.$nodeId.'_'.$itemId);
+      Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, $availBefore+$value);
+    }
     $invData->count += $value;
     if (!$invData->save()) {
 			return App::abort(500);
 		}
-
-    Cache::forever('acquired_sum_'.$childNode->node_id.'_'.$itemId,$acquiredBefore+$value);
-    Cache::forever('avail_sum_'.$childNode->node_id.'_'.$itemId, $availBefore+$value);
   }
-	/**
-	 * Todo
-	 * 보유수량 더하는 함수(invData늘리면서 합계 Cache도 늘려줌)
-	 * 파손수량 빼는 함수(파손물품폐기, 파손수량 변경에서 줄이는 경우 쓰인다)
- 	 */
 
-	public function inventoryWithdraw($invData, $value) {
+	public function inventoryWithdraw($invData, $value, $isChild) {
 		//장비를 빼는 기능 및 장비 빼고 음수가 안 나오도록 체크하는 기능을 넣음
-		$ownerNode = $invData->parentSet->ownerNode;
 		$itemId = $invData->parentSet->item_id;
-    //기존의 캐시 데이터를 availSum에 저장한다.
-		$availSum=Cache::get('avail_sum_'.$ownerNode->id.'_'.$itemId);
 
-		if ($invData->count >= $value) {
-			$invData->count -= $value;
-      Cache::forever('avail_sum_'.$ownerNode->id.'_'.$itemId, $availSum-$value);
-			if (!$invData->save()) {
-				return App::abort(500);
-			}
-		} else {
-			$type = EqItemType::find($invData->item_type_id);
-			throw new Exception($ownerNode->full_name."이 보유한 ".$type->type_name." 수량이 ".($value-$invData->count)."개 부족합니다.");
-		}
+    if($isChild){
+      $nodeId=$invData->parentSet->node_id;
+      $acquiredBefore=Cache::get('acquired_sum_'.$nodeId.'_'.$itemId);
+      $availBefore=Cache::get('avail_sum_'.$nodeId.'_'.$itemId);
+      Cache::forever('acquired_sum_'.$nodeId.'_'.$itemId,$acquiredBefore-$value);
+      Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, $availBefore-$value);
+      $invData->count -= $value;
+      if (!$invData->save()) {
+        return App::abort(500);
+      }
+    }else {
+      $nodeId = $invData->parentSet->ownerNode->id;
+      $availBefore=Cache::get('avail_sum_'.$nodeId.'_'.$itemId);
+      Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, $availBefore-$value);
+      if ($invData->count >= $value) {
+  			$invData->count -= $value;
+  			if (!$invData->save()) {
+  				return App::abort(500);
+  			}
+  		} else {
+  			$type = EqItemType::find($invData->item_type_id);
+  			throw new Exception($ownerNode->full_name."이 보유한 ".$type->type_name." 수량이 ".($value-$invData->count)."개 부족합니다.");
+  		}
+    }
 	}
 
 	public function getPavaPerMonthData($year, $nodeId) {
@@ -190,6 +199,7 @@ class EqService extends BaseService {
 
 		return $data;
 	}
+
 	public function deleteSupplySet($id) {
 		$s = EqItemSupplySet::find($id);
 		if (!$s) {
@@ -205,22 +215,19 @@ class EqService extends BaseService {
 
 		// 1. 보급한 관서의 인벤토리 수량 더하기
 		$supplierNodeId = $s->from_node_id;
-    $availSum=Cache::get('avail_sum_'.$supplierNodeId.'_'.$s->item_id);
     // 보급수량 초기화
-    $supplySum=0;
 
 		$supplierInvSet = EqInventorySet::where('node_id','=',$supplierNodeId)->where('item_id','=',$item->id)->first();
 
 		foreach ($item->types as $t) {
 			$suppliedCount = EqItemSupply::where('supply_set_id','=',$s->id)->where('item_type_id','=',$t->id)->sum('count');
 			$invData = EqInventoryData::where('inventory_set_id','=',$supplierInvSet->id)->where('item_type_id','=',$t->id)->first();
-			$invData->count += $suppliedCount;
-      $supplySum += $suppliedCount;
-			if (!$invData->save()) {
-				return App::abort(500);
-			}
+      try {
+        $this->inventorySupply($invData, $suppliedCount, false);
+      } catch (Exception $e) {
+        return Redirect::to('equips/supplies')->with('message', $e->getMessage() );
+      }
 		}
-    Cache::forever('avail_sum_'.$supplierNodeId.'_'.$s->item_id,$availSum+$supplySum);
 
 		// 2. 보급받은 관서의 인벤토리 수량 빼기
 		foreach ($datas as $d) {
@@ -229,10 +236,11 @@ class EqService extends BaseService {
 			$invSet = EqInventorySet::where('node_id','=',$toNodeId)->where('item_id','=',$s->item_id)->first();
 			$invData = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$d->item_type_id)->first();
 
-			$invData->count -= $d->count;
-			if (!$invData->save()) {
-				return App::abort(500);
-			}
+      try {
+        $this->inventoryWithdraw($invData, $d->count, true);
+      } catch (Exception $e) {
+        return Redirect::to('equips/supplies')->with('message', $e->getMessage() );
+      }
 
 			if (!$d->delete()) {
 				return App::abort(500);
