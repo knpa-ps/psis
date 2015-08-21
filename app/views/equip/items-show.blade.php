@@ -308,7 +308,6 @@ $(function() {
 		if (!confirm('일괄 폐기하시겠습니까?')) {
 			return;
 		}
-
 		var id = $("#item_id").val();
 
 		$.ajax({

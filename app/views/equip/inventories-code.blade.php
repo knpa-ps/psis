@@ -10,11 +10,11 @@
 				<h3 class="panel-title"><strong>{{$code->title}} 목록</strong></h3>
 			</div>
 			<div class="panel-body">
-				@if($user->supplyNode->id === 1)
+				@if($user->supplyNode->id == 1)
 				<div class="toolbar-table">
 					<a href="{{url('equips/inventories/create')}}" class="btn btn-info btn-xs pull-right">
 						<span class="glyphicon glyphicon-plus"></span> 취득장비추가
-					</a>	
+					</a>
 					<div class="clearfix"></div>
 				</div>
 				@endif
@@ -47,7 +47,7 @@
 							@else
 								<td> <a href="{{ URL::current().'/'.$i->id }}">{{ $i->maker_name }}({{$i->classification}})</a> </td>
 							@endif
-							
+
 							<td> {{ $acquiredSum[$i->id] }}</td>
 							<td> {{ $wreckedSum[$i->id] }} </td>
 							<td> {{ $availSum[$i->id] }}</td>
@@ -74,13 +74,13 @@ $(function() {
             var api = this.api();
             var rows = api.rows( {page:'current'} ).nodes();
             var last=null;
- 
+
             api.column(0, {page:'current'} ).data().each( function ( group, i ) {
                 if ( last !== group ) {
                     $(rows).eq( i ).before(
                         '<tr class="group"><td colspan="6" class="group-cell">'+group+'</td></tr>'
                     );
- 
+
                     last = group;
                 }
             } );
@@ -89,4 +89,3 @@ $(function() {
 });
 </script>
 @stop
-

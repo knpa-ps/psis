@@ -15,7 +15,8 @@ class EqService extends BaseService {
 		$itemCodes = EqItemCode::all();
 
 		foreach ($itemCodes as $c) {
-			$items = $c->items;
+			// is_active=1인 아이템만 가지고 옴.
+      $items = $c->items;
 
 			foreach ($items as $i) {
 				$invSet = EqInventorySet::where('node_id','=',$nodeId)->where('item_id','=',$i->id)->first();

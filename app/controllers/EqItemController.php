@@ -19,16 +19,16 @@ class EqItemController extends EquipController {
 	 */
 	public function create()
 	{
-        $user = Sentry::getUser();
+    $user = Sentry::getUser();
 		$code = EqItemCode::where('code','=',Input::get('code'))->first();
-		
+
 		$data['code'] = $code;
 		$data['mode'] = 'create';
 		$data['categories'] = $this->service->getVisibleCategoriesQuery($user)->get();
 		$data['user'] = $user;
         return View::make('equip.items-basic-form', $data);
 	}
-	
+
 	/**
 	 * Store a newly created resource in storage.
 	 *
@@ -38,6 +38,7 @@ class EqItemController extends EquipController {
 	{
 		$data = Input::all();
 		$item = new EqItem;
+		$user = Sentry::getUser();
 
 		DB::beginTransaction();
 		$item->classification = $data['item_classification'];
@@ -68,7 +69,7 @@ class EqItemController extends EquipController {
 		}
 
 		$types = $data['type'];
-		for ($i=0; $i < sizeof($types); $i++) { 
+		for ($i=0; $i < sizeof($types); $i++) {
 			$itemType = new EqItemType;
 			$itemType->type_name = strtoupper($types[$i]);
 			$itemType->item_id = $item->id;
@@ -76,7 +77,9 @@ class EqItemController extends EquipController {
 				return App::abort(400);
 			}
 		}
-
+		Cache::forever('avail_sum_'.$user->supplyNode->id.'_'.$item->id, 0);
+		Cache::forever('wrecked_sum_'.$user->supplyNode->id.'_'.$item->id, 0);
+		Cache::forever('acquired_sum_'.$user->supplyNode->id.'_'.$item->id, 0);
 
 		DB::commit();
 
@@ -112,7 +115,7 @@ class EqItemController extends EquipController {
 
 
 		$code = EqItemCode::where('code','=',$item->code->code)->first();
-		
+
 		$data['code'] = $code;
 		$data['mode'] = 'edit';
 		$data['item'] = $item;
@@ -175,8 +178,8 @@ class EqItemController extends EquipController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
-	{
+	public function destroy($id){
+		$user = Sentry::getUser();
 		$item = EqItem::find($id);
 		if (!$item) {
 			return App::abort(404);

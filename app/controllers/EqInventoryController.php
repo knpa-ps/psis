@@ -82,7 +82,6 @@ class EqInventoryController extends EquipController {
 	}
 
 
-
 	public function displayDiscardList($itemId){
 		$user = Sentry::getUser();
 		$data['item'] = EqItem::find($itemId);
@@ -161,6 +160,7 @@ class EqInventoryController extends EquipController {
 
 			$iData = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$t->id)->first();
 
+			# 분실, 불용연한 초과일 때만 inventoryWithdraw를 실행하여 보유수량을 감소, 캐시에는 가용수량을 감소시킨다. (캐시는 보유수량을 다룰 필요가 없음)
 			if($input['category']=='lost'||$input['category']=='expired'){
 				try {
 					$this->service->inventoryWithdraw($iData, $dData->count,false);
@@ -173,7 +173,8 @@ class EqInventoryController extends EquipController {
 				return Redirect::back()->with('message', '폐기수량이 보유수량을 초과합니다.');
 
 			}
-			//파손물품 폐기하는 경우 보유수량 중 파손장비 처분수량을 빼고, 파손수량 중에서도 파손장비 처분수량을 뺀다.
+
+			# 파손물품 폐기하는 경우 보유수량 중 파손장비 처분수량을 빼고, 파손수량 중에서도 파손장비 처분수량을 뺀다.
 			if ($input['category']=='wrecked') {
 				$iData->count -= $dData->count;
 				$iData->wrecked -= $dData->count;
@@ -456,9 +457,6 @@ class EqInventoryController extends EquipController {
 				}
 			}
 		}
-
-
-
 		DB::commit();
 
 		Session::flash('message', '저장되었습니다');

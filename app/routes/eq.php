@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 
@@ -12,8 +12,8 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::put('/surveys/{id}/response', 'EqSurveyController@updateResponse');
 	Route::post('/surveys/{id}/response','EqSurveyController@storeResponse');
 	Route::get('/surveys/{id}/response', 'EqSurveyController@doResponse');
-	Route::get('/surveys/{id}/data', 'EqSurveyController@getData');	
-	
+	Route::get('/surveys/{id}/data', 'EqSurveyController@getData');
+
 	Route::resource('/inventories', 'EqInventoryController');
 	Route::get('/inventories/{itemCode}/{itemId}', 'EqInventoryController@showDetail');
 	Route::post('/inventories/create/get_item_type_set/{itemId}', 'EqInventoryController@getItemTypeSet');
@@ -24,7 +24,6 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::post('/items/{itemId}/discard', 'EqInventoryController@discardItem');
 	Route::post('/items/{itemId}/wrecked_update', 'EqInventoryController@wreckedUpdate');
 	Route::post('/items/{itemId}/count_update', 'EqInventoryController@countUpdate');
-
 
 	Route::get('/items/{itemId}/details', 'EqItemCodeController@displayDetailsList');
 	Route::get('/items/{itemId}/detail/{id}', 'EqItemCodeController@displayExtraInfo');
@@ -73,11 +72,10 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::post('pava_per_month_data', 'EqWaterPavaController@pavaPerMonthData');
 	Route::get('pava_confirm', 'EqWaterPavaController@showRegionConfirm');
 	Route::delete('pava/{eventId}', 'EqWaterPavaController@deleteEventRequest');
-	
+
 	Route::resource('pava_io', 'EqPavaIOController');
 
 	// 본청 - 캡사이신, 파바 보고내역 삭제 확인
 	Route::delete('confirm_delete/{reqId}', 'EquipController@deleteConfirm');
-	
-});
 
+});
