@@ -52,10 +52,9 @@ class EqInventoryController extends EquipController {
 		if($inventory) {
 
 			DB::beginTransaction();
-			# 이전에 저장된 파손수량과 비교를 해야하는데..
-			# 이전에 저장된 파손수량보다 커지면?
-			# 이전에 저장된 파손수량보다 작아지면?
+			# 이전에 저장된 파손수량과 비교를 해야한다. 이전에 저장된 파손수량이다.
 			$wreckedSum=Cache::get("wrecked_sum_".$user->supplyNode->id."_".$itemId);
+			# 새로 저장된 파손수량의 총합이다.
 			$wreckedSumChanged=0;
 			foreach ($item->types as $t) {
 				$data = EqInventoryData::where('inventory_set_id','=',$inventory->id)->where('item_type_id','=',$t->id)->first();
@@ -147,8 +146,10 @@ class EqInventoryController extends EquipController {
 			return App::abort(500);
 		}
 
-		$discardTotal = 0;
+		$wreckedSum = 0;
 
+		# 분실/폐기하면 카테고리 상관없이 보유수량에서 물품수량이 감소한다.
+		# 하지만 inventoryWithdraw함수 안에는 캐시가 가용수량만 감소시키기 때문에 경우를 나눠서 해야한다.
 		foreach ($types as $t) {
 			$dData = new EqItemDiscardData;
 			$dData->discard_set_id = $dSet->id;
@@ -160,32 +161,31 @@ class EqInventoryController extends EquipController {
 
 			$iData = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$t->id)->first();
 
-			try {
-				$this->service->inventoryWithdraw($iData, $dData->count);
-			} catch (Exception $e) {
-				return Redirect::back()->with('message', $e->getMessage() );
+			if($input['category']=='lost'||$input['category']=='expired'){
+				try {
+					$this->service->inventoryWithdraw($iData, $dData->count,false);
+				} catch (Exception $e) {
+					return Redirect::back()->with('message', $e->getMessage() );
+				}
 			}
 
 			if ($iData->count < 0) {
 				return Redirect::back()->with('message', '폐기수량이 보유수량을 초과합니다.');
 
 			}
-			//파손물품 폐기하는 경우 보유수량 중 파손수량을 뺀다.
+			//파손물품 폐기하는 경우 보유수량 중 파손장비 처분수량을 빼고, 파손수량 중에서도 파손장비 처분수량을 뺀다.
 			if ($input['category']=='wrecked') {
+				$iData->count -= $dData->count;
 				$iData->wrecked -= $dData->count;
+				$wreckedSum += $dData->count;
 				if ($iData->wrecked<0) {
 					return Redirect::back()->with('message', '폐기수량이 파손수량을 초과합니다');
 				}
 			}
-
 			$iData->save();
-
-			$discardTotal += $dData->count;
-
 		}
-
 		$prevCache = Cache::get('wrecked_sum_'.$user->supplyNode->id.'_'.$itemId);
-		Cache::forever('wrecked_sum_'.$user->supplyNode->id.'_'.$itemId, $prevCache-$discardTotal);
+		Cache::forever('wrecked_sum_'.$user->supplyNode->id.'_'.$itemId, $prevCache-$wreckedSum);
 
 		DB::commit();
 

@@ -126,7 +126,7 @@ class EqConvertController extends EquipController {
 		$data['items'] = EqItem::where('is_active','=',1)->whereHas('inventories', function($q) use ($user) {
 			$q->where('node_id','=',$user->supplyNode->id);
 		})->get();
-		
+
 		return View::make('equip.convert-index', $data);
 	}
 
@@ -174,7 +174,7 @@ class EqConvertController extends EquipController {
 			return Redirect::back()->with('message', '대상관서를 반드시 선택해야 합니다');
 		}
 
-		if (array_sum($input['type_counts'])==0) {			
+		if (array_sum($input['type_counts'])==0) {
 			return Redirect::back()->with('message', '관리전환 수량이 입력되지 않았습니다.');
 		}
 
@@ -199,7 +199,7 @@ class EqConvertController extends EquipController {
 		// 보유수량이 충분한지 검사하는 로직
 
 		$inventorySet = EqInventorySet::where('node_id','=',$userNode->id)->where('item_id','=',$item->id)->first();
-		
+
 		foreach ($itemTypes as $t) {
 			$query = EqInventoryData::where('inventory_set_id','=',$inventorySet->id);
 			$holding = $query->where('item_type_id','=',$t->id)->first()->count;
@@ -249,7 +249,7 @@ class EqConvertController extends EquipController {
 				return App::abort(500);
 			}
 		}
-		
+
 		DB::commit();
 
 		return Redirect::action('EqConvertController@index', 'is_import=false')->with('message','관리전환이 등록되었습니다.');
@@ -356,6 +356,7 @@ class EqConvertController extends EquipController {
 			}
 
 			// inventory 생성 후 Data에 받은 수량 추가한다
+			$stockedSum=0;
 			foreach ($types as $t) {
 				//inventoryData도 없으니 만들어줘야 함
 				$myInvData = new EqInventoryData;
@@ -369,16 +370,22 @@ class EqConvertController extends EquipController {
 					return App::abort(500);
 				}
 			}
+			Cache::forever('avail_sum_'.$user->supplyNode->id.'_'.$input['item_id'],$stockedSum);
 		} else {
 			// 기존 보유전적이 있는 경우 갯수를 더해준다.
+			$stockedSum=0;
 			foreach ($types as $t) {
 				$myInvData = EqInventoryData::where('inventory_set_id','=',$myInvSet->id)->where('item_type_id','=',$t->id)->first();
-				$myInvData->count += EqConvertData::where('convert_set_id','=',$convSet->id)->where('item_type_id','=',$t->id)->first()->count;
+				$stocked = EqConvertData::where('convert_set_id','=',$convSet->id)->where('item_type_id','=',$t->id)->first()->count;
+				$myInvData->count += $stocked;
+				$stockedSum += $stocked;
+
 				// 내 인벤토리에 갯수 추가
 				if (!$myInvData->save()) {
 					return App::abort(500);
 				}
 			}
+			Cache::forever('avail_sum_'.$user->supplyNode->id.'_'.$input['item_id'],Cache::get('avail_sum_'.$user->supplyNode->id.'_'.$input['item_id'])+$stockedSum);
 		}
 		// 받는 쪽 인벤토리 정리 끝
 		// 주는 쪽 시작
@@ -389,7 +396,7 @@ class EqConvertController extends EquipController {
 			$subValue = EqConvertData::where('convert_set_id','=',$convSet->id)->where('item_type_id','=',$t->id)->first()->count;
 			// 인벤토리에서 빼고 저장하는 함수
 			try {
-				$this->service->inventoryWithdraw($fromInvData, $subValue);
+				$this->service->inventoryWithdraw($fromInvData, $subValue, false);
 			} catch (Exception $e) {
 				return Redirect::back()->with('message', $e->getMessage() );
 			}

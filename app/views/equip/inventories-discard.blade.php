@@ -36,7 +36,7 @@ body {
 								<div class="col-xs-10">
 									<select name="category" id="category" class="form-control">
 										<option value="lost">분실</option>
-										<option value="wrecked">파손</option>
+										<option value="wrecked">파손장비 폐기</option>
 										<option value="expired">내구연한초과</option>
 									</select>
 								</div>
