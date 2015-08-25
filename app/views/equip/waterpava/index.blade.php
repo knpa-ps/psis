@@ -8,6 +8,7 @@
 </style>
 @stop
 @section('content')
+{{-- 집회시 사용내역(본청, 지방청) --}}
 <div class="row">
 	<div class="col-xs-12" style="overflow: auto;">
 		<ul class="nav nav-tabs">

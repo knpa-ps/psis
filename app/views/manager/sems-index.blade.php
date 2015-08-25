@@ -114,15 +114,17 @@ $(function(){
 		});
 
 	})
-	.jstree({
+	$("#node_tree").jstree({
 		core: {
 			animation: 0,
 			check_callback: true,
 			themes: { stripes: true },
 			data: {
 				url: "{{ url('ajax/supply_node_tree') }}",
+				// contentType: 'text/plain;',
+				dataType: 'json',
 				data: function (node) {
-					return { id: node.id, initId: {{$id}} <?php echo (isset($mngDeptId))? ',mngDeptId :'.$mngDeptId : '' ?> };
+					return { id: node.id, initId: {{$id}} <?php echo (isset($mngDeptId))? ',mngDeptId :'.$mngDeptId : '' ?> }
 				}
 			}
 		},

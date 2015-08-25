@@ -8,6 +8,7 @@
 </style>
 @stop
 @section('content')
+{{-- 삭제요청(본청) --}}
 <div class="row">
 	<div class="col-xs-12" style="overflow: auto;">
 		<ul class="nav nav-tabs">

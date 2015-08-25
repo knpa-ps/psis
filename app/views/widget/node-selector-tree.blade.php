@@ -4,7 +4,7 @@
 </div>
 <div class="modal-body">
 	<div id="dept_tree_{{ $container_id }}">
-		
+
 	</div>
 </div>
 
@@ -38,6 +38,7 @@ $(function() {
 			themes: { stripes: true },
 			data: {
 				url: "{{ url('ajax/supply_node_tree') }}",
+				dataType:'json',//내부망에선 이걸 추가해야 돌아감
 				data: function (node) {
 					return { id: node.id, initId: {{$id}} <?php echo (isset($mngDeptId))? ',mngDeptId :'.$mngDeptId : '' ?> };
 				}

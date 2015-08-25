@@ -6,6 +6,7 @@
 	  vertical-align: middle!important;
 	}
 </style>
+{{-- 월별 살수내역(본청) --}}
 @stop
 @section('content')
 <div class="row">
@@ -105,6 +106,7 @@ $(function(){
 			url: url("equips/get_water_consumption_by_month"),
 			type: "post",
 			data: params,
+			dataType: 'json',//내부망에선 이걸 추가해줘야 돌아감
 			success: function(res){
 				for (var i = 0; i < 12; i++) {
 

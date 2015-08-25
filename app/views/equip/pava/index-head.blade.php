@@ -8,6 +8,7 @@
 </style>
 @stop
 @section('content')
+{{-- 집회 외 PAVA 소모내역 (본청) --}}
 <div class="row">
 	<div class="col-xs-12" style="overflow: auto;">
 		<ul class="nav nav-tabs">
@@ -19,7 +20,7 @@
 			<li><a href="{{url('equips/pava_confirm')}}">삭제요청</a></li>
 			@endif
 		</ul>
-		
+
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title"><strong>지방청별 집회 외 PAVA 소모내역 <span style="color: red; font-size: 12px;" class="blink">사용결과 보고는 일일보고임.</span></strong></h3>
