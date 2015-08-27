@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * 시스템관리자(superuser 권한을 가진 계정)만 사용할 수 있는 routing group
@@ -49,6 +49,11 @@ Route::group(array('before'=>'auth|permission:superuser'), function() {
         // 노드 fullpath, fullname 정렬
         Route::get('node_adjust', 'AdminController@adjustHierarchy');
 
+        // 인벤토리 타입 지운 데이터를 남은 타입 데이터에 더함
+        Route::get('merge_inventory_count/{itemId}', 'AdminController@mergeInventoryCount');
+        // 지워진 타입의 데이터를 날림
+        Route::get('delete_type_data/{itemId}', 'AdminController@deleteTypeData');
+        Route::get('insert_type_90', 'AdminController@insertType90');
     });
 
     Route::resource('menu', 'MenuController');

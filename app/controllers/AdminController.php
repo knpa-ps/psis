@@ -13,7 +13,7 @@ class AdminController extends BaseController {
 	public function savePermission() {
 		$keys = Input::get('permission_keys');
 		$groupId = Input::get('group_id');
-	$group = Group::find($groupId);
+		$group = Group::find($groupId);
 
 		if ($group === null) {
 			return App::abort(400);
@@ -703,4 +703,60 @@ class AdminController extends BaseController {
 			}
 		}
 	}
+
+	//지워진 Type에 입력된 데이터를 실제 Type의 데이터에 합치는 과정
+	public function mergeInventoryCount($itemId){
+		$sets=EqInventorySet::where('item_id','=',$itemId)->get();
+
+		DB::beginTransaction();
+		foreach($sets as $set){
+			$realTypeId=EqItemType::where('item_id','=',$itemId)->first()->id;
+			$dataCountSum=EqInventoryData::where('inventory_set_id','=',$set->id)->sum('count');
+			$dataWreckedSum=EqInventoryData::where('inventory_set_id','=',$set->id)->sum('wrecked');
+			$realType=EqInventoryData::where('inventory_set_id','=',$set->id)->where('item_type_id','=',$realTypeId)->first();
+			$realType->count=$dataCountSum;
+			$realType->wrecked=$dataWreckedSum;
+			$realType->save();
+		}
+		DB::commit();
+	}
+
+	public function deleteTypeData($itemId){
+		$sets=EqInventorySet::where('item_id','=',$itemId)->get();
+		DB::beginTransaction();
+		foreach($sets as $set){
+			$realTypeId=EqItemType::where('item_id','=',$itemId)->first()->id;
+			$deletedTypes=EqInventoryData::where('inventory_set_id','=',$set->id)->where('item_type_id','!=',$realTypeId)->get();
+			if($deletedTypes!==null){
+				foreach($deletedTypes as $deletedType){
+					$deletedType->delete();
+				}
+			}
+		}
+		DB::commit();
+	}
+
+	public function insertType90(){
+		$datas=EqInventoryData::where('item_type_id','=',298)->get();
+		$sets=EqInventorySet::where('item_id','=',156)->get();
+		DB::beginTransaction();
+		foreach($datas as $d){
+			$d->item_type_id=34;
+			if (!$d->save()) {
+				return App::abort(500);
+			}
+		}
+		foreach($sets as $set){
+			$invData=new EqInventoryData;
+			$invData->inventory_set_id=$set->id;
+			$invData->item_type_id=298;
+			$invData->count=0;
+			if (!$invData->save()) {
+				return App::abort(500);
+			}
+		}
+		DB::commit();
+	}
+
+
 }

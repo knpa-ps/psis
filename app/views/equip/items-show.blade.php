@@ -159,7 +159,6 @@
 									@foreach($types as $t)
 										<td style="text-align: center;"><b>{{$t->type_name}}</b></td>
 									@endforeach
-
 								</tr>
 							</thead>
 							@if ($inventorySet !== null)

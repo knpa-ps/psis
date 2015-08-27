@@ -11,12 +11,15 @@ class EqInventoryController extends EquipController {
 		$inventory = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$item->id)->first();
 
 		if($inventory) {
-
+			$wreckedSum=Cache::get("wrecked_sum_".$user->supplyNode->id."_".$itemId);
 			DB::beginTransaction();
 
 			$countSum=0;
 			foreach ($item->types as $t) {
 				$data = EqInventoryData::where('inventory_set_id','=',$inventory->id)->where('item_type_id','=',$t->id)->first();
+				if ((int)$count[$data->id] < (int)$data->wrecked) {
+					return Redirect::back()->with('message', '보유수량이 파손수량보다 적을 수 없습니다.');
+				}
 				$data->count = $count[$data->id];
 				$countSum+=$count[$data->id];
 				if (!$data->save()) {
@@ -24,7 +27,7 @@ class EqInventoryController extends EquipController {
 				}
 			}
 			//캐시에 등록
-			Cache::forever("avail_sum_".$user->supplyNode->id."_".$itemId,$countSum);
+			Cache::forever("avail_sum_".$user->supplyNode->id."_".$itemId,$countSum-$wreckedSum);
 
 			DB::commit();
 
@@ -43,10 +46,6 @@ class EqInventoryController extends EquipController {
 		$wrecked = Input::get('wrecked');
 
 		// 보유수량보다 파손수량이 많아지는 경우를 제외한다
-		$wreckedSum = 0;
-		foreach ($wrecked as $w) {
-			$wreckedSum += $w;
-		}
 		$inventory = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$item->id)->first();
 
 		if($inventory) {
@@ -121,13 +120,13 @@ class EqInventoryController extends EquipController {
 		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first();
 		$types = EqItem::find($itemId)->types;
 
-		//날짜 입력했는지 확인
-		$validator = Validator::make($input, array(
-				'file_name' => 'required'
-		));
-		if ($validator->fails()) {
-			return Redirect::back()->with('message','사유서 파일을 업로드하세요');
-		}
+		//사유서 파일 업로드했는지 확인
+		// $validator = Validator::make($input, array(
+		// 		'file_name' => 'required'
+		// ));
+		// if ($validator->fails()) {
+		// 	return Redirect::back()->with('message','사유서 파일을 업로드하세요');
+		// }
 
 		DB::beginTransaction();
 

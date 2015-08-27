@@ -73,7 +73,7 @@
 						<button class="btn btn-lg btn-block btn-primary" type="submit">제출</button>
 
 				{{ Form::close(); }}
-				
+
 				<div style="margin-bottom: 50px;"></div>
 			</div>
 		</div>
@@ -91,7 +91,7 @@
 
 <script type="text/javascript">
 $(function(){
-	
+
 	$('#item_category').on('change', function(){
 		var data = {'id' : this.value};
 		$.ajax({

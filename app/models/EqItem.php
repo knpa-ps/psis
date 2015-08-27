@@ -5,7 +5,7 @@ class EqItem extends Eloquent {
 
 	public function code(){
 		return $this->belongsTo('EqItemCode','item_code','code');
-	}	
+	}
 
 	public function details() {
 		return $this->hasMany('EqItemDetail', 'item_id', 'id');
