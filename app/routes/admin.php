@@ -54,6 +54,13 @@ Route::group(array('before'=>'auth|permission:superuser'), function() {
         // 지워진 타입의 데이터를 날림
         Route::get('delete_type_data/{itemId}', 'AdminController@deleteTypeData');
         Route::get('insert_type_90', 'AdminController@insertType90');
+
+        // 전부 캐시 날린것 다시 전원에 대해 생성해줌
+        Route::get('make_cache_for_all', 'EquipController@makeCacheForAll');
+        Route::get('make_cache_for_item/{itemId}', 'EquipController@makeCacheForItem');
+        Route::get('make_cache_for_node/{nodeId}', 'EquipController@makeCacheForNode');
+        // 캐시 있는지 체크
+        Route::get('check_cache_for_all','EquipController@checkCacheForAll');
     });
 
     Route::resource('menu', 'MenuController');

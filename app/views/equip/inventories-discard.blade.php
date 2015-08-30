@@ -35,9 +35,9 @@ body {
 								<label for="category" class="control-label col-xs-2">유형</label>
 								<div class="col-xs-10">
 									<select name="category" id="category" class="form-control">
-										<option value="lost">분실</option>
-										<option value="wrecked">파손장비 폐기</option>
-										<option value="expired">내구연한초과</option>
+										<option value="lost">분실(보유수량 감소)</option>
+										<option value="wrecked">파손장비 폐기(보유수량 및 파손수량 모두 감소)</option>
+										<option value="expired">내구연한초과(보유수량 감소)</option>
 									</select>
 								</div>
 							</div>

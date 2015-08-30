@@ -192,6 +192,44 @@ class EqInventoryController extends EquipController {
 		return Redirect::back()->with('message', '물품폐기 등록이 완료되었습니다.');
 	}
 
+	public function deleteDiscardedItem($setId){
+		$dSet = EqItemDiscardSet::where('id','=',$setId)->first();
+		$invSet = EqInventorySet::where('item_id','=',$dSet->item_id)->where('node_id','=',$dSet->node_id)->first();
+		$types = EqItem::find($dSet->item_id)->types;
+
+		DB::beginTransaction();
+
+		$wreckedSum = 0;
+		foreach ($types as $t) {
+			$iData = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$t->id)->first();
+			$dData = EqItemDiscardData::where('discard_set_id','=',$dSet->id)->where('item_type_id','=',$t->id)->first();
+			# 분실, 불용연한 초과를 취소할때 inventorySupply를 실행하여 보유수량을 증가, 캐시에는 가용수량을 증가시킴
+			if($dSet->category=='lost'||$dSet->category=='expired'){
+				try {
+					$this->service->inventorySupply($iData, $dData->count,false);
+				} catch (Exception $e) {
+					return Redirect::back()->with('message', $e->getMessage() );
+				}
+			}
+			# 파손물품 폐기를 취소할때 보유수량과 파손수량 모두 빠진 양을 증가시킨다.
+			if ($dSet->category=='wrecked') {
+				$iData->count += $dData->count;
+				$iData->wrecked += $dData->count;
+				$wreckedSum += $dData->count;
+			}
+			$iData->save();
+			$dData->delete();
+		}
+		$prevCache = Cache::get('wrecked_sum_'.$dSet->node_id.'_'.$dSet->item_id);
+		Cache::forever('wrecked_sum_'.$dSet->node_id.'_'.$dSet->item_id, $prevCache+$wreckedSum);
+
+		$dSet->delete();
+
+		DB::commit();
+
+		return Redirect::back()->with('message', '물품 삭제가 완료되었습니다.');
+	}
+
 	/**
 	 * Display the specified resource.
 	 *

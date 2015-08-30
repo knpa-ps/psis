@@ -19,9 +19,12 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::post('/inventories/create/get_item_type_set/{itemId}', 'EqInventoryController@getItemTypeSet');
 	Route::post('/inventories/create/get_items_in_code', 'EqInventoryController@getItemsInCode');
 	Route::post('/inventories/create/get_items_in_category', 'EqInventoryController@getItemsInCategory');
+	// 분실/폐기
 	Route::get('/items/{itemId}/discard', 'EqInventoryController@displayDiscardForm');
 	Route::get('/items/{itemId}/discard_list', 'EqInventoryController@displayDiscardList');
 	Route::post('/items/{itemId}/discard', 'EqInventoryController@discardItem');
+	Route::get('/items/{setId}/delete_discarded_item', 'EqInventoryController@deleteDiscardedItem');
+
 	Route::post('/items/{itemId}/wrecked_update', 'EqInventoryController@wreckedUpdate');
 	Route::post('/items/{itemId}/count_update', 'EqInventoryController@countUpdate');
 

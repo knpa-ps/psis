@@ -6,7 +6,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-				 	<a href="{{url('equips/items?domain='.$domainId)}}"><span class="glyphicon glyphicon-chevron-left"></span></a> <strong>장비상세정보</strong>
+				 	<a href="{{url('equips/inventories/'.$item->item_code)}}"><span class="glyphicon glyphicon-chevron-left"></span></a> <strong>장비상세정보</strong>
 				</h3>
 			</div>
 

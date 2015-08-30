@@ -7,7 +7,9 @@
 	<div class="col-xs-12">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title"><strong>{{$code->title}} 목록</strong></h3>
+				<h3 class="panel-title">
+					<a href="{{url('equips/inventories/')}}"><span class="glyphicon glyphicon-chevron-left"></span></a><strong>{{$code->title}} 목록</strong>
+				</h3>
 			</div>
 			<div class="panel-body">
 				@if($user->supplyNode->id == 1)

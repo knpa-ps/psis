@@ -447,7 +447,9 @@ class EqItemCodeController extends EquipController {
 			foreach ($types as $t) {
 				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($managingNode) {
 					$q->whereHas('ownerNode', function($qq) use ($managingNode) {
-						$qq->where('full_path','like',$managingNode->full_path.'%')->where('full_path','!=',$managingNode->full_path);
+						$qq->where('full_path','like',$managingNode->full_path.'%');
+						// 본인의 물품까지 포함하여야 하므로
+						//->where('full_path','!=',$managingNode->full_path);
 					});
 				})->where('item_type_id','=',$t->id)->sum('count');
 
@@ -544,7 +546,9 @@ class EqItemCodeController extends EquipController {
 			foreach ($types as $t) {
 				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($parent) {
 					$q->whereHas('ownerNode', function($qq) use ($parent) {
-						$qq->where('full_path','like',$parent->full_path.'%')->where('full_path','!=',$parent->full_path);
+						$qq->where('full_path','like',$parent->full_path.'%');
+						// 본인의 물품까지 포함하여야 하므로
+						// ->where('full_path','!=',$parent->full_path);
 					});
 				})->where('item_type_id','=',$t->id)->sum('count');
 
