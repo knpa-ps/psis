@@ -248,10 +248,6 @@ class EqInventoryController extends EquipController {
 		//item 별 연한 초과 여부를 저장하는 배열
 		$timeover = array();
 
-
-
-
-
 		foreach ($items as $i) {
 
 			if (!Cache::has('is_cached_'.$userNode->id)) {
@@ -385,11 +381,17 @@ class EqInventoryController extends EquipController {
 								})->orderBy('sort_order', 'asc')->get();
 		$data['categories'] = EqCategory::all();
 		$data['domainId'] = $domainId;
+
+		// 산하 파손 총계, 보유 총계를 구하기 위해 해당 노드 산하 모든 노드를 불러옴
+		$subNodes=EqSupplyManagerNode::where('full_path','like',$userNode->full_path.'%')->get();
+
 		foreach ($data['itemCodes'] as $c) {
 
 			$data['acquiredSum'][$c->id]=0;
 			$data['wreckedSum'][$c->id]=0;
 			$data['availSum'][$c->id]=0;
+			$data['subWrecked'][$c->id]=0;
+			$data['subAvail'][$c->id]=0;
 
 			foreach ($c->items as $i) {
 
@@ -401,12 +403,19 @@ class EqInventoryController extends EquipController {
 				$availSum = Cache::get('avail_sum_'.$userNode->id.'_'.$i->id);
 				$acquiredSum = Cache::get('acquired_sum_'.$userNode->id.'_'.$i->id);
 
+				$subWrecked = 0;
+				$subAvail = 0;
+				foreach ($subNodes as $subNode) {
+					$subWrecked += Cache::get('wrecked_sum_'.$subNode->id.'_'.$i->id);
+					$subAvail += Cache::get('avail_sum_'.$subNode->id.'_'.$i->id);
+				}
+
 				$data['wreckedSum'][$c->id] += $wreckedSum;
 				$data['availSum'][$c->id] += $availSum;
 				$data['acquiredSum'][$c->id] += $acquiredSum;
-
+				$data['subWrecked'][$c->id] += $subWrecked;
+				$data['subAvail'][$c->id] += $subAvail;
 			}
-
 		}
 		//Excel로 총괄표 export
 		$node = $user->supplyNode;

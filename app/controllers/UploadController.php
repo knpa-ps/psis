@@ -45,6 +45,7 @@ class UploadController extends BaseController {
 		$filePath = public_path('uploads/docs');
 
 		Input::file('doc')->move($filePath, $fileName);
+		chmod($filePath."/".$fileName,0755);
 
 		$result = array('code'=>0,
 						'message'=>'업로드 되었습니다.',

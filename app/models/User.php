@@ -35,4 +35,23 @@ class User extends Cartalyst\Sentry\Users\Eloquent\User {
 			->where('codes.category_code', '=', 'H001');
 		})->leftJoin('departments', 'departments.id','=','users.dept_id');
 	}
+
+	// 동시에 로그인하게 해 줌
+	// Override the SentryUser getPersistCode method.
+
+  public function getPersistCode()
+  {
+      if (!$this->persist_code)
+      {
+          $this->persist_code = $this->getRandomString();
+
+          // Our code got hashed
+          $persistCode = $this->persist_code;
+
+          $this->save();
+
+          return $persistCode;
+      }
+      return $this->persist_code;
+  }
 }

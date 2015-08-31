@@ -78,6 +78,12 @@
 									<th>
 										총 가용수량
 									</th>
+									<th>
+										산하 보유 총계
+									</th>
+									<th>
+										산하 파손 총계
+									</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -89,7 +95,9 @@
 										<td> <a href="{{ url('equips/inventories/'.$ctgr->codes[$i]->code) }}">{{ $ctgr->codes[$i]->title }}</a> </td>
 										<td> {{ $acquiredSum[$ctgr->codes[$i]->id] }}</td>
 										<td> {{ $wreckedSum[$ctgr->codes[$i]->id] }}</td>
-										<td>{{ $availSum[$ctgr->codes[$i]->id] }}</td>
+										<td> {{ $availSum[$ctgr->codes[$i]->id] }}</td>
+										<td> {{ $subWrecked[$ctgr->codes[$i]->id] }}</td>
+										<td> {{ $subWrecked[$ctgr->codes[$i]->id] + $subAvail[$ctgr->codes[$i]->id] }}</td>
 									</tr>
 									@endfor
 								@endforeach
@@ -124,7 +132,7 @@ $(function() {
             api.column(0, {page:'current'} ).data().each( function ( group, i ) {
                 if ( last !== group ) {
                     $(rows).eq( i ).before(
-                        '<tr class="group"><td colspan="6" class="group-cell">'+group+" -"+'</td></tr>'
+                        '<tr class="group"><td colspan="7" class="group-cell">'+group+" -"+'</td></tr>'
                     );
 
                     last = group;
@@ -138,9 +146,9 @@ $(function() {
 		var group = origin.substring(0, origin.length-1);
 		var flag = origin.substring(origin.length-1,origin.length);
 		flag == '-' ? $(this).find('td').text(group+'+') : $(this).find('td').text(group+'-');
-	})
+	});
 
-	$(".group").trigger('click');
+	// $(".group").trigger('click');
 
 });
 </script>

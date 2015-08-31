@@ -92,7 +92,7 @@ class EqCapsaicinController extends EquipController {
 		$regionId = Input::get('regionId');
 		$events = EqCapsaicinEvent::where('node_id','=',$regionId)->where('date','>',$now->subDays(4000))->orderBy('date', 'desc')->get();
 		// 최신순으로 n일 전 집회까지 리턴한다.
-		return $events;		
+		return $events;
 	}
 	/**
 	 * Display a listing of the resource.
@@ -182,7 +182,7 @@ class EqCapsaicinController extends EquipController {
 		 		if (Input::get('export')) {
 					//xls obj 생성
 					$objPHPExcel = new PHPExcel();
-					$fileName = $year.'년 지방청별 캡사이신 희석액 현황'; 
+					$fileName = $year.'년 지방청별 캡사이신 희석액 현황';
 					//obj 속성
 					$objPHPExcel->getProperties()
 						->setCreator($user->user_name)
@@ -219,7 +219,7 @@ class EqCapsaicinController extends EquipController {
 
 					//양식 부분 끝
 					//지방청별 자료
-					for ($i=0; $i < sizeof($data['nodes']); $i++) { 
+					for ($i=0; $i < sizeof($data['nodes']); $i++) {
 						$sheet->setCellValue('a'.($i+4), $data['nodes'][$i]->node_name);
 						$sheet->setCellValue('b'.($i+4), round($stock[$data['nodes'][$i]->id],2) );
 						$sheet->setCellValue('c'.($i+4), round($usageSum[$data['nodes'][$i]->id],2) );
@@ -229,7 +229,7 @@ class EqCapsaicinController extends EquipController {
 						$sheet->setCellValue('g'.($i+4), $timesT[$data['nodes'][$i]->id] );
 						$sheet->setCellValue('h'.($i+4), $timesA[$data['nodes'][$i]->id] );
 					}
-					
+
 
 					//파일로 저장하기
 					$writer = PHPExcel_IOFactory::createWriter($objPHPExcel,'Excel2007');
@@ -265,9 +265,9 @@ class EqCapsaicinController extends EquipController {
 					$selectedRegionId = 1;
 				}
 				$data['selectedRegionId'] = $selectedRegionId;
-				
+
 				if ($selectedRegionId == 1) {
-					//지방청 필터 안 건 경우 전체자료 다 가져옴 
+					//지방청 필터 안 건 경우 전체자료 다 가져옴
 					$firstDayHolding = EqCapsaicinFirstday::where('year','=',$year)->sum('amount');
 					$consumptionThisYear = EqCapsaicinUsage::whereHas('event', function($q) use($year){
 						$q->where('date','>',$year);
@@ -308,7 +308,7 @@ class EqCapsaicinController extends EquipController {
 					//올해면 아직 안 온 달은 비워둔다.
 					$data['presentStock'] = null;
 					for ($i=1; $i <= 12; $i++) {
-						
+
 						$firstDayofMonth = Carbon::createFromDate($year, $i, 1, 'Asia/Seoul')->subDay();
 						if ($i != 12) {
 							$lastDayofMonth = Carbon::createFromDate($year, $i+1, 1, 'Asia/Seoul')->subDay();
@@ -330,7 +330,7 @@ class EqCapsaicinController extends EquipController {
 							$month = $now->month;
 							if ($month == $i) {
 								$data['presentStock'] = $stock[$i];
-							} 
+							}
 						} elseif ($year > $now->year) {
 							$stock[$i] = null;
 							$usageSum[$i] = null;
@@ -359,7 +359,7 @@ class EqCapsaicinController extends EquipController {
 							continue;
 						}
 
-						
+
 						$usageSum[$i] = EqCapsaicinUsage::whereHas('event', function($q) use( $firstDayofMonth, $lastDayofMonth){
 											$q->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth);
 										})->sum('amount');
@@ -409,7 +409,7 @@ class EqCapsaicinController extends EquipController {
 					$data['usageASum'] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$year){
 						$q->where('type_code','=','assembly')->where('node_id','=',$nodeId)->where('date','like',$year.'%');
 					})->sum('amount');
-						
+
 					$data['timesSumSum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->count();
 					$data['timesTSum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('type_code','=','drill')->count();
 					$data['timesASum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('type_code','=','assembly')->count();
@@ -432,7 +432,7 @@ class EqCapsaicinController extends EquipController {
 					//올해면 아직 안 온 달은 비워둔다.
 					$data['presentStock'] = null;
 					for ($i=1; $i <= 12; $i++) {
-						
+
 						$firstDayofMonth = Carbon::createFromDate($year, $i, 1, 'Asia/Seoul')->subDay();
 						if ($i != 12) {
 							$lastDayofMonth = Carbon::createFromDate($year, $i+1, 1, 'Asia/Seoul')->subDay();
@@ -453,7 +453,7 @@ class EqCapsaicinController extends EquipController {
 							$month = $now->month;
 							if ($month == $i) {
 								$data['presentStock'] = $stock[$i];
-							} 
+							}
 						} elseif ($year > $now->year) {
 							$stock[$i] = null;
 							$usageSum[$i] = null;
@@ -482,7 +482,7 @@ class EqCapsaicinController extends EquipController {
 							continue;
 						}
 
-						
+
 						$usageSum[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId, $firstDayofMonth, $lastDayofMonth){
 											$q->where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth);
 										})->sum('amount');
@@ -661,7 +661,7 @@ class EqCapsaicinController extends EquipController {
 				$data['mode'] = 'create';
 				$data['regions'] = EqSupplyManagerNode::where('type_code','=','D002')->get();
 				$data['region'] = Input::get('region_id');
-				
+
 				return View::make('equip.capsaicin.capsaicin-usage-form',$data);
 
 				break;
@@ -674,7 +674,7 @@ class EqCapsaicinController extends EquipController {
 				return View::make('equip.capsaicin.capsaicin-drill-form', $data);
 
 				break;
-			
+
 			default:
 				# code...
 				break;
@@ -693,7 +693,7 @@ class EqCapsaicinController extends EquipController {
 		$node = $user->supplyNode;
 
 		$input = Input::all();
-//		return var_dump($input);
+		// return var_dump($input);
 
 		DB::beginTransaction();
 
@@ -785,7 +785,7 @@ class EqCapsaicinController extends EquipController {
 	 */
 	public function show($id)
 	{
-		
+
 	}
 
 
@@ -825,7 +825,7 @@ class EqCapsaicinController extends EquipController {
 	}
 
 	public function nodeEventList($nodeId) {
-		
+
 	}
 
 	public function nodeEvents($nodeId) {
@@ -885,7 +885,6 @@ class EqCapsaicinController extends EquipController {
 			$usages = EqCapsaicinUsage::where('event_id','=',$e->id)->whereHas('node', function($q) use($nodeFullPath) {
 				$q->where('full_path','like',$nodeFullPath.'%');
 			})->get();
-			
 			foreach ($usages as $u) {
 				$row = new stdClass;
 				$row->id = $u->id;
@@ -971,7 +970,7 @@ class EqCapsaicinController extends EquipController {
 		//올해면 아직 안 온 달은 비워둔다.
 		$data['presentStock'] = null;
 		for ($i=1; $i <= 12; $i++) {
-			
+
 			$firstDayofMonth = Carbon::createFromDate($year, $i, 1, 'Asia/Seoul')->subDay();
 			if ($i != 12) {
 				$lastDayofMonth = Carbon::createFromDate($year, $i+1, 1, 'Asia/Seoul')->subDay();
@@ -993,7 +992,7 @@ class EqCapsaicinController extends EquipController {
 				$month = $now->month;
 				if ($month == $i) {
 					$data['presentStock'] = $stock[$i];
-				} 
+				}
 			} elseif ($year > $now->year) {
 				$stock[$i] = null;
 				$usageSum[$i] = null;
@@ -1061,7 +1060,7 @@ class EqCapsaicinController extends EquipController {
 	}
 
 	public function editUsage($usageId) {
-		
+
 		$usage = EqCapsaicinUsage::find($usageId);
 		$event = $usage->event;
 
@@ -1125,7 +1124,7 @@ class EqCapsaicinController extends EquipController {
 
 			if (!$addition->save()) {
 				return App::abort(500);
-			}			
+			}
 		// 2. 동원한 지방청에서 타청사용량 추가
 			$crossUsage = new EqCapsaicinCrossRegion;
 			$crossUsage->node_id = $event->node_id;
@@ -1145,7 +1144,7 @@ class EqCapsaicinController extends EquipController {
 	}
 
 	public function deleteUsageRequest($usageId) {
-		
+
 		$delReq = EqDeleteRequest::where('usage_id','=',$usageId)->first();
 
 		if (!$delReq) {
@@ -1156,8 +1155,8 @@ class EqCapsaicinController extends EquipController {
 
 			if (!$delReq->save()) {
 				return App::abort(500);
-			}	
-			
+			}
+
 			return "지방청 관리자 승인 후 삭제됩니다.";
 
 		} else {
