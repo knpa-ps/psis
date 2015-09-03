@@ -433,8 +433,8 @@ class EqItemCodeController extends EquipController {
 
 		if (!$parentId || $parentId == $userNode->id ) {
 
-			$managingNode = $user->supplyNode;
-			$nodes = EqSupplyManagerNode::where('parent_id','=',$managingNode->id)->get();
+
+
 
 			// 총계
 			$row = array(
@@ -445,11 +445,7 @@ class EqItemCodeController extends EquipController {
 
 			$row['sum_row'] = 0;
 			foreach ($types as $t) {
-				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($managingNode) {
-					$q->whereHas('ownerNode', function($qq) use ($managingNode) {
-						$qq->where('full_path','like',$managingNode->full_path.'%');
 						// 본인의 물품까지 포함하여야 하므로
-						//->where('full_path','!=',$managingNode->full_path);
 					});
 				})->where('item_type_id','=',$t->id)->sum('count');
 
@@ -601,25 +597,8 @@ class EqItemCodeController extends EquipController {
 
 			foreach ($types as $t) {
 
-			$invData = EqInventoryData::whereHas('parentSet', function($q) use ($node) {
-				$q->where('node_id','=',$node->id);
-			})->where('item_type_id','=',$t->id)->first();
 
-			if ($invData != null) {
-				$row[$t->type_name] = $invData->wrecked;
-			} else {
-				$row[$t->type_name] = 0;
-			}
 
-			$row['sum_row'] += $row[$t->type_name];
-
-			if ($row[$t->type_name]==0) {
-				$row[$t->type_name] = '';
-			}
-
-			if ($row['sum_row']==0) {
-				$row['sum_row'] = '';
-			}
 
 			}
 			$row['row_type'] = 1;
