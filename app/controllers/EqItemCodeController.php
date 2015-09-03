@@ -433,8 +433,58 @@ class EqItemCodeController extends EquipController {
 
 		if (!$parentId || $parentId == $userNode->id ) {
 
+			$nodes = EqSupplyManagerNode::where('parent_id','=',$userNode->id)->get();
+			// 유저의 보유, 파손
 
+			$row = array(
+				'node'=> (object) array(
+					'node_name'=> $userNode->node_name.' 보유',
+					'is_terminal'=>true,
+				));
 
+			$row['sum_row'] = 0;
+
+			foreach ($types as $t) {
+				$invData = EqInventoryData::whereHas('parentSet', function($q) use ($userNode) {
+					$q->where('node_id','=',$userNode->id);
+				})->where('item_type_id','=',$t->id)->first();
+
+				if ($invData != null) {
+					$row[$t->type_name] = $invData->count;
+				} else {
+					$row[$t->type_name] = 0;
+				}
+
+				$row['sum_row'] += $row[$t->type_name];
+			}
+
+			$row['row_type']=0;
+			$data[] = $row;
+
+			$row = array(
+				'node'=> (object) array(
+					'node_name'=> $userNode->node_name.' 파손',
+					'is_terminal'=>true,
+				));
+
+			$row['sum_row'] = 0;
+
+			foreach ($types as $t) {
+				$invData = EqInventoryData::whereHas('parentSet', function($q) use ($userNode) {
+					$q->where('node_id','=',$userNode->id);
+				})->where('item_type_id','=',$t->id)->first();
+
+				if ($invData != null) {
+					$row[$t->type_name] = $invData->wrecked;
+				} else {
+					$row[$t->type_name] = 0;
+				}
+
+				$row['sum_row'] += $row[$t->type_name];
+			}
+
+			$row['row_type']=0;
+			$data[] = $row;
 
 			// 총계
 			$row = array(
@@ -445,9 +495,35 @@ class EqItemCodeController extends EquipController {
 
 			$row['sum_row'] = 0;
 			foreach ($types as $t) {
+				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($userNode) {
+					$q->whereHas('ownerNode', function($qq) use ($userNode) {
+						$qq->where('full_path','like',$userNode->full_path.'%');
 						// 본인의 물품까지 포함하여야 하므로
+						//->where('full_path','!=',$userNode->full_path);
 					});
 				})->where('item_type_id','=',$t->id)->sum('count');
+
+				$row['sum_row'] += $row[$t->type_name];
+			}
+			$row['row_type']=0;
+			$data[] = $row;
+
+			// 파손 총계
+			$row = array(
+				'node'=> (object) array(
+					'node_name'=> $userNode->node_name.' 산하 파손 총계',
+					'is_terminal'=>true,
+				));
+
+			$row['sum_row'] = 0;
+			foreach ($types as $t) {
+				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($userNode) {
+					$q->whereHas('ownerNode', function($qq) use ($userNode) {
+						$qq->where('full_path','like',$userNode->full_path.'%');
+						// 본인의 물품까지 포함하여야 하므로
+						//->where('full_path','!=',$userNode->full_path);
+					});
+				})->where('item_type_id','=',$t->id)->sum('wrecked');
 
 				$row['sum_row'] += $row[$t->type_name];
 			}
@@ -553,6 +629,30 @@ class EqItemCodeController extends EquipController {
 
 			$row['row_type']=0;
 			$data[] = $row;
+
+			$row = array(
+				'node'=> (object) array(
+					'node_name'=> $parent->node_name.' 산하 파손 총계',
+					'is_terminal'=>true,
+				));
+
+			$row['sum_row'] = 0;
+
+			foreach ($types as $t) {
+				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($parent) {
+					$q->whereHas('ownerNode', function($qq) use ($parent) {
+						$qq->where('full_path','like',$parent->full_path.'%');
+						// 본인의 물품까지 포함하여야 하므로
+						// ->where('full_path','!=',$parent->full_path);
+					});
+				})->where('item_type_id','=',$t->id)->sum('wrecked');
+
+				$row['sum_row'] += $row[$t->type_name];
+			}
+
+			$row['row_type']=0;
+			$data[] = $row;
+
 		}
 
 
@@ -597,8 +697,20 @@ class EqItemCodeController extends EquipController {
 
 			foreach ($types as $t) {
 
+				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($node) {
+					$q->whereHas('ownerNode', function($qq) use ($node) {
+						$qq->where('full_path','like',$node->full_path.'%');
+					});
+				})->where('item_type_id','=',$t->id)->sum('wrecked');
 
+				$row['sum_row'] += $row[$t->type_name];
 
+				if ($row[$t->type_name]==0) {
+					$row[$t->type_name] = '';
+				}
+				if ($row['sum_row']==0) {
+					$row['sum_row'] = '';
+				}
 
 			}
 			$row['row_type'] = 1;
