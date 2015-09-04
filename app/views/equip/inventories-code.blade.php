@@ -39,10 +39,10 @@
 								총 가용수량
 							</th>
 							<th>
-								산하 보유 총계
+								산하 파손 총계
 							</th>
 							<th>
-								산하 파손 총계
+								산하 보유 총계
 							</th>
 						</tr>
 					</thead>
@@ -59,8 +59,8 @@
 							<td> {{ $acquiredSum[$i->id] }}</td>
 							<td> {{ $wreckedSum[$i->id] }} </td>
 							<td> {{ $availSum[$i->id] }}</td>
-							<td> {{ 0 }}</td>
-							<td> {{ 0 }}</td>
+							<td> {{ $subWreckedSum[$i->id] }}</td>
+							<td> {{ $subWreckedSum[$i->id] + $subAvailSum[$i->id] }}</td>
 						</tr>
 						@endforeach
 					</tbody>

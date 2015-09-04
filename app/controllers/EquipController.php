@@ -36,33 +36,33 @@ class EquipController extends BaseController {
 	// Item 지정해서 캐시 생성해주기
 
 	public function makeCache($itemId, $nodeId) {
-			$invSet = EqInventorySet::where('node_id','=',$nodeId)->where('item_id','=',$itemId)->first();
-			if ($invSet !== null) {
-				$countSum = EqInventoryData::where('inventory_set_id','=',$invSet->id)->get()->sum('count');
-				$wreckedSum = EqInventoryData::where('inventory_set_id','=',$invSet->id)->get()->sum('wrecked');
-				$acquiredSum = EqItemSupply::whereHas('supplySet', function($q) use ($i) {
-					$q->where('item_id','=',$itemId);
-				})->where('to_node_id','=',$nodeId)->sum('count');
+		$invSet = EqInventorySet::where('node_id','=',$nodeId)->where('item_id','=',$itemId)->first();
+		if ($invSet !== null) {
+			$countSum = EqInventoryData::where('inventory_set_id','=',$invSet->id)->get()->sum('count');
+			$wreckedSum = EqInventoryData::where('inventory_set_id','=',$invSet->id)->get()->sum('wrecked');
+			$acquiredSum = EqItemSupply::whereHas('supplySet', function($q) use ($itemId) {
+				$q->where('item_id','=',$itemId);
+			})->where('to_node_id','=',$nodeId)->sum('count');
 
-				Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, $countSum-$wreckedSum);
-				Cache::forever('wrecked_sum_'.$nodeId.'_'.$itemId, $wreckedSum);
-				Cache::forever('acquired_sum_'.$nodeId.'_'.$itemId, $acquiredSum);
-			} else {
-				Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, 0);
-				Cache::forever('wrecked_sum_'.$nodeId.'_'.$itemId, 0);
-				Cache::forever('acquired_sum_'.$nodeId.'_'.$itemId, 0);
-			}
+			Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, $countSum-$wreckedSum);
+			Cache::forever('wrecked_sum_'.$nodeId.'_'.$itemId, $wreckedSum);
+			Cache::forever('acquired_sum_'.$nodeId.'_'.$itemId, $acquiredSum);
+		} else {
+			Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, 0);
+			Cache::forever('wrecked_sum_'.$nodeId.'_'.$itemId, 0);
+			Cache::forever('acquired_sum_'.$nodeId.'_'.$itemId, 0);
+		}
 	}
 
 	public function makeCacheForAll() {
 		$items = EqItem::where('is_active','=',1)->get();
 		$nodes = EqSupplyManagerNode::where('is_selectable', '=',1)->get();
 		foreach ($nodes as $node) {
-			if(!Cache::has('is_cached_'.$node->id)){
+			// if(!Cache::has('is_cached_'.$node->id)){
 				foreach ($items as $item) {
-					makeCache($item->id, $node->id);
+					$this->makeCache($item->id, $node->id);
 				}
-			}
+			// }
 			Cache::forever('is_cached_'.$node->id,1);
 		}
 	}
@@ -70,7 +70,7 @@ class EquipController extends BaseController {
 	public function makeCacheForItem($itemId) {
 		$nodes = EqSupplyManagerNode::where('is_selectable','=',1)->get();
 		foreach ($nodes as $node) {
-			makeCache($itemId,$node->id);
+			$this->makeCache($itemId,$node->id);
 		}
 	}
 
@@ -78,7 +78,7 @@ class EquipController extends BaseController {
 		$items = EqItem::where('is_active','=',1)->get();
 		if(!Cache::has('is_cached_'.$nodeId)){
 			foreach ($items as $item) {
-				makeCache($item->id,$nodeId);
+				$this->makeCache($item->id,$nodeId);
 			}
 		}
 		Cache::forever('is_cached_'.$nodeId,1);
@@ -90,8 +90,68 @@ class EquipController extends BaseController {
 		foreach ($nodes as $node) {
 			if(!Cache::has('is_cached_'.$node->id)){
 				echo $node->id.",";
-				echo $node->full_name.": Not Cached";
-				echo "<br>";
+				echo $node->full_name."<br>";
+			}
+		}
+	}
+
+	public function makeSubCacheClear($itemId) {
+		$nodes = EqSupplyManagerNode::where('is_selectable','=',1)->get();
+		foreach ($nodes as $node) {
+			Cache::forget('is_sub_cached_'.$node->id.'_'.$itemId);
+			Cache::forget('sub_wrecked_sum_'.$node->id.'_'.$itemId);
+			Cache::forget('sub_avail_sum_'.$node->id.'_'.$itemId);
+			Cache::forget('is_item_sub_cached_'.$itemId);
+		}
+	}
+
+	public function makeSubCache($itemId) {
+		$nodes=EqSupplyManagerNode::where('is_selectable','=',1)->get();
+
+		foreach ($nodes as $node){
+			Cache::forget('is_sub_cached_'.$node->id.'_'.$itemId);
+			Cache::forget('sub_wrecked_sum_'.$node->id.'_'.$itemId);
+			Cache::forget('sub_avail_sum_'.$node->id.'_'.$itemId);
+			Cache::forget('is_item_sub_cached_'.$itemId);
+			
+			$parentId = $node->id;
+			// 자신의 파손, 가용수량을 가져온다.
+			$wreckedSum = Cache::get('wrecked_sum_'.$parentId.'_'.$itemId);
+			$availSum = Cache::get('avail_sum_'.$parentId.'_'.$itemId);
+
+
+			// 자신부터 본청까지 올라가면서 parent에 자신의 파손, 가용수량을 더한다.
+			while ($parentId != 0){
+				if (!Cache::get('is_sub_cached_'.$parentId.'_'.$itemId)) {
+					Cache::forever('sub_wrecked_sum_'.$parentId.'_'.$itemId, $wreckedSum);
+					Cache::forever('sub_avail_sum_'.$parentId.'_'.$itemId, $availSum);
+					Cache::forever('is_sub_cached_'.$parentId.'_'.$itemId, 1);
+				} else {
+					$subWreckedSum = Cache::get('sub_wrecked_sum_'.$parentId.'_'.$itemId);
+					$subAvailSum = Cache::get('sub_avail_sum_'.$parentId.'_'.$itemId);
+					Cache::forever('sub_wrecked_sum_'.$parentId.'_'.$itemId, $subWreckedSum + $wreckedSum);
+					Cache::forever('sub_avail_sum_'.$parentId.'_'.$itemId, $subAvailSum + $availSum);
+				}
+				$parentId = EqSupplyManagerNode::find($parentId)->parent_manager_node;
+			}
+		}
+		Cache::forever('is_item_sub_cached_'.$itemId, 1);
+	}
+
+	public function makeSubCacheForAll() {
+		$items = EqItem::where('is_active','=',1)->get();
+		foreach ($items as $item) {
+			if(!Cache::has('is_item_sub_cached_'.$item->id)){
+				$this->makeSubCache($item->id);
+			}
+		}
+	}
+
+	public function checkSubCacheForAll() {
+		$items = EqItem::where('is_active','=',1)->get();
+		foreach ($items as $item) {
+			if(Cache::has('is_item_sub_cached_'.$item->id)){
+				echo $item->id.": Cached<br>";
 			}
 		}
 	}

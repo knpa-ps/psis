@@ -79,10 +79,10 @@
 										총 가용수량
 									</th>
 									<th>
-										산하 보유 총계
+										산하 파손 총계
 									</th>
 									<th>
-										산하 파손 총계
+										산하 보유 총계
 									</th>
 								</tr>
 							</thead>
@@ -96,8 +96,8 @@
 										<td> {{ $acquiredSum[$ctgr->codes[$i]->id] }}</td>
 										<td> {{ $wreckedSum[$ctgr->codes[$i]->id] }}</td>
 										<td> {{ $availSum[$ctgr->codes[$i]->id] }}</td>
-										<td> {{ $subWrecked[$ctgr->codes[$i]->id] }}</td>
-										<td> {{ $subWrecked[$ctgr->codes[$i]->id] + $subAvail[$ctgr->codes[$i]->id] }}</td>
+										<td> {{ $subWreckedSum[$ctgr->codes[$i]->id] }}</td>
+										<td> {{ $subWreckedSum[$ctgr->codes[$i]->id] + $subAvailSum[$ctgr->codes[$i]->id] }}</td>
 									</tr>
 									@endfor
 								@endforeach

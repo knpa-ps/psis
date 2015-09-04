@@ -61,6 +61,11 @@ Route::group(array('before'=>'auth|permission:superuser'), function() {
         Route::get('make_cache_for_node/{nodeId}', 'EquipController@makeCacheForNode');
         // 캐시 있는지 체크
         Route::get('check_cache_for_all','EquipController@checkCacheForAll');
+
+        Route::get('make_sub_cache/{itemId}', 'EquipController@makeSubCache');
+        Route::get('make_sub_cache_clear/{itemId}', 'EquipController@makeSubCacheClear');
+        Route::get('make_sub_cache_for_all', 'EquipController@makeSubCacheForAll');
+        Route::get('check_sub_cache_for_all','EquipController@checkSubCacheForAll');
     });
 
     Route::resource('menu', 'MenuController');
