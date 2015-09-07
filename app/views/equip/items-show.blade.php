@@ -50,8 +50,8 @@
 									@foreach ($item->images as $idx=>$i)
 
 									<div class="item {{ $idx==0?'active':'' }}">
-										<a class="fancybox" rel="gallery" href="{{ $i->url }}" >
-											<img src="{{ $i->url }}" alt="" style="width:100%;" />
+										<a class="fancybox" rel="gallery" href="{{ url('/uploads/'.$i->url)}}" >
+											<img src="{{ url('/uploads/'.$i->url)}}" alt="" style="width:100%;" />
 										</a>
 									</div>
 
