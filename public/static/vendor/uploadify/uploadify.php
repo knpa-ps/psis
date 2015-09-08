@@ -12,7 +12,7 @@ if (!empty($_FILES)) {
 	$tempFile = $_FILES['Filedata']['tmp_name'];
 	$targetPath = $_SERVER['DOCUMENT_ROOT'] . $targetFolder;
 	$fileName = $_FILES['Filedata']['name'];
-	$targetFile = rtrim($targetPath,'/') . '/' . iconv('utf-8', 'euc-kr', $fileName);
+	$targetFile = rtrim($targetPath,'/').'/'.$fileName;
 	
 	// Validate the file type
 	$fileTypes = array('php', 'php3', 'html', 'htm'); // File extensions

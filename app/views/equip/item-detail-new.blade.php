@@ -35,7 +35,8 @@ body {
 					</tr>
 					<tr>
 						<th>파일 첨부</th>
-						<td><input type="file" name="file_upload" id="file_upload" /></td><br>
+						<td><input type="file" name="file_upload" id="file_upload" /><a href="javascript:$('#file_upload').uploadify('cancel')">업로드 취소</a>
+						<a href="javascript:$('#file_upload').uploadify('upload', '*')">파일 업로드</a></td><br>
 					</tr>
 					<input type="hidden" name="files" id="files" value="" />
 				</table>
@@ -61,6 +62,7 @@ CKEDITOR.replace( 'input_body', {
 $(function() {
 	var attachedFiles = [];
 	$('#file_upload').uploadify({
+		'auto'     : false,
         'swf'      : url('static/vendor/uploadify/uploadify.swf'),
         'uploader' : url('static/vendor/uploadify/uploadify.php'),
         'onUploadSuccess' : function(file, data, response)  {

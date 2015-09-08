@@ -24,7 +24,7 @@ class UploadController extends BaseController {
 		$result = array(
 			'code'=>0,
 			'message'=>'',
-			'url'=>url('uploads/'.$fileName),
+			'url'=>$fileName,
 			'target'=>$target
 		);
 
