@@ -246,7 +246,7 @@ class EqSupplyController extends EquipController {
 				foreach ($types as $type) {
 					$typeId = $type->id;
 					$countName = $countNameNode.$typeId;
-					// 보급하는 노드에서 보유수량을 줄인다
+					
 					$supply = new EqItemSupply;
 					$supply->supply_set_id = $supplySet->id;
 					$supply->item_type_id = $type->id;
@@ -256,7 +256,7 @@ class EqSupplyController extends EquipController {
 					if (!$supply->save()) {
 						return App::abort(500);
 					}
-					
+					// 보급하는 노드에서 보유수량을 줄인다
 					$supplyInvData = EqInventoryData::where('inventory_set_id','=',$supplyInvSet->id)->where('item_type_id','=',$typeId)->first();
 					try {
 						$this->service->inventoryWithdraw($supplyInvData, $data[$countName]);

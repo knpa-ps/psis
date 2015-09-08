@@ -354,38 +354,41 @@ class EqConvertController extends EquipController {
 			if (!$myInvSet->save()) {
 				return App::abort(500);
 			}
+			// 캐시도 만들어준다 
+			try {
+				$this->service->makeCache($user->supplyNode->id);
+			} catch (Exception $e) {
+				return Redirect::to('equips/convert')->with('message', $e->getMessage() );
+			}
 
 			// inventory 생성 후 Data에 받은 수량 추가한다
-			$stockedSum=0;
 			foreach ($types as $t) {
+				$stocked = EqConvertData::where('convert_set_id','=',$convSet->id)->where('item_type_id','=',$t->id)->first()->count;
 				//inventoryData도 없으니 만들어줘야 함
 				$myInvData = new EqInventoryData;
 				$myInvData->inventory_set_id = $myInvSet->id;
 				$myInvData->item_type_id = $t->id;
 				//초기 수량이 0이므로 그냥 갯수 받은대로 넣어주면 된다.
-				$myInvData->count = EqConvertData::where('convert_set_id','=',$convSet->id)->where('item_type_id','=',$t->id)->first()->count;
-
-				//저장
-				if (!$myInvData->save()) {
-					return App::abort(500);
+				try {
+					$this->service->inventorySupply($myInvData, $stocked);
+				} catch (Exception $e) {
+					return Redirect::back()->with('message', $e->getMessage() );
 				}
 			}
-			Cache::forever('avail_sum_'.$user->supplyNode->id.'_'.$input['item_id'],$stockedSum);
 		} else {
 			// 기존 보유전적이 있는 경우 갯수를 더해준다.
 			$stockedSum=0;
 			foreach ($types as $t) {
 				$myInvData = EqInventoryData::where('inventory_set_id','=',$myInvSet->id)->where('item_type_id','=',$t->id)->first();
 				$stocked = EqConvertData::where('convert_set_id','=',$convSet->id)->where('item_type_id','=',$t->id)->first()->count;
-				$myInvData->count += $stocked;
-				$stockedSum += $stocked;
 
-				// 내 인벤토리에 갯수 추가
-				if (!$myInvData->save()) {
-					return App::abort(500);
+				// 인벤토리에서 빼고 저장하는 함수
+				try {
+					$this->service->inventorySupply($myInvData, $stocked);
+				} catch (Exception $e) {
+					return Redirect::back()->with('message', $e->getMessage() );
 				}
 			}
-			Cache::forever('avail_sum_'.$user->supplyNode->id.'_'.$input['item_id'],Cache::get('avail_sum_'.$user->supplyNode->id.'_'.$input['item_id'])+$stockedSum);
 		}
 		// 받는 쪽 인벤토리 정리 끝
 		// 주는 쪽 시작
@@ -396,7 +399,7 @@ class EqConvertController extends EquipController {
 			$subValue = EqConvertData::where('convert_set_id','=',$convSet->id)->where('item_type_id','=',$t->id)->first()->count;
 			// 인벤토리에서 빼고 저장하는 함수
 			try {
-				$this->service->inventoryWithdraw($fromInvData, $subValue, false);
+				$this->service->inventoryWithdraw($fromInvData, $subValue);
 			} catch (Exception $e) {
 				return Redirect::back()->with('message', $e->getMessage() );
 			}
