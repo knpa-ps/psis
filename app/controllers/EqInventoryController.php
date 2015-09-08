@@ -210,6 +210,13 @@ class EqInventoryController extends EquipController {
 		$prevCache = Cache::get('wrecked_sum_'.$user->supplyNode->id.'_'.$itemId);
 		Cache::forever('wrecked_sum_'.$user->supplyNode->id.'_'.$itemId, $prevCache-$wreckedSum);
 
+		// 산하 캐시에 등록
+		while ($user->supplyNode->id != 0){
+			$subWreckedSum = Cache::get('sub_wrecked_sum_'.$user->supplyNode->id.'_'.$itemId);
+			Cache::forever('sub_wrecked_sum_'.$user->supplyNode->id.'_'.$itemId, $subWreckedSum - $wreckedSum); // 변동수량 델타를 더해줌
+			$user->supplyNode->id = EqSupplyManagerNode::find($user->supplyNode->id)->parent_manager_node;
+		}
+
 		DB::commit();
 
 		return Redirect::back()->with('message', '물품폐기 등록이 완료되었습니다.');
@@ -245,6 +252,13 @@ class EqInventoryController extends EquipController {
 		}
 		$prevCache = Cache::get('wrecked_sum_'.$dSet->node_id.'_'.$dSet->item_id);
 		Cache::forever('wrecked_sum_'.$dSet->node_id.'_'.$dSet->item_id, $prevCache+$wreckedSum);
+
+		// 산하 캐시에 등록
+		while ($dSet->node_id != 0){
+			$subWreckedSum = Cache::get('sub_wrecked_sum_'.$dSet->node_id.'_'.$dSet->item_id);
+			Cache::forever('sub_wrecked_sum_'.$dSet->node_id.'_'.$dSet->item_id, $subWreckedSum + $wreckedSum); // 변동수량 델타를 더해줌
+			$dSet->node_id = EqSupplyManagerNode::find($dSet->node_id)->parent_manager_node;
+		}
 
 		$dSet->delete();
 
