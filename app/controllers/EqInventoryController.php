@@ -78,10 +78,11 @@ class EqInventoryController extends EquipController {
 					return App::abort(500);
 				}
 			}
-			//캐시에 등록
+			// 캐시에 등록
 			Cache::forever("wrecked_sum_".$user->supplyNode->id."_".$itemId,$wreckedSum);
 			Cache::forever("avail_sum_".$user->supplyNode->id."_".$itemId,Cache::get("avail_sum_".$user->supplyNode->id."_".$itemId)-($wreckedSum-$wreckedSumBefore));
 
+			// 산하 캐시에 반영
 			$parentId = $user->supplyNode->id;
 			$wreckedSumChanged = Cache::get('wrecked_sum_'.$parentId.'_'.$itemId);
 			$availSumChanged = Cache::get('avail_sum_'.$parentId.'_'.$itemId);
@@ -184,7 +185,7 @@ class EqInventoryController extends EquipController {
 			# 분실, 불용연한 초과일 때만 inventoryWithdraw를 실행하여 보유수량을 감소, 캐시에는 가용수량을 감소시킨다. (캐시는 보유수량을 다룰 필요가 없음)
 			if($input['category']=='lost'||$input['category']=='expired'){
 				try {
-					$this->service->inventoryWithdraw($iData, $dData->count,false);
+					$this->service->inventoryWithdraw($iData, $dData->count);
 				} catch (Exception $e) {
 					return Redirect::back()->with('message', $e->getMessage() );
 				}
@@ -228,7 +229,7 @@ class EqInventoryController extends EquipController {
 			# 분실, 불용연한 초과를 취소할때 inventorySupply를 실행하여 보유수량을 증가, 캐시에는 가용수량을 증가시킴
 			if($dSet->category=='lost'||$dSet->category=='expired'){
 				try {
-					$this->service->inventorySupply($iData, $dData->count,false);
+					$this->service->inventorySupply($iData, $dData->count);
 				} catch (Exception $e) {
 					return Redirect::back()->with('message', $e->getMessage() );
 				}
@@ -278,13 +279,11 @@ class EqInventoryController extends EquipController {
 
 			$wreckedSum = Cache::get('wrecked_sum_'.$userNode->id.'_'.$i->id);
 			$availSum = Cache::get('avail_sum_'.$userNode->id.'_'.$i->id);
-			// $acquiredSum = Cache::get('acquired_sum_'.$userNode->id.'_'.$i->id);
 			$subWreckedSum = Cache::get('sub_wrecked_sum_'.$userNode->id.'_'.$i->id);
 			$subAvailSum = Cache::get('sub_avail_sum_'.$userNode->id.'_'.$i->id);
 
 			$data['wreckedSum'][$i->id] = $wreckedSum;
 			$data['availSum'][$i->id] = $availSum;
-			// $data['acquiredSum'][$i->id] = $acquiredSum;
 			$data['subWreckedSum'][$i->id] = $subWreckedSum;
 			$data['subAvailSum'][$i->id] = $subAvailSum;
 

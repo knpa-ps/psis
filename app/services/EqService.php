@@ -41,53 +41,45 @@ class EqService extends BaseService {
 		Cache::forever('is_cached_'.$nodeId, 1);
 	}
 
-  public function inventorySupply($invData, $value, $isChild){
-    $itemId=$invData->parentSet->item_id;
-    if($isChild){
-      $nodeId=$invData->parentSet->node_id;
-      // $acquiredBefore=Cache::get('acquired_sum_'.$nodeId.'_'.$itemId);
-      $availBefore=Cache::get('avail_sum_'.$nodeId.'_'.$itemId);
-      // Cache::forever('acquired_sum_'.$nodeId.'_'.$itemId,$acquiredBefore+$value);
-      Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, $availBefore+$value);
-    }else{
-      $nodeId = $invData->parentSet->ownerNode->id;
-      $availBefore=Cache::get('avail_sum_'.$nodeId.'_'.$itemId);
-      Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, $availBefore+$value);
-    }
-    $invData->count += $value;
-    if (!$invData->save()) {
-			return App::abort(500);
-		}
-  }
+	public function inventorySupply($invData, $value){
+	    $itemId=$invData->parentSet->item_id;
+		$nodeId=$invData->parentSet->node_id;
 
-	public function inventoryWithdraw($invData, $value, $isChild) {
+		$availSumBefore=Cache::get('avail_sum_'.$nodeId.'_'.$itemId);
+		Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, $availSumBefore + $value);
+
+		// 산하 캐시에 등록
+		while ($nodeId != 0){
+			$subAvailSum = Cache::get('sub_avail_sum_'.$nodeId.'_'.$itemId);
+			Cache::forever('sub_avail_sum_'.$nodeId.'_'.$itemId, $subAvailSum + $value); // 변동수량 델타를 더해줌
+			$nodeId = EqSupplyManagerNode::find($nodeId)->parent_manager_node;
+		}
+
+	    $invData->count += $value;
+	    if (!$invData->save()) {
+				return App::abort(500);
+		}
+	}
+
+	public function inventoryWithdraw($invData, $value) {
 		//장비를 빼는 기능 및 장비 빼고 음수가 안 나오도록 체크하는 기능을 넣음
 		$itemId = $invData->parentSet->item_id;
+		$nodeId = $invData->parentSet->ownerNode->id;
 
-    if($isChild){
-      $nodeId=$invData->parentSet->node_id;
-      // $acquiredBefore=Cache::get('acquired_sum_'.$nodeId.'_'.$itemId);
-      $availBefore=Cache::get('avail_sum_'.$nodeId.'_'.$itemId);
-      // Cache::forever('acquired_sum_'.$nodeId.'_'.$itemId,$acquiredBefore-$value);
-      Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, $availBefore-$value);
-      $invData->count -= $value;
-      if (!$invData->save()) {
-        return App::abort(500);
-      }
-    }else {
-      $nodeId = $invData->parentSet->ownerNode->id;
-      $availBefore=Cache::get('avail_sum_'.$nodeId.'_'.$itemId);
-      Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, $availBefore-$value);
-      if ($invData->count >= $value) {
-  			$invData->count -= $value;
-  			if (!$invData->save()) {
-  				return App::abort(500);
-  			}
-  		} else {
-  			$type = EqItemType::find($invData->item_type_id);
-  			throw new Exception($ownerNode->full_name."이 보유한 ".$type->type_name." 수량이 ".($value-$invData->count)."개 부족합니다.");
-  		}
-    }
+		$availSumBefore=Cache::get('avail_sum_'.$nodeId.'_'.$itemId);
+		Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, $availSumBefore - $value);
+
+		// 산하 캐시에 반영
+		while ($nodeId != 0){
+			$subAvailSum = Cache::get('sub_avail_sum_'.$nodeId.'_'.$itemId);
+			Cache::forever('sub_avail_sum_'.$nodeId.'_'.$itemId, $subAvailSum - $value); // 변동수량 델타를 더해줌
+			$nodeId = EqSupplyManagerNode::find($nodeId)->parent_manager_node;
+		}
+
+		$invData->count -= $value;
+		if (!$invData->save()) {
+			return App::abort(500);
+		}
 	}
 
 	public function getPavaPerMonthData($year, $nodeId) {

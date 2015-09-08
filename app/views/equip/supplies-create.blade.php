@@ -87,7 +87,7 @@
 							</tbody>
 						</table>
 					</fieldset>
-					<button class="btn btn-lg btn-block btn-primary" type="submit">제출</button>
+					<input type="button" id="submit_btn" class="btn btn-lg btn-block btn-primary" value="제출">
 				{{ Form::close() }}
 			</div>
 		</div>
@@ -168,6 +168,30 @@ $(function(){
 				dateISO: true
 			}
 		}
+	});
+
+	$("#submit_btn").on('click', function(){
+		var sumAll = 0;
+		@foreach($types as $type)
+			var sumType = 0;
+			@foreach($lowerNodes as $node)
+				var nodeValue = $("#{{'count_'.$node->id.'_'.$type->id}}").val();
+				if(jQuery.isNumeric(nodeValue)){
+					sumType += parseInt(nodeValue);
+				}
+			@endforeach
+			var invType = $("#{{'inv_type_'.$type->id}}").text();
+			if (sumType > parseInt(invType)) {
+				alert('보급수량이 보유수량보다 많습니다');
+				return;
+			}
+			sumAll += parseInt(sumType);
+		@endforeach
+		if(sumAll == 0){
+			alert('보급수량이 0 입니다');
+			return;
+		}
+		$("#supply_form").submit();
 	});
 })
 </script>
