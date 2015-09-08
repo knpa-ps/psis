@@ -23,17 +23,17 @@ class EqService extends BaseService {
 				if ($invSet !== null) {
 					$countSum = EqInventoryData::where('inventory_set_id','=',$invSet->id)->get()->sum('count');
 					$wreckedSum = EqInventoryData::where('inventory_set_id','=',$invSet->id)->get()->sum('wrecked');
-					$acquiredSum = EqItemSupply::whereHas('supplySet', function($q) use ($i) {
-						$q->where('item_id','=',$i->id);
-					})->where('to_node_id','=',$nodeId)->sum('count');
+					// $acquiredSum = EqItemSupply::whereHas('supplySet', function($q) use ($i) {
+					// 	$q->where('item_id','=',$i->id);
+					// })->where('to_node_id','=',$nodeId)->sum('count');
 
 					Cache::forever('avail_sum_'.$nodeId.'_'.$i->id, $countSum-$wreckedSum);
 					Cache::forever('wrecked_sum_'.$nodeId.'_'.$i->id, $wreckedSum);
-					Cache::forever('acquired_sum_'.$nodeId.'_'.$i->id, $acquiredSum);
+					// Cache::forever('acquired_sum_'.$nodeId.'_'.$i->id, $acquiredSum);
 				} else {
 					Cache::forever('avail_sum_'.$nodeId.'_'.$i->id, 0);
 					Cache::forever('wrecked_sum_'.$nodeId.'_'.$i->id, 0);
-					Cache::forever('acquired_sum_'.$nodeId.'_'.$i->id, 0);
+					// Cache::forever('acquired_sum_'.$nodeId.'_'.$i->id, 0);
 				}
 			}
 		}
@@ -45,9 +45,9 @@ class EqService extends BaseService {
     $itemId=$invData->parentSet->item_id;
     if($isChild){
       $nodeId=$invData->parentSet->node_id;
-      $acquiredBefore=Cache::get('acquired_sum_'.$nodeId.'_'.$itemId);
+      // $acquiredBefore=Cache::get('acquired_sum_'.$nodeId.'_'.$itemId);
       $availBefore=Cache::get('avail_sum_'.$nodeId.'_'.$itemId);
-      Cache::forever('acquired_sum_'.$nodeId.'_'.$itemId,$acquiredBefore+$value);
+      // Cache::forever('acquired_sum_'.$nodeId.'_'.$itemId,$acquiredBefore+$value);
       Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, $availBefore+$value);
     }else{
       $nodeId = $invData->parentSet->ownerNode->id;
@@ -66,9 +66,9 @@ class EqService extends BaseService {
 
     if($isChild){
       $nodeId=$invData->parentSet->node_id;
-      $acquiredBefore=Cache::get('acquired_sum_'.$nodeId.'_'.$itemId);
+      // $acquiredBefore=Cache::get('acquired_sum_'.$nodeId.'_'.$itemId);
       $availBefore=Cache::get('avail_sum_'.$nodeId.'_'.$itemId);
-      Cache::forever('acquired_sum_'.$nodeId.'_'.$itemId,$acquiredBefore-$value);
+      // Cache::forever('acquired_sum_'.$nodeId.'_'.$itemId,$acquiredBefore-$value);
       Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, $availBefore-$value);
       $invData->count -= $value;
       if (!$invData->save()) {

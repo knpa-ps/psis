@@ -70,20 +70,24 @@
 										장비명
 									</th>
 									<th>
-										총 지급수량
-									</th>
-									<th>
-										총 파손수량
-									</th>
-									<th>
-										총 가용수량
+										산하 보유 총계
 									</th>
 									<th>
 										산하 파손 총계
 									</th>
 									<th>
-										산하 보유 총계
+										산하 가용 총계
 									</th>
+									<th>
+										보유수량
+									</th>
+									<th>
+										파손수량
+									</th>
+									<th>
+										가용수량
+									</th>
+									
 								</tr>
 							</thead>
 							<tbody>
@@ -93,11 +97,12 @@
 										<td> {{ $ctgr->sort_order.'. '.$ctgr->codes[$i]->category->name }}({{sizeof($ctgr->codes[$i]->category->codes)}}종) </td>
 										<td> {{ $i+1 }} </td>
 										<td> <a href="{{ url('equips/inventories/'.$ctgr->codes[$i]->code) }}">{{ $ctgr->codes[$i]->title }}</a> </td>
-										<td> {{ $acquiredSum[$ctgr->codes[$i]->id] }}</td>
+										<td> {{ $subWreckedSum[$ctgr->codes[$i]->id] + $subAvailSum[$ctgr->codes[$i]->id] }}</td>
+										<td> {{ $subWreckedSum[$ctgr->codes[$i]->id] }}</td>
+										<td> {{ $subAvailSum[$ctgr->codes[$i]->id] }}</td>
+										<td> {{ $wreckedSum[$ctgr->codes[$i]->id] + $availSum[$ctgr->codes[$i]->id] }}</td>
 										<td> {{ $wreckedSum[$ctgr->codes[$i]->id] }}</td>
 										<td> {{ $availSum[$ctgr->codes[$i]->id] }}</td>
-										<td> {{ $subWreckedSum[$ctgr->codes[$i]->id] }}</td>
-										<td> {{ $subWreckedSum[$ctgr->codes[$i]->id] + $subAvailSum[$ctgr->codes[$i]->id] }}</td>
 									</tr>
 									@endfor
 								@endforeach
@@ -132,7 +137,7 @@ $(function() {
             api.column(0, {page:'current'} ).data().each( function ( group, i ) {
                 if ( last !== group ) {
                     $(rows).eq( i ).before(
-                        '<tr class="group"><td colspan="7" class="group-cell">'+group+" -"+'</td></tr>'
+                        '<tr class="group"><td colspan="8" class="group-cell">'+group+" -"+'</td></tr>'
                     );
 
                     last = group;

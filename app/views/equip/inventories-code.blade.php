@@ -30,7 +30,16 @@
 								업체명
 							</th>
 							<th>
-								총 지급수량
+								산하 보유 총계
+							</th>
+							<th>
+								산하 파손 총계
+							</th>
+							<th>
+								산하 가용 총계
+							</th>
+							<th>
+								총 보유수량
 							</th>
 							<th>
 								총 파손수량
@@ -38,12 +47,7 @@
 							<th>
 								총 가용수량
 							</th>
-							<th>
-								산하 파손 총계
-							</th>
-							<th>
-								산하 보유 총계
-							</th>
+							
 						</tr>
 					</thead>
 					<tbody>
@@ -55,12 +59,13 @@
 							@else
 								<td> <a href="{{ URL::current().'/'.$i->id }}">{{ $i->maker_name }}({{$i->classification}})</a> </td>
 							@endif
-
-							<td> {{ $acquiredSum[$i->id] }}</td>
+							<td> {{ $subWreckedSum[$i->id] + $subAvailSum[$i->id] }}</td>
+							<td> {{ $subWreckedSum[$i->id] }}</td>
+							<td> {{ $subAvailSum[$i->id] }}</td>
+							<td> {{ $wreckedSum[$i->id] + $availSum[$i->id] }}</td>
 							<td> {{ $wreckedSum[$i->id] }} </td>
 							<td> {{ $availSum[$i->id] }}</td>
-							<td> {{ $subWreckedSum[$i->id] }}</td>
-							<td> {{ $subWreckedSum[$i->id] + $subAvailSum[$i->id] }}</td>
+							
 						</tr>
 						@endforeach
 					</tbody>
@@ -88,7 +93,7 @@ $(function() {
             api.column(0, {page:'current'} ).data().each( function ( group, i ) {
                 if ( last !== group ) {
                     $(rows).eq( i ).before(
-                        '<tr class="group"><td colspan="6" class="group-cell">'+group+'</td></tr>'
+                        '<tr class="group"><td colspan="7" class="group-cell">'+group+'</td></tr>'
                     );
 
                     last = group;

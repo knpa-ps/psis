@@ -31,8 +31,8 @@ class EqInventoryController extends EquipController {
 			Cache::forever("avail_sum_".$user->supplyNode->id."_".$itemId,$countSum-$wreckedSumBefore);
 
 			// 산하 캐시에 등록
-			$availSumChanged = Cache::get('avail_sum_'.$parentId.'_'.$itemId);
 			$parentId = $user->supplyNode->id;
+			$availSumChanged = Cache::get('avail_sum_'.$parentId.'_'.$itemId);
 			while ($parentId != 0){
 				$subAvailSum = Cache::get('sub_avail_sum_'.$parentId.'_'.$itemId);
 				Cache::forever('sub_avail_sum_'.$parentId.'_'.$itemId, $subAvailSum + $availSumChanged - $availSumBefore); // 변동수량 델타를 더해줌
@@ -82,9 +82,9 @@ class EqInventoryController extends EquipController {
 			Cache::forever("wrecked_sum_".$user->supplyNode->id."_".$itemId,$wreckedSum);
 			Cache::forever("avail_sum_".$user->supplyNode->id."_".$itemId,Cache::get("avail_sum_".$user->supplyNode->id."_".$itemId)-($wreckedSum-$wreckedSumBefore));
 
+			$parentId = $user->supplyNode->id;
 			$wreckedSumChanged = Cache::get('wrecked_sum_'.$parentId.'_'.$itemId);
 			$availSumChanged = Cache::get('avail_sum_'.$parentId.'_'.$itemId);
-			$parentId = $user->supplyNode->id;
 			while ($parentId != 0){
 				$subWreckedSum = Cache::get('sub_wrecked_sum_'.$parentId.'_'.$itemId);
 				$subAvailSum = Cache::get('sub_avail_sum_'.$parentId.'_'.$itemId);
@@ -278,13 +278,13 @@ class EqInventoryController extends EquipController {
 
 			$wreckedSum = Cache::get('wrecked_sum_'.$userNode->id.'_'.$i->id);
 			$availSum = Cache::get('avail_sum_'.$userNode->id.'_'.$i->id);
-			$acquiredSum = Cache::get('acquired_sum_'.$userNode->id.'_'.$i->id);
+			// $acquiredSum = Cache::get('acquired_sum_'.$userNode->id.'_'.$i->id);
 			$subWreckedSum = Cache::get('sub_wrecked_sum_'.$userNode->id.'_'.$i->id);
 			$subAvailSum = Cache::get('sub_avail_sum_'.$userNode->id.'_'.$i->id);
 
 			$data['wreckedSum'][$i->id] = $wreckedSum;
 			$data['availSum'][$i->id] = $availSum;
-			$data['acquiredSum'][$i->id] = $acquiredSum;
+			// $data['acquiredSum'][$i->id] = $acquiredSum;
 			$data['subWreckedSum'][$i->id] = $subWreckedSum;
 			$data['subAvailSum'][$i->id] = $subAvailSum;
 
@@ -408,32 +408,26 @@ class EqInventoryController extends EquipController {
 		$data['categories'] = EqCategory::all();
 		$data['domainId'] = $domainId;
 
-		// 산하 파손 총계, 보유 총계를 구하기 위해 해당 노드 산하 모든 노드를 불러옴
-		$subNodes=EqSupplyManagerNode::where('is_selectable','=',1)->where('full_path','like',$userNode->full_path.'%')->get();
-
 		foreach ($data['itemCodes'] as $c) {
 
-			$data['acquiredSum'][$c->id]=0;
+			// $data['acquiredSum'][$c->id]=0;
 			$data['wreckedSum'][$c->id]=0;
 			$data['availSum'][$c->id]=0;
+			$data['countSum'][$c->id] = 0;
 			$data['subWreckedSum'][$c->id]=0;
 			$data['subAvailSum'][$c->id]=0;
 
 			foreach ($c->items as $i) {
 
-				if (!Cache::has('is_cached_'.$userNode->id)) {
-					$this->service->makeCache($userNode->id);
-				}
-
 				$wreckedSum = Cache::get('wrecked_sum_'.$userNode->id.'_'.$i->id);
 				$availSum = Cache::get('avail_sum_'.$userNode->id.'_'.$i->id);
-				$acquiredSum = Cache::get('acquired_sum_'.$userNode->id.'_'.$i->id);
+				// $acquiredSum = Cache::get('acquired_sum_'.$userNode->id.'_'.$i->id);
 				$subWreckedSum = Cache::get('sub_wrecked_sum_'.$userNode->id.'_'.$i->id);
 				$subAvailSum = Cache::get('sub_avail_sum_'.$userNode->id.'_'.$i->id);
 
 				$data['wreckedSum'][$c->id] += $wreckedSum;
 				$data['availSum'][$c->id] += $availSum;
-				$data['acquiredSum'][$c->id] += $acquiredSum;
+				// $data['acquiredSum'][$c->id] += $acquiredSum;
 				$data['subWreckedSum'][$c->id] += $subWreckedSum;
 				$data['subAvailSum'][$c->id] += $subAvailSum;
 			}
