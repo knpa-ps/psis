@@ -40,17 +40,12 @@ class EquipController extends BaseController {
 		if ($invSet !== null) {
 			$countSum = EqInventoryData::where('inventory_set_id','=',$invSet->id)->get()->sum('count');
 			$wreckedSum = EqInventoryData::where('inventory_set_id','=',$invSet->id)->get()->sum('wrecked');
-			$acquiredSum = EqItemSupply::whereHas('supplySet', function($q) use ($itemId) {
-				$q->where('item_id','=',$itemId);
-			})->where('to_node_id','=',$nodeId)->sum('count');
 
 			Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, $countSum-$wreckedSum);
 			Cache::forever('wrecked_sum_'.$nodeId.'_'.$itemId, $wreckedSum);
-			Cache::forever('acquired_sum_'.$nodeId.'_'.$itemId, $acquiredSum);
 		} else {
 			Cache::forever('avail_sum_'.$nodeId.'_'.$itemId, 0);
 			Cache::forever('wrecked_sum_'.$nodeId.'_'.$itemId, 0);
-			Cache::forever('acquired_sum_'.$nodeId.'_'.$itemId, 0);
 		}
 	}
 
@@ -76,7 +71,7 @@ class EquipController extends BaseController {
 
 	public function makeCacheForNode($nodeId) {
 		$items = EqItem::where('is_active','=',1)->get();
-		if(!Cache::has('is_cached_'.$nodeId)){
+		if(Cache::has('is_cached_'.$nodeId)){
 			foreach ($items as $item) {
 				$this->makeCache($item->id,$nodeId);
 			}
@@ -106,7 +101,10 @@ class EquipController extends BaseController {
 	}
 
 	public function makeSubCache($itemId) {
-		$nodes=EqSupplyManagerNode::where('is_selectable','=',1)->get();
+		$nodes = EqSupplyManagerNode::where('is_selectable','=',1)->get();
+		foreach ($nodes as $node) {
+			$this->makeCache($itemId,$node->id);
+		}
 
 		foreach ($nodes as $node){
 			Cache::forget('is_sub_cached_'.$node->id.'_'.$itemId);
@@ -138,6 +136,13 @@ class EquipController extends BaseController {
 		Cache::forever('is_item_sub_cached_'.$itemId, 1);
 	}
 
+	public function makeSubCacheForCode($codeId) {
+		$items = EqItemCode::find($codeId)->items()->get();
+		foreach ($items as $item) {
+			$this->makeSubCache($item->id);
+		}
+	}
+
 	public function makeSubCacheForAll() {
 		$items = EqItem::where('is_active','=',1)->get();
 		foreach ($items as $item) {
@@ -150,8 +155,8 @@ class EquipController extends BaseController {
 	public function checkSubCacheForAll() {
 		$items = EqItem::where('is_active','=',1)->get();
 		foreach ($items as $item) {
-			if(Cache::has('is_item_sub_cached_'.$item->id)){
-				echo $item->id.": Cached<br>";
+			if(!Cache::has('is_item_sub_cached_'.$item->id)){
+				echo $item->id.": not Cached<br>";
 			}
 		}
 	}

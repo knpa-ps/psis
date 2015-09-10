@@ -526,15 +526,19 @@ class EqService extends BaseService {
 	}
 
 	public function exportGeneralTable($node) {
-
 		$now = Carbon::now();
-		$itemTotalNum = 0;
+		
 
 		$categories = EqCategory::where('domain_id','=',1)->get();
 
 		$objPHPExcel = new PHPExcel();
 		$fileName = '집회시위 관리장비 점검 총괄표('.$node->full_name.')';
-
+		$index = 0;
+		//default 시트 없애기
+		$sheetIndex = $objPHPExcel->getIndex(
+    		$objPHPExcel->getSheetByName('Worksheet')
+		);
+		$objPHPExcel->removeSheetByIndex($sheetIndex);
 		//obj 속성
 		$objPHPExcel->getProperties()
 			->setTitle($fileName)
@@ -542,7 +546,10 @@ class EqService extends BaseService {
 		//셀 정렬(가운데)
 		$objPHPExcel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER)->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
-		$sheet = $objPHPExcel->setActiveSheetIndex(0);
+		//시트 만들기
+		$sheet = new PHPExcel_Worksheet($objPHPExcel, $node->node_name." 산하");
+		$objPHPExcel->addSheet($sheet, $index);
+
 
 		//양식 만들기
 		$sheet->mergeCells('a1:a2');
@@ -555,18 +562,18 @@ class EqService extends BaseService {
 
 		$sheet->mergeCells(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1:'.PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'1');
 		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1', '총계');
-		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'2','보급');
-		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+1).'2','파손');
-		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'2','사용가능');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'2','산하 보유 총계');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+1).'2','산하 파손 총계');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'2','산하 가용 총계');
 
 		//4년이상 초과 열
 		$lastColIdx = PHPExcel_Cell::columnIndexFromString($sheet->getHighestDataColumn());
 
 		$sheet->mergeCells(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1:'.PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'1');
 		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1', $now->subYears(4)->year.'년 이전');
-		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'2','보급');
-		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+1).'2','파손');
-		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'2','사용가능');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'2','산하 보유 총계');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+1).'2','산하 파손 총계');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'2','산하 가용 총계');
 
 		//4개년 열 추가
 		for ($i=0; $i <= 3; $i++) {
@@ -575,14 +582,139 @@ class EqService extends BaseService {
 			$sheet->mergeCells(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1:'.PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'1');
 			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1', $now->addYear()->year.'년');
 
-			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'2','보급');
-			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+1).'2','파손');
-			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'2','사용가능');
+			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'2','산하 보유 총계');
+			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+1).'2','산하 파손 총계');
+			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'2','산하 가용 총계');
 		}
 
 		$threeYearsAgo = Carbon::now()->subYears(3)->firstOfYear();
-
 		//장비별 행, 행별 자료 입력
+		$itemTotalNum = 0;
+		foreach ($categories as $c) {
+			
+			$itemsInCategory = EqItemCode::where('category_id','=',$c->id)->get();
+			$itemTotalNum += sizeof($itemsInCategory);
+			$lastRow = $sheet->getHighestRow();
+			$sheet->setCellValue('b'.($lastRow+1), $c->name);
+			$sheet->mergeCells('b'.($lastRow+1).':b'.($lastRow+sizeof($itemsInCategory)));
+
+
+			for ($i=1; $i<=sizeof($itemsInCategory) ; $i++) {
+				$sheet->mergeCells('c'.($lastRow+$i).':d'.($lastRow+$i));
+				$sheet->setCellValue('c'.($lastRow+$i), $itemsInCategory[$i-1]->title);
+
+				//TODO
+				//총괄표 양식에 자료 넣기
+
+				$itemCode = $itemsInCategory[$i-1];
+				$items = $itemCode->items;
+
+				//supply의 target이 node인것들 합
+
+				$availSum = 0;
+				$wreckedSum = 0;
+				$availSumBefore4years = 0;
+				$wreckedSumBefore4years = 0;
+
+				$lastDayOfThreeYearsAgo = Carbon::parse('last day of December '.($threeYearsAgo->year-1));
+
+				foreach ($items as $item) {
+					$wreckedSum += Cache::get('sub_wrecked_sum_'.$node->id.'_'.$item->id);
+					$availSum += Cache::get('sub_avail_sum_'.$node->id.'_'.$item->id);
+
+					if ($item->acquired_date < $lastDayOfThreeYearsAgo) {
+						
+						$wreckedSumBefore4years += Cache::get('sub_wrecked_sum_'.$node->id.'_'.$item->id);
+						$availSumBefore4years += Cache::get('sub_avail_sum_'.$node->id.'_'.$item->id);
+					}
+
+				}
+
+				//총 지급수량
+				$sheet->setCellValue('e'.($lastRow+$i), $wreckedSum + $availSum);
+				//총 파손수량
+				$sheet->setCellValue('f'.($lastRow+$i), $wreckedSum);
+				//총 가용수량
+				$sheet->setCellValue('g'.($lastRow+$i), $availSum);
+
+				//supply의 target이 node인 것 중 supplied date가 4년 이전인것
+				$sheet->setCellValue('h'.($lastRow+$i), $wreckedSumBefore4years + $availSumBefore4years);
+				$sheet->setCellValue('i'.($lastRow+$i), $wreckedSumBefore4years);
+				$sheet->setCellValue('j'.($lastRow+$i), $availSumBefore4years);
+
+				for ($j=0; $j <=3 ; $j++) {
+					$ColIdx = 10+3*$j;
+					// TODO
+					// 연도별 수량 입력할 곳
+					$year = $threeYearsAgo->year + $j;
+					$lastDayOfLastYear = Carbon::parse('last day of December '.($year-1));
+					$lastDayOfThisYear = Carbon::parse('last day of December '.$year);
+
+					// $acquiredSumInYear=0;
+					$wreckedSumInYear=0;
+					$availSumInYear=0;
+
+					foreach($items as $item){
+						if($lastDayOfLastYear < $item->acquired_date && $item->acquired_date < $lastDayOfThisYear){
+							// $acquiredSumInYear += Cache::get('acquired_sum_'.$node->id.'_'.$item->id);
+							$wreckedSumInYear += Cache::get('sub_wrecked_sum_'.$node->id.'_'.$item->id);
+							$availSumInYear += Cache::get('sub_avail_sum_'.$node->id.'_'.$item->id);
+						}
+					}
+
+					$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($ColIdx).($lastRow+$i), $wreckedSumInYear + $availSumInYear);
+					$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($ColIdx+1).($lastRow+$i), $wreckedSumInYear);
+					$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($ColIdx+2).($lastRow+$i), $availSumInYear);
+				}
+			}
+		}
+		$sheet->setCellValue('a3', $node->node_name." 산하");
+		$sheet->mergeCells('a3:a'.($itemTotalNum+2));
+		$index += 1;
+
+		//다시 시트 만들기
+		$sheet = new PHPExcel_Worksheet($objPHPExcel, $node->node_name);
+		$objPHPExcel->addSheet($sheet, $index);
+
+		//양식 만들기
+		$sheet->mergeCells('a1:a2');
+		$sheet->setCellValue('a1', '기관명');
+		$sheet->mergeCells('b1:d2');
+		$sheet->setCellValue('b1', '장비명');
+
+		//총계 열 추가
+		$lastColIdx = PHPExcel_Cell::columnIndexFromString($sheet->getHighestDataColumn());
+
+		$sheet->mergeCells(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1:'.PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'1');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1', '총계');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'2','보유 총계');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+1).'2','파손 총계');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'2','가용 총계');
+
+		//4년이상 초과 열
+		$lastColIdx = PHPExcel_Cell::columnIndexFromString($sheet->getHighestDataColumn());
+
+		$sheet->mergeCells(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1:'.PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'1');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1', $now->subYears(4)->year.'년 이전');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'2','보유 총계');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+1).'2','파손 총계');
+		$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'2','가용 총계');
+
+		//4개년 열 추가
+		for ($i=0; $i <= 3; $i++) {
+			$lastColIdx = PHPExcel_Cell::columnIndexFromString($sheet->getHighestDataColumn());
+
+			$sheet->mergeCells(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1:'.PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'1');
+			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'1', $now->addYear()->year.'년');
+
+			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx).'2','보유 총계');
+			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+1).'2','파손 총계');
+			$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($lastColIdx+2).'2','가용 총계');
+		}
+
+		$threeYearsAgo = Carbon::now()->subYears(3)->firstOfYear();
+		//장비별 행, 행별 자료 입력
+		$itemTotalNum = 0;
 		foreach ($categories as $c) {
 
 			$itemsInCategory = EqItemCode::where('category_id','=',$c->id)->get();
@@ -606,18 +738,17 @@ class EqService extends BaseService {
 
 				$availSum = 0;
 				$wreckedSum = 0;
-				$acquiredSum = 0;
 				$availSumBefore4years = 0;
 				$wreckedSumBefore4years = 0;
-				$acquiredSumBefore4years = 0;
+
+				$lastDayOfThreeYearsAgo = Carbon::parse('last day of December '.($threeYearsAgo->year-1));
 
 				foreach ($items as $item) {
-					$acquiredSum += Cache::get('acquired_sum_'.$node->id.'_'.$item->id);
 					$wreckedSum += Cache::get('wrecked_sum_'.$node->id.'_'.$item->id);
 					$availSum += Cache::get('avail_sum_'.$node->id.'_'.$item->id);
 
-					if ($item->acquired_date < $threeYearsAgo) {
-						$acquiredSumBefore4years += Cache::get('acquired_sum_'.$node->id.'_'.$item->id);
+					if ($item->acquired_date < $lastDayOfThreeYearsAgo) {
+						
 						$wreckedSumBefore4years += Cache::get('wrecked_sum_'.$node->id.'_'.$item->id);
 						$availSumBefore4years += Cache::get('avail_sum_'.$node->id.'_'.$item->id);
 					}
@@ -625,14 +756,14 @@ class EqService extends BaseService {
 				}
 
 				//총 지급수량
-				$sheet->setCellValue('e'.($lastRow+$i), $acquiredSum);
+				$sheet->setCellValue('e'.($lastRow+$i), $wreckedSum + $availSum);
 				//총 파손수량
 				$sheet->setCellValue('f'.($lastRow+$i), $wreckedSum);
 				//총 가용수량
 				$sheet->setCellValue('g'.($lastRow+$i), $availSum);
 
 				//supply의 target이 node인 것 중 supplied date가 4년 이전인것
-				$sheet->setCellValue('h'.($lastRow+$i), $acquiredSumBefore4years);
+				$sheet->setCellValue('h'.($lastRow+$i), $wreckedSumBefore4years + $availSumBefore4years);
 				$sheet->setCellValue('i'.($lastRow+$i), $wreckedSumBefore4years);
 				$sheet->setCellValue('j'.($lastRow+$i), $availSumBefore4years);
 
@@ -642,21 +773,21 @@ class EqService extends BaseService {
 					// 연도별 수량 입력할 곳
 					$year = $threeYearsAgo->year + $j;
 					$lastDayOfLastYear = Carbon::parse('last day of December '.($year-1));
-					$firstDayOfNextYear = Carbon::parse('first day of January '.($year+1));
+					$lastDayOfThisYear = Carbon::parse('last day of December '.$year);
 
-					$acquiredSumInYear=0;
+					// $acquiredSumInYear=0;
 					$wreckedSumInYear=0;
 					$availSumInYear=0;
 
 					foreach($items as $item){
-						if($lastDayOfLastYear < $item->acquired_date && $item->acquired_date < $firstDayOfNextYear){
-							$acquiredSumInYear += Cache::get('acquired_sum_'.$node->id.'_'.$item->id);
+						if($lastDayOfLastYear < $item->acquired_date && $item->acquired_date < $lastDayOfThisYear){
+							// $acquiredSumInYear += Cache::get('acquired_sum_'.$node->id.'_'.$item->id);
 							$wreckedSumInYear += Cache::get('wrecked_sum_'.$node->id.'_'.$item->id);
 							$availSumInYear += Cache::get('avail_sum_'.$node->id.'_'.$item->id);
 						}
 					}
 
-					$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($ColIdx).($lastRow+$i), $acquiredSumInYear);
+					$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($ColIdx).($lastRow+$i), $wreckedSumInYear + $availSumInYear);
 					$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($ColIdx+1).($lastRow+$i), $wreckedSumInYear);
 					$sheet->setCellValue(PHPExcel_Cell::stringFromColumnIndex($ColIdx+2).($lastRow+$i), $availSumInYear);
 				}
@@ -664,6 +795,7 @@ class EqService extends BaseService {
 		}
 		$sheet->setCellValue('a3', $node->node_name);
 		$sheet->mergeCells('a3:a'.($itemTotalNum+2));
+		$index += 1;
 
 		//파일로 저장하기
 		$writer = PHPExcel_IOFactory::createWriter($objPHPExcel,'Excel2007');
