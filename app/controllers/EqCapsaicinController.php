@@ -687,6 +687,33 @@ class EqCapsaicinController extends EquipController {
 	 *
 	 * @return Response
 	 */
+	public function drillstore($nodeId, $count, $month) {
+		//eq_capsaicin_event table에 event 추가
+		DB::beginTransaction();
+		for($i = 2; $i <= $count; $i++){
+			$event = new EqCapsaicinEvent;
+			$event->type_code = "drill";
+			$event->event_name = "훈련".$i."(본청입력)";
+			$event->node_id = $nodeId;
+			$event->date = "2015-0".$month."-01";
+
+			if (!$event->save()) {
+				return App::abort(500);
+			}
+			//eq_capsaicin_usage table에 drill usage 추가
+			$usage = new EqCapsaicinUsage;
+			$usage->event_id = $event->id;
+			$usage->amount = 0;
+			$usage->user_node_id = $nodeId;
+			$usage->location = "장소".$i."(본청입력)";
+
+			if (!$usage->save()) {
+				return App::abort(500);
+			}
+		}
+		DB::commit();
+	}
+
 	public function store()
 	{
 		$user = Sentry::getUser();
@@ -717,7 +744,8 @@ class EqCapsaicinController extends EquipController {
 
 				// 타 청에서 동원된 경우
 				// 1. 해당 청에 추가량 등록
-				if ($node->region()->id != $input['region']) {
+				if ($node->id != $input['region']) {
+					// 원래는 $node->region()->id 였으나 그렇게 되면 본청이 입력을 못하게됨.
 					$addition = new EqCapsaicinIo;
 					$addition->node_id = $input['region'];
 					$addition->amount = $input['amount'];
@@ -730,7 +758,7 @@ class EqCapsaicinController extends EquipController {
 					}
 					// 2. 동원한 지방청에서 타청사용량 추가
 					$crossUsage = new EqCapsaicinCrossRegion;
-					$crossUsage->node_id = $node->region()->id;
+					$crossUsage->node_id = $node->id;
 					$crossUsage->usage_id = $usage->id;
 					$crossUsage->io_id = $addition->id;
 					$crossUsage->amount = $input['amount'];
@@ -934,7 +962,7 @@ class EqCapsaicinController extends EquipController {
 
 		// 월별보기 탭 선택한 경우
 		$firstDayHolding = EqCapsaicinFirstday::where('year','=',$year)->where('node_id','=',$nodeId)->first()->amount;
-		
+
 		$acquiresThisYear = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','>',$year)->sum('amount');
 		$discardsThisYear = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','>',$year)->sum('amount');
 		$crossUsageThisYear = EqCapsaicinCrossRegion::where('node_id','=',$nodeId)->where('used_date','>',$year)->sum('amount');
