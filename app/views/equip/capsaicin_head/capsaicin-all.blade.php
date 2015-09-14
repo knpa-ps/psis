@@ -13,7 +13,7 @@
 						</label>
 						<div class="col-xs-9">
 							<div class="input-daterange input-group">
-							    <input type="text" class="input-sm form-control" name="start" 
+							    <input type="text" class="input-sm form-control" name="start"
 							    value="{{ $start }}">
 							    <span class="input-group-addon">~</span>
 							    <input type="text" class="input-sm form-control" name="end"
@@ -40,6 +40,7 @@
 								<option value="" {{$eventType == '' ? 'selected' : '' }}>전체</option>
 								<option value="assembly" {{$eventType == 'assembly' ? 'selected' : '' }}>집회</option>
 								<option value="drill" {{$eventType == 'drill' ? 'selected' : '' }}>훈련</option>
+								<option value="cross" {{$eventType == 'cross' ? 'selected' : '' }}>관리전환</option>
 							</select>
 						</div>
 					</div>

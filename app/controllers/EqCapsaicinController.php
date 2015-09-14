@@ -947,7 +947,7 @@ class EqCapsaicinController extends EquipController {
 	public function nodeHolding($nodeId) {
 
 		$node = EqSupplyManagerNode::find($nodeId);
-		// 훈련 내역 추가시 훈련 내역을 등록한 node의 id가 입력되므로 지방청의 child id에 대해서 사용량, 사용횟수 합을 구해줘야 
+		// 훈련 내역 추가시 훈련 내역을 등록한 node의 id가 입력되므로 지방청의 child id에 대해서 사용량, 사용횟수 합을 구해줘야
 		$children = EqSupplyManagerNode::where('full_path','like',$node->full_path.'%')->where('is_selectable','=',1)->get();
 
 		$data['node'] = $node;
@@ -1020,13 +1020,13 @@ class EqCapsaicinController extends EquipController {
 			}
 
 
-			$consumptionUntilithMonth = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$year,$lastDayofMonth){
+			$consumptionUntilThisMonth = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$year,$lastDayofMonth){
 				$q->where('node_id','=',$nodeId)->where('date','<=',$lastDayofMonth)->where('date','like',$year.'%');
 			})->sum('amount');
-			$acquireUntilithMonth = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->sum('amount');
-			$discardUntilithMonth = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->sum('amount');
-			$crossUsedUntilithMonth = EqCapsaicinCrossRegion::where('node_id','=',$nodeId)->where('used_date','<=',$lastDayofMonth)->where('used_date','like',$year.'%')->sum('amount');
-			$stock[$i] = $firstDayHolding - $consumptionUntilithMonth + $acquireUntilithMonth - $discardUntilithMonth - $crossUsedUntilithMonth;
+			$acquireUntilThisMonth = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->sum('amount');
+			$discardUntilThisMonth = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->sum('amount');
+			$crossUsedUntilThisMonth = EqCapsaicinCrossRegion::where('node_id','=',$nodeId)->where('used_date','<=',$lastDayofMonth)->where('used_date','like',$year.'%')->sum('amount');
+			$stock[$i] = $firstDayHolding - $consumptionUntilThisMonth + $acquireUntilThisMonth - $discardUntilThisMonth - $crossUsedUntilThisMonth;
 
 			$month = 12;
 			if ($year == $now->year) {

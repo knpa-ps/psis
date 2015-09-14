@@ -282,6 +282,9 @@ class EqService extends BaseService {
 			case 'drill':
 				$eventType = '훈련';
 				break;
+			case 'cross':
+				$eventType = '관리전환';
+				break;
 			default:
 				return App::abort(500);
 				break;
@@ -527,7 +530,7 @@ class EqService extends BaseService {
 
 	public function exportGeneralTable($node) {
 		$now = Carbon::now();
-		
+
 
 		$categories = EqCategory::where('domain_id','=',1)->get();
 
@@ -591,7 +594,7 @@ class EqService extends BaseService {
 		//장비별 행, 행별 자료 입력
 		$itemTotalNum = 0;
 		foreach ($categories as $c) {
-			
+
 			$itemsInCategory = EqItemCode::where('category_id','=',$c->id)->get();
 			$itemTotalNum += sizeof($itemsInCategory);
 			$lastRow = $sheet->getHighestRow();
@@ -623,7 +626,7 @@ class EqService extends BaseService {
 					$availSum += Cache::get('sub_avail_sum_'.$node->id.'_'.$item->id);
 
 					if ($item->acquired_date < $lastDayOfThreeYearsAgo) {
-						
+
 						$wreckedSumBefore4years += Cache::get('sub_wrecked_sum_'.$node->id.'_'.$item->id);
 						$availSumBefore4years += Cache::get('sub_avail_sum_'.$node->id.'_'.$item->id);
 					}
@@ -748,7 +751,7 @@ class EqService extends BaseService {
 					$availSum += Cache::get('avail_sum_'.$node->id.'_'.$item->id);
 
 					if ($item->acquired_date < $lastDayOfThreeYearsAgo) {
-						
+
 						$wreckedSumBefore4years += Cache::get('wrecked_sum_'.$node->id.'_'.$item->id);
 						$availSumBefore4years += Cache::get('avail_sum_'.$node->id.'_'.$item->id);
 					}

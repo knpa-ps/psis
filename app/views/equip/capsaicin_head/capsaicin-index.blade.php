@@ -32,7 +32,7 @@
 			</ul>
 			@include('equip.capsaicin_head.capsaicin-bynode')
 		@endif
-		
+
 	</div>
 </div>
 @stop

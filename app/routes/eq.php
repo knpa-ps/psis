@@ -82,6 +82,6 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::delete('confirm_delete/{reqId}', 'EquipController@deleteConfirm');
 
 
-	Route::get('capsaicin/drillstore/{nodeId}/{count}/{month}', 'EqCapsaicinController@drillstore');
+	Route::get('/capsaicin/drillstore/{nodeId}/{count}/{month}', 'EqCapsaicinController@drillstore');
 
 });
