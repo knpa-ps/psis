@@ -97,17 +97,17 @@
 						@else
 						@foreach ($rows as $r)
 						<tr>
-							<td>{{ $r->date }}</td>
-							<td>{{ $r->node->full_name }}</td>
-							<td>{{ $r->user_node->full_name }}</td>
-							<td>{{ $r->type }}</td>
+							<td width="10%">{{ $r->date }}</td>
+							<td width="7%">{{ $r->node->region()->node_name }}</td>
+							<td width="20%">{{ $r->user_node->full_name }}</td>
+							<td width='7%'>{{ $r->type }}</td>
 							<td>{{ $r->location }}</td>
 							@if($r->fileName != '')
 							<td><a href="{{ url('uploads/docs/'.$r->fileName) }}">{{ $r->event_name }}</a></td>
 							@else
 							<td>{{ $r->event_name }}</td>
 							@endif
-							<td style="background-color: #FEE9FC">{{ round($r->amount,2) }}</td>
+							<td style="background-color: #FEE9FC" width='7%'>{{ round($r->amount,2) }}</td>
 						</tr>
 						@endforeach
 						@endif

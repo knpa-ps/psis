@@ -48,8 +48,12 @@ class EqSupplyManagerNode extends Eloquent {
 		if (count($paths)==0) {
 			return null;
 		}
-
-		return EqSupplyManagerNode::find($paths[1]);
+		// Region이 지방청 or 본청
+		if (count($paths)>1){
+			return EqSupplyManagerNode::find($paths[1]);
+		} else {
+			return EqSupplyManagerNode::find(1);
+		}
 	}
 
 	public function scopeRegions($query) {

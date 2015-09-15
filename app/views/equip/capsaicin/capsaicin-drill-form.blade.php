@@ -42,7 +42,7 @@
 									<input name="location" id="location" class="form-control input-sm" type="text">
 								</div>
 							</div>
-							
+
 							<div class="form-group">
 								<label for="amount" class="control-label col-xs-2">사용량(ℓ)</label>
 								<div class="col-xs-10">
@@ -51,6 +51,7 @@
 							</div>
 						</fieldset>
 						<input type="text" class="hidden" id="file_name" name="type" value="drill">
+						<input type="text" class="hidden" id="file_name" name="nodeId" value="{{$node->id}}">
 
 
 				{{ Form::close(); }}
@@ -92,7 +93,7 @@
 				required: true,
 				number: true,
 				min: 0
-			} 
+			}
 		},
 
 		submitHandler: function(form) {

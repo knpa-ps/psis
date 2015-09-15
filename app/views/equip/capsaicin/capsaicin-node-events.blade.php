@@ -32,7 +32,7 @@
 								</label>
 								<div class="col-xs-9">
 									<div class="input-daterange input-group">
-									    <input type="text" class="input-sm form-control" name="start" 
+									    <input type="text" class="input-sm form-control" name="start"
 									    value="{{ $start }}">
 									    <span class="input-group-addon">~</span>
 									    <input type="text" class="input-sm form-control" name="end"
@@ -62,7 +62,7 @@
 									</select>
 								</div>
 							</div>
-							
+
 						</div>
 
 						<div class="row">
@@ -116,7 +116,7 @@
 							@foreach ($rows as $r)
 							<tr id="{{$r->id}}">
 								<td>{{ $r->date }}</td>
-								<td>{{ $r->node->node_name }}</td>
+								<td>{{ $r->node->region()->node_name }}</td>
 								<td>{{ $r->user_node->full_name }}</td>
 								<td>{{ $r->location }}</td>
 								<td>{{ $r->event_name }}</td>
@@ -129,7 +129,7 @@
 								</td>
 							</tr>
 							@endforeach
-							
+
 							@endif
 						</tbody>
 						<tfoot>
@@ -174,4 +174,3 @@ $(function(){
 })
 </script>
 @stop
-
