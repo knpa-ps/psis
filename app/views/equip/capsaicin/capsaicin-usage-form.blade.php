@@ -56,6 +56,7 @@
 						</fieldset>
 						<input type="text" class="hidden" name="type" value="event">
 						<input type="text" class="hidden" name="file_name" id="file_name">
+						<input type="text" class="hidden" name="nodeId" value="{{$node->id}}">
 				{{ Form::close(); }}
 
 				<div class="col-xs-12">

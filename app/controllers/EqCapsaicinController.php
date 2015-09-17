@@ -174,7 +174,9 @@ class EqCapsaicinController extends EquipController {
 					$initHolding = EqCapsaicinFirstday::where('node_id','=',$n->id)->where('year','=',$year)->first()->amount;
 					$acquiredThisYear = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$n->id)->where('acquired_date','like',$year.'%')->sum('amount');
 					$discardedThisYear = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$n->id)->where('acquired_date','like',$year.'%')->sum('amount');
-					$stock[$n->id] = $initHolding - $usageSum[$n->id] + $acquiredThisYear - $discardedThisYear;
+					$crossUsedThisYear = EqCapsaicinCrossRegion::where('node_id','=',$n->id)->where('used_date','like',$year.'%')->sum('amount');
+					// 보유량 = 초기 보유량 - 사용량 - 추가량 - 불용량 - 타청지원
+					$stock[$n->id] = $initHolding - $usageSum[$n->id] + $acquiredThisYear - $discardedThisYear - $crossUsedThisYear;
 					$stockSum += $stock[$n->id];
 		 		}
 		 		$data['stock'] = $stock;
@@ -653,7 +655,9 @@ class EqCapsaicinController extends EquipController {
 					$initHolding = EqCapsaicinFirstday::where('node_id','=',$n->id)->where('year','=',$year)->first()->amount;
 					$acquiredThisYear = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$n->id)->where('acquired_date','like',$year.'%')->sum('amount');
 					$discardedThisYear = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$n->id)->where('acquired_date','like',$year.'%')->sum('amount');
-					$stock[$n->id] = $initHolding - $usageSum[$n->id] + $acquiredThisYear - $discardedThisYear;
+					$crossUsedThisYear = EqCapsaicinCrossRegion::where('node_id','=',$n->id)->where('used_date','like',$year.'%')->sum('amount');
+					// 보유량 = 초기 보유량 - 사용량 - 추가량 - 불용량 - 타청지원
+					$stock[$n->id] = $initHolding - $usageSum[$n->id] + $acquiredThisYear - $discardedThisYear - $crossUsedThisYear;
 					$stockSum += $stock[$n->id];
 				}
 				$data['stock'] = $stock;
@@ -762,10 +766,8 @@ class EqCapsaicinController extends EquipController {
 				$usage->event_id = $event->id;
 				$usage->amount = $input['amount'];
 				$usage->location = $input['location'];
-				$usage->user_node_id = $node->id;
+				$usage->user_node_id = Input::get('nodeId');
 				$usage->attached_file_name = $input['file_name'];
-
-
 
 				if (!$usage->save()) {
 					return App::abort(500);

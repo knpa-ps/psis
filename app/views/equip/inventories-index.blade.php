@@ -78,16 +78,16 @@
 									<th>
 										산하 가용 총계
 									</th>
-									<th>
+									<th style="background-color: #FFFCC5">
 										보유수량
 									</th>
-									<th>
+									<th style="background-color: #FFFCC5">
 										파손수량
 									</th>
-									<th>
+									<th style="background-color: #FFFCC5">
 										가용수량
 									</th>
-									
+
 								</tr>
 							</thead>
 							<tbody>
@@ -100,9 +100,9 @@
 										<td> {{ $subWreckedSum[$ctgr->codes[$i]->id] + $subAvailSum[$ctgr->codes[$i]->id] }}</td>
 										<td> {{ $subWreckedSum[$ctgr->codes[$i]->id] }}</td>
 										<td> {{ $subAvailSum[$ctgr->codes[$i]->id] }}</td>
-										<td> {{ $wreckedSum[$ctgr->codes[$i]->id] + $availSum[$ctgr->codes[$i]->id] }}</td>
-										<td> {{ $wreckedSum[$ctgr->codes[$i]->id] }}</td>
-										<td> {{ $availSum[$ctgr->codes[$i]->id] }}</td>
+										<td style="background-color: #FFF8E5"> {{ $wreckedSum[$ctgr->codes[$i]->id] + $availSum[$ctgr->codes[$i]->id] }}</td>
+										<td style="background-color: #FFF8E5"> {{ $wreckedSum[$ctgr->codes[$i]->id] }}</td>
+										<td style="background-color: #FFF8E5"> {{ $availSum[$ctgr->codes[$i]->id] }}</td>
 									</tr>
 									@endfor
 								@endforeach

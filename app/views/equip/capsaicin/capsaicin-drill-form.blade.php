@@ -51,9 +51,7 @@
 							</div>
 						</fieldset>
 						<input type="text" class="hidden" id="file_name" name="type" value="drill">
-						<input type="text" class="hidden" id="file_name" name="nodeId" value="{{$node->id}}">
-
-
+						<input type="text" class="hidden" name="nodeId" value="{{$node->id}}">
 				{{ Form::close(); }}
 				<input type="submit" id="submit_btn" class="btn btn-lg btn-block btn-primary" value="제출">
 			</div>

@@ -657,11 +657,17 @@ class EqItemCodeController extends EquipController {
 
 
 		foreach ($nodes as $node) {
-
-
+			if($node->manager()->first()){
+				$managerName = '('.$node->manager()->first()->user_name.')';
+			} else {
+				if($node->is_selectable == 1){
+					$managerName = '(없음)';
+				} else {
+					$managerName = '';
+				}
+			}
 			$row['node'] = $node->toArray();
-			$node->is_terminal == 1 ? $row['node']['node_name'] .= ' 보유' : $row['node']['node_name'] .= ' 산하 총계';
-
+			$node->is_terminal == 1 ? $row['node']['node_name'] .= (' 보유 '.$managerName) : $row['node']['node_name'] .= (' 산하 총계 '.$managerName);
 			$row['sum_row'] = 0;
 
 			foreach ($types as $t) {
