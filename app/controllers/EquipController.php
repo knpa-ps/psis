@@ -111,7 +111,7 @@ class EquipController extends BaseController {
 			Cache::forget('sub_wrecked_sum_'.$node->id.'_'.$itemId);
 			Cache::forget('sub_avail_sum_'.$node->id.'_'.$itemId);
 			Cache::forget('is_item_sub_cached_'.$itemId);
-			
+
 			$parentId = $node->id;
 			// 자신의 파손, 가용수량을 가져온다.
 			$wreckedSum = Cache::get('wrecked_sum_'.$parentId.'_'.$itemId);
@@ -159,6 +159,27 @@ class EquipController extends BaseController {
 				echo $item->id.": not Cached<br>";
 			}
 		}
+	}
+
+	public function clearItemData($itemId){
+		$nodes = EqSupplyManagerNode::where('is_selectable','=',1)->get();
+		DB::beginTransaction();
+		foreach ($nodes as $node) {
+			$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$node->id)->first();
+			$types = EqItem::find($itemId)->types;
+			if($invSet){
+				foreach ($types as $t){
+					$data = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$t->id)->first();
+					$data->count = 0;
+					if (!$data->save()) {
+						return App::abort(500);
+					}
+					Cache::forever('avail_sum_'.$node->id.'_'.$itemId, 0);
+					Cache::forever('wrecked_sum_'.$node->id.'_'.$itemId, 0);
+				}
+			}
+		}
+		DB::commit();
 	}
 
 	public function getNodeName($nodeId) {
