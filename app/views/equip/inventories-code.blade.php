@@ -23,31 +23,38 @@
 				<table class="table table-condensed table-bordered table-striped table-hover" id="items_table">
 					<thead>
 						<tr>
-							<th>
+							<th style="text-align: center; vertical-align: middle" rowspan="2">
 								연도
 							</th>
-							<th>
+							<th style="text-align: center; vertical-align: middle" rowspan="2">
 								업체명
 							</th>
-							<th>
-								산하 보유 총계
+							<th style="text-align: center" colspan="3">
+								산하 총계
 							</th>
-							<th>
-								산하 파손 총계
+							<th colspan="3" style="background-color: #FFFCC5; text-align: center">
+								{{$user->supplyNode->full_name}}
 							</th>
-							<th>
-								산하 가용 총계
+						</tr>
+						<tr>
+							<th style="text-align: center">
+								보유
 							</th>
-							<th style="background-color: #FFFCC5">
-								보유수량
+							<th style="text-align: center">
+								파손
 							</th>
-							<th style="background-color: #FFFCC5">
-								파손수량
+							<th style="text-align: center">
+								가용
 							</th>
-							<th style="background-color: #FFFCC5">
-								가용수량
+							<th style="background-color: #FFFCC5; text-align: center">
+								보유
 							</th>
-
+							<th style="background-color: #FFFCC5; text-align: center">
+								파손
+							</th>
+							<th style="background-color: #FFFCC5; text-align: center">
+								가용
+							</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -99,7 +106,9 @@ $(function() {
                     last = group;
                 }
             } );
-        }
+        },
+        // Disable Sorting
+        "bSort" : false
 	});
 });
 </script>
