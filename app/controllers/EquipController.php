@@ -162,7 +162,9 @@ class EquipController extends BaseController {
 	}
 
 	public function clearItemData($itemId){
-		$nodes = EqSupplyManagerNode::where('is_selectable','=',1)->get();
+		$user = Sentry::getUser();
+		$userNode = $user->supplyNode;
+		$nodes = $userNode->managedChildren;
 		DB::beginTransaction();
 		foreach ($nodes as $node) {
 			$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$node->id)->first();

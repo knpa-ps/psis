@@ -92,7 +92,7 @@
 								<tr>
 									<th>구분</th>
 									<td colspan="3">{{$item->classification}}</td>
-									<th>구입일자</th>
+									<th>납품일자</th>
 									<td>{{$item->acquired_date}}</td>
 								</tr>
 							</tbody>

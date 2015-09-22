@@ -37,7 +37,7 @@ class EqService extends BaseService {
 	}
 
 	public function inventorySupply($invData, $value){
-	    $itemId=$invData->parentSet->item_id;
+		$itemId=$invData->parentSet->item_id;
 		$nodeId=$invData->parentSet->node_id;
 
 		$availSumBefore=Cache::get('avail_sum_'.$nodeId.'_'.$itemId);
@@ -211,7 +211,7 @@ class EqService extends BaseService {
 			$suppliedCount = EqItemSupply::where('supply_set_id','=',$s->id)->where('item_type_id','=',$t->id)->sum('count');
 			$invData = EqInventoryData::where('inventory_set_id','=',$supplierInvSet->id)->where('item_type_id','=',$t->id)->first();
       try {
-        $this->inventorySupply($invData, $suppliedCount, false);
+        $this->inventorySupply($invData, $suppliedCount);
       } catch (Exception $e) {
         return Redirect::to('equips/supplies')->with('message', $e->getMessage() );
       }
@@ -225,7 +225,7 @@ class EqService extends BaseService {
 			$invData = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$d->item_type_id)->first();
 
       try {
-        $this->inventoryWithdraw($invData, $d->count, true);
+        $this->inventoryWithdraw($invData, $d->count);
       } catch (Exception $e) {
         return Redirect::to('equips/supplies')->with('message', $e->getMessage() );
       }

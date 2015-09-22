@@ -190,6 +190,9 @@ $(function(){
 		if(sumAll == 0){
 			alert('보급수량이 0 입니다');
 			return;
+		} else {
+			$('#submit_btn').val("제출중..");
+			$('#submit_btn').attr("disabled", true);	
 		}
 		$("#supply_form").submit();
 	});
