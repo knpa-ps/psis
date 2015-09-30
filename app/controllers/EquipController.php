@@ -18,6 +18,9 @@ class EquipController extends BaseController {
 		$inbounds = EqConvertSet::where('target_node_id','=',$userNode->id)->take(4)->get();
 		$outbounds = EqConvertSet::where('from_node_id','=',$userNode->id)->take(4)->get();
 
+		$query = EqItemSupplySet::where('is_closed','=',0)->where('from_node_id','=',$userNode->id);
+		$supplies = $query->paginate(15);
+
 		$surveys = EqItemSurvey::where('node_id','=',$userNode->id)->where('is_closed','=',0)->take(4)->get();
 		if ($userNode->type_code === 'D001') {
 			$toResponses = EqItemSurvey::where('node_id','=',0)->where('is_closed','=',0)->get();
@@ -161,27 +164,31 @@ class EquipController extends BaseController {
 		}
 	}
 
-	public function clearItemData($itemId){
-		$user = Sentry::getUser();
-		$userNode = $user->supplyNode;
+	public function clearItemData($nodeId, $itemId){
+		$userNode = EqSupplyManagerNode::find($nodeId);
 		$nodes = $userNode->managedChildren;
+
 		DB::beginTransaction();
 		foreach ($nodes as $node) {
 			$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$node->id)->first();
 			$types = EqItem::find($itemId)->types;
+			echo $node->full_name;
 			if($invSet){
 				foreach ($types as $t){
 					$data = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$t->id)->first();
 					$data->count = 0;
+					$data->wrecked = 0;
+					echo "Data cleared <br>";
 					if (!$data->save()) {
 						return App::abort(500);
 					}
-					Cache::forever('avail_sum_'.$node->id.'_'.$itemId, 0);
-					Cache::forever('wrecked_sum_'.$node->id.'_'.$itemId, 0);
 				}
+				Cache::forever('avail_sum_'.$node->id.'_'.$itemId, 0);
+				Cache::forever('wrecked_sum_'.$node->id.'_'.$itemId, 0);
 			}
 		}
 		DB::commit();
+		echo "finished";
 	}
 
 	public function getNodeName($nodeId) {

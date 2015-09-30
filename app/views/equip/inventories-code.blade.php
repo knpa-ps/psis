@@ -20,7 +20,7 @@
 					<div class="clearfix"></div>
 				</div>
 				@endif
-				<table class="table table-condensed table-bordered table-striped table-hover" id="items_table">
+				<table class="table table-condensed table-bordered table-striped table-hover" id="items_tables">
 					<thead>
 						<tr>
 							<th style="text-align: center; vertical-align: middle" rowspan="2">
@@ -88,27 +88,32 @@
 {{ HTML::dataTables() }}
 <script type="text/javascript">
 $(function() {
-	$("#items_table").DataTable({
-		columnDefs: [
-			{ visible: false, targets: 0 }
-		],
-        drawCallback: function ( settings ) {
-            var api = this.api();
-            var rows = api.rows( {page:'current'} ).nodes();
-            var last=null;
+	$("#items_tables").DataTable({
+		"aaSorting": [[0, 'desc']],
+		"aoColumnDefs": [
+			{ "bVisible": false, "aTargets": [ 0 ] },
+      { "bSortable": false, "aTargets": [ 1 ] },
+			{ "bSortable": false, "aTargets": [ 2 ] },
+			{ "bSortable": false, "aTargets": [ 3 ] },
+			{ "bSortable": false, "aTargets": [ 4 ] },
+			{ "bSortable": false, "aTargets": [ 5 ] },
+			{ "bSortable": false, "aTargets": [ 6 ] },
+			{ "bSortable": false, "aTargets": [ 7 ] }
+    ],
 
-            api.column(0, {page:'current'} ).data().each( function ( group, i ) {
-                if ( last !== group ) {
-                    $(rows).eq( i ).before(
-                        '<tr class="group"><td colspan="7" class="group-cell">'+group+'</td></tr>'
-                    );
-
-                    last = group;
-                }
-            } );
-        },
-        // Disable Sorting
-        "bSort" : false
+    drawCallback: function ( settings ) {
+      var api = this.api();
+      var rows = api.rows( {page:'current'} ).nodes();
+      var last=null;
+      api.column(0, {page:'current'} ).data().each( function ( group, i ) {
+          if ( last !== group ) {
+              $(rows).eq( i ).before(
+                  '<tr class="group"><td colspan="7" class="group-cell">'+group+'</td></tr>'
+              );
+              last = group;
+          }
+      });
+  	}
 	});
 });
 </script>

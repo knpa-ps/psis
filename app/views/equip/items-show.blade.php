@@ -154,7 +154,7 @@
 						<table class="table table-condensed table-bordered table-striped" style="table-layout: fixed;">
 							<thead>
 								<tr>
-									<td style="text-align: center;"><b>사이즈</b></td>
+									<td style="text-align: center;"><b>구분</b></td>
 								<td style="text-align: center;"><b>합계</b></td>
 									@foreach($types as $t)
 										<td style="text-align: center;"><b>{{$t->type_name}}</b></td>
@@ -164,7 +164,7 @@
 							@if ($inventorySet !== null)
 								<tbody>
 									<tr>
-										<td style="text-align: center;"><b>보유수량</b></td>
+										<td style="text-align: center;"><b>보유</b></td>
 										<td style="text-align: center;">{{ $inventorySet->children->sum('count') }}</td>
 										@if($modifiable)
 											{{ Form::open(array(
@@ -185,7 +185,7 @@
 										@endif
 									</tr>
 									<tr>
-										<td style="text-align: center;"><b>파손수량</b></td>
+										<td style="text-align: center;"><b>파손</b></td>
 										<td style="text-align: center;">{{ $inventorySet->children->sum('wrecked') }}</td>
 										{{ Form::open(array(
 											'url'=> '/equips/items/'.$item->id.'/wrecked_update',
@@ -202,7 +202,7 @@
 								</tbody>
 								<tfoot>
 									<tr>
-										<td style="text-align: center;"><b>가용수량</b></td>
+										<td style="text-align: center;"><b>가용</b></td>
 										<td style="text-align: center">{{ $inventorySet->children->sum('count') - $inventorySet->children->sum('wrecked') }}</td>
 										@foreach ($inventorySet->children as $c)
 											<td style="text-align: center">{{ $c->count - $c->wrecked }}</td>
@@ -221,17 +221,17 @@
 					<div class="col-xs-12">
 						<h4>하위부서 보유현황</h4>
 
-						<table style="table-layout: fixed;" class="table table-condensed table-striped table-hover table-bordered" id="data_table">
+						<table style="table-layout: fixed; padding: 1px" class="table table-condensed table-striped table-hover table-bordered" id="data_table">
 							<thead>
 								<tr>
-									<th style="width:170px;">
+									<th style="width:20%; white-space: nowrap; text-align: center; padding-left: 1px; padding-right: 1px" >
 										구분
 									</th>
-									<th>
+									<th style="white-space: nowrap; text-align: center; padding-left: 1px; padding-right: 1px">
 										총계
 									</th>
 									@foreach ($types as $t)
-									<th>
+									<th style="white-space: nowrap; text-align: center; padding-left: 1px; padding-right: 1px">
 										{{ $t->type_name }}
 									</th>
 									@endforeach
@@ -336,13 +336,11 @@ $(function() {
 					if (type != 'display') {
 						return data;
 					}
-
 					if (row.node.is_terminal == 1) {
 						return data;
 					} else {
 						return '<a href="#data_table" onclick="loadData('+row.node.id+')">'+data+'</a>'
 					}
-
 				}
 			},
 			{ data: "sum_row" },

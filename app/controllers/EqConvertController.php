@@ -354,7 +354,7 @@ class EqConvertController extends EquipController {
 			if (!$myInvSet->save()) {
 				return App::abort(500);
 			}
-			// 캐시도 만들어준다 
+			// 캐시도 만들어준다
 			try {
 				$this->service->makeCache($user->supplyNode->id);
 			} catch (Exception $e) {

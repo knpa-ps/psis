@@ -84,4 +84,7 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 
 	Route::get('/capsaicin/drillstore/{nodeId}/{count}/{month}', 'EqCapsaicinController@drillstore');
 
+	/* Custom Routes */
+	// 특정 아이템 수량 다 날려버림
+	Route::get('clear_item_data/{nodeId}/{itemId}','EquipController@clearItemData');
 });

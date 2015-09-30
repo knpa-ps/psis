@@ -21,7 +21,7 @@
 								</label>
 								<div class="col-xs-9">
 									<div class="input-daterange input-group">
-									    <input type="text" class="input-sm form-control" name="start" 
+									    <input type="text" class="input-sm form-control" name="start"
 									    value="{{ $start }}">
 									    <span class="input-group-addon">~</span>
 									    <input type="text" class="input-sm form-control" name="end"
@@ -50,7 +50,7 @@
 
 					</form>
 				</div>
-		
+
 				<div class="toolbar-table">
 					<form action="{{url('equips/supplies/create')}}">
 						<label style="margin-top: 9px; text-align: center;" for="item_to_supply" class="control-label col-xs-1">장비선택</label>
@@ -63,7 +63,7 @@
 								@else
 									<option value="0">올해 취득한 장비가 없습니다.</option>
 								@endif
-								
+
 							</select>
 						</div>
 						<button type="submit" style="margin-top: 3px;" class="col-xs-2 btn-xs pull-right btn btn-info"><span class="glyphicon glyphicon-plus"></span> 보급하기</button>
@@ -81,7 +81,7 @@
 								장비명
 							</th>
 							<th>
-								취득구분 (제조사/취득일)
+								취득구분 (제조사/납품일)
 							</th>
 							<th>
 								보급일자
@@ -95,7 +95,7 @@
 						</tr>
 					</thead>
 					<tbody>
-					@if (sizeof($supplies) > 0) 
+					@if (sizeof($supplies) > 0)
 						@foreach ($supplies as $supply)
 							<tr data-id="{{$supply->id}}">
 								<td>

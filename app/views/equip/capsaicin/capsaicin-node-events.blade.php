@@ -83,7 +83,7 @@
 					</a>
 					@endif
 					<a href="{{url('equips/capsaicin/create?nodeId='.$node->id.'&type=event')}}" class="btn btn-info btn-xs pull-right">
-						<span class="glyphicon glyphicon-plus"></span> 행사내역 추가
+						<span class="glyphicon glyphicon-plus"></span> 집회내역 추가
 					</a>
 					<a href="{{url('equips/capsaicin/create?nodeId='.$node->id.'&type=drill')}}" class="btn btn-primary btn-xs pull-right">
 						<span class="glyphicon glyphicon-plus"></span> 훈련내역 추가
@@ -98,12 +98,12 @@
 						<table class="table table-condensed table-hover table-striped table-bordered" id="capsaicin_table">
 						<thead>
 							<tr>
-								<th>일자</th>
-								<th>관할청</th>
+								<th style="width:10%; white-space: nowrap; text-align: center">일자</th>
+								<th style="width:5%; white-space: nowrap; text-align: center">관할청</th>
 								<th>중대</th>
 								<th>사용장소</th>
-								<th>행사명</th>
-								<th style="background-color: #E89ECC">사용량(ℓ)</th>
+								<th style="white-space: nowrap; text-align: center;">행사명</th>
+								<th style="width:5%; white-space: nowrap; text-align: center;background-color: #E89ECC">사용량(ℓ)</th>
 								<th></th>
 							</tr>
 						</thead>
@@ -115,11 +115,11 @@
 							@else
 							@foreach ($rows as $r)
 							<tr id="{{$r->id}}">
-								<td>{{ $r->date }}</td>
-								<td>{{ $r->node->region()->node_name }}</td>
+								<td style="white-space: nowrap">{{ $r->date }}</td>
+								<td style="white-space: nowrap">{{ $r->node->region()->node_name }}</td>
 								<td>{{ $r->user_node->full_name }}</td>
 								<td>{{ $r->location }}</td>
-								<td>{{ $r->event_name }}</td>
+								<td style="white-space: nowrap">{{ $r->event_name }}</td>
 								<td style="background-color: #FEE9FC">{{ round($r->amount, 2) }}</td>
 								<td>
 									@if($r->fileName != '')

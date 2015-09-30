@@ -48,6 +48,8 @@ Route::group(array('before'=>'auth|permission:superuser'), function() {
 
         // 노드 fullpath, fullname 정렬
         Route::get('node_adjust', 'AdminController@adjustHierarchy');
+        // 경비, 방순대 산하 부서들 정렬
+        Route::get('department_adjust', 'AdminController@departmentAdjust');
 
         // 인벤토리 타입 지운 데이터를 남은 타입 데이터에 더함
         Route::get('merge_inventory_count/{itemId}', 'AdminController@mergeInventoryCount');
@@ -67,9 +69,6 @@ Route::group(array('before'=>'auth|permission:superuser'), function() {
         Route::get('make_sub_cache_clear/{itemId}', 'EquipController@makeSubCacheClear');
         Route::get('make_sub_cache_for_all', 'EquipController@makeSubCacheForAll');
         Route::get('check_sub_cache_for_all','EquipController@checkSubCacheForAll');
-        // 특정 아이템 수량 다 날려버림
-        Route::get('clear_item_data/{itemId}','EquipController@clearItemData');
-
     });
 
     Route::resource('menu', 'MenuController');

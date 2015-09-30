@@ -736,6 +736,7 @@ class AdminController extends BaseController {
 		DB::commit();
 	}
 
+	// 90 사이즈 만들어넣기. 추후 type 넣어야 할 경우 재 사용
 	public function insertType90(){
 		$datas=EqInventoryData::where('item_type_id','=',298)->get();
 		$sets=EqInventorySet::where('item_id','=',156)->get();
@@ -758,5 +759,56 @@ class AdminController extends BaseController {
 		DB::commit();
 	}
 
+	public function returnPath($node){
+		return explode(':', trim($node->full_path, ':'));
+	}
+
+	// 경찰서 경비, 방순대 산하기관들이 뒤섞여 이를 바로잡아줌
+	public function departmentAdjust(){
+		$psNodes = EqSupplyManagerNode::where('type_code','=','D003')->get();
+
+		DB::beginTransaction();
+		foreach($psNodes as $psNode){
+			$guard = $psNode->children()->where('node_name','=','경비')->first();
+			$patrol = $psNode->children()->where('node_name','=','방순대')->first();
+
+			// 방순대 산하에 있는 경비 산하기관들을 경비 산하로 이동
+			if($patrol){
+				echo $patrol->full_name."<br>";
+				$patrolDepts = $patrol->children()->get();
+				foreach($patrolDepts as $patrolDept){
+					$nodeName = $patrolDept->node_name;
+					if(!($nodeName == "본부소대" || $nodeName == "1소대" || $nodeName == "2소대" || $nodeName == "3소대")){
+						$pathArray = explode(':', trim($patrolDept->full_path, ':'));
+						$path = $guard->full_path.":".end($pathArray).":";
+						$patrolDept->full_path = $path;
+						$patrolDept->parent_id = $guard->id;
+						if (!$patrolDept->save()) {
+							return App::abort(500);
+						}
+					}
+				}
+			}
+
+			// 경비 산하에 있는 방순대 산하기관들을 방순대 산하로 이동
+			if($guard){
+				echo $guard->full_name."<br>";
+				$guardDepts = $guard->children()->get();
+				foreach($guardDepts as $guardDept){
+					$nodeName = $guardDept->node_name;
+					if($nodeName == "본부소대" || $nodeName == "1소대" || $nodeName == "2소대" || $nodeName == "3소대"){
+						$pathArray = explode(':', trim($guardDept->full_path, ':'));
+						$path = $patrol->full_path.end($pathArray).":";
+						$guardDept->full_path = $path;
+						$guardDept->parent_id = $patrol->id;
+						if (!$guardDept->save()) {
+							return App::abort(500);
+						}
+					}
+				}
+			}
+		}
+		DB::commit();
+	}
 
 }

@@ -1,4 +1,4 @@
-<?php 
+<?php
 	/**
 	 * 최근 글 위젯
 	 * $board : 그누보드 게시판 아이디
@@ -32,7 +32,7 @@
             @foreach ($writes as $w)
                 <tr>
                     <td>
-                        <a href="{{ board_url($board, $w['id']) }}" class="board-link">
+                        <a href="{{ board_url($board, $w['id']) }}" class="board-link visit">
                             {{ $w['subject'] }}
                         </a>
                     </td>

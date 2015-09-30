@@ -6,7 +6,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					<strong>{{$node->node_name}} 캡사이신 사용내역 추가</strong>
+					<strong>{{$node->node_name}} 집회시 캡사이신 사용내역 추가</strong>
 				</h3>
 			</div>
 

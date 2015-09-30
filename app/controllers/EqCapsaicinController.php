@@ -90,7 +90,7 @@ class EqCapsaicinController extends EquipController {
 	public function getEvents(){
 		$now = Carbon::now();
 		$regionId = Input::get('regionId');
-		$events = EqCapsaicinEvent::where('node_id','=',$regionId)->where('date','>',$now->subDays(4000))->orderBy('date', 'desc')->get();
+		$events = EqCapsaicinEvent::where('node_id','=',$regionId)->where('type_code','=','assembly')->where('date','>',$now->subDays(4000))->orderBy('date', 'desc')->get();
 		// 최신순으로 n일 전 집회까지 리턴한다.
 		return $events;
 	}
