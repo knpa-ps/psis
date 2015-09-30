@@ -269,6 +269,18 @@ class EquipController extends BaseController {
 		DB::commit();
 
 		return "삭제되었습니다";
+	}
 
+	public function checkPeriodForEachItem() {
+		$items = EqItem::where('is_active','=',1)->get();
+		DB::beginTransaction();
+		foreach ($items as $item) {
+			$checkPeriod = new EqQuantityCheckPeriod;
+			$checkPeriod->check_start = "2014-10-01";
+			$checkPeriod->check_end = "2015-10-30";
+			$checkPeriod->item_id = $item->id;
+			$checkPeriod->save();
+		}
+		DB::commit();
 	}
 }

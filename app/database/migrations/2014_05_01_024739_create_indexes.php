@@ -40,23 +40,23 @@ class CreateIndexes extends Migration {
 	public function down()
 	{
 		Schema::table('departments', function(Blueprint $table) {
-			$table->dropIndex('parent_id');
-			$table->dropIndex('full_path');
-			$table->dropIndex('sort_order');
+			$table->dropColumn('parent_id');
+			$table->dropColumn('full_path');
+			$table->dropColumn('sort_order');
 		});
 
 		Schema::table('ps_reports', function(Blueprint $table) {
-			$table->dropIndex('creator_id');
-			$table->dropIndex('created_at');
+			$table->dropColumn('creator_id');
+			$table->dropColumn('created_at');
 		});
 
 		Schema::table('ps_reports_history', function(Blueprint $table) {
-			$table->dropIndex('creator_id');
-			$table->dropIndex('report_id');
-			$table->dropIndex('created_at');
+			$table->dropColumn('creator_id');
+			$table->dropColumn('report_id');
+			$table->dropColumn('created_at');
 		});
 		Schema::table('users', function(Blueprint $table) {
-			$table->dropIndex('dept_id');
+			$table->dropColumn('dept_id');
 		});
 	}
 

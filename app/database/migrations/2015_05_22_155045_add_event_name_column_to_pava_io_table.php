@@ -12,14 +12,8 @@ class AddEventNameColumnToPavaIoTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('eq_pava_io', function(Blueprint $table) {
-			$table->increments('id');
-			$table->integer('node_id');
-			$table->date('date');
+		Schema::table('eq_pava_io', function(Blueprint $table) {
 			$table->string('event_name');
-			$table->string('sort');
-			$table->float('amount');
-			$table->timestamps();
 		});
 	}
 
@@ -30,13 +24,8 @@ class AddEventNameColumnToPavaIoTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::create('eq_pava_io', function(Blueprint $table) {
-			$table->increments('id');
-			$table->integer('node_id');
-			$table->date('date');
-			$table->string('sort');
-			$table->float('amount');
-			$table->timestamps();
+		Schema::table('eq_pava_io', function(Blueprint $table) {
+			$table->dropColumn('event_name');
 		});
 	}
 
