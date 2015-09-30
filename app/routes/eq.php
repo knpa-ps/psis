@@ -89,4 +89,5 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::get('clear_item_data/{nodeId}/{itemId}','EquipController@clearItemData');
 	// eq_quantity_check_period에 item_id 추가해 주고 item별 입력기간 설정
 	Route::get('check_period_for_each_item','EquipController@checkPeriodForEachItem');
+	Route::get('set_check_period','EquipController@setCheckPeriod');
 });

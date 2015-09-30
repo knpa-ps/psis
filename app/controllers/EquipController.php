@@ -283,4 +283,14 @@ class EquipController extends BaseController {
 		}
 		DB::commit();
 	}
+
+	public function setCheckPeriod() {
+		$checkPeriods = EqQuantityCheckPeriod::get();
+		DB::beginTransaction();
+		foreach ($checkPeriods as $checkPeriod) {
+			$checkPeriod->check_end = "2015-10-30";
+			$checkPeriod->save();
+		}
+		DB::commit();
+	}
 }
