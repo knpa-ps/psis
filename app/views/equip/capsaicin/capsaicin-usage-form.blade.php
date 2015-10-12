@@ -23,7 +23,7 @@
 							</legend>
 
 							<div class="form-group">
-								<label for="region" class="control-label col-xs-2">행사관할 지방청</label>
+								<label for="region" class="control-label col-xs-2">집회 관할 지방청</label>
 								<div class="col-xs-10">
 									<select name="region" id="region" class="form-control input-sm">
 										@foreach ($regions as $r)
@@ -34,7 +34,7 @@
 							</div>
 
 							<div class="form-group">
-								<label for="event" class="control-label col-xs-2">행사명</label>
+								<label for="event" class="control-label col-xs-2">집회명</label>
 								<div class="col-xs-10">
 									<select name="event" id="event" class="form-control input-sm">
 									</select>

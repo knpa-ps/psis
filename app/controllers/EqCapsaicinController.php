@@ -749,10 +749,9 @@ class EqCapsaicinController extends EquipController {
 
 	public function store()
 	{
-		$user = Sentry::getUser();
-		$node = $user->supplyNode;
-
 		$input = Input::all();
+		$node = EqSupplyManagerNode::find(Input::get('nodeId'));
+
 		// return var_dump($input);
 
 		DB::beginTransaction();
@@ -766,7 +765,7 @@ class EqCapsaicinController extends EquipController {
 				$usage->event_id = $event->id;
 				$usage->amount = $input['amount'];
 				$usage->location = $input['location'];
-				$usage->user_node_id = Input::get('nodeId');
+				$usage->user_node_id = $node->id;
 				$usage->attached_file_name = $input['file_name'];
 
 				if (!$usage->save()) {
@@ -775,7 +774,7 @@ class EqCapsaicinController extends EquipController {
 
 				// 타 청에서 동원된 경우
 				// 1. 해당 청에 추가량 등록
-				if ($node->id != $input['region']) {
+				if ($node->region()->id != $input['region']) {
 					// 원래는 $node->region()->id 였으나 그렇게 되면 본청이 입력을 못하게됨.
 					$addition = new EqCapsaicinIo;
 					$addition->node_id = $input['region'];
