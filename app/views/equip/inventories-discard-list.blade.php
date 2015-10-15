@@ -13,6 +13,7 @@
 			<table class="table table-striped table-bordered" id="lists_table">
 				<thead>
 					<tr>
+						<th rowspan="2">구분</th>
 						<th rowspan="2">일자</th>
 						<th rowspan="2">유형</th>
 						<th colspan="{{sizeof($types)}}">사이즈별 수량</th>
@@ -28,6 +29,7 @@
 				<tbody>
 					@foreach ($sets as $set)
 						<tr>
+							<td>{{$set->node->full_name}}</td>
 							<td>{{$set->discarded_date}}</td>
 							@if($set->category === 'lost')
 								<td>{{'분실'}}</td>
@@ -40,7 +42,9 @@
 								<td>{{$count[$set->id][$type->id]}}</td>
 							@endforeach
 							<td>
+								@if($set->file_name)
 								<a class="btn btn-success btn-xs btn-block" href="{{ url('/uploads/docs/'.$set->file_name)}}" target="_blank"><span class="glyphicon glyphicon-ok"></span> 사유서 보기</a>
+								@endif
 							</td>
 							<td>
 							<a class="btn btn-xs btn-danger btn-block" href="{{url('/equips/items/'.$set->id.'/delete_discarded_item')}}"><span class="glyphicon glyphicon-ok"></span> 삭제</button>

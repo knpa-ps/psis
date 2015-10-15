@@ -8,7 +8,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					관리전환 수량확인 - {{$item->code->title.'('.$item->maker_name.')'}}
+					관리전환 수량확인 - {{substr($item->acquired_date, 0, 4).' '.$item->code->title.' / '.$item->maker_name.''}}
 				</h3>
 			</div>
 			<div class="panel-body">
@@ -45,9 +45,9 @@
 								'method'=>'post',
 								'id'=>'confirm_form'
 							)) }}
-							
+
 							<input type="text" class="hidden" name="item_id" value="{{ $item->id }}">
-							
+
 							<button class="btn btn-primary pull-right btn-xs" type="button" id="confirm"><span class="glyphicon glyphicon-ok-sign"></span> 확정하기</button>
 
 							{{ Form::close(); }}
@@ -55,11 +55,15 @@
 							<button disabled class="btn btn-success pull-right btn-xs" type="button" ><span class="glyphicon glyphicon-ok-sign"></span> 확정됨</button>
 						@endif
 					@endif
-					@if ($user->supplyNode->type_code === "D001")
-						@if ($convSet->head_confirmed==0)
-							<a class="btn btn-primary btn-xs pull-right" href="{{url('equips/convert_cross_head/'.$convSet->id.'/confirm')}}"><span class="glyphicon glyphicon-ok-sign"></span> 승인하기</a>
-						@else
-							<button disabled class="btn btn-success pull-right btn-xs" type="button" ><span class="glyphicon glyphicon-ok-sign"></span> 승인됨</button>
+
+					<!-- 지방청간 전환인 경우에만 본청 승인하도록 함 -->
+					@if ($convSet->cross_head == 1)
+						@if ($user->supplyNode->type_code === "D001")
+							@if ($convSet->head_confirmed==0)
+								<a class="btn btn-primary btn-xs pull-right" href="{{url('equips/convert_cross_head/'.$convSet->id.'/confirm')}}"><span class="glyphicon glyphicon-ok-sign"></span> 본청 승인하기</a>
+							@else
+								<button disabled class="btn btn-success pull-right btn-xs" type="button" ><span class="glyphicon glyphicon-ok-sign"></span> 본청 승인됨</button>
+							@endif
 						@endif
 					@endif
 				</div>

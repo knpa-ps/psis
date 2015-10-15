@@ -145,7 +145,7 @@
 						@endif
 						<button class="btn btn-xs btn-success pull-right" id="wrecked_update_btn"><span class="glyphicon glyphicon-pencil"></span> 파손수량 수정</button>
 						<button class="btn btn-xs btn-danger pull-right" id="discard_register_btn"><span class="glyphicon glyphicon-ok"></span> 분실/폐기내역 등록</button>
-						<button class="btn btn-xs btn-default pull-right" id="discard_history_btn"><span class="glyphicon glyphicon-th-list"></span> 분실/폐기내역</button>
+						<button class="btn btn-xs btn-default pull-right" id="discard_history_btn"><span class="glyphicon glyphicon-th-list"></span> 분실/폐기내역({{$discardSets}}건)</button>
 					</div>
 				</div>
 				<div class="row">

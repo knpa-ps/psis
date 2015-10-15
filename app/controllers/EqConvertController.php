@@ -64,7 +64,7 @@ class EqConvertController extends EquipController {
 		$data['user'] = $user;
 
 		if (!$isImport) {
-			$data['isImport'] = true;
+			$data['isImport'] = false;
 		} else {
 			if ($isImport=='true') {
 				$data['isImport'] = true;
@@ -310,9 +310,16 @@ class EqConvertController extends EquipController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
-	{
-		//
+	public function destroy($id) {
+		$result = $this->service->deleteConvertSet($id);
+
+		if ($result === 1) {
+			Session::flash('message', '관리전환이 취소되었습니다.');
+			return Redirect::back();
+		} else {
+			Session::flash('message', '관리전환 취소 중 오류가 발생했습니다.');
+			return Redirect::back();
+		}
 	}
 
 	public function headConfirm($id) {

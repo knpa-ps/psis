@@ -55,7 +55,6 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 
 	Route::resource('supplies', 'EqSupplyController');
 	Route::put('/supplies/{id}/detail', 'EqSupplyController@addSupply');
-	Route::delete('/supplies/{id}/detail/{detailId}', 'EqSupplyController@removeSupply');
 	Route::post('/supplies/create/get_classifiers', 'EqSupplyController@getClassifiers');
 
 	Route::resource('convert', 'EqConvertController');

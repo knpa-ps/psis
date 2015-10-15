@@ -260,6 +260,73 @@ class EqService extends BaseService {
 		return 1;
 	}
 
+	public function deleteConvertSet($id){
+		$set = EqConvertSet::find($id);
+		if (!$set) {
+			return 'foo';
+		}
+		$data = $set->children;
+		$item = $set->item;
+
+		$isConfirmed = $set->is_confirmed;
+
+		DB::beginTransaction();
+
+		if($isConfirmed == 0){
+			foreach($data as $d) {
+				if (!$d->delete()) {
+					return App::abort(500);
+				}
+			}
+
+			if (!$set->delete()) {
+				return App::abort(500);
+			}
+
+		} else {
+			// 1. 관리전환시킨 관서의 인벤토리 수량 더하기
+			$converterNodeId = $set->from_node_id;
+			$converterInvSet = EqInventorySet::where('node_id','=',$converterNodeId)->where('item_id','=',$item->id)->first();
+
+			foreach ($item->types as $t) {
+				$convertedCount = EqConvertData::where('convert_set_id','=',$set->id)->where('item_type_id','=',$t->id)->sum('count');
+				$invData = EqInventoryData::where('inventory_set_id','=',$converterInvSet->id)->where('item_type_id','=',$t->id)->first();
+	      try {
+	        $this->inventorySupply($invData, $convertedCount);
+	      } catch (Exception $e) {
+	        return Redirect::to('equips/supplies')->with('message', $e->getMessage() );
+	      }
+			}
+
+			// 2. 관리전환받은 관서의 인벤토리 수량 빼기
+			foreach ($data as $d) {
+				$itemTypeId = $d->item_type_id;
+				$toNodeId = $set->target_node_id;
+				$invSet = EqInventorySet::where('node_id','=',$toNodeId)->where('item_id','=',$set->item_id)->first();
+				$invData = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$d->item_type_id)->first();
+
+	      try {
+	        $this->inventoryWithdraw($invData, $d->count);
+	      } catch (Exception $e) {
+	        return Redirect::to('equips/supplies')->with('message', $e->getMessage() );
+	      }
+
+				if (!$d->delete()) {
+					return App::abort(500);
+				}
+			}
+
+			if (!$set->delete()) {
+				return App::abort(500);
+			} foreach($data as $d) {
+
+			}
+		}
+		DB::commit();
+
+		return 1;
+	}
+
 	public function getScopeDept(User $user) {
 		if (!$user->isSuperUser() && $user->department->type_code != Department::TYPE_HEAD) {
 			// 사용자의 관서 종류에 따라 조회 범위 설정

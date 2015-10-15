@@ -11,4 +11,8 @@ class EqItemDiscardSet extends Eloquent {
 	public function children() {
 		return $this->hasMany('EqItemDiscardData','discard_set_id','id');
 	}
+
+	public function node() {
+		return $this->belongsTo('EqSupplyManagerNode', 'node_id', 'id');
+	}
 }

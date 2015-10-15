@@ -106,8 +106,11 @@ class EqInventoryController extends EquipController {
 
 	public function displayDiscardList($itemId){
 		$user = Sentry::getUser();
+		$data['user'] = $user;
 		$data['item'] = EqItem::find($itemId);
-		$data['sets'] = EqItemDiscardSet::where('item_id','=',$data['item']->id)->where('node_id','=',$user->supplyNode->id)->get();
+		$data['sets'] = EqItemDiscardSet::where('item_id','=',$data['item']->id)->whereHas('node', function($q) use ($user){
+			$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
+		})->get();
 
 		$types = EqItem::find($itemId)->types;
 		$data['types'] = $types;
@@ -328,6 +331,9 @@ class EqInventoryController extends EquipController {
 		$data['category'] = $item->code->category;
 		$data['item'] = $item;
 		$data['types'] = $types;
+		$data['discardSets'] = EqItemDiscardSet::where('item_id','=',$data['item']->id)->whereHas('node', function($q) use ($user){
+			$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
+		})->count();
 
 		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first();
 		$modifiable = false;

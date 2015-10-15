@@ -34,7 +34,7 @@
 								</label>
 								<div class="col-xs-9">
 									<div class="input-daterange input-group">
-									    <input type="text" class="input-sm form-control" name="start" 
+									    <input type="text" class="input-sm form-control" name="start"
 									    value="{{ $start }}">
 									    <span class="input-group-addon">~</span>
 									    <input type="text" class="input-sm form-control" name="end"
@@ -64,7 +64,7 @@
 
 					</form>
 				</div>
-				
+
 				@if ($isImport!=true)
 				<div class="toolbar-table">
 					<form action="{{url('equips/convert/create')}}">
@@ -78,7 +78,7 @@
 								@else
 									<option value="0">보유중인 장비가 없습니다.</option>
 								@endif
-								
+
 							</select>
 						</div>
 						<button type="submit" style="margin-top: 3px;" class="col-xs-2 btn-xs pull-right btn btn-info"><span class="glyphicon glyphicon-plus"></span> 관리전환하기</button>
@@ -113,10 +113,17 @@
 							<th>
 								확인여부
 							</th>
+							@foreach ($converts as $convert)
+								@if($convert->from_node_id == $user->supplyNode->id)
+									<th>
+										작업
+									</th>
+								@endif
+							@endforeach
 						</tr>
 					</thead>
 					<tbody>
-					@if (count($converts) > 0) 
+					@if (count($converts) > 0)
 						@foreach ($converts as $convert)
 							<tr data-id="{{$convert->id}}">
 								<td>
@@ -145,12 +152,26 @@
 										<span class="label label-warning"><span class="glyphicon glyphicon-question-sign"></span> 본청승인대기</span>
 									@else
 										@if($convert->is_confirmed==0)
-											<span class="label label-danger"><span class="glyphicon glyphicon-question-sign"></span> 미확인</span>
+											<span class="label label-danger"><span class="glyphicon glyphicon-xs glyphicon-question-sign"></span> 미확인</span>
 										@else
 											<span class="label label-success"><span class="glyphicon glyphicon-ok"></span> {{ $convert->confirmed_date }}</span>
 										@endif
 									@endif
 								</td>
+								@if($convert->from_node_id == $user->supplyNode->id)
+									<td>
+										{{ Form::open(array(
+												'url'=>url('equips/convert/'.$convert->id),
+												'method'=>'delete',
+												'class'=>'form-delete'
+											)) }}
+										<button type="submit" class="btn btn-xs btn-danger">
+											<span class="glyphicon glyphicon-xs glyphicon-remove"></span> 관리전환 취소
+										</button>
+										{{ Form::close() }}
+									</td>
+								@endif
+
 							</tr>
 						@endforeach
 					@else
@@ -173,4 +194,3 @@
 @section('scripts')
 {{ HTML::datepicker() }}
 @stop
-
