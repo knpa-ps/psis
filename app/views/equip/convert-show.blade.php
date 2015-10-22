@@ -14,7 +14,7 @@
 			<div class="panel-body">
 				<div class="col-xs-12">
 					<legend>
-						<h4>{{$convSet->explanation}}</h4>
+						<h5><b>관리전환사유</b> : {{$convSet->explanation}}</h5>
 					</legend>
 					<table class="table table-condensed table-bordered table-striped" style="table-layout: fixed;">
 						<thead>

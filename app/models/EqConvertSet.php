@@ -23,4 +23,12 @@ class EqConvertSet extends Eloquent {
 	public function children() {
 		return $this->hasMany('EqConvertData','convert_set_id','id');
 	}
+
+	public function childOfTargetNode() {
+		return $this->belongsTo('EqSupplyManagerNode', 'target_node_id', 'id');
+	}
+	
+	public function childOfFromNode() {
+		return $this->belongsTo('EqSupplyManagerNode', 'from_node_id', 'id');
+	}
 }

@@ -21,7 +21,7 @@
 
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title"><strong>관리전환</strong></h3>
+				<h3 class="panel-title"><strong>{{end($userNodeName) }} 산하 관리전환내역</strong></h3>
 			</div>
 			<div class="panel-body">
 				<div class="well well-sm">
@@ -73,7 +73,7 @@
 							<select name="item" id="item_to_convert" class="form-control">
 								@if(count($items)>0)
 									@foreach($items as $i)
-										<option value="{{$i->id}}">{{substr($i->acquired_date, 0, 4).' '.$i->code->title}} ({{$i->maker_name.' '.$i->classification}})</option>
+										<option value="{{$i->id}}">{{substr($i->acquired_date, 0, 4).' '.$i->code->title.', '.$i->maker_name}}</option>
 									@endforeach
 								@else
 									<option value="0">보유중인 장비가 없습니다.</option>
@@ -89,7 +89,7 @@
 				<table class="table table-condensed table-bordered table-hover table-striped" id="data_table">
 					<thead>
 						<tr>
-							<th>
+							<th width="8%">
 								날짜
 							</th>
 							<th>
@@ -98,15 +98,12 @@
 							<th>
 								구분
 							</th>
-							@if ($isImport != true)
-								<th>
-									대상관서
-								</th>
-							@else
-								<th>
-									출처
-								</th>
-							@endif
+							<th>
+								출고관서
+							</th>
+							<th>
+								입고관서
+							</th>
 							<th>
 								총 수량
 							</th>
@@ -133,17 +130,14 @@
 									<a href="{{ url('equips/convert/'.$convert->id)}}">{{ substr($convert->item->acquired_date, 0, 4).' '.$convert->item->code->title }}</a>
 								</td>
 								<td>
-									{{ $convert->item->classification.' / '.$convert->item->maker_name }}
+									{{ $convert->item->maker_name }}
 								</td>
-								@if ($isImport!=true)
-									<td>
-										{{ explode(' ', $convert->targetNode->full_name)[0] }}
-									</td>
-								@else
-									<td>
-										{{ explode(' ', $convert->fromNode->full_name)[0] }}
-									</td>
-								@endif
+								<td>
+									{{ $convert->fromNode->full_name }}
+								</td>
+								<td>
+									{{ $convert->targetNode->full_name }}
+								</td>
 								<td>
 									{{ number_format($convert->children->sum('count')) }}
 								</td>

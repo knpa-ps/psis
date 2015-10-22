@@ -62,9 +62,10 @@ class EqConvertController extends EquipController {
 		$isImport = Input::get('is_import');
 
 		$data['user'] = $user;
+		$data['userNodeName'] = explode(' ', $user->supplyNode->full_name);
 
 		if (!$isImport) {
-			$data['isImport'] = false;
+			$data['isImport'] = true;
 		} else {
 			if ($isImport=='true') {
 				$data['isImport'] = true;
@@ -112,13 +113,15 @@ class EqConvertController extends EquipController {
 		//converts 불러오기
 		if ($data['isImport'] == true) {
 			// 입고내역 조회
-			// convert_set 중 target_node = userNode인 것만 불러온다.
-			$data['converts'] = $query->where('target_node_id','=',$user->supplyNode->id)->whereRaw('cross_head = head_confirmed')->paginate(15);
+			$data['converts'] = $query->whereHas('childOfTargetNode', function($q) use ($user){
+				$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
+			})->whereRaw('cross_head = head_confirmed')->orderBy('converted_date','DESC')->paginate(15);
 
 		} else {
 			// 출고내역 조회
-			// convert_set 중 from_node = userNode인 것만 불러온다.
-			$data['converts'] = $query->where('from_node_id','=',$user->supplyNode->id)->paginate(15);
+			$data['converts'] = $query->whereHas('childOfFromNode', function($q) use ($user){
+				$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
+			})->orderBy('converted_date','DESC')->paginate(15);
 		}
 
 
