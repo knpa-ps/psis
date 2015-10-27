@@ -166,7 +166,7 @@ class EquipController extends BaseController {
 
 	public function clearItemData($nodeId, $itemId){
 		$userNode = EqSupplyManagerNode::find($nodeId);
-		$nodes = $userNode->managedChildren;
+		$nodes = EqSupplyManagerNode::where('full_path','like',$userNode->full_path.'%')->get();
 
 		DB::beginTransaction();
 		foreach ($nodes as $node) {

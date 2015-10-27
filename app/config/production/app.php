@@ -27,7 +27,7 @@ return array(
 	|
 	*/
 
-	'url' => 'http://10.17.42.238/psis',
+	'url' => 'http://localhost/psis',
 
 
 	/*

@@ -74,8 +74,8 @@
 				<table class="table table-condensed table-bordered table-hover table-striped" id="data_table">
 					<thead>
 						<tr>
-							<th>
-								번호
+							<th width="10%">
+								보급일자
 							</th>
 							<th>
 								장비명
@@ -84,7 +84,7 @@
 								취득구분 (제조사/납품일)
 							</th>
 							<th>
-								보급일자
+								출고관서
 							</th>
 							<th>
 								총 보급수량
@@ -99,7 +99,7 @@
 						@foreach ($supplies as $supply)
 							<tr data-id="{{$supply->id}}">
 								<td>
-									{{ $supply->id }}
+									{{ $supply->supplied_date }}
 								</td>
 								<td>
 									<a href="{{ url('equips/supplies/'.$supply->id)}}">{{ $supply->item->code->title.' / '.$supply->item->classification }}</a>
@@ -108,11 +108,12 @@
 									{{ $supply->item->maker_name.' / '.$supply->item->acquired_date }}
 								</td>
 								<td>
-									{{ $supply->supplied_date }}
+									{{ $supply->node->full_name }}
 								</td>
 								<td>
 									{{ number_format($supply->children->sum('count')) }}
 								</td>
+								@if($supply->from_node_id == $user->supplyNode->id)
 								<td>
 									{{ Form::open(array(
 											'url'=>url('equips/supplies/'.$supply->id),
@@ -124,6 +125,10 @@
 										</button>
 									{{ Form::close() }}
 								</td>
+								@else
+								<td>
+								</td>
+								@endif
 							</tr>
 						@endforeach
 					@else

@@ -88,7 +88,7 @@ class EqSupplyController extends EquipController {
 
 		$itemName = Input::get('item_name');
 
-		$query = EqItemSupplySet::where('supplied_date', '>=', $start)->where('supplied_date', '<=', $end)->where('is_closed','=',0)->where('from_node_id','=',$nodeId);
+		$query = EqItemSupplySet::where('supplied_date', '>=', $start)->where('supplied_date', '<=', $end)->where('is_closed','=',0);
 
 		if ($itemName) {
 			$query->whereHas('item', function($q) use($itemName) {
@@ -97,8 +97,10 @@ class EqSupplyController extends EquipController {
 				});
 			});
 		}
+		$supplies = $query->whereHas('node', function($q) use($user){
+			$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
+		})->orderBy('supplied_date','DESC')->paginate(15);
 
-		$supplies = $query->paginate(15);
 		$items = EqItem::where('is_active','=',1)->whereHas('inventories', function($q) use ($nodeId) {
 			$q->where('node_id','=',$nodeId)->where('acquired_date','>=',date("Y"));
 		})->get();
@@ -285,7 +287,7 @@ class EqSupplyController extends EquipController {
 		$supply = EqItemSupplySet::find($id);
 
 		$types = EqItemType::where('item_id','=',$supply->item->id)->get();
-		$lowerNodes = $userNode->managedChildren;
+		$lowerNodes = $supply->managedChildren;
 		$count = array();
 
 		$data['types'] = $types;

@@ -89,7 +89,7 @@
 				<table class="table table-condensed table-bordered table-hover table-striped" id="data_table">
 					<thead>
 						<tr>
-							<th width="8%">
+							<th width="10%">
 								날짜
 							</th>
 							<th>
@@ -110,13 +110,9 @@
 							<th>
 								확인여부
 							</th>
-							@foreach ($converts as $convert)
-								@if($convert->from_node_id == $user->supplyNode->id)
-									<th>
-										작업
-									</th>
-								@endif
-							@endforeach
+							<th>
+								작업
+							</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -163,6 +159,9 @@
 											<span class="glyphicon glyphicon-xs glyphicon-remove"></span> 관리전환 취소
 										</button>
 										{{ Form::close() }}
+									</td>
+								@else
+									<td>
 									</td>
 								@endif
 

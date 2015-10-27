@@ -57,7 +57,7 @@ return array(
 			'host'      => 'localhost',
 			'database'  => 'psis_db_test',
 			'username'  => 'root',
-			'password'  => 'dkqkxk11',
+			'password'  => '1wkdwlsrn',
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'    => '',

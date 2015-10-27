@@ -57,10 +57,12 @@ return array(
 			'host'      => 'localhost',
 			'database'  => 'psis_db',
 			'username'  => 'root',
-			'password'  => 'vhtkdgbrk',
+			'password'  => '1wkdwlsrn',
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'    => '',
+			// 이게 있어야 동작하네?
+			'unix_socket' => '/tmp/mysql.sock',
 		),
 
 		'pgsql' => array(

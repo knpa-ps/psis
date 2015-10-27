@@ -3,7 +3,7 @@
 class EqItemSupplySet extends Eloquent {
 
 	protected $table = 'eq_item_supplies_set';
-	
+
 	protected $guarded = array();
 
 	public static $rules = array();
@@ -18,5 +18,9 @@ class EqItemSupplySet extends Eloquent {
 
 	public function children(){
 		return $this->hasMany('EqItemSupply','supply_set_id','id');
+	}
+
+	public function managedChildren() {
+		return $this->hasMany('EqSupplyManagerNode','parent_manager_node','from_node_id');
 	}
 }
