@@ -169,7 +169,7 @@
 						@endforeach
 					@else
 						<tr>
-							<td colspan="7">
+							<td colspan="8">
 								내역이 없습니다.
 							</td>
 						</tr>
