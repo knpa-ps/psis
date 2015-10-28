@@ -281,9 +281,22 @@ class EqInventoryController extends EquipController {
 		$data['code']=EqItemCode::where('code','=',$itemCode)->first();
 		$user = Sentry::getUser();
 		$userNode = $user->supplyNode;
+		$children = $userNode->managedChildren;
 		$data['user']= $user;
+		$data['children'] = $children;
 		$items = EqItem::where('item_code','=',$itemCode)->where('is_active','=',1)->get();
 		$data['items']= $items;
+		$byYear = Input::get('byYear');
+
+		if (!$byYear) {
+			$data['byYear'] = true;
+		} else {
+			if ($byYear=='true') {
+				$data['byYear'] = true;
+			} else {
+				$data['byYear'] = false;
+			}
+		}
 
 		//item 별 연한 초과 여부를 저장하는 배열
 		$timeover = array();
@@ -294,15 +307,30 @@ class EqInventoryController extends EquipController {
 					$this->service->makeCache($userNode->id);
 			}
 
-			$wreckedSum = Cache::get('wrecked_sum_'.$userNode->id.'_'.$i->id);
-			$availSum = Cache::get('avail_sum_'.$userNode->id.'_'.$i->id);
-			$subWreckedSum = Cache::get('sub_wrecked_sum_'.$userNode->id.'_'.$i->id);
-			$subAvailSum = Cache::get('sub_avail_sum_'.$userNode->id.'_'.$i->id);
+			// user의 보유수량 정보(연도별, 기관별 모두 사용)
+			$data['wreckedSum'][$userNode->id][$i->id] = Cache::get('wrecked_sum_'.$userNode->id.'_'.$i->id);
+			$data['availSum'][$userNode->id][$i->id] = Cache::get('avail_sum_'.$userNode->id.'_'.$i->id);
+			$data['subWreckedSum'][$userNode->id][$i->id] = Cache::get('sub_wrecked_sum_'.$userNode->id.'_'.$i->id);
+			$data['subAvailSum'][$userNode->id][$i->id] = Cache::get('sub_avail_sum_'.$userNode->id.'_'.$i->id);
 
-			$data['wreckedSum'][$i->id] = $wreckedSum;
-			$data['availSum'][$i->id] = $availSum;
-			$data['subWreckedSum'][$i->id] = $subWreckedSum;
-			$data['subAvailSum'][$i->id] = $subAvailSum;
+			foreach ($children as $child) {
+				$data['wreckedSumAllYear'][$child->id] = 0;
+				$data['availSumAllYear'][$child->id] = 0;
+				$data['subWreckedSumAllYear'][$child->id] = 0;
+				$data['subAvailSumAllYear'][$child->id] = 0;
+			}
+			// user바로 밑 managed children의 보유수량 정보 (기관별에 사용)
+			foreach ($children as $child) {
+				$data['wreckedSum'][$child->id][$i->id] = Cache::get('wrecked_sum_'.$child->id.'_'.$i->id);
+				$data['availSum'][$child->id][$i->id] = Cache::get('avail_sum_'.$child->id.'_'.$i->id);
+				$data['subWreckedSum'][$child->id][$i->id] = Cache::get('sub_wrecked_sum_'.$child->id.'_'.$i->id);
+				$data['subAvailSum'][$child->id][$i->id] = Cache::get('sub_avail_sum_'.$child->id.'_'.$i->id);
+
+				$data['wreckedSumAllYear'][$child->id] += Cache::get('wrecked_sum_'.$child->id.'_'.$i->id);
+				$data['availSumAllYear'][$child->id] += Cache::get('avail_sum_'.$child->id.'_'.$i->id);
+				$data['subWreckedSumAllYear'][$child->id] += Cache::get('sub_wrecked_sum_'.$child->id.'_'.$i->id);
+				$data['subAvailSumAllYear'][$child->id] += Cache::get('sub_avail_sum_'.$child->id.'_'.$i->id);
+			}
 
 			//불용연한 지났는지 여부 판단
 			$acquired_date = $i->acquired_date;
@@ -311,9 +339,7 @@ class EqInventoryController extends EquipController {
 			$endDate = strtotime('+'.$persist.' years', $acqDate);
 			$diff = (time() - $endDate)/31536000;
 
-
 			time() > $endDate ? $timeover[$i->id] = ceil($diff) : $timeover[$i->id] = 0 ;
-
 		}
 
 		$data['timeover'] = $timeover;
