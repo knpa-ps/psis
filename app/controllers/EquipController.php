@@ -286,8 +286,11 @@ class EquipController extends BaseController {
 
 	public function setCheckPeriod() {
 		$checkPeriods = EqQuantityCheckPeriod::get();
+		$items = EqItem::where('is_active','=',1)->where('acquired_date','like','2015'.'%')->get();
 		DB::beginTransaction();
-		foreach ($checkPeriods as $checkPeriod) {
+		foreach ($items as $item) {
+			$checkPeriod = EqQuantityCheckPeriod::where('item_id','=',$item->id)->first();
+
 			$checkPeriod->check_end = "2015-10-30";
 			$checkPeriod->save();
 		}

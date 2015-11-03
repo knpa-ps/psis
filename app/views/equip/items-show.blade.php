@@ -277,10 +277,10 @@ $(function() {
 		$("#wrecked_update_form").submit();
 	});
 	$("#discard_register_btn").click(function(){
-		popup(base_url+'/equips/items/{{$item->id}}/discard',800,900);
+		popup(base_url+'/equips/items/{{$item->id}}/discard',1280,900);
 	});
 	$("#discard_history_btn").click(function(){
-		popup(base_url+'/equips/items/{{$item->id}}/discard_list',800,900);
+		popup(base_url+'/equips/items/{{$item->id}}/discard_list',1280,900);
 	});
 
 

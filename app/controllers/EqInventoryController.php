@@ -115,8 +115,10 @@ class EqInventoryController extends EquipController {
 		$types = EqItem::find($itemId)->types;
 		$data['types'] = $types;
 		foreach ($data['sets'] as $set) {
+			$data['sum'][$set->id] = 0;
 			foreach ($types as $t) {
 				$data['count'][$set->id][$t->id] = EqItemDiscardData::where('discard_set_id','=',$set->id)->where('item_type_id','=',$t->id)->first()->count;
+				$data['sum'][$set->id] += $data['count'][$set->id][$t->id];
 			}
 		}
 

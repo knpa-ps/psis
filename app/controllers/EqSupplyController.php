@@ -102,7 +102,7 @@ class EqSupplyController extends EquipController {
 		})->orderBy('supplied_date','DESC')->paginate(15);
 
 		$items = EqItem::where('is_active','=',1)->whereHas('inventories', function($q) use ($nodeId) {
-			$q->where('node_id','=',$nodeId)->where('acquired_date','>=',date("Y"));
+			$q->where('node_id','=',$nodeId);//->where('acquired_date','>=',date("Y"));
 		})->get();
 
         return View::make('equip.supplies-index', get_defined_vars());
@@ -239,7 +239,6 @@ class EqSupplyController extends EquipController {
 				foreach ($types as $type) {
 					$typeId = $type->id;
 					$countName = $countNameNode.$typeId;
-
 					$supply = new EqItemSupply;
 					$supply->supply_set_id = $supplySet->id;
 					$supply->item_type_id = $type->id;
