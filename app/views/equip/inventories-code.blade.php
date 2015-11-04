@@ -136,8 +136,20 @@
 					</tbody>
 					@else
 					<tbody>
-						@foreach ($items as $i)
-							@foreach ($children as $child)
+						@foreach ($children as $child)
+							<tr>
+								<td> {{ $child->id }} </td>
+								<td> {{ $child->full_name }} </td>
+								<td> {{ 3000 }} </td>
+								<td> 합계 </td>
+								<td> {{ $subWreckedSumAllYear[$child->id] + $subAvailSumAllYear[$child->id] }}</td>
+								<td> {{ $subWreckedSumAllYear[$child->id] }}</td>
+								<td> {{ $subAvailSumAllYear[$child->id] }}</td>
+								<td style="background-color: #FFF8E5"> {{ $wreckedSumAllYear[$child->id] + $availSumAllYear[$child->id] }}</td>
+								<td style="background-color: #FFF8E5"> {{ $wreckedSumAllYear[$child->id] }} </td>
+								<td style="background-color: #FFF8E5"> {{ $availSumAllYear[$child->id] }}</td>
+							</tr>
+							@foreach ($items as $i)
 							<tr data-id="{{ $i->id }}">
 								<td> {{ $child->id }} </td>
 								<td> {{ $child->full_name }} </td>
@@ -216,7 +228,8 @@ $(function() {
 			{ "bSortable": false, "aTargets": [ 5 ] },
 			{ "bSortable": false, "aTargets": [ 6 ] },
 			{ "bSortable": false, "aTargets": [ 7 ] },
-			{ "bSortable": false, "aTargets": [ 8 ] }
+			{ "bSortable": false, "aTargets": [ 8 ] },
+			{ "bSortable": false, "aTargets": [ 9 ] },
     ],
 
     drawCallback: function ( settings ) {
