@@ -296,4 +296,25 @@ class EquipController extends BaseController {
 		}
 		DB::commit();
 	}
+
+	public function deleteDiscardedItem($nodeId, $itemId) {
+		$node = EqSupplyManagerNode::find($node);
+		$children = EqSupplyManagerNode::where('full_path','like',$node->full_path)->get();
+		DB::beginTransaction();
+		foreach ($children as $child) {
+			$set = EqItemDiscardSet::where('item_id','=',$itemId)->where('node_id','=',$nodeId)->get();
+			foreach ($set as $s) {
+				$data = EqItemDiscardData::where('discard_set_id','=',$s->id)->get();
+				foreach ($data as $d) {
+					if($d->delete()){
+						return App::abort(500);
+					}
+				}
+				if($s->delete()){
+					return App::abort(500);
+				}
+			}
+		}
+		DB::commit();
+	}
 }

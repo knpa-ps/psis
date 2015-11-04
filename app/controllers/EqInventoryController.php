@@ -149,12 +149,12 @@ class EqInventoryController extends EquipController {
 		$types = EqItem::find($itemId)->types;
 
 		//사유서 파일 업로드했는지 확인
-		// $validator = Validator::make($input, array(
-		// 		'file_name' => 'required'
-		// ));
-		// if ($validator->fails()) {
-		// 	return Redirect::back()->with('message','사유서 파일을 업로드하세요');
-		// }
+		$validator = Validator::make($input, array(
+				'file_name' => 'required'
+		));
+		if ($validator->fails()) {
+			return Redirect::back()->with('message','사유서 파일을 업로드하세요');
+		}
 
 		DB::beginTransaction();
 
@@ -227,7 +227,7 @@ class EqInventoryController extends EquipController {
 		return Redirect::back()->with('message', '물품폐기 등록이 완료되었습니다.');
 	}
 
-	public function deleteDiscardedItem($setId){
+	public function cancelDiscardedItem($setId){
 		$dSet = EqItemDiscardSet::where('id','=',$setId)->first();
 		$invSet = EqInventorySet::where('item_id','=',$dSet->item_id)->where('node_id','=',$dSet->node_id)->first();
 		$types = EqItem::find($dSet->item_id)->types;
@@ -315,14 +315,25 @@ class EqInventoryController extends EquipController {
 			$data['subWreckedSum'][$userNode->id][$i->id] = Cache::get('sub_wrecked_sum_'.$userNode->id.'_'.$i->id);
 			$data['subAvailSum'][$userNode->id][$i->id] = Cache::get('sub_avail_sum_'.$userNode->id.'_'.$i->id);
 
-			foreach ($children as $child) {
-				$data['wreckedSumAllYear'][$child->id] = 0;
-				$data['availSumAllYear'][$child->id] = 0;
-				$data['subWreckedSumAllYear'][$child->id] = 0;
-				$data['subAvailSumAllYear'][$child->id] = 0;
-			}
-			// user바로 밑 managed children의 보유수량 정보 (기관별에 사용)
-			foreach ($children as $child) {
+			//불용연한 지났는지 여부 판단
+			$acquired_date = $i->acquired_date;
+			$acqDate = strtotime($acquired_date);
+			$persist = $i->persist_years;
+			$endDate = strtotime('+'.$persist.' years', $acqDate);
+			$diff = (time() - $endDate)/31536000;
+
+			time() > $endDate ? $timeover[$i->id] = ceil($diff) : $timeover[$i->id] = 0 ;
+		}
+
+		foreach ($children as $child) {
+			$data['wreckedSumAllYear'][$child->id] = 0;
+			$data['availSumAllYear'][$child->id] = 0;
+			$data['subWreckedSumAllYear'][$child->id] = 0;
+			$data['subAvailSumAllYear'][$child->id] = 0;
+		}
+		// user바로 밑 managed children의 보유수량 정보 (기관별에 사용)
+		foreach ($children as $child) {
+			foreach ($items as $i) {
 				$data['wreckedSum'][$child->id][$i->id] = Cache::get('wrecked_sum_'.$child->id.'_'.$i->id);
 				$data['availSum'][$child->id][$i->id] = Cache::get('avail_sum_'.$child->id.'_'.$i->id);
 				$data['subWreckedSum'][$child->id][$i->id] = Cache::get('sub_wrecked_sum_'.$child->id.'_'.$i->id);
@@ -333,15 +344,6 @@ class EqInventoryController extends EquipController {
 				$data['subWreckedSumAllYear'][$child->id] += Cache::get('sub_wrecked_sum_'.$child->id.'_'.$i->id);
 				$data['subAvailSumAllYear'][$child->id] += Cache::get('sub_avail_sum_'.$child->id.'_'.$i->id);
 			}
-
-			//불용연한 지났는지 여부 판단
-			$acquired_date = $i->acquired_date;
-			$acqDate = strtotime($acquired_date);
-			$persist = $i->persist_years;
-			$endDate = strtotime('+'.$persist.' years', $acqDate);
-			$diff = (time() - $endDate)/31536000;
-
-			time() > $endDate ? $timeover[$i->id] = ceil($diff) : $timeover[$i->id] = 0 ;
 		}
 
 		$data['timeover'] = $timeover;

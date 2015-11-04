@@ -69,7 +69,7 @@
 									@endif
 								</td>
 								<td class="discard-align" >
-								<a class="btn btn-xs btn-danger btn-block" href="{{url('/equips/items/'.$set->id.'/delete_discarded_item')}}"><span class="glyphicon glyphicon-ok"></span> 삭제</button>
+								<a class="btn btn-xs btn-danger btn-block" href="{{url('/equips/items/'.$set->id.'/cancel_discarded_item')}}"><span class="glyphicon glyphicon-ok"></span> 삭제</button>
 								</td>
 							</tr>
 						@endforeach
