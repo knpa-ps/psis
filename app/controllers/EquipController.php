@@ -298,19 +298,19 @@ class EquipController extends BaseController {
 	}
 
 	public function deleteDiscardedItem($nodeId, $itemId) {
-		$node = EqSupplyManagerNode::find($node);
-		$children = EqSupplyManagerNode::where('full_path','like',$node->full_path)->get();
+		$node = EqSupplyManagerNode::find($nodeId);
+		$children = EqSupplyManagerNode::where('full_path','like',$node->full_path.'%')->where('is_selectable','=',1)->get();
 		DB::beginTransaction();
 		foreach ($children as $child) {
-			$set = EqItemDiscardSet::where('item_id','=',$itemId)->where('node_id','=',$nodeId)->get();
+			$set = EqItemDiscardSet::where('item_id','=',$itemId)->where('node_id','=',$child->id)->get();
 			foreach ($set as $s) {
 				$data = EqItemDiscardData::where('discard_set_id','=',$s->id)->get();
 				foreach ($data as $d) {
-					if($d->delete()){
+					if(!$d->delete()){
 						return App::abort(500);
 					}
 				}
-				if($s->delete()){
+				if(!$s->delete()){
 					return App::abort(500);
 				}
 			}
