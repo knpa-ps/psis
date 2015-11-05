@@ -751,11 +751,17 @@ class EqService extends BaseService {
 					}
 				}
 				$sheet->mergeCells('a'.($startRow+1).':a'.($startRow+$itemTotalNum));
-				if ($child->parent->type_code == 'D003'){
-					$sheet->setCellValue('a'.($startRow+1), $child->parent->node_name.' '.$child->node_name." 산하");
-				} else {
+				if ($child->type_code != 'D001') {
+					// 본청은 parent가 없음
+					if ($child->parent->type_code == 'D003'){
+						$sheet->setCellValue('a'.($startRow+1), $child->parent->node_name.' '.$child->node_name." 산하");
+					} else {
+						$sheet->setCellValue('a'.($startRow+1), $child->node_name." 산하");
+					}
+				} else { // 본청인 경우
 					$sheet->setCellValue('a'.($startRow+1), $child->node_name." 산하");
 				}
+
 
 				$index += 1;
 			}
@@ -883,9 +889,14 @@ class EqService extends BaseService {
 				}
 			}
 			$sheet->mergeCells('a'.($startRow+1).':a'.($startRow+$itemTotalNum));
-			if ($child->parent->type_code == 'D003'){
-				$sheet->setCellValue('a'.($startRow+1), $child->parent->node_name.' '.$child->node_name);
-			} else {
+			if ($child->type_code != 'D001') {
+				// 본청은 parent가 없음
+				if ($child->parent->type_code == 'D003'){
+					$sheet->setCellValue('a'.($startRow+1), $child->parent->node_name.' '.$child->node_name);
+				} else {
+					$sheet->setCellValue('a'.($startRow+1), $child->node_name);
+				}
+			} else { // 본청인 경우
 				$sheet->setCellValue('a'.($startRow+1), $child->node_name);
 			}
 			$index += 1;

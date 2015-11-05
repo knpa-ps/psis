@@ -21,7 +21,7 @@
 							<legend>
 								<h4>기본정보</h4>
 							</legend>
-									
+
 							<div class="form-group">
 								<label for="item_classification" class="control-label col-xs-2">구분</label>
 								<div class="col-xs-10">
@@ -52,7 +52,7 @@
 									value="{{ $item->maker_name or '' }}">
 								</div>
 							</div>
-							
+
 							<div class="form-group">
 								<label for="item_maker_phone" class="control-label col-xs-2">제조사 연락처</label>
 								<div class="col-xs-10">
@@ -92,7 +92,7 @@
 						<input type="hidden" name="item_code" value="{{$code->code}}">
 
 				{{ Form::close(); }}
-				
+
 				<div class="hide" id="type_template">
 					<div class="form-group type_input">
 						<label for="type[]" class="type-label control-label col-xs-2">사이즈 종류 #</label>
@@ -103,9 +103,9 @@
 				</div>
 
 				@for ($i=0; $i<5; $i++)
-				<form method="post" target="iframe_upload" 
-				action="{{ url('upload/image') }}" 
-				enctype="multipart/form-data" 
+				<form method="post" target="iframe_upload"
+				action="{{ url('upload/image') }}"
+				enctype="multipart/form-data"
 				class="form-upload form-horizontal">
 					<input type="hidden" name="target" value="item_image_{{$i+1}}">
 
@@ -118,9 +118,11 @@
 							<input type="submit" value="업로드" class="btn btn-default btn-xs btn-upload" data-target="#item_image_{{$i+1}}">
 						</div>
 						<div class="col-xs-2" id="item_image_{{$i+1}}">
-							@if (isset($item) && $i < $item->images()->count())
-								<?php $img = $item->images->get($i); ?>
-								@include('equip.items-image-preview', array('image'=>$img))
+							@if (isset($item))
+								@if ( $i < $item->images()->count() )
+									<?php $img = $item->images->get($i); ?>
+									@include('equip.items-image-preview', array('img'=>$img))
+								@endif
 							@endif
 						</div>
 					</div>
@@ -136,7 +138,8 @@
 	@include('equip.items-image-preview')
 </div>
 
-<iframe id="iframe_upload" name="iframe_upload" src="" style="width:0;height:0;border:0px solid #fff;"></iframe> 
+
+<iframe id="iframe_upload" name="iframe_upload" src="" style="width:0;height:0;border:0px solid #fff;"></iframe>
 @stop
 @section('scripts')
 {{ HTML::script('static/vendor/jquery.form.js') }}
@@ -158,7 +161,7 @@ $(function() {
 	addRow();
 
 	$("#remove_detail").on('click', function(){
-		removeRow();	
+		removeRow();
 	});
 
 	$("#add_details").on('click', addRow);
@@ -216,7 +219,7 @@ $(function() {
 		},
 		submitHandler: function(form) {
 			var basic_form = $(form);
-			$(".form-upload .item-images").each(function(){ 
+			$(".form-upload .item-images").each(function(){
 				var url = $(this).val();
 				if (!url) {
 					return;
@@ -242,8 +245,9 @@ $(function() {
 			return;
 		}
 		var template = $("#image_field_template").html();
+		var path = "{{ url('/uploads/') }}";
 		$("#"+result.target).html(template);
-		$("#"+result.target+" img").prop('src', result.url);
+		$("#"+result.target+" img").prop('src',path+'/'+result.url);
 		$("#"+result.target+" .item-images").val(result.url);
 	});
 });

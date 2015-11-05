@@ -169,7 +169,7 @@ class EqItemController extends EquipController {
 		DB::commit();
 
 		Session::flash('message', '수정되었습니다.');
-		return Redirect::action('EqItemCodeController@index');
+		return Redirect::action('EqInventoryController@showDetail', array('itemCode'=>$data['item_code'], 'itemId'=>$id));
 	}
 
 	/**
