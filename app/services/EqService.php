@@ -751,7 +751,12 @@ class EqService extends BaseService {
 					}
 				}
 				$sheet->mergeCells('a'.($startRow+1).':a'.($startRow+$itemTotalNum));
-				$sheet->setCellValue('a'.($startRow+1), $child->node_name." 산하");
+				if ($child->parent->type_code == 'D003'){
+					$sheet->setCellValue('a'.($startRow+1), $child->parent->node_name.' '.$child->node_name." 산하");
+				} else {
+					$sheet->setCellValue('a'.($startRow+1), $child->node_name." 산하");
+				}
+
 				$index += 1;
 			}
 
@@ -878,7 +883,11 @@ class EqService extends BaseService {
 				}
 			}
 			$sheet->mergeCells('a'.($startRow+1).':a'.($startRow+$itemTotalNum));
-			$sheet->setCellValue('a'.($startRow+1), $child->node_name);
+			if ($child->parent->type_code == 'D003'){
+				$sheet->setCellValue('a'.($startRow+1), $child->parent->node_name.' '.$child->node_name);
+			} else {
+				$sheet->setCellValue('a'.($startRow+1), $child->node_name);
+			}
 			$index += 1;
 		}
 
