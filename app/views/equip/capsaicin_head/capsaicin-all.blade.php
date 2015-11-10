@@ -72,7 +72,12 @@
 		</div>
 		<div class="row">
 			<div class="col-xs-12 toolbar-table">
-				<a href="{{URL::current().'?tab_id=3&export=true&region='.$region.'&event_type='.$eventType.'&start='.$start.'&end='.$end.'&event_name='.$eventName }}" class="pull-right btn btn-info btn-xs"><span class="glyphicon glyphicon-download" ></span> 다운로드 (.xlsx)</a>
+				<a href="#" id="add_cross_event" class="btn btn-default btn-xs pull-right">
+					<span class="glyphicon glyphicon-plus"></span> 관리전환명 등록
+				</a>
+				<a href="{{URL::current().'?tab_id=3&export=true&region='.$region.'&event_type='.$eventType.'&start='.$start.'&end='.$end.'&event_name='.$eventName }}" class="pull-right btn btn-success btn-xs">
+					<span class="glyphicon glyphicon-download" ></span> 다운로드 (.xlsx)
+				</a>
 			</div>
 		</div>
 		<div class="row">
@@ -81,9 +86,9 @@
 					<thead>
 						<tr>
 							<th>일자</th>
-							<th>지방청</th>
-							<th>중대</th>
-							<th>행사유형</th>
+							<th>관할청</th>
+							<th>사용관서</th>
+							<th>유형</th>
 							<th>사용장소</th>
 							<th>행사명</th>
 							<th style="background-color: #E89ECC">사용량(ℓ)</th>
@@ -97,15 +102,15 @@
 						@else
 						@foreach ($rows as $r)
 						<tr>
-							<td width="10%">{{ $r->date }}</td>
-							<td width="7%">{{ $r->node->region()->node_name }}</td>
-							<td width="20%">{{ $r->user_node->full_name }}</td>
-							<td width='7%'>{{ $r->type }}</td>
-							<td>{{ $r->location }}</td>
+							<td style="white-space: nowrap">{{ $r->date }}</td>
+							<td style="white-space: nowrap">{{ $r->node->region()->node_name }}</td>
+							<td style="white-space: nowrap">{{ $r->user_node->full_name }}</td>
+							<td style="white-space: nowrap">{{ $r->type }}</td>
+							<td style="white-space: nowrap">{{ $r->location }}</td>
 							@if($r->fileName != '')
 							<td><a href="{{ url('uploads/docs/'.$r->fileName) }}">{{ $r->event_name }}</a></td>
 							@else
-							<td>{{ $r->event_name }}</td>
+							<td style="white-space: nowrap">{{ $r->event_name }}</td>
 							@endif
 							<td style="background-color: #FEE9FC" width='7%'>{{ round($r->amount,2) }}</td>
 						</tr>
@@ -124,3 +129,11 @@
 		</div>
 	</div>
 </div>
+
+<script type="text/javascript">
+$(function(){
+	$("#add_cross_event").on('click', function(){
+		popup(base_url+'/equips/capsaicin/admin/add_cross_event', 700, 400);
+	});
+});
+</script>

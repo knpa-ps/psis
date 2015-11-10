@@ -45,10 +45,15 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	Route::get('/capsaicin/node/{nodeId}/events', 'EqCapsaicinController@nodeEvents');
 	Route::get('/capsaicin/node/{nodeId}/confirm', 'EqCapsaicinController@showRegionConfirm');
 	Route::post('/capsaicin/get_events', 'EqCapsaicinController@getEvents');
+	//집회명 추가
 	Route::get('/capsaicin/node/{nodeId}/add_event', 'EqCapsaicinController@addEvent');
 	Route::post('/capsaicin/node/{nodeId}/add_event', 'EqCapsaicinController@storeNewEvent');
 	Route::post('/capsaicin/delete_event/{eventId}', 'EqCapsaicinController@deleteEvent');
-
+	Route::post('/capsaicin/get_cross_events', 'EqCapsaicinController@getCrossEvents');
+	//관리전환 명 추가. 본청의 기능이므로 capsaicin/admin 아래에 만들었음
+	Route::get('/capsaicin/admin/add_cross_event', 'EqCapsaicinController@addCrossEvent');
+	Route::post('/capsaicin/admin/add_cross_event', 'EqCapsaicinController@storeNewCrossEvent');
+	Route::post('/capsaicin/admin/delete_cross_event/{eventId}', 'EqCapsaicinController@deleteCrossEvent');
 
 	Route::get('/capsaicin_usage/{usageId}/edit', 'EqCapsaicinController@editUsage');
 	Route::post('/capsaicin_usage/{usageId}/update', 'EqCapsaicinController@updateUsage');

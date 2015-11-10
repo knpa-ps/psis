@@ -58,7 +58,7 @@
 							<select name="item" id="item_to_supply" class="form-control">
 								@if(count($items)>0)
 									@foreach($items as $i)
-										<option value="{{$i->id}}">{{substr($i->acquired_date, 0, 4).' '.$i->code->title.', '.$i->maker_name}}</option>
+										<option value="{{$i->id}}">{{substr($i->acquired_date, 0, 4).' '.$i->code->title.' ('.$i->maker_name.', '.$i->classification.')'}}</option>
 									@endforeach
 								@else
 									<option value="0">올해 취득한 장비가 없습니다.</option>
@@ -81,7 +81,7 @@
 								장비명
 							</th>
 							<th>
-								취득구분 (제조사/납품일)
+								납품일
 							</th>
 							<th>
 								출고관서
@@ -102,10 +102,10 @@
 									{{ $supply->supplied_date }}
 								</td>
 								<td>
-									<a href="{{ url('equips/supplies/'.$supply->id)}}">{{ $supply->item->code->title.' / '.$supply->item->classification }}</a>
+									<a href="{{ url('equips/supplies/'.$supply->id)}}">{{ $supply->item->code->title.' ('.$supply->item->maker_name.', '.$supply->item->classification.')'}}</a>
 								</td>
 								<td>
-									{{ $supply->item->maker_name.' / '.$supply->item->acquired_date }}
+									{{ $supply->item->acquired_date }}
 								</td>
 								<td>
 									{{ $supply->node->full_name }}

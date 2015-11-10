@@ -59,6 +59,7 @@
 										<option value="" {{$eventType == '' ? 'selected' : '' }}>전체</option>
 										<option value="assembly" {{$eventType == 'assembly' ? 'selected' : '' }}>집회</option>
 										<option value="drill" {{$eventType == 'drill' ? 'selected' : '' }}>훈련</option>
+										<option value="cross" {{$eventType == 'cross' ? 'selected' : '' }}>관리전환</option>
 									</select>
 								</div>
 							</div>
@@ -77,9 +78,13 @@
 				</div>
 
 				<div class="toolbar-table">
+
 					@if ($userNode->type_code == "D002")
 					<a href="#" id="add_event" class="btn btn-warning btn-xs pull-right">
 						<span class="glyphicon glyphicon-plus"></span> 행사명 등록
+					</a>
+					<a href="{{url('equips/capsaicin/create?nodeId='.$node->id.'&type=cross')}}" class="btn btn-danger btn-xs pull-right">
+						<span class="glyphicon glyphicon-plus"></span> 관리전환 추가
 					</a>
 					@endif
 					<a href="{{url('equips/capsaicin/create?nodeId='.$node->id.'&type=event')}}" class="btn btn-info btn-xs pull-right">
@@ -100,7 +105,8 @@
 							<tr>
 								<th style="width:10%; white-space: nowrap; text-align: center">일자</th>
 								<th style="width:5%; white-space: nowrap; text-align: center">관할청</th>
-								<th>중대</th>
+								<th>사용관서</th>
+								<th>유형</th>
 								<th>사용장소</th>
 								<th style="white-space: nowrap; text-align: center;">행사명</th>
 								<th style="width:5%; white-space: nowrap; text-align: center;background-color: #E89ECC">사용량(ℓ)</th>
@@ -117,8 +123,9 @@
 							<tr id="{{$r->id}}">
 								<td style="white-space: nowrap">{{ $r->date }}</td>
 								<td style="white-space: nowrap">{{ $r->node->region()->node_name }}</td>
-								<td>{{ $r->user_node->full_name }}</td>
-								<td>{{ $r->location }}</td>
+								<td style="white-space: nowrap">{{ $r->user_node->full_name }}</td>
+								<td style="white-space: nowrap">{{ $r->type }}</td>
+								<td style="white-space: nowrap">{{ $r->location }}</td>
 								<td style="white-space: nowrap">{{ $r->event_name }}</td>
 								<td style="background-color: #FEE9FC">{{ round($r->amount, 2) }}</td>
 								<td>
@@ -134,7 +141,7 @@
 						</tbody>
 						<tfoot>
 							<tr>
-								<td colspan="5">{{ $start }} ~ {{$end}} 총 사용량</td>
+								<td colspan="6">{{ $start }} ~ {{$end}} 총 사용량</td>
 								<td>{{ round($totalUsage, 2) }}</td>
 								<td></td>
 							</tr>

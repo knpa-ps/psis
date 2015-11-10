@@ -30,7 +30,7 @@
 							</div>
 
 							<div class="form-group">
-								<label for="event" class="control-label col-xs-2">행사명</label>
+								<label for="event" class="control-label col-xs-2">훈련명</label>
 								<div class="col-xs-10">
 									<input type="text" name="event" id="event" class="form-control input-sm">
 									</input>

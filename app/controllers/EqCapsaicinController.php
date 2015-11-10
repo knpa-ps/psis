@@ -40,57 +40,87 @@ class EqCapsaicinController extends EquipController {
 		return View::make('equip.capsaicin.capsaicin-region-confirm', $data);
 	}
 
-	public function deleteEvent($eventId) {
-
-		$event = EqCapsaicinEvent::find($eventId);
-
-		if (!$event->delete()) {
-			return App::abort(500);
+	public function addEvent($nodeId) {
+		$node = EqSupplyManagerNode::find($nodeId);
+		$today = Carbon::today()->toDateString();
+		$selectedDate = Input::get('date');
+		if (!$selectedDate) {
+			$selectedDate = $today;
 		}
-
-		return "삭제되었습니다.";
-
+		$events = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','=',$selectedDate)->get();
+		return View::make('equip.capsaicin.event-list',get_defined_vars());
 	}
 
-	public function storeNewEvent($nodeId)
-	{
-
+	public function storeNewEvent($nodeId) {
 		$input = Input::all();
-
 		$event = new EqCapsaicinEvent;
 		$event->type_code = "assembly";
 		$event->event_name = $input['event_name'];
 		$event->node_id = $nodeId;
 		$event->date = $input['date'];
-
 		if (!$event->save()) {
 			return App::abort(500);
 		}
-
 		return "저장되었습니다";
 
 	}
 
-	public function addEvent($nodeId) {
-		$node = EqSupplyManagerNode::find($nodeId);
-
-		$today = Carbon::today()->toDateString();
-
-		$selectedDate = Input::get('date');
-
-		if (!$selectedDate) {
-			$selectedDate = $today;
+	public function deleteEvent($eventId) {
+		$event = EqCapsaicinEvent::find($eventId);
+		if (!$event->delete()) {
+			return App::abort(500);
 		}
-
-		$events = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','=',$selectedDate)->get();
-
-		return View::make('equip.capsaicin.event-list',get_defined_vars());
+		return "삭제되었습니다.";
 	}
 
 	public function getEvents(){
 		$now = Carbon::now();
 		$regionId = Input::get('regionId');
 		$events = EqCapsaicinEvent::where('node_id','=',$regionId)->where('type_code','=','assembly')->where('date','>',$now->subDays(4000))->orderBy('date', 'desc')->get();
+		// 최신순으로 n일 전 집회까지 리턴한다.
+		return $events;
+	}
+
+	public function addCrossEvent() {
+		$user = Sentry::getUser();
+		$node = $user->supplyNode;
+		$today = Carbon::today()->toDateString();
+		$selectedDate = Input::get('date');
+		if (!$selectedDate) {
+			$selectedDate = $today;
+		}
+		$events = EqCapsaicinEvent::where('type_code','=','cross')->where('date','=',$selectedDate)->get();
+		return View::make('equip.capsaicin.cross-event-list',get_defined_vars());
+	}
+
+	public function storeNewCrossEvent() {
+		$user = Sentry::getUser();
+		$node = $user->supplyNode;
+
+		$input = Input::all();
+		$event = new EqCapsaicinEvent;
+		$event->type_code = "cross";
+		$event->event_name = $input['event_name'];
+		$event->node_id = $node->id;
+		$event->date = $input['date'];
+		if (!$event->save()) {
+			return App::abort(500);
+		}
+		return "저장되었습니다";
+	}
+
+	public function deleteCrossEvent($eventId) {
+		$event = EqCapsaicinEvent::find($eventId);
+		if (!$event->delete()) {
+			return App::abort(500);
+		}
+		return "삭제되었습니다.";
+	}
+
+	public function getCrossEvents(){
+		$now = Carbon::now();
+		$regionId = Input::get('regionId');
+		$events = EqCapsaicinEvent::where('type_code','=','cross')->where('date','>',$now->subDays(4000))->orderBy('date', 'desc')->get();
 		// 최신순으로 n일 전 집회까지 리턴한다.
 		return $events;
 	}
@@ -688,7 +718,19 @@ class EqCapsaicinController extends EquipController {
 	 */
 	public function create()
 	{
+
 		switch (Input::get('type')) {
+			case 'cross':
+
+				$data['node'] = EqSupplyManagerNode::find(Input::get('nodeId'));
+				$data['mode'] = 'create';
+				// 해당 지방청을 제외한 나머지 지방청만 보여줌
+				$data['regions'] = EqSupplyManagerNode::where('type_code','=','D002')->where('id','!=',$data['node']->id)->get();
+				$data['region'] = Input::get('region_id');
+				return View::make('equip.capsaicin.capsaicin-cross-form',$data);
+
+				break;
+
 			case 'event':
 				$data['node'] = EqSupplyManagerNode::find(Input::get('nodeId'));
 				$data['mode'] = 'create';
@@ -720,6 +762,8 @@ class EqCapsaicinController extends EquipController {
 	 *
 	 * @return Response
 	 */
+
+	// dummy 훈련내역 임의로 추가
 	public function drillstore($nodeId, $count, $month) {
 		//eq_capsaicin_event table에 event 추가
 		DB::beginTransaction();
@@ -758,6 +802,41 @@ class EqCapsaicinController extends EquipController {
 
 
 		switch(Input::get('type')) {
+			case 'cross':
+				$event = EqCapsaicinEvent::find($input['event']);
+				$usage = new EqCapsaicinUsage;
+
+				$usage->event_id = $event->id;
+				$usage->amount = $input['amount'];
+				$usage->user_node_id = $node->id;
+				$usage->attached_file_name = $input['file_name'];
+				if (!$usage->save()) {
+					return App::abort(500);
+				}
+
+				$addition = new EqCapsaicinIo;
+				$addition->node_id = $input['region'];
+				$addition->amount = $input['amount'];
+				$addition->acquired_date = $event->date;
+				$addition->caption = 'cross';
+				$addition->io = 1;
+
+				if (!$addition->save()) {
+					return App::abort(500);
+				}
+
+				$crossUsage = new EqCapsaicinCrossRegion;
+				$crossUsage->node_id = $node->id;
+				$crossUsage->usage_id = $usage->id;
+				$crossUsage->io_id = $addition->id;
+				$crossUsage->amount = $input['amount'];
+				$crossUsage->used_date = $event->date;
+
+				if (!$crossUsage->save()) {
+					return App::abort(500);
+				}
+			break;
+
 			case 'event':
 				$event = EqCapsaicinEvent::find($input['event']);
 				$usage = new EqCapsaicinUsage;
@@ -780,7 +859,7 @@ class EqCapsaicinController extends EquipController {
 					$addition->node_id = $input['region'];
 					$addition->amount = $input['amount'];
 					$addition->acquired_date = $event->date;
-					$addition->caption = 'CR';
+					$addition->caption = 'addition';
 					$addition->io = 1;
 
 					if (!$addition->save()) {
@@ -844,7 +923,7 @@ class EqCapsaicinController extends EquipController {
 	 */
 	public function show($id)
 	{
-
+		//
 	}
 
 
