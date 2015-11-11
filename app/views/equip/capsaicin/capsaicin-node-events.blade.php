@@ -123,10 +123,10 @@
 							<tr id="{{$r->id}}">
 								<td style="white-space: nowrap">{{ $r->date }}</td>
 								<td style="white-space: nowrap">{{ $r->node->region()->node_name }}</td>
-								<td style="white-space: nowrap">{{ $r->user_node->full_name }}</td>
+								<td>{{ $r->user_node->full_name }}</td>
 								<td style="white-space: nowrap">{{ $r->type }}</td>
-								<td style="white-space: nowrap">{{ $r->location }}</td>
-								<td style="white-space: nowrap">{{ $r->event_name }}</td>
+								<td>{{ $r->location }}</td>
+								<td>{{ $r->event_name }}</td>
 								<td style="background-color: #FEE9FC">{{ round($r->amount, 2) }}</td>
 								<td>
 									@if($r->fileName != '')

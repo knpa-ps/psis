@@ -623,6 +623,7 @@ class EqCapsaicinController extends EquipController {
 						$row->event_name = $e->event_name;
 						$row->fileName = $e->attached_file_name;
 						$row->amount = $u->amount;
+						$row->crossHeadNode = $u->cross? EqSupplyManagerNode::find($u->cross->io->node_id) : '';
 						$totalUsage += $u->amount;
 						array_push($rows, $row);
 					}
@@ -1033,6 +1034,7 @@ class EqCapsaicinController extends EquipController {
 				$row->location = $u->location;
 				$row->event_name = $e->event_name;
 				$row->amount = $u->amount;
+				$row->crossHeadNode = $u->cross? EqSupplyManagerNode::find($u->cross->io->node_id) : '';
 				$row->fileName = $u->attached_file_name;
 				array_push($rows, $row);
 				$totalUsage += $u->amount;
