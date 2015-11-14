@@ -147,7 +147,7 @@
 						<button class="btn btn-xs btn-danger pull-right" id="discard_register_btn"><span class="glyphicon glyphicon-ok"></span> 분실/폐기내역 등록</button>
 						<button class="btn btn-xs btn-default pull-right" id="discard_history_btn"><span class="glyphicon glyphicon-th-list"></span> 분실/폐기내역
 							@if (isset($discardSets))
-								{{$discardSets}}건)
+								({{$discardSets}}건)
 							@endif
 						</button>
 					</div>
@@ -176,9 +176,9 @@
 													'method'=>'post',
 													'id'=>'count_update_form'
 												))}}
-											@foreach ($inventorySet->children as $c)
+											@foreach ($item->types as $type)
 												<td style="text-align: center;">
-													<input type="text" class="form-control input-sm positive-int" value="{{$c->count}}" name="{{ 'count['.$c->id.']'}}">
+													<input type="text" class="form-control input-sm positive-int" name="{{ 'count['.$type->id.']'}}" placeholder="{{ $holding[$type->id] }}">
 												</td>
 											@endforeach
 											{{ Form::close() }}
@@ -196,9 +196,9 @@
 											'method'=> 'post',
 											'id'=>'wrecked_update_form'
 										)) }}
-											@foreach ($inventorySet->children as $c)
+											@foreach ($item->types as $type)
 												<td style="text-align: center;">
-													<input type="text" class="form-control input-sm positive-int" value="{{$c->wrecked}}" name="{{ 'wrecked['.$c->id.']' }}">
+													<input type="text" class="form-control input-sm positive-int" name="{{ 'wrecked['.$type->id.']' }}" placeholder="{{ $wrecked[$type->id] }}">
 												</td>
 											@endforeach
 										{{ Form::close() }}

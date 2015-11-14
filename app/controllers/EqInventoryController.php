@@ -18,11 +18,11 @@ class EqInventoryController extends EquipController {
 			$countSum=0;
 			foreach ($item->types as $t) {
 				$data = EqInventoryData::where('inventory_set_id','=',$inventory->id)->where('item_type_id','=',$t->id)->first();
-				if ((int)$count[$data->id] < (int)$data->wrecked) {
+				if ((int)$count[$t->id] < (int)$data->wrecked) {
 					return Redirect::back()->with('message', '보유수량이 파손수량보다 적을 수 없습니다.');
 				}
-				$data->count = $count[$data->id];
-				$countSum+=$count[$data->id];
+				$data->count = $count[$t->id];
+				$countSum+=$count[$t->id];
 				if (!$data->save()) {
 					return App::abort(500);
 				}
@@ -69,11 +69,11 @@ class EqInventoryController extends EquipController {
 			foreach ($item->types as $t) {
 				$data = EqInventoryData::where('inventory_set_id','=',$inventory->id)->where('item_type_id','=',$t->id)->first();
 
-				if ((int)$wrecked[$data->id] > (int)$data->count) {
+				if ((int)$wrecked[$t->id] > (int)$data->count) {
 					return Redirect::back()->with('message', '보유수량보다 파손수량이 많을 수 없습니다.');
 				}
-				$data->wrecked = $wrecked[$data->id];
-				$wreckedSum += $wrecked[$data->id];
+				$data->wrecked = $wrecked[$t->id];
+				$wreckedSum += $wrecked[$t->id];
 				if (!$data->save()) {
 					return App::abort(500);
 				}
@@ -401,7 +401,13 @@ class EqInventoryController extends EquipController {
 			DB::commit();
 		}
 		$data['inventorySet'] = $invSet;
-
+		$inventory = EqInventorySet::where('item_id','=',$data['item']->id)->where('node_id','=',$user->supplyNode->id)->first();
+		foreach ($data['item']->types as $t) {
+			$holding[$t->id] = EqInventoryData::where('item_type_id','=',$t->id)->where('inventory_set_id','=',$inventory->id)->first()->count;
+			$wrecked[$t->id] = EqInventoryData::where('item_type_id','=',$t->id)->where('inventory_set_id','=',$inventory->id)->first()->wrecked;
+		}
+		$data['holding'] = $holding;
+		$data['wrecked'] = $wrecked;
 		return View::make('equip.items-show', $data);
 	}
 

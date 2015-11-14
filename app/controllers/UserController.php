@@ -54,7 +54,7 @@ class UserController extends BaseController {
 		    if($user->checkPassword(Input::get('existing_pw')))
 		    {
 		        $user->password = Input::get('new_pw');
-				$user->save();	
+				$user->save();
 				Session::flash('message', '비밀번호가 변경되었습니다.');
 				return Redirect::action('UserController@displayPasswordMod');
 		    }
@@ -125,7 +125,7 @@ class UserController extends BaseController {
 		if($user->IsSuperUser()){
 			$users = $filteredList;
 		} else {
-			$users = $this->mngService->getLowerUserListQuery($filteredList);	
+			$users = $this->mngService->getLowerUserListQuery($filteredList);
 		}
 
 		$data['users'] = $users->paginate(15);
@@ -170,7 +170,7 @@ class UserController extends BaseController {
                 'contact'=>'',
                 'contact_extension'=>'',
                 'contact_phone'=>''
-            );	
+            );
 
         $data['form'] = $form;
         $data['userRanks'] = $userRanks;
@@ -217,7 +217,7 @@ class UserController extends BaseController {
 	 */
 	public function show($id)
 	{
-		
+
 	}
 
 	/**
@@ -240,7 +240,7 @@ class UserController extends BaseController {
         $user = User::find($id);
 
         $data['form'] = $user;
-        $data['form']['userDept'] = $user->department;
+        $data['form']['userDept'] = $user->department->full_name;
         $data['userRanks'] = $userRanks;
         $data['status'] = $user->activated;
         $data['mngDeptId'] = $mngUser->dept_id;
