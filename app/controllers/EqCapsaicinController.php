@@ -1005,8 +1005,10 @@ class EqCapsaicinController extends EquipController {
 		}
 		$data['start'] = $start;
 		$data['end'] = $end;
+		//해당 지방청 관내에서 일어난 사건만 보이게
+		$query = EqCapsaicinEvent::where('node_id','=',$node->id);
 		//날짜 필터 걸었다
-		$query = EqCapsaicinEvent::where('date', '>=', $start)->where('date', '<=', $end);
+		$query->where('date', '>=', $start)->where('date', '<=', $end);
 		//행사명 필터 걸었다
 		if ($eventName) {
 			$query->where('event_name','like',"%$eventName%");
@@ -1021,9 +1023,7 @@ class EqCapsaicinController extends EquipController {
 
 		$nodeFullPath = $node->full_path;
 		foreach ($events as $e) {
-			$usages = EqCapsaicinUsage::where('event_id','=',$e->id)->whereHas('node', function($q) use($nodeFullPath) {
-				$q->where('full_path','like',$nodeFullPath.'%');
-			})->get();
+			$usages = EqCapsaicinUsage::where('event_id','=',$e->id)->get();
 			foreach ($usages as $u) {
 				$row = new stdClass;
 				$row->id = $u->id;
