@@ -135,7 +135,7 @@ $(function() {
 
 	$("#items_table").DataTable({
 
-		pageLength: 50,
+		paging: false,
 
 		columnDefs: [
 			{ visible: false, targets: 0 },
