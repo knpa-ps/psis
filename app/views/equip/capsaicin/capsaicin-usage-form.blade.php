@@ -68,7 +68,7 @@
 							</form>
 						</div>
 						<button class="btn btn-xs col-xs-3 btn-info" type="button" id="upload_submit"><span class="glyphicon glyphicon-upload"></span> 업로드</button>
-						<a href="{{ url('/static/img/no_image_available_big.gif') }}" class="btn btn-xs col-xs-3 btn-primary"><span class="glyphicon glyphicon-download"></span> 양식 다운로드</a>
+						<a href="{{ url('/static/Capsaicin_report_form.hwp') }}" class="btn btn-xs col-xs-3 btn-primary"><span class="glyphicon glyphicon-download"></span> 양식 다운로드</a>
 					</div>
 				</div>
 				<iframe id="upload_target" name="upload_target" src="" frameborder="0" style="width:0;height:0;border:0px solid #fff;"></iframe>
