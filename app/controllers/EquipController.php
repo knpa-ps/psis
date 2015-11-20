@@ -271,32 +271,6 @@ class EquipController extends BaseController {
 		return "삭제되었습니다";
 	}
 
-	public function checkPeriodForEachItem() {
-		$items = EqItem::where('is_active','=',1)->get();
-		DB::beginTransaction();
-		foreach ($items as $item) {
-			$checkPeriod = new EqQuantityCheckPeriod;
-			$checkPeriod->check_start = "2014-10-01";
-			$checkPeriod->check_end = "2015-10-30";
-			$checkPeriod->item_id = $item->id;
-			$checkPeriod->save();
-		}
-		DB::commit();
-	}
-
-	public function setCheckPeriod() {
-		$checkPeriods = EqQuantityCheckPeriod::get();
-		$items = EqItem::where('is_active','=',1)->where('acquired_date','like','2015'.'%')->get();
-		DB::beginTransaction();
-		foreach ($items as $item) {
-			$checkPeriod = EqQuantityCheckPeriod::where('item_id','=',$item->id)->first();
-
-			$checkPeriod->check_end = "2015-10-30";
-			$checkPeriod->save();
-		}
-		DB::commit();
-	}
-
 	public function deleteDiscardedItem($nodeId, $itemId) {
 		$node = EqSupplyManagerNode::find($nodeId);
 		$children = EqSupplyManagerNode::where('full_path','like',$node->full_path.'%')->where('is_selectable','=',1)->get();

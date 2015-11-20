@@ -69,6 +69,11 @@ Route::group(array('before'=>'auth|permission:superuser'), function() {
         Route::get('make_sub_cache_clear/{itemId}', 'EquipController@makeSubCacheClear');
         Route::get('make_sub_cache_for_all', 'EquipController@makeSubCacheForAll');
         Route::get('check_sub_cache_for_all','EquipController@checkSubCacheForAll');
+
+        // 장비 입력 기간 관리
+        Route::get('equips_term','AdminController@displayCheckPeriod');
+        Route::post('equips_term','AdminController@setCheckPeriodForItem');
+
     });
 
     Route::resource('menu', 'MenuController');

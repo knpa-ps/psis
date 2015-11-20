@@ -811,4 +811,56 @@ class AdminController extends BaseController {
 		DB::commit();
 	}
 
+	public function displayCheckPeriod() {
+		$categories = EqCategory::orderBy('sort_order')->get();
+		// 오늘 날짜
+		$today = date('Y-m-d');
+		foreach ($categories as $category) {
+			foreach ($category->codes as $c) {
+				$items[$c->id] = EqItem::where('item_code','=',$c->code)->where('is_active','=',1)->orderBy('acquired_date','DESC')->get();
+				foreach ($items[$c->id] as $item) {
+					$checkPeriod[$item->id] = EqQuantityCheckPeriod::where('item_id','=',$item->id)->first();
+				}
+			}
+		}
+				return View::make('admin.equips-term',get_defined_vars());
+	}
+
+	public function setCheckPeriodForItem() {
+		$checkPeriodOfCode = Input::get('code');
+		$checkPeriodOfItem = Input::get('item');
+
+		DB::beginTransaction();
+		// 장비 코드 아래에 있는 모든 아이템의 입력기한을 변경
+		if($checkPeriodOfCode) {
+			$code = EqItemCode::find(Input::get('codeId'));
+			$items = $code->items;
+			foreach ($items as $item) {
+				$checkPeriod = EqQuantityCheckPeriod::where('item_id','=',$item->id)->first();
+				$checkPeriod->check_end = $checkPeriodOfCode;
+				$checkPeriod->save();
+			}
+		}
+		if($checkPeriodOfItem) {
+			$checkPeriod = EqQuantityCheckPeriod::where('item_id','=',Input::get('itemId'))->first();
+			$checkPeriod->check_end = $checkPeriodOfItem;
+			$checkPeriod->save();
+		}
+		DB::commit();
+
+		return Redirect::to('admin/equips_term')->with('message','저장되었습니다');
+	}
+
+	public function setCheckPeriod() {
+		$checkPeriods = EqQuantityCheckPeriod::get();
+		$items = EqItem::where('is_active','=',1)->where('acquired_date','like','2015'.'%')->get();
+		DB::beginTransaction();
+		foreach ($items as $item) {
+			$checkPeriod = EqQuantityCheckPeriod::where('item_id','=',$item->id)->first();
+
+			$checkPeriod->check_end = "2015-10-30";
+			$checkPeriod->save();
+		}
+		DB::commit();
+	}
 }

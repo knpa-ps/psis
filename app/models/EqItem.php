@@ -26,4 +26,8 @@ class EqItem extends Eloquent {
 	public function acquires() {
 		return $this->hasMany('EqItemAcquire', 'item_id', 'id');
 	}
+
+	public function checkPeriod() {
+		return $this->hasOne('EqQuantityCheckPeriod', 'item_id', 'id');
+	}
 }

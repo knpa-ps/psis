@@ -1005,10 +1005,8 @@ class EqCapsaicinController extends EquipController {
 		}
 		$data['start'] = $start;
 		$data['end'] = $end;
-		//해당 지방청 관내에서 일어난 사건만 보이게
-		$query = EqCapsaicinEvent::where('node_id','=',$node->id);
 		//날짜 필터 걸었다
-		$query->where('date', '>=', $start)->where('date', '<=', $end);
+		$query = EqCapsaicinEvent::where('date', '>=', $start)->where('date', '<=', $end);
 		//행사명 필터 걸었다
 		if ($eventName) {
 			$query->where('event_name','like',"%$eventName%");
@@ -1023,8 +1021,11 @@ class EqCapsaicinController extends EquipController {
 
 		$nodeFullPath = $node->full_path;
 		foreach ($events as $e) {
-			$usages = EqCapsaicinUsage::where('event_id','=',$e->id)->get();
-			foreach ($usages as $u) {
+			// 해당 지방청 소속 관서
+			$usagesInsideNode = EqCapsaicinUsage::where('event_id','=',$e->id)->whereHas('node', function($q) use($nodeFullPath) {
+				$q->where('full_path','like',$nodeFullPath.'%');
+			})->get();
+			foreach ($usagesInsideNode as $u) {
 				$row = new stdClass;
 				$row->id = $u->id;
 				$row->date = $e->date;
@@ -1039,7 +1040,30 @@ class EqCapsaicinController extends EquipController {
 				array_push($rows, $row);
 				$totalUsage += $u->amount;
 			}
+
+			// 해당 지방청에서 일어난 행사에서 타 청이 지원와서 사용한 내역
+			if($e->node_id == $node->id) {
+				$usagesOutsideNode = EqCapsaicinUsage::where('event_id','=',$e->id)->whereHas('node', function($q) use($nodeFullPath) {
+					$q->where('full_path','not like',$nodeFullPath.'%');
+				})->get();
+				foreach ($usagesOutsideNode as $u) {
+					$row = new stdClass;
+					$row->id = $u->id;
+					$row->date = $e->date;
+					$row->node = EqSupplyManagerNode::find($e->node_id);
+					$row->user_node = EqSupplyManagerNode::find($u->user_node_id);
+					$row->type = $this->service->getEventType($e->type_code);
+					$row->location = $u->location;
+					$row->event_name = $e->event_name;
+					$row->amount = $u->amount;
+					$row->crossHeadNode = $u->cross? EqSupplyManagerNode::find($u->cross->io->node_id) : '';
+					$row->fileName = $u->attached_file_name;
+					array_push($rows, $row);
+					$totalUsage += $u->amount;
+				}
+			}
 		}
+
 		$currentPage = Input::get('page')== null ? 0 : Input::get('page') - 1;
 		$pagedRows = array_slice($rows, $currentPage * 15, 15);
 

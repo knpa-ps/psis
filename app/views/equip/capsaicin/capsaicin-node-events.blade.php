@@ -122,7 +122,11 @@
 							@foreach ($rows as $r)
 							<tr id="{{$r->id}}">
 								<td style="white-space: nowrap">{{ $r->date }}</td>
+								@if($r->type == "관리전환")
+								<td style="white-space: nowrap">{{ $r->crossHeadNode->node_name }}</td>
+								@else
 								<td style="white-space: nowrap">{{ $r->node->region()->node_name }}</td>
+								@endif
 								<td>{{ $r->user_node->full_name }}</td>
 								<td style="white-space: nowrap">{{ $r->type }}</td>
 								<td>{{ $r->location }}</td>
