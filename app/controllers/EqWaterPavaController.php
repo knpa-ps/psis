@@ -3,18 +3,23 @@ use Carbon\Carbon;
 
 class EqWaterPavaController extends EquipController {
 
-	public function deleteEventRequest($eventId) {
+	public function deleteEventRequest($usageId) {
+		$delReq = EqDeleteRequest::where('usage_id','=',$usageId)->first();
 
-		$delReq = new EqDeleteRequest;
-		$delReq->usage_id = $eventId;
-		$delReq->type = "pava";
-		$delReq->confirmed = 0;
+		if (!$delReq) {
+			$delReq = new EqDeleteRequest;
+			$delReq->usage_id = $eventId;
+			$delReq->type = "pava";
+			$delReq->confirmed = 0;
 
-		if (!$delReq->save()) {
-			return App::abort(500);
+			if (!$delReq->save()) {
+				return App::abort(500);
+			}
+
+			return "본청 관리자 승인 후 삭제됩니다.";
+		} else {
+			return "삭제 대기중입니다.";
 		}
-
-		return "본청 관리자 승인 후 삭제됩니다.";
 	}
 
 	public function showRegionConfirm() {
