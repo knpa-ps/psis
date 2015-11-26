@@ -70,6 +70,16 @@
 						</tr>
 					</thead>
 					@else
+
+						
+						<div class="row">
+							<div class="col-xs-12 text-center">
+								<input type="checkbox" name="guard" value="guard" checked="checked"> 경비
+								<input type="checkbox" name="patrol" value="patrol" checked="checked"> 방순대
+								<input type="checkbox" name="others" value="others" checked="checked"> 기타
+							</div>
+						</div>
+
 					<thead>
 						<tr>
 							<th style="text-align: center; vertical-align: middle" rowspan="2">
@@ -250,6 +260,7 @@ $(function() {
 		$(this).nextUntil('tr.group').slideToggle();
 	});
 	$(".group").trigger('click');
+
 
 });
 </script>

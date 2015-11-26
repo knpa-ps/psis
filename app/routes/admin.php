@@ -74,6 +74,8 @@ Route::group(array('before'=>'auth|permission:superuser'), function() {
         Route::get('equips_term','AdminController@displayCheckPeriod');
         Route::post('equips_term','AdminController@setCheckPeriodForItem');
 
+        Route::get('equips_term/{year}','AdminController@setCheckPeriod');
+
     });
 
     Route::resource('menu', 'MenuController');

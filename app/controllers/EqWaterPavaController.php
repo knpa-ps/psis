@@ -8,7 +8,7 @@ class EqWaterPavaController extends EquipController {
 
 		if (!$delReq) {
 			$delReq = new EqDeleteRequest;
-			$delReq->usage_id = $eventId;
+			$delReq->usage_id = $usageId;
 			$delReq->type = "pava";
 			$delReq->confirmed = 0;
 

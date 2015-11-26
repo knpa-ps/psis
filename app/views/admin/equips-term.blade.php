@@ -25,37 +25,24 @@
               <th style="text-align: center; vertical-align: middle">
 								기한
 							</th>
-							<th style="text-align: center; vertical-align: middle">
-								수정
-							</th>
             </tr>
           </thead>
           <tbody>
-
+						{{ Form::open(array(
+							'id'=>'term_form',
+							'url'=> 'admin/equips_term',
+							'method'=>'post'
+						)) }}
 							@foreach ($categories as $category)
 							<tr class="group"><td colspan="5" class="group-cell">{{ $category->sort_order.'. '.$category->name }}({{sizeof($category->codes)}}종)  </td></tr>
 								@foreach ($category->codes as $c)
-								{{ Form::open(array(
-									'url'=> 'admin/equips_term',
-									'method'=>'post'
-								)) }}
 								<tr>
 									<td colspan="3"> <a href="{{ url('equips/inventories/'.$c->code) }}">{{ $c->title }}</a> </td>
 									<td>
-										<input type="text" class="form-control input-datepicker input-sm" name="code">
-										<input type="hidden" name="codeId" value="{{$c->id}}">
-									</td>
-									<td>
-										<button type="submit" class="btn btn-xs btn-success">제출</button>
+										<input type="text" class="form-control input-datepicker input-sm" id="code_{{$c->id}}" name="code_{{$c->id}}">
 									</td>
 								</tr>
-								{{ Form::close(); }}
-
 									@foreach ($items[$c->id] as $item)
-									{{ Form::open(array(
-										'url'=> 'admin/equips_term',
-										'method'=>'post'
-									)) }}
 									<tr>
 										<td> {{ substr($item->acquired_date,0,4) }}</a> </td>
 										<td>
@@ -67,20 +54,17 @@
 										</td>
 			              <td> {{ $item->code->title}} {{$item->maker_name}} </td>
 			              <td>
-			                <input type="text" class="form-control input-datepicker input-sm" name="item" value="{{$item->checkPeriod->check_end}}">
-											<input type="hidden" name="itemId" value="{{$item->id}}">
+			                <input type="text" class="form-control input-datepicker input-sm" id="item_{{$item->id}}" name="item_{{$item->id}}" value="{{$item->checkPeriod->check_end}}">
 			              </td>
-										<td>
-											<button type="submit" class="btn btn-xs btn-success">제출</button>
-										</td>
 			            </tr>
-									{{ Form::close(); }}
 									@endforeach
 								@endforeach
 							@endforeach
+						{{ Form::close(); }}
 
           </tbody>
         </table>
+				<button type="submit" class="btn btn-lg btn-block btn-primary" id="submit_btn"> 제출</button>
       </div>
     </div>
   </div>
@@ -102,6 +86,19 @@ $(document.body).on('click', '.group', function(){
 });
 
 $(".group").trigger('click');
+
+$("#submit_btn").on('click', function() {
+	var formData = $("#term_form").serialize();
+	$.ajax({
+		url : base_url+"/admin/equips_term",
+		data : formData,
+		type : "post",
+		success: function(res){
+			alert(res);
+			location.reload();
+		}
+	});
+});
 </script>
 
 @stop
