@@ -108,14 +108,17 @@ class EqConvertController extends EquipController {
 					$qry->where('title','like',"%$itemName%");
 				});
 			});
+		} else {
+			$itemName='';
 		}
+		$data['itemName'] = $itemName;
 
 		//converts 불러오기
 		if ($data['isImport'] == true) {
 			// 입고내역 조회
 			$data['converts'] = $query->whereHas('childOfTargetNode', function($q) use ($user){
 				$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
-			})->whereRaw('cross_head = head_confirmed')->orderBy('converted_date','DESC')->paginate(15);
+			})->orderBy('converted_date','DESC')->paginate(15);
 
 		} else {
 			// 출고내역 조회

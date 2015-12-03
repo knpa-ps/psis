@@ -70,10 +70,10 @@
 									{{ round($firstDayHolding, 2) }}
 								</th>
 								<th style="background-color: #FEE9FC">{{ round($usageSumSum, 2) }}</th>
-								<th style="background-color: #FEE9FC">{{ round($usageTSum, 2) }}</th>
+								<th style="background-color: #FEE9FC">{{ round($usageDSum, 2) }}</th>
 								<th style="background-color: #FEE9FC">{{ round($usageASum, 2) }}</th>
 								<th>{{ $timesSumSum }}</th>
-								<th>{{ $timesTSum }}</th>
+								<th>{{ $timesDSum }}</th>
 								<th>{{ $timesASum }}</th>
 								<th>{{ round($crossUsageSum, 2) }}</th>
 								<th>{{ round($additionSum, 2) }}</th>
@@ -87,7 +87,7 @@
 								@if (isset($stock[$i]))
 									<td colspan="2">{{ round($stock[$i], 2) }}</td>
 									<td style="background-color: #FEE9FC">{{ round($usageSum[$i], 2) }}</td>
-									<td style="background-color: #FEE9FC">{{ round($usageT[$i], 2) }}</td>
+									<td style="background-color: #FEE9FC">{{ round($usageD[$i], 2) }}</td>
 									<td style="background-color: #FEE9FC">{{ round($usageA[$i], 2) }}</td>
 								@else
 									<td colspan="2"></td>
@@ -96,7 +96,7 @@
 									<td></td>
 								@endif
 								<td>{{ $timesSum[$i] }}</td>
-								<td>{{ $timesT[$i] }}</td>
+								<td>{{ $timesD[$i] }}</td>
 								<td>{{ $timesA[$i] }}</td>
 								<td>{{ round($crossUsage[$i], 2) }}</td>
 								<td>{{ round($addition[$i], 2) }}</td>

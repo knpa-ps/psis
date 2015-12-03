@@ -12,4 +12,7 @@ class EqCapsaicinCrossRegion extends Eloquent {
 	public function io(){
 		return $this->belongsTo('EqCapsaicinIo','io_id','id');
 	}
+	public function usage() {
+		return $this->belongsTo('EqCapsaicinUsage','usage_id','id');
+	}
 }

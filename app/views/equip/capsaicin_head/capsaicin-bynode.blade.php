@@ -14,11 +14,16 @@
 				<thead>
 					<tr>
 						<th rowspan="2">구분</th>
-						<th rowspan="2">현재보유량(ℓ)</th>
+						<th colspan="2">보유량(ℓ)</th>
 						<th colspan="3" style="background-color: #E89ECC">사용량(ℓ)</th>
 						<th colspan="3">사용횟수</th>
+						<th rowspan="2">타청지원(ℓ)</th>
+						<th rowspan="2">추가량(ℓ)</th>
+						<th rowspan="2">불용량(ℓ)</th>
 					</tr>
 					<tr>
+						<th>현재보유량</th>
+						<th>최초보유량</th>
 						<th style="background-color: #E89ECC">계</th>
 						<th style="background-color: #E89ECC">훈련시</th>
 						<th style="background-color: #E89ECC">집회시위시</th>
@@ -29,12 +34,17 @@
 					<tr>
 						<th>계</th>
 						<th>{{ round($stockSum,2) }}</th>
+						<th>{{ round($initHoldingThisYearSum,2) }}</th>
 						<th style="background-color: #FEE9FC">{{ round($usageSumSum,2) }}</th>
-						<th style="background-color: #FEE9FC">{{ round($usageTSum,2)}}</th>
+						<th style="background-color: #FEE9FC">{{ round($usageDSum,2)}}</th>
 						<th style="background-color: #FEE9FC">{{ round($usageASum,2)}}</th>
 						<th>{{ $timesSumSum }}</th>
-						<th>{{ $timesTSum }}</th>
+						<th>{{ $timesDSum }}</th>
 						<th>{{ $timesASum }}</th>
+						<th>{{ $crossUsedThisYearSum }}</th>
+						<th>{{ $acquiredThisYearSum }}</th>
+						<th>{{ $discardedThisYearSum }}</th>
+
 					</tr>
 				</thead>
 				<tbody>
@@ -42,12 +52,16 @@
 					<tr>
 						<th><a href="{{ url('/equips/capsaicin/node/'.$n->id).'/holding' }}">{{$n->node_name}}</a></th>
 						<td>{{ round($stock[$n->id],2)}}</td>
+						<td>{{ round($initHoldingThisYear[$n->id],2) }}</td>
 						<td style="background-color: #FEE9FC">{{ round($usageSum[$n->id],2) }}</td>
-						<td style="background-color: #FEE9FC">{{ round($usageT[$n->id], 2) }}</td>
+						<td style="background-color: #FEE9FC">{{ round($usageD[$n->id], 2) }}</td>
 						<td style="background-color: #FEE9FC">{{ round($usageA[$n->id], 2) }}</td>
 						<td>{{ $timesSum[$n->id] }}</td>
-						<td>{{ $timesT[$n->id] }}</td>
+						<td>{{ $timesD[$n->id] }}</td>
 						<td>{{ $timesA[$n->id] }}</td>
+						<td>{{ round($crossUsedThisYear[$n->id],2) }}</td>
+						<td>{{ round($acquiredThisYear[$n->id],2) }}</td>
+						<td>{{ round($discardedThisYear[$n->id],2) }}</td>
 					</tr>
 					@endforeach
 				</tbody>

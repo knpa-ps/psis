@@ -134,7 +134,6 @@ class EqCapsaicinController extends EquipController {
 		$user = Sentry::getUser();
 		$node = $user->supplyNode;
 
-
 		if ($node->type_code != "D001") {
 			if ($node->type_code == "D002") {
 				return Redirect::action('EqCapsaicinController@nodeHolding', $node->id);
@@ -143,9 +142,13 @@ class EqCapsaicinController extends EquipController {
 			}
 		}
 
-		$agencies = EqSupplyManagerNode::where('type_code','=','D002')->get();
-		$data['nodes'] = $agencies;
+		// 모든 지방청들
+		$nodes = EqSupplyManagerNode::where('type_code','=','D002')->get();
+		$data['nodes'] = $nodes;
 		$tabId = Input::get('tab_id');
+		if(!$tabId) {
+			$tabId = 1;
+		}
 		$data['tabId'] = $tabId;
 		$start = Input::get('start');
 		$end = Input::get('end');
@@ -164,66 +167,91 @@ class EqCapsaicinController extends EquipController {
 				//지방쳥별 보기
 				$stock = array();
 				$usageSum = array();
-				$usageT = array();
+				$usageD = array();
 				$usageA = array();
 				$timesSum = array();
-				$timesT = array();
+				$timesD = array();
 				$timesA = array();
 				$stockSum = 0;
 
-
+				$initHoldingThisYearSum = EqCapsaicinFirstday::where('year','=',$year)->sum('amount');;
+				$crossUsedThisYearSum = 0;
+				$acquiredThisYearSum = 0;
+				$discardedThisYearSum = 0;
 				//선택한 연도에 해당하는 자료만 가져와 보여준다.
-				foreach ($agencies as $n) {
+				foreach ($nodes as $n) {
 					// 훈련 내역 추가시 훈련 내역을 등록한 node의 id가 입력되므로 지방청의 child id에 대해서 사용량, 사용횟수 합을 구해줘야
 					$children = EqSupplyManagerNode::where('full_path','like',$n->full_path.'%')->where('is_selectable','=',1)->get();
 
 					// 사용량 충합
-					$usageT[$n->id] = 0;
+					$usageD[$n->id] = 0;
 					foreach($children as $child){
-						$usageT[$n->id] += EqCapsaicinUsage::whereHas('event', function($q) use($child,$year) {
+						$usageD[$n->id] += EqCapsaicinUsage::whereHas('event', function($q) use($child,$year) {
 							$q->where('node_id','=',$child->id)->where('date','like',$year.'%')->where('type_code','=','drill');
 						})->sum('amount');
 					}
 					$usageA[$n->id] = EqCapsaicinUsage::whereHas('event', function($q) use($n,$year) {
 						$q->where('node_id','=',$n->id)->where('date','like',$year.'%')->where('type_code','=','assembly');
 					})->sum('amount');
-
-					$usageSum[$n->id] = $usageT[$n->id] + $usageA[$n->id];
+					$usageSum[$n->id] = $usageD[$n->id] + $usageA[$n->id];
 
 					// 훈련시 사용횟수 총합
-					$timesT[$n->id] = 0;
+					$timesD[$n->id] = 0;
 					foreach($children as $child){
-						$timesT[$n->id] += EqCapsaicinEvent::where('node_id','=',$child->id)->where('date','>',$year)->where('type_code','=','drill')->count();
+						$timesD[$n->id] += EqCapsaicinEvent::where('node_id','=',$child->id)->where('date','>',$year)->where('type_code','=','drill')->count();
 					}
 					$timesA[$n->id] = EqCapsaicinEvent::where('node_id','=',$n->id)->where('date','>',$year)->where('type_code','=','assembly')->count();
-					$timesSum[$n->id] = $timesA[$n->id] + $timesT[$n->id];
+					$timesSum[$n->id] = $timesA[$n->id] + $timesD[$n->id];
 
-					/**
-					 * 당해 최초보유량 - 당해 사용량 + 당해 보급량 -당해 불용량 = 현재보유량임.
-					 */
-					$initHolding = EqCapsaicinFirstday::where('node_id','=',$n->id)->where('year','=',$year)->first()->amount;
-					$acquiredThisYear = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$n->id)->where('acquired_date','like',$year.'%')->sum('amount');
-					$discardedThisYear = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$n->id)->where('acquired_date','like',$year.'%')->sum('amount');
-					$crossUsedThisYear = EqCapsaicinCrossRegion::where('node_id','=',$n->id)->where('used_date','like',$year.'%')->sum('amount');
+					// 사용량 이외의 것들
+					$initHoldingThisYear[$n->id] = EqCapsaicinFirstday::where('node_id','=',$n->id)->where('year','=',$year)->first()->amount;
+					$acquiredThisYear[$n->id] = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$n->id)->where('acquired_date','like',$year.'%')->sum('amount');
+					$discardedThisYear[$n->id] = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$n->id)->where('acquired_date','like',$year.'%')->sum('amount');
+					$crossUsedThisYear[$n->id] = 0;
+					// 내 지방청의 하위관서가 타 청에 가서 사용한 내역을 모두 종합하여 내 지방청의 타청지원 수량으로 잡음
+					foreach($children as $child){
+						$crossUsedThisYear[$n->id] += EqCapsaicinCrossRegion::where('node_id','=',$child->id)->whereHas('usage', function($q) use($year){
+							$q->whereHas('event', function($qq) use($year) {
+								$qq->where('date','like',$year.'%');
+							});
+						})->sum('amount');
+						// $crossUsedThisYear[$n->id] += EqCapsaicinCrossRegion::where('node_id','=',$child->id)->where('used_date','like',$year.'%')->sum('amount');
+					}
 					// 보유량 = 초기 보유량 - 사용량 - 추가량 - 불용량 - 타청지원
-					$stock[$n->id] = $initHolding - $usageSum[$n->id] + $acquiredThisYear - $discardedThisYear - $crossUsedThisYear;
+					$stock[$n->id] = $initHoldingThisYear[$n->id] - $usageSum[$n->id] + $acquiredThisYear[$n->id] - $discardedThisYear[$n->id] - $crossUsedThisYear[$n->id];
+
+					$acquiredThisYearSum += $acquiredThisYear[$n->id];
+					$discardedThisYearSum += $discardedThisYear[$n->id];
+					$crossUsedThisYearSum += $crossUsedThisYear[$n->id];
 					$stockSum += $stock[$n->id];
 		 		}
-		 		$data['stock'] = $stock;
+
+				$data['initHoldingThisYearSum'] = $initHoldingThisYearSum;
+				$data['crossUsedThisYearSum'] = $crossUsedThisYearSum;
+				$data['acquiredThisYearSum'] = $acquiredThisYearSum;
+				$data['discardedThisYearSum'] = $discardedThisYearSum;
+
 		 		$data['usageSum'] = $usageSum;
-		 		$data['usageT'] = $usageT;
+		 		$data['usageD'] = $usageD;
 		 		$data['usageA'] = $usageA;
 		 		$data['timesSum'] = $timesSum;
-		 		$data['timesT'] = $timesT;
+		 		$data['timesD'] = $timesD;
 		 		$data['timesA'] = $timesA;
 
-		 		$data['stockSum'] = $stockSum;
+
 		 		$data['usageSumSum'] = array_sum($usageSum);
-		 		$data['usageTSum'] = array_sum($usageT);
+		 		$data['usageDSum'] = array_sum($usageD);
 		 		$data['usageASum'] = array_sum($usageA);
 		 		$data['timesSumSum'] = array_sum($timesSum);
-		 		$data['timesTSum'] = array_sum($timesT);
+		 		$data['timesDSum'] = array_sum($timesD);
 		 		$data['timesASum'] = array_sum($timesA);
+
+				$data['initHoldingThisYear'] = $initHoldingThisYear;
+				$data['crossUsedThisYear'] = $crossUsedThisYear;
+				$data['acquiredThisYear'] = $acquiredThisYear;
+				$data['discardedThisYear'] = $discardedThisYear;
+				$data['stock'] = $stock;
+				$data['stockSum'] = $stockSum;
 
 		 		if (Input::get('export')) {
 					//xls obj 생성
@@ -234,48 +262,78 @@ class EqCapsaicinController extends EquipController {
 						->setCreator($user->user_name)
 						->setTitle($fileName)
 						->setSubject($fileName);
+					$styleArray = array(
+					  'borders' => array(
+					    'allborders' => array(
+					      'style' => PHPExcel_Style_Border::BORDER_THIN
+					    )
+					  )
+					);
 					//셀 정렬(가운데)
 					$objPHPExcel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER)->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
 					$sheet = $objPHPExcel->setActiveSheetIndex(0);
-					$sheet->mergeCells('a1:a2');
-					$sheet->mergeCells('b1:b2');
-					$sheet->mergeCells('c1:e1');
-					$sheet->mergeCells('f1:h1');
+					$sheet->mergeCells('a3:a4');
+					$sheet->mergeCells('b3:c3');
+					$sheet->mergeCells('d3:f3');
+					$sheet->mergeCells('g3:i3');
+					$sheet->mergeCells('j3:j4');
+					$sheet->mergeCells('k3:k4');
+					$sheet->mergeCells('l3:l4');
 
-					$sheet->setCellValue('a1','구분');
-					$sheet->setCellValue('b1','현재보유량(ℓ)');
-					$sheet->setCellValue('c1','사용량(ℓ)');
-					$sheet->setCellValue('f1','사용횟수');
-					$sheet->setCellValue('c2','계');
-					$sheet->setCellValue('d2','훈련시');
-					$sheet->setCellValue('e2','집회시위시');
-					$sheet->setCellValue('f2','계');
-					$sheet->setCellValue('g2','훈련시');
-					$sheet->setCellValue('h2','집회시위시');
+					$sheet->setCellValue('a1', $node->full_name);
+					$sheet->setCellValue('a3','구분');
+					$sheet->setCellValue('b3','보유량(ℓ)');
+					$sheet->setCellValue('b4','현재보유량');
+					$sheet->setCellValue('c4','최초보유량');
+					$sheet->setCellValue('d3','사용량(ℓ)');
+					$sheet->setCellValue('f3','사용횟수');
+					$sheet->setCellValue('d4','계');
+					$sheet->setCellValue('e4','훈련시');
+					$sheet->setCellValue('f4','집회시');
+					$sheet->setCellValue('g4','계');
+					$sheet->setCellValue('h4','훈련시');
+					$sheet->setCellValue('i4','집회시');
+					$sheet->setCellValue('j3','타청지원(ℓ)');
+					$sheet->setCellValue('k3','추가량(ℓ)');
+					$sheet->setCellValue('l3','불용량(ℓ)');
 
-					$sheet->setCellValue('a3','계');
-					$sheet->setCellValue('b3',round($data['stockSum'],2));
-					$sheet->setCellValue('c3',round($data['usageSumSum'],2));
-					$sheet->setCellValue('d3',round($data['usageTSum'],2));
-					$sheet->setCellValue('e3',round($data['usageASum'],2));
-					$sheet->setCellValue('f3',$data['timesSumSum']);
-					$sheet->setCellValue('g3',$data['timesTSum'] );
-					$sheet->setCellValue('h3',$data['timesASum']);
+					$sheet->setCellValue('a6','계');
+					$sheet->setCellValue('b6',round($data['stockSum'],2));
+					$sheet->setCellValue('c6',round($data['initHoldingThisYearSum'],2));
+					$sheet->setCellValue('d6',round($data['usageSumSum'],2));
+					$sheet->setCellValue('e6',round($data['usageDSum'],2));
+					$sheet->setCellValue('f6',round($data['usageASum'],2));
+					$sheet->setCellValue('g6',$data['timesSumSum']);
+					$sheet->setCellValue('h6',$data['timesDSum'] );
+					$sheet->setCellValue('i6',$data['timesASum']);
+					$sheet->setCellValue('j6',$data['crossUsedThisYearSum']);
+					$sheet->setCellValue('k6',$data['acquiredThisYearSum']);
+					$sheet->setCellValue('l6',$data['discardedThisYearSum']);
 
 
 					//양식 부분 끝
 					//지방청별 자료
 					for ($i=0; $i < sizeof($data['nodes']); $i++) {
-						$sheet->setCellValue('a'.($i+4), $data['nodes'][$i]->node_name);
-						$sheet->setCellValue('b'.($i+4), round($stock[$data['nodes'][$i]->id],2) );
-						$sheet->setCellValue('c'.($i+4), round($usageSum[$data['nodes'][$i]->id],2) );
-						$sheet->setCellValue('d'.($i+4), round($usageT[$data['nodes'][$i]->id], 2) );
-						$sheet->setCellValue('e'.($i+4), round($usageA[$data['nodes'][$i]->id], 2) );
-						$sheet->setCellValue('f'.($i+4), $timesSum[$data['nodes'][$i]->id] );
-						$sheet->setCellValue('g'.($i+4), $timesT[$data['nodes'][$i]->id] );
-						$sheet->setCellValue('h'.($i+4), $timesA[$data['nodes'][$i]->id] );
+						$sheet->setCellValue('a'.($i+7), $data['nodes'][$i]->node_name);
+						$sheet->setCellValue('b'.($i+7), round($stock[$data['nodes'][$i]->id],2) );
+						$sheet->setCellValue('c'.($i+7), round($initHoldingThisYear[$data['nodes'][$i]->id],2) );
+						$sheet->setCellValue('d'.($i+7), round($usageSum[$data['nodes'][$i]->id],2) );
+						$sheet->setCellValue('e'.($i+7), round($usageD[$data['nodes'][$i]->id], 2) );
+						$sheet->setCellValue('f'.($i+7), round($usageA[$data['nodes'][$i]->id], 2) );
+						$sheet->setCellValue('g'.($i+7), $timesSum[$data['nodes'][$i]->id] );
+						$sheet->setCellValue('h'.($i+7), $timesD[$data['nodes'][$i]->id] );
+						$sheet->setCellValue('i'.($i+7), $timesA[$data['nodes'][$i]->id] );
+						$sheet->setCellValue('j'.($i+7), $crossUsedThisYear[$data['nodes'][$i]->id] );
+						$sheet->setCellValue('k'.($i+7), $acquiredThisYear[$data['nodes'][$i]->id] );
+						$sheet->setCellValue('l'.($i+7), $discardedThisYear[$data['nodes'][$i]->id] );
 					}
+					$objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(false)->setWidth("9.5");
+					$objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(false)->setWidth("9.5");
+					$objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(false)->setWidth("9.67");;
 
+					$objPHPExcel->getActiveSheet()->getStyle('A3:l22')->applyFromArray($styleArray);
+					unset($styleArray);
 
 					//파일로 저장하기
 					$writer = PHPExcel_IOFactory::createWriter($objPHPExcel,'Excel2007');
@@ -314,44 +372,34 @@ class EqCapsaicinController extends EquipController {
 
 				if ($selectedRegionId == 1) {
 					//지방청 필터 안 건 경우 전체자료 다 가져옴
-					$firstDayHolding = EqCapsaicinFirstday::where('year','=',$year)->sum('amount');
-
-					$acquiredThisYear = EqCapsaicinIo::where('io','=',1)->where('acquired_date','>',$year)->where('caption','<>','CR')->sum('amount');
-					$discardsThisYear = EqCapsaicinIo::where('io','=',0)->where('acquired_date','>',$year)->sum('amount');
-
-					$data['firstDayHolding'] = $firstDayHolding;
-
-					$data['usageTSum'] = EqCapsaicinUsage::whereHas('event', function($q) use($year){
-						$q->where('type_code','=','drill')->where('date','like',$year.'%');
-					})->sum('amount');
-					$data['usageASum'] = EqCapsaicinUsage::whereHas('event', function($q) use($year){
-						$q->where('type_code','=','assembly')->where('date','like',$year.'%');
-					})->sum('amount');
-					$data['usageSumSum'] = $data['usageTSum'] + $data['usageASum'];
-
-					$data['timesTSum'] = EqCapsaicinEvent::where('date','like',$year.'%')->where('type_code','=','drill')->count();
-					$data['timesASum'] = EqCapsaicinEvent::where('date','like',$year.'%')->where('type_code','=','assembly')->count();
-					$data['timesSumSum'] = $data['timesTSum'] + $data['timesASum'];
-
-					$data['crossUsageSum'] = 0;
-					$data['additionSum'] = $acquiredThisYear;
-					$data['discardSum'] = $discardsThisYear;
+					$initHolding = EqCapsaicinFirstday::where('year','=',$year)->sum('amount');
 
 					$stock = array();
 					$usageSum = array();
-					$usageT = array();
+					$usageD = array();
 					$usageA = array();
 					$timesSum = array();
-					$timesT = array();
+					$timesD = array();
 					$timesA = array();
 					$crossUsage = array();
 					$addition = array();
 					$discard = array();
 
 					$now = Carbon::now();
-					$consumedUntilThisMonth = 0;
 					//올해면 아직 안 온 달은 비워둔다.
 					$data['presentStock'] = null;
+
+					$initHoldingThisYear = EqCapsaicinFirstday::where('year','=',$year)->sum('amount');
+					$crossUsedThisYear = 0;
+					$acquiredThisYear = 0;
+					$discardedThisYear = 0;
+
+					$usageDSum = 0;
+					$usageASum = 0;
+					$usageSumSum = 0;
+					$timesDSum = 0;
+					$timesASum = 0;
+					$timesSumSum = 0;
 					for ($i=1; $i <= 12; $i++) {
 						$firstDayofMonth = Carbon::createFromDate($year, $i, 1, 'Asia/Seoul')->subDay();
 						if ($i != 12) {
@@ -360,28 +408,33 @@ class EqCapsaicinController extends EquipController {
 							$lastDayofMonth = Carbon::createFromDate($year, $i, 31, 'Asia/Seoul');
 						}
 
-						$usageT[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($firstDayofMonth, $lastDayofMonth){
+						$usageD[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($firstDayofMonth, $lastDayofMonth){
 											$q->where('type_code','=','drill')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth);
 										})->sum('amount');
+						$usageDSum += $usageD[$i];
 						$usageA[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($firstDayofMonth, $lastDayofMonth){
 											$q->where('type_code','=','assembly')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth);
 										})->sum('amount');
-						$usageSum[$i] = $usageT[$i] + $usageA[$i];
-						$consumedUntilThisMonth += $usageSum[$i];
+						$usageASum += $usageA[$i];
+						$usageSum[$i] = $usageD[$i] + $usageA[$i];
+						$usageSumSum += $usageSum[$i];
 
-						$timesT[$i] = EqCapsaicinEvent::where('type_code','=','drill')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
+						$timesD[$i] = EqCapsaicinEvent::where('type_code','=','drill')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
+						$timesDSum += $timesD[$i];
 						$timesA[$i] = EqCapsaicinEvent::where('type_code','=','assembly')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
-						$timesSum[$i] = $timesT[$i] + $timesA[$i];
+						$timesASum += $timesA[$i];
+						$timesSum[$i] = $timesD[$i] + $timesA[$i];
+						$timesSumSum += $timesSum[$i];
 
-						$crossUsage[$i] = EqCapsaicinCrossRegion::where('used_date','>',$firstDayofMonth)->where('used_date','<=',$lastDayofMonth)->sum('amount');
-						$addition[$i] = EqCapsaicinIo::where('io','=',1)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<=',$lastDayofMonth)->sum('amount');
-						$discard[$i]  = EqCapsaicinIo::where('io','=',0)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<=',$lastDayofMonth)->sum('amount');
+						$crossUsedThisMonth[$i] = EqCapsaicinCrossRegion::where('used_date','>',$firstDayofMonth)->where('used_date','<=',$lastDayofMonth)->sum('amount');
+						$acquiredThisMonth[$i] = EqCapsaicinIo::where('io','=',1)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<=',$lastDayofMonth)->sum('amount');
+						$discardedThisMonth[$i]  = EqCapsaicinIo::where('io','=',0)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<=',$lastDayofMonth)->sum('amount');
 
-						$acquiredUntilThisMonth = EqCapsaicinIo::where('io','=',1)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->sum('amount');
-						$discardedUntilThisMonth = EqCapsaicinIo::where('io','=',0)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->sum('amount');
-						$crossUsedUntilThisMonth = EqCapsaicinCrossRegion::where('used_date','<=',$lastDayofMonth)->where('used_date','like',$year.'%')->sum('amount');
+						$acquiredSum = EqCapsaicinIo::where('io','=',1)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->sum('amount');
+						$discardedSum = EqCapsaicinIo::where('io','=',0)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->sum('amount');
+						$crossUsedSum = EqCapsaicinCrossRegion::where('used_date','<=',$lastDayofMonth)->where('used_date','like',$year.'%')->sum('amount');
 
-						$stock[$i] = $firstDayHolding - $consumedUntilThisMonth + $acquiredUntilThisMonth - $discardedUntilThisMonth - $crossUsedUntilThisMonth;
+						$stock[$i] = $initHolding - $usageSumSum + $acquiredSum - $discardedSum - $crossUsedSum;
 
 						$month = 12;
 						if ($year == $now->year) {
@@ -392,10 +445,10 @@ class EqCapsaicinController extends EquipController {
 						} elseif ($year > $now->year) {
 							$stock[$i] = null;
 							$usageSum[$i] = null;
-							$usageT[$i] = null;
+							$usageD[$i] = null;
 							$usageA[$i] = null;
 							$timesSum[$i] = null;
-							$timesT[$i] = null;
+							$timesD[$i] = null;
 							$timesA[$i] = null;
 							$crossUsage[$i] = null;
 							$addition[$i] = null;
@@ -406,10 +459,10 @@ class EqCapsaicinController extends EquipController {
 						if ($month < $i) {
 							$stock[$i] = null;
 							$usageSum[$i] = null;
-							$usageT[$i] = null;
+							$usageD[$i] = null;
 							$usageA[$i] = null;
 							$timesSum[$i] = null;
-							$timesT[$i] = null;
+							$timesD[$i] = null;
 							$timesA[$i] = null;
 							$crossUsage[$i] = null;
 							$addition[$i] = null;
@@ -418,15 +471,27 @@ class EqCapsaicinController extends EquipController {
 						}
 					}
 					$data['stock'] = $stock;
+					$data['initHolding'] = $initHolding;
+
 					$data['usageSum'] = $usageSum;
-					$data['usageT'] = $usageT;
+					$data['usageD'] = $usageD;
 					$data['usageA'] = $usageA;
 					$data['timesSum'] = $timesSum;
-					$data['timesT'] = $timesT;
+					$data['timesD'] = $timesD;
 					$data['timesA'] = $timesA;
-					$data['crossUsage'] = $crossUsage;
-					$data['addition'] = $addition;
-					$data['discard'] = $discard;
+					$data['usageDSum'] = $usageDSum;
+					$data['usageASum'] = $usageASum;
+					$data['usageSumSum'] = $usageSumSum;
+					$data['timesDSum'] = $timesDSum;
+					$data['timesASum'] = $timesASum;
+					$data['timesSumSum'] = $timesSumSum;
+
+					$data['crossUsedThisMonth'] = $crossUsedThisMonth;
+					$data['acquiredThisMonth'] = $acquiredThisMonth;
+					$data['discardedThisMonth'] = $discardedThisMonth;
+					$data['crossUsedSum'] = $crossUsedSum;
+					$data['acquiredSum'] = $acquiredSum;
+					$data['discardedSum'] = $discardedSum;
 
 				} else {
 					//지방청 필터 건 경우
@@ -435,30 +500,30 @@ class EqCapsaicinController extends EquipController {
 					// 훈련 내역 추가시 훈련 내역을 등록한 node의 id가 입력되므로 지방청의 child id에 대해서 사용량, 사용횟수 합을 구해줘야
 					$children = EqSupplyManagerNode::where('full_path','like',$node->full_path.'%')->where('is_selectable','=',1)->get();
 
-					$firstDayHolding = EqCapsaicinFirstday::where('year','=',$year)->where('node_id','=',$nodeId)->first()->amount;
+					$initHolding = EqCapsaicinFirstday::where('year','=',$year)->where('node_id','=',$nodeId)->first()->amount;
 
 					$acquiredThisYear = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','>',$year)->sum('amount');
 					$discardedThisYear = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','>',$year)->sum('amount');
 					$crossUsageThisYear = EqCapsaicinCrossRegion::where('node_id','=',$nodeId)->where('used_date','>',$year)->sum('amount');
 
-					$data['firstDayHolding'] = $firstDayHolding;
-					$data['usageTSum'] = 0;
+					$data['initHolding'] = $initHolding;
+					$data['usageDSum'] = 0;
 					foreach($children as $child){
-						$data['usageTSum'] += EqCapsaicinUsage::whereHas('event', function($q) use($child, $year){
+						$data['usageDSum'] += EqCapsaicinUsage::whereHas('event', function($q) use($child, $year){
 							$q->where('type_code','=','drill')->where('node_id','=',$child->id)->where('date','like',$year.'%');
 						})->sum('amount');
 					}
 					$data['usageASum'] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$year){
 						$q->where('type_code','=','assembly')->where('node_id','=',$nodeId)->where('date','like',$year.'%');
 					})->sum('amount');
-					$data['usageSumSum'] = $data['usageTSum'] + $data['usageASum'];
+					$data['usageSumSum'] = $data['usageDSum'] + $data['usageASum'];
 
-					$data['timesTSum'] = 0;
+					$data['timesDSum'] = 0;
 					foreach($children as $child){
-						$data['timesTSum'] += EqCapsaicinEvent::where('node_id','=',$child->id)->where('date','like',$year.'%')->where('type_code','=','drill')->count();
+						$data['timesDSum'] += EqCapsaicinEvent::where('node_id','=',$child->id)->where('date','like',$year.'%')->where('type_code','=','drill')->count();
 					}
 					$data['timesASum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('type_code','=','assembly')->count();
-					$data['timesSumSum'] = $data['timesTSum'] + $data['timesASum'];
+					$data['timesSumSum'] = $data['timesDSum'] + $data['timesASum'];
 
 					$data['crossUsageSum'] = $crossUsageThisYear;
 					$data['additionSum'] = $acquiredThisYear;
@@ -466,10 +531,10 @@ class EqCapsaicinController extends EquipController {
 
 					$stock = array();
 					$usageSum = array();
-					$usageT = array();
+					$usageD = array();
 					$usageA = array();
 					$timesSum = array();
-					$timesT = array();
+					$timesD = array();
 					$timesA = array();
 					$crossUsage = array();
 					$addition = array();
@@ -489,24 +554,24 @@ class EqCapsaicinController extends EquipController {
 						}
 
 						// 사용량
-						$usageT[$i] = 0;
+						$usageD[$i] = 0;
 						foreach($children as $child){
-							$usageT[$i] += EqCapsaicinUsage::whereHas('event', function($q) use($child,$firstDayofMonth, $lastDayofMonth){
+							$usageD[$i] += EqCapsaicinUsage::whereHas('event', function($q) use($child,$firstDayofMonth, $lastDayofMonth){
 											$q->where('type_code','=','drill')->where('node_id','=',$child->id)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth);
 										})->sum('amount');
 						}
 						$usageA[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$firstDayofMonth, $lastDayofMonth){
 											$q->where('type_code','=','assembly')->where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth);
 										})->sum('amount');
-						$usageSum[$i] = $usageT[$i] + $usageA[$i];
+						$usageSum[$i] = $usageD[$i] + $usageA[$i];
 						$consumedUntilThisMonth += $usageSum[$i];
 						// 사용횟수
-						$timesT[$i] = 0;
+						$timesD[$i] = 0;
 						foreach($children as $child){
-							$timesT[$i] += EqCapsaicinEvent::where('node_id','=',$child->id)->where('type_code','=','drill')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
+							$timesD[$i] += EqCapsaicinEvent::where('node_id','=',$child->id)->where('type_code','=','drill')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
 						}
 						$timesA[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('type_code','=','assembly')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
-						$timesSum[$i] = $timesT[$i] + $timesA[$i];
+						$timesSum[$i] = $timesD[$i] + $timesA[$i];
 
 						$crossUsage[$i] = EqCapsaicinCrossRegion::where('node_id','=',$nodeId)->where('used_date','>',$firstDayofMonth)->where('used_date','<=',$lastDayofMonth)->sum('amount');
 						$addition[$i] = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<=',$lastDayofMonth)->sum('amount');
@@ -515,7 +580,7 @@ class EqCapsaicinController extends EquipController {
 						$acquireUntilThisMonth = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->sum('amount');
 						$discardUntilThisMonth = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','<=',$lastDayofMonth)->where('acquired_date','like',$year.'%')->sum('amount');
 						$crossUsedUntilThisMonth = EqCapsaicinCrossRegion::where('node_id','=',$nodeId)->where('used_date','<=',$lastDayofMonth)->where('used_date','like',$year.'%')->sum('amount');
-						$stock[$i] = $firstDayHolding - $consumedUntilThisMonth + $acquireUntilThisMonth - $discardUntilThisMonth - $crossUsedUntilThisMonth;
+						$stock[$i] = $initHolding - $consumedUntilThisMonth + $acquireUntilThisMonth - $discardUntilThisMonth - $crossUsedUntilThisMonth;
 
 						$month = 12;
 						if ($year == $now->year) {
@@ -526,10 +591,10 @@ class EqCapsaicinController extends EquipController {
 						} elseif ($year > $now->year) {
 							$stock[$i] = null;
 							$usageSum[$i] = null;
-							$usageT[$i] = null;
+							$usageD[$i] = null;
 							$usageA[$i] = null;
 							$timesSum[$i] = null;
-							$timesT[$i] = null;
+							$timesD[$i] = null;
 							$timesA[$i] = null;
 							$crossUsage[$i] = null;
 							$addition[$i] = null;
@@ -540,10 +605,10 @@ class EqCapsaicinController extends EquipController {
 						if ($month < $i) {
 							$stock[$i] = null;
 							$usageSum[$i] = null;
-							$usageT[$i] = null;
+							$usageD[$i] = null;
 							$usageA[$i] = null;
 							$timesSum[$i] = null;
-							$timesT[$i] = null;
+							$timesD[$i] = null;
 							$timesA[$i] = null;
 							$crossUsage[$i] = null;
 							$addition[$i] = null;
@@ -554,10 +619,10 @@ class EqCapsaicinController extends EquipController {
 
 					$data['stock'] = $stock;
 					$data['usageSum'] = $usageSum;
-					$data['usageT'] = $usageT;
+					$data['usageD'] = $usageD;
 					$data['usageA'] = $usageA;
 					$data['timesSum'] = $timesSum;
-					$data['timesT'] = $timesT;
+					$data['timesD'] = $timesD;
 					$data['timesA'] = $timesA;
 					$data['crossUsage'] = $crossUsage;
 					$data['addition'] = $addition;
@@ -642,70 +707,7 @@ class EqCapsaicinController extends EquipController {
 				}
 
 				break;
-			default:
-				//지방쳥별 보기
-				$stock = array();
-				$usageSum = array();
-				$usageT = array();
-				$usageA = array();
-				$timesSum = array();
-				$timesT = array();
-				$timesA = array();
-				$stockSum = 0;
 
-
-				//선택한 연도에 해당하는 자료만 가져와 보여준다.
-				foreach ($agencies as $n) {
-					// 훈련 내역 추가시 훈련 내역을 등록한 node의 id가 입력되므로 지방청의 child id에 대해서 사용량, 사용횟수 합을 구해줘야
-					$children = EqSupplyManagerNode::where('full_path','like',$n->full_path.'%')->where('is_selectable','=',1)->get();
-
-					// 사용량 충합
-					$usageT[$n->id] = 0;
-					foreach($children as $child){
-						$usageT[$n->id] += EqCapsaicinUsage::whereHas('event', function($q) use($child,$year) {
-							$q->where('node_id','=',$child->id)->where('date','like',$year.'%')->where('type_code','=','drill');
-						})->sum('amount');
-					}
-					$usageA[$n->id] = EqCapsaicinUsage::whereHas('event', function($q) use($n,$year) {
-						$q->where('node_id','=',$n->id)->where('date','like',$year.'%')->where('type_code','=','assembly');
-					})->sum('amount');
-
-					$usageSum[$n->id] = $usageT[$n->id] + $usageA[$n->id];
-
-					// 훈련시 사용횟수 총합
-					$timesT[$n->id] = 0;
-					foreach($children as $child){
-						$timesT[$n->id] += EqCapsaicinEvent::where('node_id','=',$child->id)->where('date','>',$year)->where('type_code','=','drill')->count();
-					}
-					$timesA[$n->id] = EqCapsaicinEvent::where('node_id','=',$n->id)->where('date','>',$year)->where('type_code','=','assembly')->count();
-					$timesSum[$n->id] = $timesA[$n->id] + $timesT[$n->id];
-
-					/**
-					 * 당해 최초보유량 - 당해 사용량 + 당해 보급량 -당해 불용량 = 현재보유량임.
-					 */
-					$initHolding = EqCapsaicinFirstday::where('node_id','=',$n->id)->where('year','=',$year)->first()->amount;
-					$acquiredThisYear = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$n->id)->where('acquired_date','like',$year.'%')->sum('amount');
-					$discardedThisYear = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$n->id)->where('acquired_date','like',$year.'%')->sum('amount');
-					$crossUsedThisYear = EqCapsaicinCrossRegion::where('node_id','=',$n->id)->where('used_date','like',$year.'%')->sum('amount');
-					// 보유량 = 초기 보유량 - 사용량 - 추가량 - 불용량 - 타청지원
-					$stock[$n->id] = $initHolding - $usageSum[$n->id] + $acquiredThisYear - $discardedThisYear - $crossUsedThisYear;
-					$stockSum += $stock[$n->id];
-				}
-				$data['stock'] = $stock;
-				$data['usageSum'] = $usageSum;
-				$data['usageT'] = $usageT;
-				$data['usageA'] = $usageA;
-				$data['timesSum'] = $timesSum;
-				$data['timesT'] = $timesT;
-				$data['timesA'] = $timesA;
-
-				$data['stockSum'] = $stockSum;
-				$data['usageSumSum'] = array_sum($usageSum);
-				$data['usageTSum'] = array_sum($usageT);
-				$data['usageASum'] = array_sum($usageA);
-				$data['timesSumSum'] = array_sum($timesSum);
-				$data['timesTSum'] = array_sum($timesT);
-				$data['timesASum'] = array_sum($timesA);
 		}
 
 		return View::make('equip.capsaicin_head.capsaicin-index', $data);
@@ -797,11 +799,7 @@ class EqCapsaicinController extends EquipController {
 		$input = Input::all();
 		$node = EqSupplyManagerNode::find(Input::get('nodeId'));
 
-		// return var_dump($input);
-
 		DB::beginTransaction();
-
-
 		switch(Input::get('type')) {
 			case 'cross':
 				$event = EqCapsaicinEvent::find($input['event']);
@@ -1100,15 +1098,15 @@ class EqCapsaicinController extends EquipController {
 		$firstDayHolding = EqCapsaicinFirstday::where('year','=',$year)->where('node_id','=',$nodeId)->first()->amount;
 
 		$acquiresThisYear = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','>',$year)->sum('amount');
-		$discardsThisYear = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','>',$year)->sum('amount');
+		$discardedThisYear = EqCapsaicinIo::where('io','=',0)->where('node_id','=',$nodeId)->where('acquired_date','>',$year)->sum('amount');
 		$crossUsageThisYear = EqCapsaicinCrossRegion::where('node_id','=',$nodeId)->where('used_date','>',$year)->sum('amount');
 
 		$data['firstDayHolding'] = $firstDayHolding;
 
 		// 훈련시 사용량 총합
-		$data['usageTSum'] = 0;
+		$data['usageDSum'] = 0;
 		foreach($children as $child){
-			$data['usageTSum'] += EqCapsaicinUsage::whereHas('event', function($q) use($child, $year){
+			$data['usageDSum'] += EqCapsaicinUsage::whereHas('event', function($q) use($child, $year){
 				$q->where('type_code','=','drill')->where('node_id','=',$child->id)->where('date','like',$year.'%');
 			})->sum('amount');
 		}
@@ -1117,28 +1115,28 @@ class EqCapsaicinController extends EquipController {
 			$q->where('type_code','=','assembly')->where('node_id','=',$nodeId)->where('date','like',$year.'%');
 		})->sum('amount');
 		// 사용량 총합
-		$data['usageSumSum'] = $data['usageTSum']+$data['usageASum'];
+		$data['usageSumSum'] = $data['usageDSum']+$data['usageASum'];
 
 		// 훈련시 사용횟수 총합
-		$data['timesTSum'] = 0;
+		$data['timesDSum'] = 0;
 		foreach($children as $child){
-			$data['timesTSum'] += EqCapsaicinEvent::where('node_id','=',$child->id)->where('date','like',$year.'%')->where('type_code','=','drill')->count();
+			$data['timesDSum'] += EqCapsaicinEvent::where('node_id','=',$child->id)->where('date','like',$year.'%')->where('type_code','=','drill')->count();
 		}
 		// 집회 시위시 사용횟수 총합
 		$data['timesASum'] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('date','like',$year.'%')->where('type_code','=','assembly')->count();
 		// 사용횟수 총합
-		$data['timesSumSum'] = $data['timesTSum'] + $data['timesASum'];
+		$data['timesSumSum'] = $data['timesDSum'] + $data['timesASum'];
 
 		$data['crossUsageSum'] = $crossUsageThisYear;
 		$data['additionSum'] = $acquiresThisYear;
-		$data['discardSum'] = $discardsThisYear;
+		$data['discardSum'] = $discardedThisYear;
 
 		$stock = array();
 		$usageSum = array();
-		$usageT = array();
+		$usageD = array();
 		$usageA = array();
 		$timesSum = array();
-		$timesT = array();
+		$timesD = array();
 		$timesA = array();
 		$crossUsage = array();
 		$addition = array();
@@ -1157,25 +1155,25 @@ class EqCapsaicinController extends EquipController {
 			}
 
 			// 훈련시 사용량
-			$usageT[$i] = 0;
+			$usageD[$i] = 0;
 			foreach($children as $child){
-				$usageT[$i] += EqCapsaicinUsage::whereHas('event', function($q) use($child,$firstDayofMonth, $lastDayofMonth){
+				$usageD[$i] += EqCapsaicinUsage::whereHas('event', function($q) use($child,$firstDayofMonth, $lastDayofMonth){
 									$q->where('type_code','=','drill')->where('node_id','=',$child->id)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth);
 								})->sum('amount');
 			}
 			$usageA[$i] = EqCapsaicinUsage::whereHas('event', function($q) use($nodeId,$firstDayofMonth, $lastDayofMonth){
 								$q->where('type_code','=','assembly')->where('node_id','=',$nodeId)->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth);
 							})->sum('amount');
-			$usageSum[$i] = $usageT[$i] + $usageA[$i];
+			$usageSum[$i] = $usageD[$i] + $usageA[$i];
 			$consumedUntilThisMonth += $usageSum[$i];
 
 			// 훈련시 사용횟수
-			$timesT[$i] = 0;
+			$timesD[$i] = 0;
 			foreach($children as $child){
-				$timesT[$i] += EqCapsaicinEvent::where('node_id','=',$child->id)->where('type_code','=','drill')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
+				$timesD[$i] += EqCapsaicinEvent::where('node_id','=',$child->id)->where('type_code','=','drill')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
 			}
 			$timesA[$i] = EqCapsaicinEvent::where('node_id','=',$nodeId)->where('type_code','=','assembly')->where('date','>',$firstDayofMonth)->where('date','<=',$lastDayofMonth)->count();
-			$timesSum[$i] = $timesT[$i] + $timesA[$i];
+			$timesSum[$i] = $timesD[$i] + $timesA[$i];
 
 			$crossUsage[$i] = EqCapsaicinCrossRegion::where('node_id','=',$nodeId)->where('used_date','>',$firstDayofMonth)->where('used_date','<=',$lastDayofMonth)->sum('amount');
 			$addition[$i] = EqCapsaicinIo::where('io','=',1)->where('node_id','=',$nodeId)->where('acquired_date','>',$firstDayofMonth)->where('acquired_date','<=',$lastDayofMonth)->sum('amount');
@@ -1195,10 +1193,10 @@ class EqCapsaicinController extends EquipController {
 			} elseif ($year > $now->year) {
 				$stock[$i] = null;
 				$usageSum[$i] = null;
-				$usageT[$i] = null;
+				$usageD[$i] = null;
 				$usageA[$i] = null;
 				$timesSum[$i] = null;
-				$timesT[$i] = null;
+				$timesD[$i] = null;
 				$timesA[$i] = null;
 				$crossUsage[$i] = null;
 				$addition[$i] = null;
@@ -1209,10 +1207,10 @@ class EqCapsaicinController extends EquipController {
 			if ($month < $i) {
 				$stock[$i] = null;
 				$usageSum[$i] = null;
-				$usageT[$i] = null;
+				$usageD[$i] = null;
 				$usageA[$i] = null;
 				$timesSum[$i] = null;
-				$timesT[$i] = null;
+				$timesD[$i] = null;
 				$timesA[$i] = null;
 				$crossUsage[$i] = null;
 				$addition[$i] = null;
@@ -1223,10 +1221,10 @@ class EqCapsaicinController extends EquipController {
 
 		$data['stock'] = $stock;
 		$data['usageSum'] = $usageSum;
-		$data['usageT'] = $usageT;
+		$data['usageD'] = $usageD;
 		$data['usageA'] = $usageA;
 		$data['timesSum'] = $timesSum;
-		$data['timesT'] = $timesT;
+		$data['timesD'] = $timesD;
 		$data['timesA'] = $timesA;
 		$data['crossUsage'] = $crossUsage;
 		$data['addition'] = $addition;

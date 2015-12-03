@@ -175,8 +175,13 @@
 						</tr>
 					@endif
 					</tbody>
+
 				</table>
-				{{ $converts->links() }}
+				@if ($isImport!=true)
+					{{ $converts->appends(array('is_import'=>'false', 'start'=>$start, 'end'=>$end, 'item_name'=>$itemName ))->links() }}
+				@else
+					{{ $converts->appends(array('is_import'=>'true','start'=>$start, 'end'=>$end, 'item_name'=>$itemName ))->links() }}
+				@endif
 
 			</div>
 		</div>
