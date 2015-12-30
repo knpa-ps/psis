@@ -176,11 +176,20 @@
 													'method'=>'post',
 													'id'=>'count_update_form'
 												))}}
+											@if($item->item_code == "M004")
 											@foreach ($item->types as $type)
 												<td style="text-align: center;">
-													<input type="text" class="form-control input-sm positive-int" name="{{ 'count['.$type->id.']'}}" placeholder="{{ $holding[$type->id] }}">
+													<input type="text" class="form-control input-sm positive" name="{{ 'count['.$type->id.']'}}" value="{{ $holding[$type->id] }}">
 												</td>
 											@endforeach
+											@else
+											@foreach ($item->types as $type)
+												<td style="text-align: center;">
+													<input type="text" class="form-control input-sm positive-int" name="{{ 'count['.$type->id.']'}}" value="{{ $holding[$type->id] }}">
+												</td>
+											@endforeach
+											@endif
+
 											{{ Form::close() }}
 										@else
 											@foreach($inventorySet->children as $c)
@@ -196,12 +205,21 @@
 											'method'=> 'post',
 											'id'=>'wrecked_update_form'
 										)) }}
-											@foreach ($item->types as $type)
-												<td style="text-align: center;">
-													<input type="text" class="form-control input-sm positive-int" name="{{ 'wrecked['.$type->id.']' }}" placeholder="{{ $wrecked[$type->id] }}">
-												</td>
-											@endforeach
+										@if($item->item_code == "M004")
+										@foreach ($item->types as $type)
+											<td style="text-align: center;">
+												<input type="text" class="form-control input-sm positive" name="{{ 'wrecked['.$type->id.']' }}" value="{{ $wrecked[$type->id] }}">
+											</td>
+										@endforeach
+										@else
+										@foreach ($item->types as $type)
+											<td style="text-align: center;">
+												<input type="text" class="form-control input-sm positive-int" name="{{ 'wrecked['.$type->id.']' }}" value="{{ $wrecked[$type->id] }}">
+											</td>
+										@endforeach
+										@endif
 										{{ Form::close() }}
+
 									</tr>
 								</tbody>
 								<tfoot>
@@ -270,6 +288,15 @@ $(function() {
 
 		if (!re.test(input)) {
 		alert('양의 정수만 입력하세요');
+		$(this).val(0);
+		};
+	});
+	$(".positive").on('change', function(){
+		var input = $(this).val();
+		var re = /([0-9]+\.[0-9]*)|([0-9]*\.[0-9]+)|([0-9]+)/;
+
+		if (!re.test(input)) {
+		alert('양수만 입력하세요');
 		$(this).val(0);
 		};
 	});

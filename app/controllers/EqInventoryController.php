@@ -9,7 +9,6 @@ class EqInventoryController extends EquipController {
 		$user = Sentry::getUser();
 		$count = Input::get('count');
 		$inventory = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$item->id)->first();
-
 		if($inventory) {
 			$wreckedSumBefore=Cache::get("wrecked_sum_".$user->supplyNode->id."_".$itemId);
 			$availSumBefore=Cache::get("avail_sum_".$user->supplyNode->id."_".$itemId);
@@ -18,7 +17,7 @@ class EqInventoryController extends EquipController {
 			$countSum=0;
 			foreach ($item->types as $t) {
 				$data = EqInventoryData::where('inventory_set_id','=',$inventory->id)->where('item_type_id','=',$t->id)->first();
-				if ((int)$count[$t->id] < (int)$data->wrecked) {
+				if ($count[$t->id] < $data->wrecked) {
 					return Redirect::back()->with('message', '보유수량이 파손수량보다 적을 수 없습니다.');
 				}
 				$data->count = $count[$t->id];
@@ -69,7 +68,7 @@ class EqInventoryController extends EquipController {
 			foreach ($item->types as $t) {
 				$data = EqInventoryData::where('inventory_set_id','=',$inventory->id)->where('item_type_id','=',$t->id)->first();
 
-				if ((int)$wrecked[$t->id] > (int)$data->count) {
+				if ($wrecked[$t->id] > $data->count) {
 					return Redirect::back()->with('message', '보유수량보다 파손수량이 많을 수 없습니다.');
 				}
 				$data->wrecked = $wrecked[$t->id];
@@ -304,16 +303,30 @@ class EqInventoryController extends EquipController {
 		$timeover = array();
 
 		foreach ($items as $i) {
-
 			if (!Cache::has('is_cached_'.$userNode->id)) {
 					$this->service->makeCache($userNode->id);
 			}
-
 			// user의 보유수량 정보(연도별, 기관별 모두 사용)
 			$data['wreckedSum'][$userNode->id][$i->id] = Cache::get('wrecked_sum_'.$userNode->id.'_'.$i->id);
 			$data['availSum'][$userNode->id][$i->id] = Cache::get('avail_sum_'.$userNode->id.'_'.$i->id);
 			$data['subWreckedSum'][$userNode->id][$i->id] = Cache::get('sub_wrecked_sum_'.$userNode->id.'_'.$i->id);
 			$data['subAvailSum'][$userNode->id][$i->id] = Cache::get('sub_avail_sum_'.$userNode->id.'_'.$i->id);
+
+			$data['subDiscardSets'][$userNode->id][$i->id] = EqItemDiscardSet::where('item_id','=',$i->id)->whereHas('node', function($q) use ($userNode){
+				$q->where('full_path','like',$userNode->full_path.'%')->where('is_selectable','=',1);
+			})->count();
+			# 본인 node 의 분실/폐기 건수 총합
+			$data['discardSets'][$userNode->id][$i->id] = EqItemDiscardSet::where('item_id','=',$i->id)->where('node_id','=',$userNode->id)->count();
+			# 본인 node 를 포함하여 그 아래에 있는 node 들의 분실/폐기 갯수 총합
+			$data['subDiscardSum'][$userNode->id][$i->id] = EqItemDiscardData::whereHas('discardSet',function($q) use ($i,$userNode){
+				$q->where('item_id','=',$i->id)->whereHas('node', function($qq) use ($userNode){
+					$qq->where('full_path','like',$userNode->full_path.'%')->where('is_selectable','=',1);
+				});
+			})->sum('count');
+			# 본인 node의 분실/폐기 갯수 총합
+			$data['discardSum'][$userNode->id][$i->id] = EqItemDiscardData::whereHas('discardSet',function($q) use ($i,$userNode){
+				$q->where('item_id','=',$i->id)->where('node_id','=',$userNode->id);
+			})->sum('count');
 
 			//불용연한 지났는지 여부 판단
 			$acquired_date = $i->acquired_date;
@@ -330,6 +343,11 @@ class EqInventoryController extends EquipController {
 			$data['availSumAllYear'][$child->id] = 0;
 			$data['subWreckedSumAllYear'][$child->id] = 0;
 			$data['subAvailSumAllYear'][$child->id] = 0;
+
+			$data['subDiscardSetsAllYear'][$child->id]=0;
+			$data['discardSetsAllYear'][$child->id]=0;
+			$data['subDiscardSumAllYear'][$child->id]=0;
+			$data['discardSumAllYear'][$child->id]=0;
 		}
 		// user바로 밑 managed children의 보유수량 정보 (기관별에 사용)
 		foreach ($children as $child) {
@@ -339,10 +357,36 @@ class EqInventoryController extends EquipController {
 				$data['subWreckedSum'][$child->id][$i->id] = Cache::get('sub_wrecked_sum_'.$child->id.'_'.$i->id);
 				$data['subAvailSum'][$child->id][$i->id] = Cache::get('sub_avail_sum_'.$child->id.'_'.$i->id);
 
+				$data['subDiscardSets'][$child->id][$i->id] = EqItemDiscardSet::where('item_id','=',$i->id)->whereHas('node', function($q) use ($child){
+					$q->where('full_path','like',$child->full_path.'%')->where('is_selectable','=',1);
+				})->count();
+				$data['discardSets'][$child->id][$i->id] = EqItemDiscardSet::where('item_id','=',$i->id)->where('node_id','=',$child->id)->count();
+				$data['subDiscardSum'][$child->id][$i->id] = EqItemDiscardData::whereHas('discardSet',function($q) use ($i,$child){
+					$q->where('item_id','=',$i->id)->whereHas('node', function($qq) use ($child){
+						$qq->where('full_path','like',$child->full_path.'%')->where('is_selectable','=',1);
+					});
+				})->sum('count');
+				$data['discardSum'][$child->id][$i->id] = EqItemDiscardData::whereHas('discardSet',function($q) use ($i,$child){
+					$q->where('item_id','=',$i->id)->where('node_id','=',$child->id);
+				})->sum('count');
+
 				$data['wreckedSumAllYear'][$child->id] += Cache::get('wrecked_sum_'.$child->id.'_'.$i->id);
 				$data['availSumAllYear'][$child->id] += Cache::get('avail_sum_'.$child->id.'_'.$i->id);
 				$data['subWreckedSumAllYear'][$child->id] += Cache::get('sub_wrecked_sum_'.$child->id.'_'.$i->id);
 				$data['subAvailSumAllYear'][$child->id] += Cache::get('sub_avail_sum_'.$child->id.'_'.$i->id);
+
+				$data['subDiscardSetsAllYear'][$child->id] += EqItemDiscardSet::where('item_id','=',$i->id)->whereHas('node', function($q) use ($child){
+					$q->where('full_path','like',$child->full_path.'%')->where('is_selectable','=',1);
+				})->count();
+				$data['discardSetsAllYear'][$child->id] += EqItemDiscardSet::where('item_id','=',$i->id)->where('node_id','=',$child->id)->count();
+				$data['subDiscardSumAllYear'][$child->id] += EqItemDiscardData::whereHas('discardSet',function($q) use ($i,$child){
+					$q->where('item_id','=',$i->id)->whereHas('node', function($qq) use ($child){
+						$qq->where('full_path','like',$child->full_path.'%')->where('is_selectable','=',1);
+					});
+				})->sum('count');
+				$data['discardSumAllYear'][$child->id] += EqItemDiscardData::whereHas('discardSet',function($q) use ($i,$child){
+					$q->where('item_id','=',$i->id)->where('node_id','=',$child->id);
+				})->sum('count');
 			}
 		}
 
@@ -471,6 +515,10 @@ class EqInventoryController extends EquipController {
 			$data['countSum'][$c->id] = 0;
 			$data['subWreckedSum'][$c->id]=0;
 			$data['subAvailSum'][$c->id]=0;
+			$data['subDiscardSets'][$c->id]=0;
+			$data['discardSets'][$c->id]=0;
+			$data['subDiscardSum'][$c->id]=0;
+			$data['discardSum'][$c->id]=0;
 
 			foreach ($c->items as $i) {
 
@@ -485,6 +533,24 @@ class EqInventoryController extends EquipController {
 				// $data['acquiredSum'][$c->id] += $acquiredSum;
 				$data['subWreckedSum'][$c->id] += $subWreckedSum;
 				$data['subAvailSum'][$c->id] += $subAvailSum;
+
+				# 본인 node 를 포함하여 그 아래에 있는 node 들의 분실/폐기 건수 총합
+				$data['subDiscardSets'][$c->id] += EqItemDiscardSet::where('item_id','=',$i->id)->whereHas('node', function($q) use ($userNode){
+					$q->where('full_path','like',$userNode->full_path.'%')->where('is_selectable','=',1);
+				})->count();
+				# 본인 node 의 분실/폐기  건수총합
+				$data['discardSets'][$c->id] += EqItemDiscardSet::where('item_id','=',$i->id)->where('node_id','=',$userNode->id)->count();
+				# 본인 node 를 포함하여 그 아래에 있는 node 들의 분실/폐기 갯수 총합
+				$data['subDiscardSum'][$c->id] += EqItemDiscardData::whereHas('discardSet',function($q) use ($i,$userNode){
+					$q->where('item_id','=',$i->id)->whereHas('node', function($qq) use ($userNode){
+						$qq->where('full_path','like',$userNode->full_path.'%')->where('is_selectable','=',1);
+					});
+				})->sum('count');
+				# 본인 node 의 분실/폐기 갯수 총합
+				$data['discardSum'][$c->id] += EqItemDiscardData::whereHas('discardSet',function($q) use ($i,$userNode){
+					$q->where('item_id','=',$i->id)->where('node_id','=',$userNode->id);
+				})->sum('count');
+
 			}
 		}
 		//Excel로 총괄표 export

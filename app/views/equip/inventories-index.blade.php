@@ -73,16 +73,19 @@
 									<th style="text-align: center; vertical-align: middle" rowspan="2">
 										장비명
 									</th>
-									<th style="text-align: center" colspan="3">
+									<th style="text-align: center" colspan="4">
 										산하 총계
 									</th>
-									<th style="background-color: #FFFCC5; text-align: center" colspan="3" >
+									<th style="background-color: #FFFCC5; text-align: center" colspan="4" >
 										{{$user->supplyNode->full_name}}
 									</th>
 								</tr>
 								<tr>
 									<th style="text-align: center">
 										보유
+									</th>
+									<th style="text-align: center">
+										분실/폐기
 									</th>
 									<th style="text-align: center">
 										파손
@@ -92,6 +95,9 @@
 									</th>
 									<th style="background-color: #FFFCC5; text-align: center">
 										보유
+									</th>
+									<th style="background-color: #FFFCC5; text-align: center">
+										분실/폐기
 									</th>
 									<th style="background-color: #FFFCC5; text-align: center">
 										파손
@@ -110,9 +116,11 @@
 										<td> {{ $i+1 }} </td>
 										<td> <a href="{{ url('equips/inventories/'.$ctgr->codes[$i]->code) }}">{{ $ctgr->codes[$i]->title }}</a> </td>
 										<td> {{ $subWreckedSum[$ctgr->codes[$i]->id] + $subAvailSum[$ctgr->codes[$i]->id] }}</td>
+										<td> {{ $subDiscardSum[$ctgr->codes[$i]->id] }} ({{ $subDiscardSets[$ctgr->codes[$i]->id] }}건)</td>
 										<td> {{ $subWreckedSum[$ctgr->codes[$i]->id] }}</td>
 										<td> {{ $subAvailSum[$ctgr->codes[$i]->id] }}</td>
 										<td style="background-color: #FFF8E5"> {{ $wreckedSum[$ctgr->codes[$i]->id] + $availSum[$ctgr->codes[$i]->id] }}</td>
+										<td style="background-color: #FFF8E5"> {{ $discardSum[$ctgr->codes[$i]->id] }} ({{ $discardSets[$ctgr->codes[$i]->id] }}건) </td>
 										<td style="background-color: #FFF8E5"> {{ $wreckedSum[$ctgr->codes[$i]->id] }}</td>
 										<td style="background-color: #FFF8E5"> {{ $availSum[$ctgr->codes[$i]->id] }}</td>
 									</tr>
@@ -149,7 +157,7 @@ $(function() {
             api.column(0, {page:'current'} ).data().each( function ( group, i ) {
                 if ( last !== group ) {
                     $(rows).eq( i ).before(
-                        '<tr class="group"><td colspan="8" class="group-cell">'+group+" -"+'</td></tr>'
+                        '<tr class="group"><td colspan="10" class="group-cell">'+group+" -"+'</td></tr>'
                     );
 
                     last = group;

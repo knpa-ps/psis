@@ -41,16 +41,19 @@
 							<th style="text-align: center; vertical-align: middle" rowspan="2">
 								업체명
 							</th>
-							<th style="text-align: center" colspan="3">
+							<th style="text-align: center" colspan="4">
 								산하 총계
 							</th>
-							<th colspan="3" style="background-color: #FFFCC5; text-align: center">
+							<th colspan="4" style="background-color: #FFFCC5; text-align: center">
 								{{$user->supplyNode->full_name}}
 							</th>
 						</tr>
 						<tr>
 							<th style="text-align: center">
 								보유
+							</th>
+							<th style="text-align: center">
+								분실/폐기
 							</th>
 							<th style="text-align: center">
 								파손
@@ -60,6 +63,9 @@
 							</th>
 							<th style="background-color: #FFFCC5; text-align: center">
 								보유
+							</th>
+							<th style="background-color: #FFFCC5; text-align: center">
+								분실/폐기
 							</th>
 							<th style="background-color: #FFFCC5; text-align: center">
 								파손
@@ -71,7 +77,6 @@
 					</thead>
 					@else
 
-						
 						<div class="row">
 							<div class="col-xs-12 text-center">
 								<input type="checkbox" name="guard" value="guard" checked="checked"> 경비
@@ -94,16 +99,19 @@
 							<th style="text-align: center; vertical-align: middle" rowspan="2">
 								구분
 							</th>
-							<th style="text-align: center" colspan="3">
+							<th style="text-align: center" colspan="4">
 								산하 총계
 							</th>
-							<th colspan="3" style="background-color: #FFFCC5; text-align: center">
+							<th colspan="4" style="background-color: #FFFCC5; text-align: center">
 								기관 내 수량
 							</th>
 						</tr>
 						<tr>
 							<th style="text-align: center">
 								보유
+							</th>
+							<th style="text-align: center">
+								분실/폐기
 							</th>
 							<th style="text-align: center">
 								파손
@@ -113,6 +121,9 @@
 							</th>
 							<th style="background-color: #FFFCC5; text-align: center">
 								보유
+							</th>
+							<th style="background-color: #FFFCC5; text-align: center">
+								분실/폐기
 							</th>
 							<th style="background-color: #FFFCC5; text-align: center">
 								파손
@@ -135,9 +146,11 @@
 								<td> <a href="{{ URL::current().'/'.$i->id }}">{{ $i->maker_name }}({{$i->classification}})</a> </td>
 							@endif
 							<td> {{ $subWreckedSum[$user->supplyNode->id][$i->id] + $subAvailSum[$user->supplyNode->id][$i->id] }}</td>
+							<td> <a href="{{ URL::to('equips/items').'/'.$i->id.'/discard_list' }}" target="_blank">{{ $subDiscardSum[$user->supplyNode->id][$i->id] }} ({{ $subDiscardSets[$user->supplyNode->id][$i->id] }}건)</a> </td>
 							<td> {{ $subWreckedSum[$user->supplyNode->id][$i->id] }}</td>
 							<td> {{ $subAvailSum[$user->supplyNode->id][$i->id] }}</td>
 							<td style="background-color: #FFF8E5"> {{ $wreckedSum[$user->supplyNode->id][$i->id] + $availSum[$user->supplyNode->id][$i->id] }}</td>
+							<td style="background-color: #FFF8E5"> {{ $discardSum[$user->supplyNode->id][$i->id] }} ({{ $discardSets[$user->supplyNode->id][$i->id] }}건) </td>
 							<td style="background-color: #FFF8E5"> {{ $wreckedSum[$user->supplyNode->id][$i->id] }} </td>
 							<td style="background-color: #FFF8E5"> {{ $availSum[$user->supplyNode->id][$i->id] }}</td>
 
@@ -153,9 +166,11 @@
 								<td> {{ 3000 }} </td>
 								<td> 합계 </td>
 								<td> {{ $subWreckedSumAllYear[$child->id] + $subAvailSumAllYear[$child->id] }}</td>
+								<td> {{ $subDiscardSumAllYear[$child->id] }} ({{ $subDiscardSetsAllYear[$child->id] }}건) </td>
 								<td> {{ $subWreckedSumAllYear[$child->id] }}</td>
 								<td> {{ $subAvailSumAllYear[$child->id] }}</td>
 								<td style="background-color: #FFF8E5"> {{ $wreckedSumAllYear[$child->id] + $availSumAllYear[$child->id] }}</td>
+								<td style="background-color: #FFF8E5"> {{ $discardSumAllYear[$child->id] }} ({{ $discardSetsAllYear[$child->id] }}건) </td>
 								<td style="background-color: #FFF8E5"> {{ $wreckedSumAllYear[$child->id] }} </td>
 								<td style="background-color: #FFF8E5"> {{ $availSumAllYear[$child->id] }}</td>
 							</tr>
@@ -170,9 +185,11 @@
 									<td> <a href="{{ URL::current().'/'.$i->id }}">{{ substr($i->acquired_date,0,4).' / '.$i->maker_name }}({{$i->classification}})</a> </td>
 								@endif
 								<td> {{ $subWreckedSum[$child->id][$i->id] + $subAvailSum[$child->id][$i->id] }}</td>
+								<td> {{ $subDiscardSum[$child->id][$i->id] }} ({{ $subDiscardSets[$child->id][$i->id] }}건) </td>
 								<td> {{ $subWreckedSum[$child->id][$i->id] }}</td>
 								<td> {{ $subAvailSum[$child->id][$i->id] }}</td>
 								<td style="background-color: #FFF8E5"> {{ $wreckedSum[$child->id][$i->id] + $availSum[$child->id][$i->id] }}</td>
+								<td style="background-color: #FFF8E5"> {{ $discardSum[$child->id][$i->id] }} ({{ $discardSets[$child->id][$i->id] }}건) </td>
 								<td style="background-color: #FFF8E5"> {{ $wreckedSum[$child->id][$i->id] }} </td>
 								<td style="background-color: #FFF8E5"> {{ $availSum[$child->id][$i->id] }}</td>
 							</tr>
@@ -204,7 +221,9 @@ $(function() {
 			{ "bSortable": false, "aTargets": [ 4 ] },
 			{ "bSortable": false, "aTargets": [ 5 ] },
 			{ "bSortable": false, "aTargets": [ 6 ] },
-			{ "bSortable": false, "aTargets": [ 7 ] }
+			{ "bSortable": false, "aTargets": [ 7 ] },
+			{ "bSortable": false, "aTargets": [ 8 ] },
+			{ "bSortable": false, "aTargets": [ 9 ] }
     ],
 
     drawCallback: function ( settings ) {
@@ -214,7 +233,7 @@ $(function() {
       api.column(0, {page:'current'} ).data().each( function ( group, i ) {
           if ( last !== group ) {
               $(rows).eq( i ).before(
-                  '<tr class="group"><td colspan="7" class="group-cell">'+group+'</td></tr>'
+                  '<tr class="group"><td colspan="9" class="group-cell">'+group+'</td></tr>'
               );
               last = group;
           }
@@ -240,6 +259,8 @@ $(function() {
 			{ "bSortable": false, "aTargets": [ 7 ] },
 			{ "bSortable": false, "aTargets": [ 8 ] },
 			{ "bSortable": false, "aTargets": [ 9 ] },
+			{ "bSortable": false, "aTargets": [ 10 ] },
+			{ "bSortable": false, "aTargets": [ 11 ] },
     ],
 
     drawCallback: function ( settings ) {
@@ -249,7 +270,7 @@ $(function() {
       api.column(1, {page:'current'} ).data().each( function ( group, i ) {
           if ( last !== group ) {
               $(rows).eq( i ).before(
-                  '<tr class="group"><td colspan="8" class="group-cell">'+group+'</td></tr>'
+                  '<tr class="group"><td colspan="10" class="group-cell">'+group+'</td></tr>'
               );
               last = group;
           }
