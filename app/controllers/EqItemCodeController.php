@@ -495,13 +495,13 @@ class EqItemCodeController extends EquipController {
 
 			$row['sum_row'] = 0;
 			foreach ($types as $t) {
-				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($userNode) {
+				$row[$t->type_name] = round(EqInventoryData::whereHas('parentSet', function($q) use ($userNode) {
 					$q->whereHas('ownerNode', function($qq) use ($userNode) {
 						$qq->where('full_path','like',$userNode->full_path.'%');
 						// 본인의 물품까지 포함하여야 하므로
 						//->where('full_path','!=',$userNode->full_path);
 					});
-				})->where('item_type_id','=',$t->id)->sum('count');
+				})->where('item_type_id','=',$t->id)->sum('count'),2);
 
 				$row['sum_row'] += $row[$t->type_name];
 			}
@@ -517,13 +517,13 @@ class EqItemCodeController extends EquipController {
 
 			$row['sum_row'] = 0;
 			foreach ($types as $t) {
-				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($userNode) {
+				$row[$t->type_name] = round(EqInventoryData::whereHas('parentSet', function($q) use ($userNode) {
 					$q->whereHas('ownerNode', function($qq) use ($userNode) {
 						$qq->where('full_path','like',$userNode->full_path.'%');
 						// 본인의 물품까지 포함하여야 하므로
 						//->where('full_path','!=',$userNode->full_path);
 					});
-				})->where('item_type_id','=',$t->id)->sum('wrecked');
+				})->where('item_type_id','=',$t->id)->sum('wrecked'),2);
 
 				$row['sum_row'] += $row[$t->type_name];
 			}
@@ -570,7 +570,7 @@ class EqItemCodeController extends EquipController {
 					})->where('item_type_id','=',$t->id)->first();
 
 					if ($invData != null) {
-						$row[$t->type_name] = $invData->count;
+						$row[$t->type_name] = round($invData->count,2);
 					} else {
 						$row[$t->type_name] = 0;
 					}
@@ -595,7 +595,7 @@ class EqItemCodeController extends EquipController {
 					})->where('item_type_id','=',$t->id)->first();
 
 					if ($invData != null) {
-						$row[$t->type_name] = $invData->wrecked;
+						$row[$t->type_name] = round($invData->wrecked,2);
 					} else {
 						$row[$t->type_name] = 0;
 					}
