@@ -1,4 +1,4 @@
-<?php
+ <?php
 
 class EqConvertController extends EquipController {
 
@@ -97,15 +97,15 @@ class EqConvertController extends EquipController {
 		$data['start'] = $start;
 		$data['end'] = $end;
 
-		$query = EqConvertSet::where('converted_date', '>=', $start)->where('converted_date', '<=', $end);
+		$query = EqConvertSet::where('converted_date', '>=', $start)->where('converted_date', '<=', $end)->orderBy('converted_date','DESC');
 
 		//날짜 지정 관련 끝
 		//장비명
 		$itemName = Input::get('item_name');
 		if ($itemName) {
 			$query->whereHas('item', function($q) use($itemName) {
-				$q->whereHas('code', function($qry) use($itemName) {
-					$qry->where('title','like',"%$itemName%");
+				$q->whereHas('code', function($qq) use($itemName) {
+					$qq->where('title','like',"%$itemName%");
 				});
 			});
 		} else {
@@ -116,17 +116,43 @@ class EqConvertController extends EquipController {
 		//converts 불러오기
 		if ($data['isImport'] == true) {
 			// 입고내역 조회
-			$data['converts'] = $query->whereHas('childOfTargetNode', function($q) use ($user){
+			$converts = $query->whereHas('childOfTargetNode', function($q) use ($user){
 				$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
-			})->orderBy('converted_date','DESC')->paginate(15);
-
+			})->get();
 		} else {
 			// 출고내역 조회
-			$data['converts'] = $query->whereHas('childOfFromNode', function($q) use ($user){
+      $converts = $query->whereHas('childOfFromNode', function($q) use ($user){
 				$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
-			})->orderBy('converted_date','DESC')->paginate(15);
-		}
+			})->get();
+    }
+    $rows = array();
 
+    foreach($converts as $convert) {
+      $row = new stdClass;
+      $row->id = $convert->id;
+      $row->item_id = $convert->item_id;
+      $row->from_node_id = $convert->from_node_id;
+      $row->target_node_id = $convert->target_node_id;
+      $row->converted_date = $convert->converted_date;
+      $row->explanation = $convert->explanation;
+
+      $row->is_confirmed = $convert->is_confirmed;
+      $row->confirmed_date = $convert->confirmed_date;
+      $row->cross_head = $convert->cross_head;
+      $row->head_confirmed = $convert->head_confirmed;
+
+      $row->maker_name = $convert->item->maker_name;
+      $row->from_node_name = $convert->fromNode->full_name;
+      $row->target_node_name = $convert->targetNode->full_name;
+      $row->title = $convert->item->code->title;
+      $row->acquired_date = $convert->item->acquired_date;
+      $row->count_sum = $convert->children->sum('count');
+
+    	array_push($rows, $row);
+    }
+    $currentPage = Input::get('page')== null ? 0 : Input::get('page') - 1;
+		$pagedRows = array_slice($rows, $currentPage * 20, 20);
+    $data['converts'] = Paginator::make($pagedRows,count($rows),20);
 
 		// 보유장비 목록 보여주기
 		$data['items'] = EqItem::where('is_active','=',1)->whereHas('inventories', function($q) use ($user) {
@@ -135,8 +161,6 @@ class EqConvertController extends EquipController {
 
 		return View::make('equip.convert-index', $data);
 	}
-
-
 	/**
 	 * Show the form for creating a new resource.
 	 *

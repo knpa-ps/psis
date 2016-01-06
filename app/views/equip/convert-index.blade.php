@@ -118,31 +118,32 @@
 					<tbody>
 					@if (count($converts) > 0)
 						@foreach ($converts as $convert)
+
 							<tr data-id="{{$convert->id}}">
 								<td>
 									{{ $convert->converted_date }}
 								</td>
 								<td>
-									<a href="{{ url('equips/convert/'.$convert->id)}}">{{ substr($convert->item->acquired_date, 0, 4).' '.$convert->item->code->title }}</a>
+									<a href="{{ url('equips/convert/'.$convert->id)}}">{{ substr($convert->acquired_date, 0, 4).' '.$convert->title }}</a>
 								</td>
 								<td>
-									{{ $convert->item->maker_name }}
+									{{ $convert->maker_name }}
 								</td>
 								<td>
-									{{ $convert->fromNode->full_name }}
+									{{ $convert->from_node_name }}
 								</td>
 								<td>
-									{{ $convert->targetNode->full_name }}
+									{{ $convert->target_node_name }}
 								</td>
 								<td>
-									{{ number_format($convert->children->sum('count')) }}
+									{{ number_format($convert->count_sum) }}
 								</td>
 								<td>
 									@if($convert->cross_head == 1 && $convert->head_confirmed == 0)
 										<span class="label label-warning"><span class="glyphicon glyphicon-question-sign"></span> 본청승인대기</span>
 									@else
 										@if($convert->is_confirmed==0)
-											<span class="label label-danger"><span class="glyphicon glyphicon-xs glyphicon-question-sign"></span> 미확인</span>
+											<span class="label label-danger"><span class="glyphicon glyphicon-xs glyphicon-question-sign"></span> 입고관서 미확인</span>
 										@else
 											<span class="label label-success"><span class="glyphicon glyphicon-ok"></span> {{ $convert->confirmed_date }}</span>
 										@endif
@@ -177,10 +178,10 @@
 					</tbody>
 
 				</table>
-				@if ($isImport!=true)
-					{{ $converts->appends(array('is_import'=>'false', 'start'=>$start, 'end'=>$end, 'item_name'=>$itemName ))->links() }}
+				@if ($isImport==false)
+					{{ $converts->appends(array('is_import'=>'false','start'=>$start, 'end'=>$end, 'item_name'=>$itemName ))->links() }}
 				@else
-					{{ $converts->appends(array('is_import'=>'true','start'=>$start, 'end'=>$end, 'item_name'=>$itemName ))->links() }}
+					{{ $converts->appends(array('is_import'=>'true', 'start'=>$start, 'end'=>$end, 'item_name'=>$itemName ))->links() }}
 				@endif
 
 			</div>
