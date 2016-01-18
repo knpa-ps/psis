@@ -291,4 +291,100 @@ class EquipController extends BaseController {
 		}
 		DB::commit();
 	}
+
+	public function displayCheckPeriod() {
+		$user = Sentry::getUser();
+		$userNode = $user->supplyNode;
+		$regions = EqSupplyManagerNode::where('type_code','=',"D002")->get();
+		$categories = EqCategory::orderBy('sort_order')->get();
+		// 오늘 날짜
+		$today = date('Y-m-d');
+		foreach ($categories as $category) {
+			foreach ($category->codes as $c) {
+				$items[$c->id] = EqItem::where('item_code','=',$c->code)->where('is_active','=',1)->orderBy('acquired_date','DESC')->get();
+				foreach ($items[$c->id] as $item) {
+					$checkPeriod[$item->id] = EqQuantityCheckPeriod::where('item_id','=',$item->id)->first();
+				}
+			}
+		}
+		return View::make('equip.equips-term',get_defined_vars());
+	}
+
+	public function setCheckPeriodForItem() {
+		$data=Input::all();
+		$categories = EqCategory::all();
+		$nodeId = (int)$data['node_id'];
+		foreach ($categories as $category) {
+			$codes = $category->codes;
+			foreach ($codes as $code) {
+				$items = $code->items;
+				$categoryName = "category_".$category->id;
+				$codeName = "code_".$code->id;
+				foreach ($items as $item) {
+					$checkPeriod = EqQuantityCheckPeriod::where('node_id','=',$nodeId)->where('item_id','=',$item->id)->first();
+					$itemName = "item_".$item->id;
+					$checkPeriod->check_end = $data[$itemName];
+					if(!$checkPeriod->save()){
+						return App::abort(500);
+					}
+				}
+				if($data[$categoryName] != "") {
+					foreach ($items as $item) {
+						$checkPeriod = EqQuantityCheckPeriod::where('node_id','=',$nodeId)->where('item_id','=',$item->id)->first();
+						$checkPeriod->check_end = $data[$categoryName];
+						if(!$checkPeriod->save()){
+							return App::abort(500);
+						}
+					}
+				}
+				if($data[$codeName] != "") {
+					foreach ($items as $item) {
+						$checkPeriod = EqQuantityCheckPeriod::where('node_id','=',$nodeId)->where('item_id','=',$item->id)->first();
+						$checkPeriod->check_end = $data[$codeName];
+						if(!$checkPeriod->save()){
+							return App::abort(500);
+						}
+					}
+				}
+			}
+		}
+		return "저장되었습니다.";
+	}
+
+	public function getCheckPeriod() {
+		$regionId = Input::get('regionId');
+		$region = EqSupplyManagerNode::find($regionId)->node_name;
+		$checkPeriodData = array();
+		$data = array();
+		$checkPeriods = EqQuantityCheckPeriod::where('node_id','=',$regionId)->get();
+		foreach ($checkPeriods as $c) {
+			$checkPeriodData[$c->item_id] = $c->check_end;
+		}
+		$data[] = $checkPeriodData;
+		$data[] = $region;
+		$data[] = $regionId;
+
+		return $data;
+	}
+
+	// Add node ids, item_ids for each node on eq_quantity_check_period table
+	public function addNodes() {
+		$nodes = EqSupplyManagerNode::where('type_code','=','D002')->get();
+		$items = EqItem::where('is_active','=',1)->get();
+		DB::beginTransaction();
+		foreach ($nodes as $node) {
+			foreach ($items as $item) {
+				$checkPeriod = new EqQuantityCheckPeriod;
+				$checkPeriod->check_start = "2016-01-01";
+				$checkPeriod->check_end = "2016-01-30";
+				$checkPeriod->item_id = $item->id;
+				$checkPeriod->node_id = $node->id;
+				if (!$checkPeriod->save()) {
+					return App::abort(500);
+				}
+			}
+		}
+		DB::commit();
+		return "finished";
+	}
 }

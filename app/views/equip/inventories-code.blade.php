@@ -30,6 +30,76 @@
 				</div>
 				@endif
 
+				@if($byYear==false)
+				<table class="table table-condensed table-bordered table-striped table-hover">
+					<thead>
+						<tr>
+							<th style="text-align: center; vertical-align: middle" rowspan="2">
+								기관명
+							</th>
+							<th style="text-align: center" colspan="4">
+								산하 총계
+							</th>
+							<th colspan="4" style="background-color: #FFFCC5; text-align: center">
+								기관 내 수량
+							</th>
+						</tr>
+						<tr>
+							<th style="text-align: center">
+								보유
+							</th>
+							<th style="text-align: center">
+								분실/폐기
+							</th>
+							<th style="text-align: center">
+								파손
+							</th>
+							<th style="text-align: center">
+								가용
+							</th>
+							<th style="background-color: #FFFCC5; text-align: center">
+								보유
+							</th>
+							<th style="background-color: #FFFCC5; text-align: center">
+								분실/폐기
+							</th>
+							<th style="background-color: #FFFCC5; text-align: center">
+								파손
+							</th>
+							<th style="background-color: #FFFCC5; text-align: center">
+								가용
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach ($children as $child)
+							<tr>
+								<td> {{ $child->full_name }} </td>
+								<td> {{ $subWreckedSumAllYear[$child->id] + $subAvailSumAllYear[$child->id] }}</td>
+								<td> {{ $subDiscardSumAllYear[$child->id] }} ({{ $subDiscardSetsAllYear[$child->id] }}건) </td>
+								<td> {{ $subWreckedSumAllYear[$child->id] }}</td>
+								<td> {{ $subAvailSumAllYear[$child->id] }}</td>
+								<td style="background-color: #FFF8E5"> {{ $wreckedSumAllYear[$child->id] + $availSumAllYear[$child->id] }}</td>
+								<td style="background-color: #FFF8E5"> {{ $discardSumAllYear[$child->id] }} ({{ $discardSetsAllYear[$child->id] }}건) </td>
+								<td style="background-color: #FFF8E5"> {{ $wreckedSumAllYear[$child->id] }} </td>
+								<td style="background-color: #FFF8E5"> {{ $availSumAllYear[$child->id] }}</td>
+							</tr>
+						@endforeach
+					</tbody>
+				</table>
+				@endif
+
+				<hr>
+
+				@if($user->supplyNode->type_code == ('D001' or 'D002'))
+					<div class="row">
+						<div class="col-xs-12 text-center">
+							<input type="checkbox" name="guard" value="guard" checked="checked"> 경비
+							<input type="checkbox" name="patrol" value="patrol" checked="checked"> 방순대
+							<input type="checkbox" name="others" value="others" checked="checked"> 기타
+						</div>
+					</div>
+				@endif
 
 				<table class="table table-condensed table-bordered table-striped table-hover" id="items_tables">
 					@if($byYear==true)
@@ -75,16 +145,8 @@
 							</th>
 						</tr>
 					</thead>
+
 					@else
-
-						<div class="row">
-							<div class="col-xs-12 text-center">
-								<input type="checkbox" name="guard" value="guard" checked="checked"> 경비
-								<input type="checkbox" name="patrol" value="patrol" checked="checked"> 방순대
-								<input type="checkbox" name="others" value="others" checked="checked"> 기타
-							</div>
-						</div>
-
 					<thead>
 						<tr>
 							<th style="text-align: center; vertical-align: middle" rowspan="2">

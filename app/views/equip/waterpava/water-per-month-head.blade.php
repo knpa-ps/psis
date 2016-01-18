@@ -123,7 +123,7 @@ $(function(){
 			}
 		});
 	});
-	$(".region").first().trigger("click");
+$(".region").first().trigger("click");
 })
 </script>
 @stop

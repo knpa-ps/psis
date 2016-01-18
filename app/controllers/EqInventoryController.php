@@ -397,6 +397,7 @@ class EqInventoryController extends EquipController {
 	public function showDetail($itemCode, $itemId){
 		$user = Sentry::getUser();
 		$item = EqItem::find($itemId);
+		$userRegion = $user->supplyNode->region();
 		if ($item == null) {
 			return App::abort(404);
 		}
@@ -410,11 +411,11 @@ class EqInventoryController extends EquipController {
 		})->count();
 
 		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first();
-		$modifiable = false;
+		$modifiable = true;
 		$now = Carbon::now();
-		$includingToday = EqQuantityCheckPeriod::where('item_id','=',$itemId)->where('check_end','>',$now)->where('check_start','<',$now)->get();
+		$includingToday = EqQuantityCheckPeriod::where('node_id','=',$userRegion->id)->where('item_id','=',$itemId)->where('check_end','<',$now)->get();
 		if (sizeof($includingToday) !== 0) {
-			$modifiable = true;
+			$modifiable = false;
 		}
 		$data['modifiable'] = $modifiable;
 

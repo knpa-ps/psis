@@ -86,11 +86,17 @@ Route::group(array('prefix'=>'equips', 'before'=>'auth'), function(){
 	// 본청 - 캡사이신, 파바 보고내역 삭제 확인
 	Route::delete('confirm_delete/{reqId}', 'EquipController@deleteConfirm');
 
-
 	Route::get('/capsaicin/drillstore/{nodeId}/{count}/{month}', 'EqCapsaicinController@drillstore');
 
+	// 장비 입력 기간 관리
+	Route::get('equips_term','EquipController@displayCheckPeriod');
+	Route::post('equips_term','EquipController@setCheckPeriodForItem');
+	Route::post('get_equips_term','EquipController@getCheckPeriod');
+
+	Route::get('equips_term/{year}','EquipController@setCheckPeriod');
 	/* Custom Routes */
 	// 특정 아이템 수량 다 날려버림
 	Route::get('clear_item_data/{nodeId}/{itemId}','EquipController@clearItemData');
+	Route::get('add_nodes','EquipController@addNodes');
 
 });
