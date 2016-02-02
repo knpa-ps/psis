@@ -240,7 +240,6 @@ class UserController extends BaseController {
         $user = User::find($id);
 
         $data['form'] = $user;
-        $data['form']['userDept'] = $user->department->full_name;
         $data['userRanks'] = $userRanks;
         $data['status'] = $user->activated;
         $data['mngDeptId'] = $mngUser->dept_id;

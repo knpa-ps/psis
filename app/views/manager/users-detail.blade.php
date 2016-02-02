@@ -20,9 +20,9 @@
                 </h4>
             </div>
             <div class="panel-body">
-                {{ Form::open(array('url'=>url('manager/users/'.$form["id"]), 
+                {{ Form::open(array('url'=>url('manager/users/'.$form["id"]),
                                     'method'=>'put',
-                                    'id'=>'modify_userdata_form', 
+                                    'id'=>'modify_userdata_form',
                                     'role'=>'form',
                                     'class'=>'form-horizontal',
                                     'novalidate'=>'')) }}
@@ -31,7 +31,7 @@
                     <legend><h5><span class="glyphicon glyphicon-user"></span>
                         @lang('auth.lb_basicinfo')
                     </h5></legend>
-                    
+
                     <div class="row">
                         <!-- 계정, 계급/이름 -->
                         <div class="form-group col-xs-6">
@@ -47,7 +47,7 @@
 
                             </div>
                         </div>
-                        
+
                         <div class="form-group col-xs-6">
                             <label for="user_name" class="col-xs-4 control-label">
                                 @lang('auth.lb_rankname')
@@ -100,9 +100,9 @@
                                 @lang('auth.lb_office')
                             </label>
                             <div class="col-xs-8">
-                                {{ View::make('widget.dept-selector', array('id'=>'dept_id', 'default'=>$form['userDept'])) }}
+                                {{ View::make('widget.dept-selector', array('id'=>'dept_id', 'default'=>$form->department)) }}
                             </div>
-                            
+
                         </div>
                     </div>
                 </fieldset>
@@ -147,11 +147,11 @@
                                 'id'=>'contact_phone'
                             )) }}
                         </div>
-                    </div>                    
+                    </div>
 
-                </fieldset> 
+                </fieldset>
                 <fieldset>
-                    <legend><h5><span class="glyphicon glyphicon-off"></span> 
+                    <legend><h5><span class="glyphicon glyphicon-off"></span>
                         계정 활성화 상태</h5></legend>
 
                     <div class="form-group col-xs-6">
@@ -174,8 +174,8 @@
                         </div>
                     </div>
 
-                </fieldset> 
-                
+                </fieldset>
+
                 <button type="submit" class="btn btn-lg btn-block btn-primary">
                     저장하기
                 </button>
@@ -193,7 +193,7 @@
 {{ HTML::script('static/vendor/validate/messages_ko.js') }}
 
 <script type="text/javascript">
-$(function(){ 
+$(function(){
     $("#modify_userdata_form").validate({
         rules: {
             account_name: {
@@ -221,6 +221,6 @@ $(function(){
 
         }
     });
-}); 
+});
 </script>
 @stop

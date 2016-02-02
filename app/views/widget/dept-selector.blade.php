@@ -1,11 +1,11 @@
 <?php
 
-$id = isset($id) ? $id : 'dept_id';
-$class = isset($class) ? $class : '';
-$defaultDeptName = isset($full_name) ? $full_name : '';
+$id = isset($id) ? $id : 'dept_id';//이부분
+$class = isset($class) ? $class : '';//이부분
+$defaultDeptName = isset($default['full_name']) ? $default['full_name'] : '소속관서 정보없음';
 $defaultDeptId = isset($default['id']) ? $default['id'] : '';
-$inputClass = isset($inputClass) ? $inputClass : '';
-$initNodeId = isset($initNodeId) ? $initNodeId : 1;
+$inputClass = isset($inputClass) ? $inputClass : '';//이부분
+$initNodeId = isset($initNodeId) ? $initNodeId : 1;//이부분 들은 값도 안들어오는데 어떤 역할을 하는지 잘 모르겠음
 ?>
 
 <div class="has-feedback dept-selector {{ $class }}" id="{{ $id }}_container" <?php echo (isset($mngDeptId))? 'mngdeptid='.$mngDeptId : ''; ?> <?php echo (isset($initNodeId))? 'initnodeid='.$initNodeId : ''; ?> >
