@@ -9,17 +9,11 @@ class EqDeleteRequest extends Eloquent {
 	public static $rules = array();
 
 
-	public function event() {
-		switch ($this->type) {
-			case 'cap':
-				return $this->belongsTo('EqCapsaicinUsage', 'usage_id', 'id');
-				break;
-			case 'pava':
-				return $this->belongsTo('EqWaterPavaEvent', 'usage_id', 'id');
-				break;
-			default:
-				return null;
-				break;
-		}
+	public function capEvent() {
+		return $this->belongsTo('EqCapsaicinUsage', 'usage_id', 'id');
+	}
+
+	public function pavaEvent() {
+		return $this->belongsTo('EqWaterPavaEvent','usage_id','id');
 	}
 }

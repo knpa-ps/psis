@@ -12,7 +12,12 @@ class EqCapsaicinController extends EquipController {
 
 		$data['node'] = $node;
 
-		$requests = EqDeleteRequest::where('confirmed','=','0')->where('type','=','cap')->get();
+		$requests = EqDeleteRequest::where('confirmed','=',0)->where('type','=','cap')->whereHas('capEvent',function($q) use($node){
+			$q->whereHas('node', function($qq) use($node) {
+				$qq->where('full_path','like',$node->full_path.'%');
+			});
+		})->get();
+
 		$rows = array();
 
 		foreach ($requests as $r) {
