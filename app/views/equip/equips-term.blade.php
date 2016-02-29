@@ -146,7 +146,7 @@
 												</td>
 					              <td> {{ $item->code->title}} {{$item->maker_name}} </td>
 					              <td>
-					                <input type="text" class="form-control input-datepicker input-sm" id="item_{{$item->id}}" name="item_{{$item->id}}" value="{{$item->checkPeriod->check_end}}">
+					                <input type="text" class="form-control input-datepicker input-sm" id="item_{{$item->id}}" name="item_{{$item->id}}" value="{{$checkPeriod[$item->id]->check_end}}">
 					              </td>
 					            </tr>
 

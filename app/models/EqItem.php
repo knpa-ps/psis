@@ -28,6 +28,6 @@ class EqItem extends Eloquent {
 	}
 
 	public function checkPeriod() {
-		return $this->hasOne('EqQuantityCheckPeriod', 'item_id', 'id');
+		return $this->hasMany('EqQuantityCheckPeriod', 'item_id', 'id');
 	}
 }

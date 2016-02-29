@@ -303,7 +303,7 @@ class EquipController extends BaseController {
 			foreach ($category->codes as $c) {
 				$items[$c->id] = EqItem::where('item_code','=',$c->code)->where('is_active','=',1)->orderBy('acquired_date','DESC')->get();
 				foreach ($items[$c->id] as $item) {
-					$checkPeriod[$item->id] = EqQuantityCheckPeriod::where('item_id','=',$item->id)->first();
+					$checkPeriod[$item->id] = EqQuantityCheckPeriod::where('item_id','=',$item->id)->where('node_id','=',$userNode->id)->first();
 				}
 			}
 		}
