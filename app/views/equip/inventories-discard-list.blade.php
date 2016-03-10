@@ -15,7 +15,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					<strong>{{$item->code->title}} 분실/폐기 내역</strong>
+					<strong>{{$item->code->title}} @lang('equip.discard') 내역</strong>
 				</h3>
 			</div>
 			<div class="panel-body">
@@ -26,7 +26,7 @@
 						<th class="discard-align" rowspan="2">일자</th>
 						<th class="discard-align" rowspan="2">유형</th>
 						<th class="discard-align" rowspan="2" colspan="{{sizeof($types)}}">수량</th>
-						<th class="discard-align" rowspan="2">사유서</th>
+						<th class="discard-align" rowspan="2">@lang('equip.written_reason')</th>
 						<th class="discard-align" rowspan="2">삭제</th>
 						@else
 							<tr>
@@ -35,7 +35,7 @@
 								<th class="discard-align" rowspan="2">유형</th>
 								<th class="discard-align" rowspan="2">총 수량</th>
 								<th class="discard-align" colspan="{{sizeof($types)}}">사이즈별 수량</th>
-								<th class="discard-align" rowspan="2">사유서</th>
+								<th class="discard-align" rowspan="2">@lang('equip.written_reason')</th>
 								<th class="discard-align" rowspan="2">삭제</th>
 							</tr>
 						<tr>
@@ -50,7 +50,9 @@
 							<tr>
 								<td class="discard-align" >{{$set->node->full_name}}</td>
 								<td class="discard-align" >{{$set->discarded_date}}</td>
-								@if($set->category === 'lost')
+								@if($set->category === 'repaired')
+									<td class="discard-align" >{{'수리'}}</td>
+								@elseif($set->category === 'lost')
 									<td class="discard-align" >{{'분실'}}</td>
 								@elseif($set->category === 'wrecked')
 									<td class="discard-align" >{{'파손'}}</td>
@@ -65,7 +67,7 @@
 								@endforeach
 								<td class="discard-align" >
 									@if($set->file_name)
-									<a class="btn btn-success btn-xs btn-block" href="{{ url('/uploads/docs/'.$set->file_name)}}" target="_blank"><span class="glyphicon glyphicon-ok"></span> 사유서 보기</a>
+									<a class="btn btn-success btn-xs btn-block" href="{{ url('/uploads/docs/'.$set->file_name)}}" target="_blank"><span class="glyphicon glyphicon-ok"></span> @lang('equip.written_reason') 보기</a>
 									@endif
 								</td>
 								<td class="discard-align" >

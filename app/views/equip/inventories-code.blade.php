@@ -49,7 +49,7 @@
 								보유
 							</th>
 							<th style="text-align: center">
-								분실/폐기
+								@lang('equip.discard')
 							</th>
 							<th style="text-align: center">
 								파손
@@ -61,7 +61,7 @@
 								보유
 							</th>
 							<th style="background-color: #FFFCC5; text-align: center">
-								분실/폐기
+								@lang('equip.discard')
 							</th>
 							<th style="background-color: #FFFCC5; text-align: center">
 								파손
@@ -88,19 +88,7 @@
 					</tbody>
 				</table>
 				@endif
-
 				<hr>
-
-				@if($user->supplyNode->type_code == ('D001' or 'D002'))
-					<div class="row">
-						<div class="col-xs-12 text-center">
-							<input type="checkbox" name="guard" value="guard" checked="checked"> 경비
-							<input type="checkbox" name="patrol" value="patrol" checked="checked"> 방순대
-							<input type="checkbox" name="others" value="others" checked="checked"> 기타
-						</div>
-					</div>
-				@endif
-
 				<table class="table table-condensed table-bordered table-striped table-hover" id="items_tables">
 					@if($byYear==true)
 					<thead>
@@ -123,7 +111,7 @@
 								보유
 							</th>
 							<th style="text-align: center">
-								분실/폐기
+								수리/분실/폐기
 							</th>
 							<th style="text-align: center">
 								파손
@@ -135,7 +123,7 @@
 								보유
 							</th>
 							<th style="background-color: #FFFCC5; text-align: center">
-								분실/폐기
+								수리/분실/폐기
 							</th>
 							<th style="background-color: #FFFCC5; text-align: center">
 								파손
@@ -173,7 +161,7 @@
 								보유
 							</th>
 							<th style="text-align: center">
-								분실/폐기
+								수리/분실/폐기
 							</th>
 							<th style="text-align: center">
 								파손
@@ -185,7 +173,7 @@
 								보유
 							</th>
 							<th style="background-color: #FFFCC5; text-align: center">
-								분실/폐기
+								수리/분실/폐기
 							</th>
 							<th style="background-color: #FFFCC5; text-align: center">
 								파손

@@ -116,8 +116,13 @@ class EqInventoryController extends EquipController {
 		foreach ($data['sets'] as $set) {
 			$data['sum'][$set->id] = 0;
 			foreach ($types as $t) {
-				$data['count'][$set->id][$t->id] = EqItemDiscardData::where('discard_set_id','=',$set->id)->where('item_type_id','=',$t->id)->first()->count;
-				$data['sum'][$set->id] += $data['count'][$set->id][$t->id];
+				if ($set->category != "repaired") {
+					$data['count'][$set->id][$t->id] = EqItemDiscardData::where('discard_set_id','=',$set->id)->where('item_type_id','=',$t->id)->first()->count;
+					$data['sum'][$set->id] += $data['count'][$set->id][$t->id];
+				} else {
+					$data['count'][$set->id][$t->id] = "";
+					$data['sum'][$set->id] = "";
+				}
 			}
 		}
 
@@ -173,43 +178,46 @@ class EqInventoryController extends EquipController {
 
 		$wreckedSum = 0;
 
-		# 분실/폐기하면 카테고리 상관없이 보유수량에서 물품수량이 감소한다.
-		# 하지만 inventoryWithdraw함수 안에는 캐시가 가용수량만 감소시키기 때문에 경우를 나눠서 해야한다.
-		foreach ($types as $t) {
-			$dData = new EqItemDiscardData;
-			$dData->discard_set_id = $dSet->id;
-			$dData->item_type_id = $t->id;
-			$dData->count = $input['type_counts'][$t->id];
-			if (!$dData->save()) {
-				return App::abort(500);
-			}
-
-			$iData = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$t->id)->first();
-
-			# 분실, 불용연한 초과일 때만 inventoryWithdraw를 실행하여 보유수량을 감소, 캐시에는 가용수량을 감소시킨다. (캐시는 보유수량을 다룰 필요가 없음)
-			if($input['category']=='lost'||$input['category']=='expired'){
-				try {
-					$this->service->inventoryWithdraw($iData, $dData->count);
-				} catch (Exception $e) {
-					return Redirect::back()->with('message', $e->getMessage() );
+		// 분실/폐기하면 카테고리 상관없이 보유수량에서 물품수량이 감소한다.
+		// 하지만 inventoryWithdraw함수 안에는 캐시가 가용수량만 감소시키기 때문에 경우를 나눠서 해야한다.
+		// 처분유형이 수리가 아닐 때만 EqItemDiscardData에 등록한다.
+		if ($input['category']!='repaired') {
+			foreach ($types as $t) {
+				$dData = new EqItemDiscardData;
+				$dData->discard_set_id = $dSet->id;
+				$dData->item_type_id = $t->id;
+				$dData->count = $input['type_counts'][$t->id];
+				if (!$dData->save()) {
+					return App::abort(500);
 				}
-			}
 
-			if ($iData->count < 0) {
-				return Redirect::back()->with('message', '폐기수량이 보유수량을 초과합니다.');
+				$iData = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$t->id)->first();
 
-			}
-
-			# 파손물품 폐기하는 경우 보유수량 중 파손장비 처분수량을 빼고, 파손수량 중에서도 파손장비 처분수량을 뺀다.
-			if ($input['category']=='wrecked') {
-				$iData->count -= $dData->count;
-				$iData->wrecked -= $dData->count;
-				$wreckedSum += $dData->count;
-				if ($iData->wrecked<0) {
-					return Redirect::back()->with('message', '폐기수량이 파손수량을 초과합니다');
+				if ($iData->count < 0) {
+					return Redirect::back()->with('message', '폐기수량이 보유수량을 초과합니다.');
 				}
+
+				# 분실, 불용연한 초과일 때만 inventoryWithdraw를 실행하여 보유수량을 감소, 캐시에는 가용수량을 감소시킨다. (캐시는 보유수량을 다룰 필요가 없음)
+				if($input['category']=='lost'||$input['category']=='expired'){
+					try {
+						$this->service->inventoryWithdraw($iData, $dData->count);
+					} catch (Exception $e) {
+						return Redirect::back()->with('message', $e->getMessage() );
+					}
+				}
+
+				# 파손물품 폐기하는 경우 보유수량 중 파손장비 처분수량을 빼고, 파손수량 중에서도 파손장비 처분수량을 뺀다.
+				if ($input['category']=='wrecked') {
+					$iData->count -= $dData->count;
+					$iData->wrecked -= $dData->count;
+					$wreckedSum += $dData->count;
+					if ($iData->wrecked<0) {
+						return Redirect::back()->with('message', '폐기수량이 파손수량을 초과합니다');
+					}
+				}
+
+				$iData->save();
 			}
-			$iData->save();
 		}
 		$prevCache = Cache::get('wrecked_sum_'.$user->supplyNode->id.'_'.$itemId);
 		Cache::forever('wrecked_sum_'.$user->supplyNode->id.'_'.$itemId, $prevCache-$wreckedSum);
@@ -223,7 +231,7 @@ class EqInventoryController extends EquipController {
 
 		DB::commit();
 
-		return Redirect::back()->with('message', '물품폐기 등록이 완료되었습니다.');
+		return Redirect::back()->with('message', '물품처분 내역 등록이 완료되었습니다.');
 	}
 
 	public function cancelDiscardedItem($setId){
@@ -234,25 +242,27 @@ class EqInventoryController extends EquipController {
 		DB::beginTransaction();
 
 		$wreckedSum = 0;
-		foreach ($types as $t) {
-			$iData = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$t->id)->first();
-			$dData = EqItemDiscardData::where('discard_set_id','=',$dSet->id)->where('item_type_id','=',$t->id)->first();
-			# 분실, 불용연한 초과를 취소할때 inventorySupply를 실행하여 보유수량을 증가, 캐시에는 가용수량을 증가시킴
-			if($dSet->category=='lost'||$dSet->category=='expired'){
-				try {
-					$this->service->inventorySupply($iData, $dData->count);
-				} catch (Exception $e) {
-					return Redirect::back()->with('message', $e->getMessage() );
+		if ( $dSet->category != "repaired") {
+			foreach ($types as $t) {
+				$iData = EqInventoryData::where('inventory_set_id','=',$invSet->id)->where('item_type_id','=',$t->id)->first();
+				$dData = EqItemDiscardData::where('discard_set_id','=',$dSet->id)->where('item_type_id','=',$t->id)->first();
+				# 분실, 불용연한 초과를 취소할때 inventorySupply를 실행하여 보유수량을 증가, 캐시에는 가용수량을 증가시킴
+				if($dSet->category=='lost'||$dSet->category=='expired'){
+					try {
+						$this->service->inventorySupply($iData, $dData->count);
+					} catch (Exception $e) {
+						return Redirect::back()->with('message', $e->getMessage() );
+					}
 				}
+				# 파손물품 폐기를 취소할때 보유수량과 파손수량 모두 빠진 양을 증가시킨다.
+				if ($dSet->category=='wrecked') {
+					$iData->count += $dData->count;
+					$iData->wrecked += $dData->count;
+					$wreckedSum += $dData->count;
+				}
+				$iData->save();
+				$dData->delete();
 			}
-			# 파손물품 폐기를 취소할때 보유수량과 파손수량 모두 빠진 양을 증가시킨다.
-			if ($dSet->category=='wrecked') {
-				$iData->count += $dData->count;
-				$iData->wrecked += $dData->count;
-				$wreckedSum += $dData->count;
-			}
-			$iData->save();
-			$dData->delete();
 		}
 		$prevCache = Cache::get('wrecked_sum_'.$dSet->node_id.'_'.$dSet->item_id);
 		Cache::forever('wrecked_sum_'.$dSet->node_id.'_'.$dSet->item_id, $prevCache+$wreckedSum);
@@ -268,7 +278,7 @@ class EqInventoryController extends EquipController {
 
 		DB::commit();
 
-		return Redirect::back()->with('message', '물품 삭제가 완료되었습니다.');
+		return Redirect::back()->with('message', '물품처분 내역 삭제가 완료되었습니다.');
 	}
 
 	/**
@@ -282,9 +292,13 @@ class EqInventoryController extends EquipController {
 		$data['code']=EqItemCode::where('code','=',$itemCode)->first();
 		$user = Sentry::getUser();
 		$userNode = $user->supplyNode;
-		$children = $userNode->managedChildren;
+
+		if ($userNode->id == 2) {
+			$data['children'] = EqSupplyManagerNode::where('full_path','like',$userNode->full_path.'%')->where('is_selectable','=','1')->orderBy('full_path')->get();
+		} else {
+			$data['children'] = $userNode->managedChildren;
+		}
 		$data['user']= $user;
-		$data['children'] = $children;
 		$items = EqItem::where('item_code','=',$itemCode)->where('is_active','=',1)->get();
 		$data['items']= $items;
 		$byYear = Input::get('byYear');
@@ -338,7 +352,7 @@ class EqInventoryController extends EquipController {
 			time() > $endDate ? $timeover[$i->id] = ceil($diff) : $timeover[$i->id] = 0 ;
 		}
 
-		foreach ($children as $child) {
+		foreach ($data['children'] as $child) {
 			$data['wreckedSumAllYear'][$child->id] = 0;
 			$data['availSumAllYear'][$child->id] = 0;
 			$data['subWreckedSumAllYear'][$child->id] = 0;
@@ -350,7 +364,7 @@ class EqInventoryController extends EquipController {
 			$data['discardSumAllYear'][$child->id]=0;
 		}
 		// user바로 밑 managed children의 보유수량 정보 (기관별에 사용)
-		foreach ($children as $child) {
+		foreach ($data['children'] as $child) {
 			foreach ($items as $i) {
 				$data['wreckedSum'][$child->id][$i->id] = Cache::get('wrecked_sum_'.$child->id.'_'.$i->id);
 				$data['availSum'][$child->id][$i->id] = Cache::get('avail_sum_'.$child->id.'_'.$i->id);

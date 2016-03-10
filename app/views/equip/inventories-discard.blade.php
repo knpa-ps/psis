@@ -12,7 +12,7 @@ body {
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					<strong>{{$item->code->title}} 분실/폐기 등록</strong>
+					<strong>{{$item->code->title}} @lang('equip.discard') 등록</strong>
 				</h3>
 			</div>
 
@@ -35,6 +35,8 @@ body {
 								<label for="category" class="control-label col-xs-2">유형</label>
 								<div class="col-xs-10">
 									<select name="category" id="category" class="form-control">
+										<option disabled selected> -- 처분유형 선택 -- </option>
+										<option value="repaired">수리(기동장비에만 해당, 수량 변동 없음)</option>
 										<option value="lost">분실(보유수량 감소)</option>
 										<option value="wrecked">파손장비 폐기(보유수량 및 파손수량 모두 감소)</option>
 										<option value="expired">내구연한초과(보유수량 감소)</option>
@@ -142,7 +144,15 @@ $(function(){
 
 	$("#upload_submit").on('click', function(){
 		$("#upload_form").submit();
-	})
+	});
+
+	$("#category").change(function(){
+		if ($('#category').val() == 'repaired') {
+			$('#fieldset').hide();
+		} else {
+			$('#fieldset').show();
+		}
+	});
 
 });
 </script>

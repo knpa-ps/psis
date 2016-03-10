@@ -36,7 +36,7 @@ class AuthController extends BaseController {
         $message = '';
 
         try {
-            
+
             $credentials = array(
                 'account_name' => $accountName,
                 'password'     => $password
@@ -73,7 +73,7 @@ class AuthController extends BaseController {
     }
 
     public function doLogout() {
-        
+
         $accountName = Sentry::getUser()->account_name;
         Sentry::logout();
 
@@ -108,7 +108,7 @@ class AuthController extends BaseController {
         return View::make('auth.register', $data);
     }
 
-    public function doRegister() 
+    public function doRegister()
     {
         $form = Input::all();
 
@@ -152,13 +152,13 @@ class AuthController extends BaseController {
         return Redirect::action('AuthController@displayLogin');
     }
 
-    public function displayChangePassword() 
+    public function displayChangePassword()
     {
 
     }
 
-    public function doChangePassword() 
-    {       
-        
+    public function doChangePassword()
+    {
+
     }
 }

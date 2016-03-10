@@ -85,7 +85,7 @@
 										보유
 									</th>
 									<th style="text-align: center">
-										분실/폐기
+										@lang('equip.discard')
 									</th>
 									<th style="text-align: center">
 										파손
@@ -97,7 +97,7 @@
 										보유
 									</th>
 									<th style="background-color: #FFFCC5; text-align: center">
-										분실/폐기
+										@lang('equip.discard')
 									</th>
 									<th style="background-color: #FFFCC5; text-align: center">
 										파손

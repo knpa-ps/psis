@@ -34,9 +34,9 @@ class ReportController extends BaseController {
 			if (!$permissions['read']) {
 				return App::abort(403);
 			}
-		
+
 			$data['report'] = $report;
-		} 
+		}
 		$template = PSReportTemplate::where('is_default','=',1)->first();
 		$data['template'] = $template;
 		$data['user'] = $user;
@@ -75,7 +75,7 @@ class ReportController extends BaseController {
 
 		// start, end 가 설정되지 않았거나 start가 end보다 이후인 경우, 또는 날짜가 이상해서
 		// strtotime으로 인식이 안되는 경우 기본적으로 오늘~한달 전으로 조회 날짜를 설정한다
-		if (!Input::get('start') || !Input::get('end') 
+		if (!Input::get('start') || !Input::get('end')
 			|| strtotime(Input::get('start')) > strtotime(Input::get('end'))) {
 			$data['input']['start'] = date('Y-m-d', strtotime('-1 month'));
 			$data['input']['end'] = date('Y-m-d');
@@ -151,7 +151,7 @@ class ReportController extends BaseController {
 			'result'=>0,
 			'message'=>'제출되었습니다',
 			'url' => action('ReportController@displayList').'?rid='.$reportId
-		);	
+		);
 	}
 
 	public function deleteReport() {
@@ -190,7 +190,7 @@ class ReportController extends BaseController {
 		} catch (Exception $e) {
 			return App::abort($e->getCode(), $e->getMessage());
 		}
-		
+
 		return array('message'=>'임시저장되었습니다.');
 	}
 
