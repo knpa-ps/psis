@@ -11,7 +11,7 @@
 @section('content')
 
 <div class="row">
-    <div class="col-xs-8 col-xs-offset-2">
+    <div class="col-xs-10 col-xs-offset-1">
         <div class="panel panel-default" id="register_panel">
             <div class="panel-heading">
                 <h4 class="panel-title">
@@ -19,9 +19,9 @@
                 </h4>
             </div>
             <div class="panel-body">
-                {{ Form::open(array('action'=>'AuthController@doRegister', 
-                                    'method'=>'post', 
-                                    'id'=>'signup_form', 
+                {{ Form::open(array('action'=>'AuthController@doRegister',
+                                    'method'=>'post',
+                                    'id'=>'signup_form',
                                     'role'=>'form',
                                     'class'=>'form-horizontal',
                                     'novalidate'=>'')) }}
@@ -30,7 +30,7 @@
                     <legend><h5><span class="glyphicon glyphicon-user"></span>
                         @lang('auth.lb_basicinfo')
                     </h5></legend>
-                    
+
                     <div class="row">
                         <!-- 계정, 계급/이름 -->
                         <div class="form-group col-xs-6">
@@ -38,7 +38,7 @@
                                 @lang('auth.lb_account')
                             </label>
                             <div class="col-xs-8">
-                                
+
                                 {{ Form::text('account_name', $form['account_name'], array(
                                     'class'=>'form-control',
                                     'id'=>'account_name',
@@ -47,7 +47,7 @@
 
                             </div>
                         </div>
-                        
+
                         <div class="form-group col-xs-6">
                             <label for="user_name" class="col-xs-4 control-label">
                                 @lang('auth.lb_rankname')
@@ -102,7 +102,7 @@
                             <div class="col-xs-8">
                                 {{ View::make('widget.dept-selector', array('id'=>'dept_id')) }}
                             </div>
-                            
+
                         </div>
                     </div>
                 </fieldset>
@@ -120,8 +120,9 @@
                         <div class="col-xs-8">
                             {{ Form::text('contact', $form['contact'], array(
                                 'class'=>'form-control',
-                                'id'=>'contact'
-                            )) }}
+                                'id'=>'contact',
+                                'placeholder' => Lang::get('auth.lb_nonrequired')
+                            )) }}   
                         </div>
                     </div>
 
@@ -132,7 +133,8 @@
                         <div class="col-xs-8">
                             {{ Form::text('contact_extension', $form['contact_extension'], array(
                                 'class'=>'form-control',
-                                'id'=>'contact_extension'
+                                'id'=>'contact_extension',
+                                'placeholder' => Lang::get('auth.lb_required')
                             )) }}
                         </div>
                     </div>
@@ -144,25 +146,26 @@
                         <div class="col-xs-8">
                             {{ Form::text('contact_phone', $form['contact_phone'], array(
                                 'class'=>'form-control',
-                                'id'=>'contact_phone'
+                                'id'=>'contact_phone',
+                                'placeholder' => Lang::get('auth.lb_nonrequired')
                             )) }}
                         </div>
-                    </div>                    
+                    </div>
 
-                </fieldset> 
+                </fieldset>
 
                 <fieldset>
-                    <legend><h5><span class="glyphicon glyphicon-tasks"></span> 
+                    <legend><h5><span class="glyphicon glyphicon-tasks"></span>
                         @lang('auth.lb_system_purpose')
                     <small>
                         @lang('auth.system_purpose_detail')
                     </small> </h5></legend>
 
-                    <div class="form-group col-xs-6">
-                        <label class="col-xs-4 control-label">
+                    <div class="form-group col-xs-4">
+                        <label class="col-xs-6 control-label">
                             @lang('auth.lb_guard_news')
                         </label>
-                        <div class="col-xs-8">
+                        <div class="col-xs-6">
                             <div class="radio">
                                 <label>
                                     <input type="radio" value="none" name="groups[report]" checked>
@@ -184,11 +187,11 @@
                         </div>
                     </div>
 
-                    <div class="form-group col-xs-6">
-                        <label class="col-xs-4 control-label">
+                    <div class="form-group col-xs-4">
+                        <label class="col-xs-6 control-label">
                             @lang('auth.lb_guard_budget_manage')
                         </label>
-                        <div class="col-xs-8">
+                        <div class="col-xs-6">
                             <div class="radio">
                                 <label>
                                     <input type="radio" value="none" name="groups[budget]" checked>
@@ -210,10 +213,36 @@
                         </div>
                     </div>
 
-                </fieldset> 
-                
+                    <div class="form-group col-xs-4">
+                        <label class="col-xs-6 control-label">
+                            @lang('auth.lb_election_and_event_news')
+                        </label>
+                        <div class="col-xs-6">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="none" name="groups[eventreport]" checked>
+                                    @lang('auth.lb_not_in_use')
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="user" name="groups[eventreport]">
+                                    @lang('auth.lb_general_user')
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="admin" name="groups[eventreport]">
+                                    @lang('auth.lb_division_manager')
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                </fieldset>
+
                 <button type="submit" class="btn btn-lg btn-block btn-primary">
-                    @lang('auth.btn_register_request')                    
+                    @lang('auth.btn_register_request')
                 </button>
 
                 {{ Form::close() }}
@@ -229,7 +258,7 @@
 {{ HTML::script('static/vendor/validate/messages_ko.js') }}
 
 <script type="text/javascript">
-$(function(){ 
+$(function(){
     $("#signup_form").validate({
         rules: {
             account_name: {
@@ -251,12 +280,10 @@ $(function(){
             dept_id_display: {
                 required: true
             },
-            contact: "required",
             contact_extension: "required",
-            contact_phone: "required"
 
         }
     });
-}); 
+});
 </script>
 @stop

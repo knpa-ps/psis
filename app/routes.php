@@ -73,6 +73,7 @@ Route::get('fuck', function() {
 
 include('routes/users.php');
 include('routes/reports.php');
+include('routes/eventreports.php');
 include('routes/admin.php');
 include('routes/budgets.php');
 include('routes/eq.php');

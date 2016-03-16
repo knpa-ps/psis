@@ -149,7 +149,8 @@
 										@endif
 									@endif
 								</td>
-								@if($convert->from_node_id == $user->supplyNode->id)
+								<!-- 자신만 관리전환 취소버튼을 볼 수 있고, confirm되면 취소시킬 수 없음. -->
+								@if(($convert->from_node_id == $user->supplyNode->id) && ($convert->is_confirmed == 0))
 									<td>
 										{{ Form::open(array(
 												'url'=>url('equips/convert/'.$convert->id),
