@@ -47,9 +47,32 @@
 									장비명
 								</label>
 								<div class="col-xs-9">
-									<input type="text" class="input-sm form-control" id="item_name" name="item_name">
+									<input type="text" class="input-sm form-control" id="item_name" name="item_name" value = "{{$itemName}}">
 								</div>
 								<input type="text" class="hidden" name="is_import" value="{{ $isImport==true ? 'true' : 'false'  }}">
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-6 form-group">
+								<label for="dept_name" class="control-label col-xs-3">
+									관서명
+								</label>
+								<div class="col-xs-9">
+									<input type="text" class="input-sm form-control" id="dept_name" name="dept_name" value = "{{$deptName}}">
+								</div>
+							</div>
+							<div class="col-xs-6 form-group">
+								<label for="dept_name" class="control-label col-xs-3">
+									확인여부
+								</label>
+								<div class="col-xs-9">
+									<select class="form-control" name="checked" id="checked">
+										<option value="both">전체</option>
+										<option value="unchecked">미확인</option>
+										<option value="checked">확인</option>
+										<option value="waiting">본청승인대기</option>
+									</select>
+								</div>
 							</div>
 						</div>
 
@@ -96,7 +119,7 @@
 								장비명
 							</th>
 							<th>
-								구분
+								업체명
 							</th>
 							<th>
 								출고관서
@@ -124,7 +147,7 @@
 									{{ $convert->converted_date }}
 								</td>
 								<td>
-									<a href="{{ url('equips/convert/'.$convert->id)}}">{{ substr($convert->acquired_date, 0, 4).' '.$convert->title }}</a>
+									<a href="{{ url('equips/convert/'.$convert->id)}}">{{ substr($convert->acquired_date, 0, 4).' '.$convert->title.' '.$convert->classification }}</a>
 								</td>
 								<td>
 									{{ $convert->maker_name }}
@@ -180,9 +203,9 @@
 
 				</table>
 				@if ($isImport==false)
-					{{ $converts->appends(array('is_import'=>'false','start'=>$start, 'end'=>$end, 'item_name'=>$itemName ))->links() }}
+					{{ $converts->appends(array('is_import'=>'false','start'=>$start, 'end'=>$end, 'item_name'=>$itemName, 'dept_name'=>$deptName, 'checked'=>$checked ))->links() }}
 				@else
-					{{ $converts->appends(array('is_import'=>'true', 'start'=>$start, 'end'=>$end, 'item_name'=>$itemName ))->links() }}
+					{{ $converts->appends(array('is_import'=>'true', 'start'=>$start, 'end'=>$end, 'item_name'=>$itemName, 'dept_name'=>$deptName, 'checked'=>$checked ))->links() }}
 				@endif
 
 			</div>

@@ -69,6 +69,8 @@ class EqSupplyController extends EquipController {
 		$user = Sentry::getUser();
 		$nodeId = $user->supplyNode->id;
 
+		$data['user'] = $user;
+
 		$validator = Validator::make(Input::all(), array(
 				'start'=>'date',
 				'end'=>'date'
@@ -86,10 +88,27 @@ class EqSupplyController extends EquipController {
 			$end = date('Y-m-d');
 		}
 
-		$itemName = Input::get('item_name');
-
+		$data['start'] = $start;
+		$data['end'] = $end;
 		$query = EqItemSupplySet::where('supplied_date', '>=', $start)->where('supplied_date', '<=', $end)->where('is_closed','=',0);
 
+		//관서명
+		//앞에서 검색할 때 @를 사용하면 @뒤의 문자열만 DB에서 검색함.
+		$deptName = Input::get('dept_name');
+		if ($deptName) {
+			if (substr($deptName,0,1)=='@') {
+				$query->whereHas('node', function($q) use($deptName) {
+					$q->where('full_name','like',substr($deptName,1));
+				});
+			} else {
+				$query->whereHas('node', function($q) use($deptName) {
+					$q->where('full_name','like',"%$deptName%");
+				});
+			}
+		}
+		$data['deptName'] = $deptName;
+		//장비
+		$itemName = Input::get('item_name');
 		if ($itemName) {
 			$query->whereHas('item', function($q) use($itemName) {
 				$q->whereHas('code', function($qry) use($itemName) {
@@ -97,15 +116,42 @@ class EqSupplyController extends EquipController {
 				});
 			});
 		}
+		$data['itemName'] = $itemName;
+
 		$supplies = $query->whereHas('node', function($q) use($user){
 			$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
 		})->orderBy('supplied_date','DESC')->paginate(15);
 
+		$rows = array();
+		foreach($supplies as $supply) {
+			$row = new stdClass;
+			$row->id = $supply->id;
+			$row->item_id = $supply->item_id;
+			$row->from_node_id = $supply->from_node_id;
+			$row->supplied_date = $supply->supplied_date;
+
+			$row->classification = $supply->item->classification;
+			$row->maker_name = $supply->item->maker_name;
+			$row->from_node_name = $supply->node->full_name;
+			$row->title = $supply->item->code->title;
+			$row->acquired_date = $supply->item->acquired_date;
+			$row->count_sum = $supply->children->sum('count');
+
+			array_push($rows, $row);
+		}
+		$currentPage = Input::get('page')== null ? 0 : Input::get('page') - 1;
+		$pagedRows = array_slice($rows, $currentPage * 20, 20);
+		$data['supplies'] = Paginator::make($pagedRows,count($rows),20);
+
 		$items = EqItem::where('is_active','=',1)->whereHas('inventories', function($q) use ($nodeId) {
 			$q->where('node_id','=',$nodeId)->where('acquired_date','>=','2014');
 		})->orderBy('acquired_date','DESC')->orderBy('item_code','DESC')->get();
+		$data['items'] = $items;
 
-        return View::make('equip.supplies-index', get_defined_vars());
+		//현재 시간과 보급일자 비교
+		$data['now'] = new DateTime('now');
+
+        return View::make('equip.supplies-index', $data);
 	}
 
 	/**

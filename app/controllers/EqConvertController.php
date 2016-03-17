@@ -30,9 +30,42 @@ class EqConvertController extends EquipController {
 
 		$data['start'] = $start;
 		$data['end'] = $end;
-		$query = EqConvertSet::where('converted_date', '>=', $start)->where('converted_date', '<=', $end);
+		$query = EqConvertSet::where('converted_date', '>=', $start)->where('converted_date', '<=', $end)->orderBy('converted_date','DESC');;
 
 		//날짜 지정 관련 끝
+		//확인여부
+		$checked = Input::get('checked');
+		if ($checked=="waiting") {
+			$query->where('cross_head','=',1)->where('head_confirmed','=',0);
+		} elseif ($checked=="checked") {
+			$query->where('is_confirmed','=',1);
+		} elseif ($checked=="unchecked") {
+			$query->where('is_confirmed','=',0);
+		}
+		$data['checked'] = $checked;
+
+		//관서명
+		$deptName = Input::get('dept_name');
+		if($deptName) {
+			if (substr($deptName,0,1)=='@') {
+				$query->where(function($query) use($deptName) {
+					$query->whereHas('fromNode', function($q) use($deptName) {
+						$q->where('full_name','like',substr($deptName,1));
+					})->orWhereHas('targetNode', function($q) use($deptName) {
+						$q->where('full_name','like',substr($deptName,1));
+					});
+				});
+			} else {
+				$query->where(function($query) use($deptName) {
+					$query->whereHas('fromNode', function($q) use($deptName) {
+						$q->where('full_name','like',"%$deptName%");
+					})->orWhereHas('targetNode', function($q) use($deptName) {
+						$q->where('full_name','like',"%$deptName%");
+					});
+				});
+			}
+		}
+		$data['deptName'] = $deptName;
 		//장비명
 		$itemName = Input::get('item_name');
 		if ($itemName) {
@@ -42,9 +75,38 @@ class EqConvertController extends EquipController {
 				});
 			});
 		}
+		$data['itemName'] = $itemName;
 
 		//청간 전환인 converts 불러오기
-		$data['converts'] = $query->where('cross_head','=',1)->paginate(15);
+		$converts = $query->where('cross_head','=',1)->get();
+		$rows = array();
+		foreach($converts as $convert) {
+			$row = new stdClass;
+			$row->id = $convert->id;
+			$row->item_id = $convert->item_id;
+			$row->from_node_id = $convert->from_node_id;
+			$row->target_node_id = $convert->target_node_id;
+			$row->converted_date = $convert->converted_date;
+			$row->explanation = $convert->explanation;
+
+			$row->is_confirmed = $convert->is_confirmed;
+			$row->confirmed_date = $convert->confirmed_date;
+			$row->cross_head = $convert->cross_head;
+			$row->head_confirmed = $convert->head_confirmed;
+
+			$row->classification = $convert->item->classification;
+			$row->maker_name = $convert->item->maker_name;
+			$row->from_node_name = $convert->fromNode->full_name;
+			$row->target_node_name = $convert->targetNode->full_name;
+			$row->title = $convert->item->code->title;
+			$row->acquired_date = $convert->item->acquired_date;
+			$row->count_sum = $convert->children->sum('count');
+
+			array_push($rows, $row);
+		}
+		$currentPage = Input::get('page')== null ? 0 : Input::get('page') - 1;
+		$pagedRows = array_slice($rows, $currentPage * 20, 20);
+		$data['converts'] = Paginator::make($pagedRows,count($rows),20);
 
 		return View::make('equip.convert-crosshead',$data);
 	}
@@ -100,6 +162,7 @@ class EqConvertController extends EquipController {
 		$query = EqConvertSet::where('converted_date', '>=', $start)->where('converted_date', '<=', $end)->orderBy('converted_date','DESC');
 
 		//날짜 지정 관련 끝
+		
 		//장비명
 		$itemName = Input::get('item_name');
 		if ($itemName) {
@@ -113,6 +176,40 @@ class EqConvertController extends EquipController {
 		}
 		$data['itemName'] = $itemName;
 
+		//확인여부
+		$checked = Input::get('checked');
+		if ($checked=="waiting") {
+			$query->where('cross_head','=',1)->where('head_confirmed','=',0);
+		} elseif ($checked=="checked") {
+			$query->where('is_confirmed','=',1);
+		} elseif ($checked=="unchecked") {
+			$query->where('is_confirmed','=',0);
+		}
+		$data['checked'] = $checked;
+
+		//관서명
+		$deptName = Input::get('dept_name');
+		if($deptName) {
+			if (substr($deptName,0,1)=='@') {
+				$query->where(function($query) use($deptName) {
+					$query->whereHas('fromNode', function($q) use($deptName) {
+						$q->where('full_name','like',substr($deptName,1));
+					})->orWhereHas('targetNode', function($q) use($deptName) {
+						$q->where('full_name','like',substr($deptName,1));
+					});
+				});
+			} else {
+				$query->where(function($query) use($deptName) {
+					$query->whereHas('fromNode', function($q) use($deptName) {
+						$q->where('full_name','like',"%$deptName%");
+					})->orWhereHas('targetNode', function($q) use($deptName) {
+						$q->where('full_name','like',"%$deptName%");
+					});
+				});
+			}
+		}
+		$data['deptName'] = $deptName;
+
 		//converts 불러오기
 		if ($data['isImport'] == true) {
 			// 입고내역 조회
@@ -121,38 +218,39 @@ class EqConvertController extends EquipController {
 			})->get();
 		} else {
 			// 출고내역 조회
-      $converts = $query->whereHas('childOfFromNode', function($q) use ($user){
+			$converts = $query->whereHas('childOfFromNode', function($q) use ($user){
 				$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
 			})->get();
-    }
-    $rows = array();
+		}
+		$rows = array();
 
-    foreach($converts as $convert) {
-      $row = new stdClass;
-      $row->id = $convert->id;
-      $row->item_id = $convert->item_id;
-      $row->from_node_id = $convert->from_node_id;
-      $row->target_node_id = $convert->target_node_id;
-      $row->converted_date = $convert->converted_date;
-      $row->explanation = $convert->explanation;
+		foreach($converts as $convert) {
+			$row = new stdClass;
+			$row->id = $convert->id;
+			$row->item_id = $convert->item_id;
+			$row->from_node_id = $convert->from_node_id;
+			$row->target_node_id = $convert->target_node_id;
+			$row->converted_date = $convert->converted_date;
+			$row->explanation = $convert->explanation;
 
-      $row->is_confirmed = $convert->is_confirmed;
-      $row->confirmed_date = $convert->confirmed_date;
-      $row->cross_head = $convert->cross_head;
-      $row->head_confirmed = $convert->head_confirmed;
+			$row->is_confirmed = $convert->is_confirmed;
+			$row->confirmed_date = $convert->confirmed_date;
+			$row->cross_head = $convert->cross_head;
+			$row->head_confirmed = $convert->head_confirmed;
 
-      $row->maker_name = $convert->item->maker_name;
-      $row->from_node_name = $convert->fromNode->full_name;
-      $row->target_node_name = $convert->targetNode->full_name;
-      $row->title = $convert->item->code->title;
-      $row->acquired_date = $convert->item->acquired_date;
-      $row->count_sum = $convert->children->sum('count');
+			$row->classification = $convert->item->classification;
+			$row->maker_name = $convert->item->maker_name;
+			$row->from_node_name = $convert->fromNode->full_name;
+			$row->target_node_name = $convert->targetNode->full_name;
+			$row->title = $convert->item->code->title;
+			$row->acquired_date = $convert->item->acquired_date;
+			$row->count_sum = $convert->children->sum('count');
 
-    	array_push($rows, $row);
-    }
-    $currentPage = Input::get('page')== null ? 0 : Input::get('page') - 1;
+			array_push($rows, $row);
+		}
+		$currentPage = Input::get('page')== null ? 0 : Input::get('page') - 1;
 		$pagedRows = array_slice($rows, $currentPage * 20, 20);
-    $data['converts'] = Paginator::make($pagedRows,count($rows),20);
+		$data['converts'] = Paginator::make($pagedRows,count($rows),20);
 
 		// 보유장비 목록 보여주기
 		$data['items'] = EqItem::where('is_active','=',1)->whereHas('inventories', function($q) use ($user) {

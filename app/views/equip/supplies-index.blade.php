@@ -38,6 +38,16 @@
 								</div>
 							</div>
 						</div>
+						<div class="row">
+							<div class="col-xs-6 form-group">
+								<label for="dept_name" class="control-label col-xs-3">
+									관서명
+								</label>
+								<div class="col-xs-9">
+									<input type="text" class="input-sm form-control" id="dept_name" name="dept_name" value = "{{$deptName}}">
+								</div>
+							</div>
+						</div>
 
 						<div class="row">
 							<div class="col-xs-12">
@@ -81,6 +91,9 @@
 								장비명
 							</th>
 							<th>
+								업체명
+							</th>
+							<th>
 								납품일
 							</th>
 							<th>
@@ -102,19 +115,24 @@
 									{{ $supply->supplied_date }}
 								</td>
 								<td>
-									<a href="{{ url('equips/supplies/'.$supply->id)}}">{{ $supply->item->code->title.' ('.$supply->item->maker_name.', '.$supply->item->classification.')'}}</a>
+									<a href="{{ url('equips/supplies/'.$supply->id)}}">{{ substr($supply->acquired_date,0,4).' '.$supply->title.' '.$supply->classification}}</a>
 								</td>
 								<td>
-									{{ $supply->item->acquired_date }}
+									{{ $supply->maker_name }}
 								</td>
 								<td>
-									{{ $supply->node->full_name }}
+									{{ $supply->acquired_date }}
 								</td>
 								<td>
-									{{ number_format($supply->children->sum('count')) }}
+									{{ $supply->from_node_name }}
 								</td>
-								@if($supply->from_node_id == $user->supplyNode->id)
 								<td>
+									{{ number_format($supply->count_sum) }}
+								</td>
+									@if($supply->from_node_id == $user->supplyNode->id)
+								<td>
+								<!-- 현재 날짜 기준으로 보급일이 10일 이내인 경우만 보급취소 가능 -->
+									@if( date_diff(new DateTime('now'),new DateTime($supply->supplied_date))->format('%a') < 10 )
 									{{ Form::open(array(
 											'url'=>url('equips/supplies/'.$supply->id),
 											'method'=>'delete',
@@ -124,6 +142,7 @@
 											<span class="glyphicon glyphicon-remove"></span> 보급취소
 										</button>
 									{{ Form::close() }}
+									@endif
 								</td>
 								@else
 								<td>
@@ -140,7 +159,7 @@
 					@endif
 					</tbody>
 				</table>
-				{{ $supplies->links() }}
+				{{ $supplies->appends(array('start'=>$start, 'end'=>$end, 'item_name'=>$itemName, 'dept_name'=>$deptName ))->links() }}
 			</div>
 		</div>
 	</div>
