@@ -66,10 +66,19 @@
 						<label style="margin-top: 9px; text-align: center;" for="item_to_supply" class="control-label col-xs-1">장비선택</label>
 						<div class="col-xs-9">
 							<select name="item" id="item_to_supply" class="form-control">
+								<option disabled selected>-----------14년도와 15년도 장비만 보급할 수 있습니다-----------</option>	
 								@if(count($items)>0)
-									@foreach($items as $i)
-										<option value="{{$i->id}}">{{substr($i->acquired_date, 0, 4).' '.$i->code->title.' ('.$i->maker_name.', '.$i->classification.')'}}</option>
+								@foreach ($categories as $category)
+								<optgroup label="{{$category->sort_order.'. '.$category->name}}">
+									@foreach ($category->codes as $c)
+									<optgroup label="{{$c->title}}">
+										@foreach($items[$c->id] as $item)
+											<option value="{{$item->id}}">{{substr($item->acquired_date, 0, 4).' '.$item->code->title.', '.$item->maker_name.', '.$item->classification}}</option>
+										@endforeach
 									@endforeach
+									</optgroup>
+								@endforeach
+								</optgroup>
 								@else
 									<option value="0">올해 취득한 장비가 없습니다.</option>
 								@endif
@@ -105,6 +114,11 @@
 							<th>
 								작업
 							</th>
+							@if($user->id==1)
+							<th>
+								물품ID
+							</th>
+							@endif
 						</tr>
 					</thead>
 					<tbody>
@@ -146,6 +160,11 @@
 								</td>
 								@else
 								<td>
+								</td>
+								@endif
+								@if($user->id==1)
+								<td>
+									{{ $supply->item_id }}
 								</td>
 								@endif
 							</tr>

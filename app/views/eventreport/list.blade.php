@@ -180,7 +180,7 @@
 											{{ str_limit($r->title, 35) }}
 										</a>
 									</td>
-									<td>{{ $r->department->full_name }}</td>
+									<td>{{ $r->user->department->full_name }}</td>
 									<td>{{ $r->user->user_name }}</td>
 									<td>{{ $r->created_at->format('Y-m-d H:i') }}</td>
 								</tr>

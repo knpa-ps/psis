@@ -66,7 +66,7 @@
 								</tbody>
 							</table>
 						</fieldset>
-						<button class="btn btn-lg btn-block btn-primary" type="submit">제출</button>
+						<button id="submit_btn" class="btn btn-lg btn-block btn-primary" type="submit">제출</button>
 
 				{{ Form::close(); }}
 				
@@ -96,7 +96,14 @@ $(function(){
 			},
 		}
 	});
+	$("#submit_btn").on('click', function(){
+		$('#submit_btn').val("제출중..");
+		$('#submit_btn').attr("disabled", true);
+	});
 })
+
+
+
 </script>
 
 @stop

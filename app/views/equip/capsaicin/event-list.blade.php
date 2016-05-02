@@ -39,7 +39,9 @@
 								<tr id="{{$e->id}}">
 									<td>{{ $e->event_name }}</td>
 									<td>
+									@if($e->type_code=="assembly")
 										<a href="#" class="delete label label-danger"><span class="glyphicon glyphicon-remove"></span> 삭제</a>
+									@endif
 									</td>
 								</tr>
 								@endforeach

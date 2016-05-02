@@ -253,9 +253,15 @@ class EqConvertController extends EquipController {
 		$data['converts'] = Paginator::make($pagedRows,count($rows),20);
 
 		// 보유장비 목록 보여주기
-		$data['items'] = EqItem::where('is_active','=',1)->whereHas('inventories', function($q) use ($user) {
-			$q->where('node_id','=',$user->supplyNode->id);
-		})->get();
+		$categories = EqCategory::orderBy('sort_order')->get();
+		$data['categories'] = $categories;
+		foreach ($categories as $category) {
+			foreach ($category->codes as $c) {
+				$data['items'][$c->id] = EqItem::where('item_code','=',$c->code)->where('is_active','=',1)->whereHas('inventories', function($q) use ($user) {
+					$q->where('node_id','=',$user->supplyNode->id);
+				})->orderBy('acquired_date','DESC')->get();
+			}
+		}
 
 		return View::make('equip.convert-index', $data);
 	}

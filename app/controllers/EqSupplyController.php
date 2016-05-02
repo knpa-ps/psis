@@ -120,7 +120,7 @@ class EqSupplyController extends EquipController {
 
 		$supplies = $query->whereHas('node', function($q) use($user){
 			$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
-		})->orderBy('supplied_date','DESC')->paginate(15);
+		})->get();
 
 		$rows = array();
 		foreach($supplies as $supply) {
@@ -143,10 +143,15 @@ class EqSupplyController extends EquipController {
 		$pagedRows = array_slice($rows, $currentPage * 20, 20);
 		$data['supplies'] = Paginator::make($pagedRows,count($rows),20);
 
-		$items = EqItem::where('is_active','=',1)->whereHas('inventories', function($q) use ($nodeId) {
-			$q->where('node_id','=',$nodeId)->where('acquired_date','>=','2014');
-		})->orderBy('acquired_date','DESC')->orderBy('item_code','DESC')->get();
-		$data['items'] = $items;
+		$categories = EqCategory::orderBy('sort_order')->get();
+		$data['categories'] = $categories;
+		foreach ($categories as $category) {
+			foreach ($category->codes as $c) {
+				$data['items'][$c->id] = EqItem::where('item_code','=',$c->code)->where('is_active','=',1)->whereHas('inventories', function($q) use ($nodeId) {
+					$q->where('node_id','=',$nodeId)->where('acquired_date','>=','2014');
+				})->orderBy('acquired_date','DESC')->get();
+			}
+		}
 
 		//현재 시간과 보급일자 비교
 		$data['now'] = new DateTime('now');

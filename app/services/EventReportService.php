@@ -23,8 +23,10 @@ class EventReportService extends BaseService {
     $scope = $this->getScopeDept($user);
     if ($scope) {
 
-      $reports->whereHas('department', function($q) use ($scope) {
-        $q->where('full_path', 'like', "{$scope->full_path}%");
+      $reports->whereHas('user', function($q) use ($scope) {
+      	$q->whereHas('department', function($qq) use ($scope) {
+      		$qq->where('full_path', 'like', "{$scope->full_path}%");
+      	});
       });
     }
 
@@ -35,8 +37,10 @@ class EventReportService extends BaseService {
 
     // 지방청 작성 속보만 조회
     if (isset($params['o_region']) && $params['o_region']) {
-      $reports->whereHas('department', function($q) {
-        $q->where('type_code', '=', Department::TYPE_REGION);
+      $reports->whereHas('user', function ($q) {
+      	$q->whereHas('department', function($qq) {
+      		$qq->where('type_code', '=', Department::TYPE_REGION);
+      	});
       });
     }
 
@@ -48,8 +52,10 @@ class EventReportService extends BaseService {
     // 관서 필터링
     if (isset($params['dept_id']) && $params['dept_id']) {
       $deptId = $params['dept_id'];
-      $reports->whereHas('department', function($q) use ($deptId) {
-        $q->where('full_path', 'like', "%:{$deptId}:%");
+      $reports->whereHas('user', function($q) use ($deptId) {
+      	$q->whereHas('department', function($qq) use ($deptId) {
+        	$qq->where('full_path', 'like', "%:{$deptId}:%");
+        });
       });
     }
 
@@ -64,33 +70,43 @@ class EventReportService extends BaseService {
 							->where('created_at', '<=', date('Y-m-d',strtotime('+1 day', strtotime($params['end']))));
 
 		$scope = $this->getScopeDept($user);
-		if ($scope) {
+	    if ($scope) {
 
-			$reports->whereHas('department', function($q) use ($scope) {
-				$q->where('full_path', 'like', "{$scope->full_path}%");
-			});
-		}
+	      $reports->whereHas('user', function($q) use ($scope) {
+	      	$q->whereHas('department', function($qq) use ($scope) {
+	      		$qq->where('full_path', 'like', "{$scope->full_path}%");
+	      	});
+	      });
+	    }
 
+	    // 제목
+	    if (isset($params['q']) && trim($params['q'])) {
+	      $reports->where('title', 'like', "%{$params['q']}%");
+	    }
 
-		// 제목
-		if (isset($params['q']) && trim($params['q'])) {
-			$reports->where('title', 'like', "%{$params['q']}%");
-		}
+	    // 지방청 작성 속보만 조회
+	    if (isset($params['o_region']) && $params['o_region']) {
+	      $reports->whereHas('user', function ($q) {
+	      	$q->whereHas('department', function($qq) {
+	      		$qq->where('type_code', '=', Department::TYPE_REGION);
+	      	});
+	      });
+	    }
 
-		// 지방청 작성 속보만 조회
-		if (isset($params['o_region']) && $params['o_region']) {
-			$reports->whereHas('department', function($q) {
-				$q->where('type_code', '=', Department::TYPE_REGION);
-			});
-		}
+	    // 보고서유형 필터링
+	    if (isset($params['report_type'])) {
+	      $reports->whereIn('report_type',$params['report_type']);
+	    }
 
-		// 관서 필터링
-		if (isset($params['dept_id']) && $params['dept_id']) {
-			$deptId = $params['dept_id'];
-			$reports->whereHas('department', function($q) use ($deptId) {
-				$q->where('full_path', 'like', "%:{$deptId}:%");
-			});
-		}
+	    // 관서 필터링
+	    if (isset($params['dept_id']) && $params['dept_id']) {
+	      $deptId = $params['dept_id'];
+	      $reports->whereHas('user', function($q) use ($deptId) {
+	      	$q->whereHas('department', function($qq) use ($deptId) {
+	        	$qq->where('full_path', 'like', "%:{$deptId}:%");
+	        });
+	      });
+	    }
 
 		$nextQuery = clone $reports;
 		$next = $nextQuery->where('id', '>', $current->id)->orderBy('id', 'asc')->first();

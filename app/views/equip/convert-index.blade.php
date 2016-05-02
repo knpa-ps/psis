@@ -95,9 +95,17 @@
 						<div class="col-xs-9">
 							<select name="item" id="item_to_convert" class="form-control">
 								@if(count($items)>0)
-									@foreach($items as $i)
-										<option value="{{$i->id}}">{{substr($i->acquired_date, 0, 4).' '.$i->code->title.', '.$i->maker_name}}</option>
+								@foreach ($categories as $category)
+								<optgroup label="{{$category->sort_order.'. '.$category->name}}">
+									@foreach ($category->codes as $c)
+									<optgroup label="{{$c->title}}">
+										@foreach($items[$c->id] as $item)
+											<option value="{{$item->id}}">{{substr($item->acquired_date, 0, 4).' '.$item->code->title.', '.$item->maker_name.', '.$item->classification}}</option>
+										@endforeach
 									@endforeach
+									</optgroup>
+								@endforeach
+								</optgroup>
 								@else
 									<option value="0">보유중인 장비가 없습니다.</option>
 								@endif

@@ -8,7 +8,7 @@
 					<h3>
 						<div class="row">
 							<div class="col-xs-4">
-								<small>작성처 : </small> {{ $report->department->full_name }}
+								<small>작성처 : </small> {{ $report->user->department->full_name }}
 							</div>
 							<div class="col-xs-4">
 								<small>작성자 : </small> {{ $report->user->user_name }}

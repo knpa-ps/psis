@@ -519,7 +519,7 @@ class EqInventoryController extends EquipController {
 		$data['itemCodes'] =  EqItemCode::whereHas('category', function($q) use ($domainId) {
 									$q->where('domain_id', '=', $domainId);
 								})->orderBy('sort_order', 'asc')->get();
-		$data['categories'] = EqCategory::all();
+		$data['categories'] = EqCategory::orderby('sort_order','asc')->get();
 		$data['domainId'] = $domainId;
 
 		foreach ($data['itemCodes'] as $c) {

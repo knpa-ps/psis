@@ -79,6 +79,8 @@
 $(function(){
 	$('#confirm').on('click', function(){
 		if(confirm('관리전환 입고 수량이 정확히 확인되었습니까?')) {
+			$('#confirm').val("제출중..");
+			$('#confirm').attr("disabled", true);
 			$('#confirm_form').submit();
 		}
 	})
