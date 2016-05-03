@@ -44,7 +44,6 @@ class EqWaterPavaController extends EquipController {
 	{
 		$user = Sentry::getuser();
 		$node = $user->supplyNode;
-		$year = Input::get('year');
 
 		$nowYear = Carbon::now()->year;
 

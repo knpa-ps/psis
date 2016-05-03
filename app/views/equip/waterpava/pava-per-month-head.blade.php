@@ -51,14 +51,14 @@
 							</tr>
 							@foreach ($regions as $r)
 							<tr>
-								<td><a href="{{URL::current().'?nodeId='.$r->id}}" id="{{$r->id}}" class="region">{{$r->node_name}}</a></td>
+								<td><a href="#" id="{{$r->id}}" class="region">{{$r->node_name}}</a></td>
 							</tr>
 							@endforeach
 						</table>
 					</div>
 					<div class="col-xs-10">
-						<strong>{{ $selectedNode->node_name }} 월별 PAVA 사용내역</strong>
-						<table class="table table-condensed table-hover table-striped table-bordered" id="capsaicin_table">
+						<strong id="table_title"></strong>
+						<table class="table table-condensed table-hover table-striped table-bordered" id="pava_table">
 						<thead>
 							<tr>
 								<th rowspan="3">구분</th>
@@ -78,38 +78,36 @@
 								<th>집회 시위시</th>
 							</tr>
 							<tr>
-								<th>{{  isset($presentStock) ? round($presentStock, 2) : ''}}</th>
-								<th>
-									{{ round($yearInitHolding, 2) }}
-								</th>
-								<th style="background-color: #C6FFFA">{{ round($usageSumSum, 2) }}</th>
-								<th style="background-color: #C6FFFA">{{ round($usageTSum, 2) }}</th>
-								<th style="background-color: #C6FFFA">{{ round($usageASum, 2) }}</th>
-								<th>{{ $timesSumSum }}</th>
-								<th>{{ $timesTSum }}</th>
-								<th>{{ $timesASum }}</th>
-								<th>{{ round($lostSum, 2) }}</th>
+								<th id="presentStock" ></th>
+								<th id="yearInitHolding"></th>
+								<th id="usageSumSum" style="background-color: #C6FFFA"></th>
+								<th id="usageTSum" style="background-color: #C6FFFA"></th>
+								<th id="usageASum" style="background-color: #C6FFFA"></th>
+								<th id="timesSumSum"></th>
+								<th id="timesTSum"></th>
+								<th id="timesASum"></th>
+								<th id="lostSum"></th>
 							</tr>
 						</thead>
 						<tbody>
 							@for ($i=1; $i <=12 ; $i++)
 							<tr>
-								<th style="text-align: center;">{{$i}}월</th>
+								<td style="text-align: center;">{{$i}}월</td>
 								@if (isset($stock[$i]))
-									<td colspan="2">{{ round($stock[$i], 2) }}</td>
-									<td style="background-color: #C6FFFA">{{ round($usageSum[$i], 2) }}</td>
-									<td style="background-color: #C6FFFA">{{ round($usageT[$i], 2) }}</td>
-									<td style="background-color: #C6FFFA">{{ round($usageA[$i], 2) }}</td>
+									<td id="{{'stock_'.$i}}" colspan="2"></td>
+									<td id="{{'usageSum_'.$i}}" style="background-color: #C6FFFA"></td>
+									<td id="{{'usageT_'.$i}}" style="background-color: #C6FFFA"></td>
+									<td id="{{'usageA_'.$i}}" style="background-color: #C6FFFA"></td>
 								@else
 									<td colspan="2"></td>
 									<td></td>
 									<td></td>
 									<td></td>
 								@endif
-								<td>{{ $timesSum[$i] }}</td>
-								<td>{{ $timesT[$i] }}</td>
-								<td>{{ $timesA[$i] }}</td>
-								<td>{{ round($lost[$i], 2) }}</td>
+								<td id="{{'timesSum_'.$i}}"></td>
+								<td id="{{'timesT_'.$i}}"></td>
+								<td id="{{'timesA_'.$i}}"></td>
+								<td id="{{'lost_'.$i}}"></td>
 							</tr>
 							@endfor
 						</tbody>
@@ -124,4 +122,48 @@
 
 @section('scripts')
 {{ HTML::datepicker() }}
+<script type="text/javascript">
+$(function(){
+	var year = {{ $year }};
+
+	$(".region").on('click', function(){
+
+		var regionId = $(this).attr('id');
+		var params = { regionId: regionId, year: year };
+
+		$.ajax({
+			url: url("equips/pava_per_month_data"),
+			type: "post",
+			data: params,
+			dataType: 'json',//내부망에선 이걸 추가해줘야 돌아감
+			success: function(res){
+				for (var i = 0; i <= 12; i++) {
+					$("#table_title").text(res['regionName']+" 월별 PAVA 사용내역");
+
+					$("#presentStock").text(res['presentStock']);
+					$("#yearInitHolding").text(res['yearInitHolding']);
+			 		$("#usageSumSum").text(res['usageSumSum']);
+			 		$("#usageTSum").text(res['usageTSum']);
+			 		$("#usageASum").text(res['usageASum']);
+			 		$("#timesSumSum").text(res['timesSumSum']);
+			 		$("#timesTSum").text(res['timesTSum']);
+			 		$("#timesASum").text(res['timesASum']);
+			 		$("#lostSum").text(res['lostSum']);
+
+					$("#stock_"+i).text(res['stock'][i]);
+					$("#usageSum_"+i).text(res['usageSum'][i]);
+					$("#usageT_"+i).text(res['usageT'][i]);
+					$("#usageA_"+i).text(res['usageA'][i]);
+					$("#timesSum_"+i).text(res['timesSum'][i]);
+					$("#timesT_"+i).text(res['timesT'][i]);
+					$("#timesA_"+i).text(res['timesA'][i]);
+					$("#lost_"+i).text(res['lost'][i]);
+
+				}
+			}
+		});
+	});
+$(".region").first().trigger("click");
+})
+</script>
 @stop

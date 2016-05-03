@@ -84,6 +84,8 @@ class EqService extends BaseService {
 			$year = $now->year;
 		}
 		$data['node']=EqSupplyManagerNode::find($nodeId);
+		$regionName = EqSupplyManagerNode::find($nodeId)->node_name;
+		$data['regionName'] = $regionName;
 		$data['year'] = $year;
 		$data['nowYear'] = $now->year;
 		$data['initYears'] = EqPavaInitHolding::select('year')->distinct()->get();
@@ -124,7 +126,7 @@ class EqService extends BaseService {
 			$stock[$i] = $yearInitHolding - $consumptionUntilithMonth - $lostUntilithMonth;
 
 			$month = 12;
-			if ($year == $now->year) {
+			if ($year == $now->year) { //현재 연도일때
 				$month = $now->month;
 				if ($month == $i) {
 					$data['presentStock'] = $stock[$i];
@@ -139,17 +141,21 @@ class EqService extends BaseService {
 				$timesA[$i] = null;
 				$lost[$i] = null;
 				continue;
+			} else {
+				if ($month == $i) {
+					$data['presentStock'] = $stock[12];
+				}
 			}
 
 			if ($month < $i) {
-				$stock[$i] = null;
-				$usageSum[$i] = null;
-				$usageT[$i] = null;
-				$usageA[$i] = null;
-				$timesSum[$i] = null;
-				$timesT[$i] = null;
-				$timesA[$i] = null;
-				$lost[$i] = null;
+				$stock[$i] = '';
+				$usageSum[$i] = '';
+				$usageT[$i] = '';
+				$usageA[$i] = '';
+				$timesSum[$i] = '';
+				$timesT[$i] = '';
+				$timesA[$i] = '';
+				$lost[$i] = '';
 				continue;
 			}
 

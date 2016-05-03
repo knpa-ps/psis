@@ -120,7 +120,7 @@ class EqSupplyController extends EquipController {
 
 		$supplies = $query->whereHas('node', function($q) use($user){
 			$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
-		})->get();
+		})->orderBy('supplied_date','DESC')-> get();
 
 		$rows = array();
 		foreach($supplies as $supply) {

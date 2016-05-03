@@ -99,6 +99,7 @@ $(function(){
 	$("#submit_btn").on('click', function(){
 		$('#submit_btn').val("제출중..");
 		$('#submit_btn').attr("disabled", true);
+		$('#basic_form').submit();
 	});
 })
 
