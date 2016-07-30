@@ -20,7 +20,7 @@
 
 					<div class="col-xs-6">
 						<div class="pull-right">
-							@if(Sentry::getUser()->supplyNode->type_code == "D001")
+							@if(Sentry::getUser()->supplySet->node->type_code == "D001")
 							<a href="{{url('admin/item/'.$item->id.'/edit')}}" class="btn btn-xs btn-success">
 								<span class="glyphicon glyphicon-edit"></span> 수정
 							</a>

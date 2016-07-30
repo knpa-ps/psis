@@ -88,7 +88,7 @@ class EqCapsaicinController extends EquipController {
 
 	public function addCrossEvent() {
 		$user = Sentry::getUser();
-		$node = $user->supplyNode;
+		$node = $user->supplySet->node;
 		$today = Carbon::today()->toDateString();
 		$selectedDate = Input::get('date');
 		if (!$selectedDate) {
@@ -100,7 +100,7 @@ class EqCapsaicinController extends EquipController {
 
 	public function storeNewCrossEvent() {
 		$user = Sentry::getUser();
-		$node = $user->supplyNode;
+		$node = $user->supplySet->node;
 
 		$input = Input::all();
 		$event = new EqCapsaicinEvent;
@@ -137,7 +137,7 @@ class EqCapsaicinController extends EquipController {
 	public function index()
 	{
 		$user = Sentry::getUser();
-		$node = $user->supplyNode;
+		$node = $user->supplySet->node;
 
 		if ($node->type_code != "D001") {
 			if ($node->type_code == "D002") {
@@ -972,7 +972,7 @@ class EqCapsaicinController extends EquipController {
 
 	public function nodeEvents($nodeId) {
 		$user = Sentry::getUser();
-		$userNode = $user->supplyNode;
+		$userNode = $user->supplySet->node;
 		$data['userNode'] = $userNode;
 
 		$node = EqSupplyManagerNode::find($nodeId);

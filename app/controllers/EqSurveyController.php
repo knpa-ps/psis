@@ -5,7 +5,7 @@ class EqSurveyController extends EquipController {
 	public function updateResponse($id) {
 		$survey = EqItemSurvey::find($id);
 		$user = Sentry::getUser();
-		$node = $user->supplyNode;
+		$node = $user->supplySet->node;
 		$types = $survey->item->types;
 
 		foreach ($types as $t) {
@@ -22,7 +22,7 @@ class EqSurveyController extends EquipController {
 	public function storeResponse($id){
 		$survey = EqItemSurvey::find($id);
 		$user = Sentry::getUser();
-		$node = $user->supplyNode;
+		$node = $user->supplySet->node;
 		$types = $survey->item->types;
 
 		foreach ($types as $t) {
@@ -49,15 +49,15 @@ class EqSurveyController extends EquipController {
 		$item = $survey->item;
 		$types = $item->types;
 
-		if ($survey->isResponsed($user->supplyNode->id)==0) {
+		if ($survey->isResponsed($user->supplySet->node->id)==0) {
 			$mode = 'create';
 		} else {
 			$mode = 'update';
 			foreach ($types as $t) {
-				$count[$t->id] = EqItemSurveyResponse::where('survey_id','=',$id)->where('node_id','=',$user->supplyNode->id)->where('item_type_id','=',$t->id)->first()->count;
+				$count[$t->id] = EqItemSurveyResponse::where('survey_id','=',$id)->where('node_id','=',$user->supplySet->node->id)->where('item_type_id','=',$t->id)->first()->count;
 			}
 		}
-		$sum = EqItemSurveyData::where('survey_id','=',$survey->id)->where('target_node_id','=',$user->supplyNode->id)->sum('count');
+		$sum = EqItemSurveyData::where('survey_id','=',$survey->id)->where('target_node_id','=',$user->supplySet->node->id)->sum('count');
 
 		return View::make('equip.survey-response',get_defined_vars());
 	}
@@ -69,7 +69,7 @@ class EqSurveyController extends EquipController {
 		$types = EqItemType::where('item_id','=',$survey->item->id)->get();
 
 		$user = Sentry::getUser();
-		$userNode = $user->supplyNode;
+		$userNode = $user->supplySet->node;
 		$childrenNodes = $userNode->managedChildren;
 
 		$row = array(
@@ -136,7 +136,7 @@ class EqSurveyController extends EquipController {
 		$user = Sentry::getUser();
 		$start = Input::get('start');
 		$end = Input::get('end');
-		$userNode = $user->supplyNode;
+		$userNode = $user->supplySet->node;
 
 		$validator = Validator::make(Input::all(), array(
 				'start'=>'date',
@@ -174,7 +174,7 @@ class EqSurveyController extends EquipController {
 		//조사응답 탭일 땐 자신이 응답해야 하는 설문조사 목록을 출력한다.
 		} else {
 			// 조사 수량이 0인 경우 그냥 안뜨게 한다.
-			if ($user->supplyNode->type_code !== 'D001') {
+			if ($user->supplySet->node->type_code !== 'D001') {
 				$query = EqItemSurvey::where('node_id','=',$userNode->managedParent->id)->where('started_at', '>=', $start)->where('is_closed','=',0)
 										->whereHas('datas', function($q) use($userNode){
 											$q->where('target_node_id','=',$userNode->id)->where('count','<>',0);
@@ -209,7 +209,7 @@ class EqSurveyController extends EquipController {
 		$item = EqItem::find(Input::get('item'));
 		$user = Sentry::getUser();
 		$mode = 'create';
-		$childrenNodes = EqSupplyManagerNode::where('parent_manager_node','=',$user->supplyNode->id)->get();
+		$childrenNodes = EqSupplyManagerNode::where('parent_manager_node','=',$user->supplySet->node->id)->get();
 		if (sizeof($childrenNodes)==0) {
 			return Redirect::back()->with('message', '하위 부서가 존재하지 않습니다.');
 		}
@@ -226,7 +226,7 @@ class EqSurveyController extends EquipController {
 	{
 		$input = Input::all();
 		$user = Sentry::getUser();
-		$nodes = $user->supplyNode->managedChildren;
+		$nodes = $user->supplySet->node->managedChildren;
 
 		$inputSum = 0;
 		foreach ($nodes as $n) {
@@ -241,7 +241,7 @@ class EqSurveyController extends EquipController {
 			$survey = new EqItemSurvey;
 			$survey->item_id = $input['item_id'];
 			$survey->creator_id = $user->id;
-			$survey->node_id = $user->supplyNode->id;
+			$survey->node_id = $user->supplySet->node->id;
 			$survey->started_at = date('Y-m-d');
 			$survey->expired_at = date('Y-m-d', strtotime('+1 week'));
 			if (!$survey->save()) {
@@ -298,7 +298,7 @@ class EqSurveyController extends EquipController {
 	public function edit($id)
 	{
 		$user = Sentry::getUser();
-		$userNode = $user->supplyNode;
+		$userNode = $user->supplySet->node;
 		$survey = EqItemSurvey::find($id);
 		$item = $survey->item;
 		$childrenNodes = $userNode->children;
@@ -322,7 +322,7 @@ class EqSurveyController extends EquipController {
 	{
 		$input = Input::all();
 		$user = Sentry::getUser();
-		$nodes = $user->supplyNode->children;
+		$nodes = $user->supplySet->node->children;
 
 		DB::beginTransaction();
 			foreach ($nodes as $n) {

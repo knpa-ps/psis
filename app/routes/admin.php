@@ -69,6 +69,13 @@ Route::group(array('before'=>'auth|permission:superuser'), function() {
         Route::get('make_sub_cache_clear/{itemId}', 'EquipController@makeSubCacheClear');
         Route::get('make_sub_cache_for_all', 'EquipController@makeSubCacheForAll');
         Route::get('check_sub_cache_for_all','EquipController@checkSubCacheForAll');
+
+        /* Custom Routes */
+        // 특정 아이템 수량 다 날려버림
+        Route::get('clear_item_data/{nodeId}/{itemId}','EquipController@clearItemData');
+        Route::get('add_nodes','EquipController@addNodes');
+        Route::get('add_node/{nodeId}','EquipController@addNode');
+        Route::get('insert_node_and_manager','EquipController@insertNodeAndManager');
     });
 
     Route::resource('menu', 'MenuController');

@@ -8,10 +8,10 @@ class EqInventoryController extends EquipController {
 		$item = EqItem::find($itemId);
 		$user = Sentry::getUser();
 		$count = Input::get('count');
-		$inventory = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$item->id)->first();
+		$inventory = EqInventorySet::where('node_id','=',$user->supplySet->node->id)->where('item_id','=',$item->id)->first();
 		if($inventory) {
-			$wreckedSumBefore=Cache::get("wrecked_sum_".$user->supplyNode->id."_".$itemId);
-			$availSumBefore=Cache::get("avail_sum_".$user->supplyNode->id."_".$itemId);
+			$wreckedSumBefore=Cache::get("wrecked_sum_".$user->supplySet->node->id."_".$itemId);
+			$availSumBefore=Cache::get("avail_sum_".$user->supplySet->node->id."_".$itemId);
 			DB::beginTransaction();
 
 			$countSum=0;
@@ -27,10 +27,10 @@ class EqInventoryController extends EquipController {
 				}
 			}
 			// 자기 캐시에 등록
-			Cache::forever("avail_sum_".$user->supplyNode->id."_".$itemId,$countSum-$wreckedSumBefore);
+			Cache::forever("avail_sum_".$user->supplySet->node->id."_".$itemId,$countSum-$wreckedSumBefore);
 
 			// 산하 캐시에 등록
-			$parentId = $user->supplyNode->id;
+			$parentId = $user->supplySet->node->id;
 			$availSumChanged = Cache::get('avail_sum_'.$parentId.'_'.$itemId);
 			while ($parentId != 0){
 				$subAvailSum = Cache::get('sub_avail_sum_'.$parentId.'_'.$itemId);
@@ -55,14 +55,14 @@ class EqInventoryController extends EquipController {
 		$wrecked = Input::get('wrecked');
 
 		// 보유수량보다 파손수량이 많아지는 경우를 제외한다
-		$inventory = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$item->id)->first();
+		$inventory = EqInventorySet::where('node_id','=',$user->supplySet->node->id)->where('item_id','=',$item->id)->first();
 
 		if($inventory) {
 
 			DB::beginTransaction();
 			# 이전에 저장된 파손수량, 가용수량과 비교를 해야한다. 이전에 저장된 파손수량, 가용수량이다.
-			$wreckedSumBefore=Cache::get("wrecked_sum_".$user->supplyNode->id."_".$itemId);
-			$availSumBefore=Cache::get("avail_sum_".$user->supplyNode->id."_".$itemId);
+			$wreckedSumBefore=Cache::get("wrecked_sum_".$user->supplySet->node->id."_".$itemId);
+			$availSumBefore=Cache::get("avail_sum_".$user->supplySet->node->id."_".$itemId);
 			# 새로 저장된 파손수량의 총합이다.
 			$wreckedSum=0;
 			foreach ($item->types as $t) {
@@ -78,11 +78,11 @@ class EqInventoryController extends EquipController {
 				}
 			}
 			// 캐시에 등록
-			Cache::forever("wrecked_sum_".$user->supplyNode->id."_".$itemId,$wreckedSum);
-			Cache::forever("avail_sum_".$user->supplyNode->id."_".$itemId,Cache::get("avail_sum_".$user->supplyNode->id."_".$itemId)-($wreckedSum-$wreckedSumBefore));
+			Cache::forever("wrecked_sum_".$user->supplySet->node->id."_".$itemId,$wreckedSum);
+			Cache::forever("avail_sum_".$user->supplySet->node->id."_".$itemId,Cache::get("avail_sum_".$user->supplySet->node->id."_".$itemId)-($wreckedSum-$wreckedSumBefore));
 
 			// 산하 캐시에 반영
-			$parentId = $user->supplyNode->id;
+			$parentId = $user->supplySet->node->id;
 			$wreckedSumChanged = Cache::get('wrecked_sum_'.$parentId.'_'.$itemId);
 			$availSumChanged = Cache::get('avail_sum_'.$parentId.'_'.$itemId);
 			while ($parentId != 0){
@@ -108,7 +108,7 @@ class EqInventoryController extends EquipController {
 		$data['user'] = $user;
 		$data['item'] = EqItem::find($itemId);
 		$data['sets'] = EqItemDiscardSet::where('item_id','=',$data['item']->id)->whereHas('node', function($q) use ($user){
-			$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
+			$q->where('full_path','like',$user->supplySet->node->full_path.'%')->where('is_selectable','=',1);
 		})->get();
 
 		$types = EqItem::find($itemId)->types;
@@ -135,7 +135,7 @@ class EqInventoryController extends EquipController {
 		$user = Sentry::getUser();
 
 		$data['item'] = EqItem::find($itemId);
-		$inventory = EqInventorySet::where('item_id','=',$data['item']->id)->where('node_id','=',$user->supplyNode->id)->first();
+		$inventory = EqInventorySet::where('item_id','=',$data['item']->id)->where('node_id','=',$user->supplySet->node->id)->first();
 
 		foreach ($data['item']->types as $t) {
 			$holding[$t->id] = EqInventoryData::where('item_type_id','=',$t->id)->where('inventory_set_id','=',$inventory->id)->first()->count;
@@ -149,7 +149,7 @@ class EqInventoryController extends EquipController {
 
 		$user = Sentry::getUser();
 		$input = Input::all();
-		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first();
+		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplySet->node->id)->first();
 		$types = EqItem::find($itemId)->types;
 
 		//사유서 파일 업로드했는지 확인
@@ -169,7 +169,7 @@ class EqInventoryController extends EquipController {
 		$dSet->discarded_date = $input['discard_date'];
 		$dSet->item_id = $itemId;
 		$dSet->category = $input['category'];
-		$dSet->node_id = $user->supplyNode->id;
+		$dSet->node_id = $user->supplySet->node->id;
 		$dSet->file_name = $input['file_name'];
 
 		if (!$dSet->save()) {
@@ -219,14 +219,14 @@ class EqInventoryController extends EquipController {
 				$iData->save();
 			}
 		}
-		$prevCache = Cache::get('wrecked_sum_'.$user->supplyNode->id.'_'.$itemId);
-		Cache::forever('wrecked_sum_'.$user->supplyNode->id.'_'.$itemId, $prevCache-$wreckedSum);
+		$prevCache = Cache::get('wrecked_sum_'.$user->supplySet->node->id.'_'.$itemId);
+		Cache::forever('wrecked_sum_'.$user->supplySet->node->id.'_'.$itemId, $prevCache-$wreckedSum);
 
 		// 산하 캐시에 등록
-		while ($user->supplyNode->id != 0){
-			$subWreckedSum = Cache::get('sub_wrecked_sum_'.$user->supplyNode->id.'_'.$itemId);
-			Cache::forever('sub_wrecked_sum_'.$user->supplyNode->id.'_'.$itemId, $subWreckedSum - $wreckedSum); // 변동수량 델타를 더해줌
-			$user->supplyNode->id = EqSupplyManagerNode::find($user->supplyNode->id)->parent_manager_node;
+		while ($user->supplySet->node->id != 0){
+			$subWreckedSum = Cache::get('sub_wrecked_sum_'.$user->supplySet->node->id.'_'.$itemId);
+			Cache::forever('sub_wrecked_sum_'.$user->supplySet->node->id.'_'.$itemId, $subWreckedSum - $wreckedSum); // 변동수량 델타를 더해줌
+			$user->supplySet->node->id = EqSupplyManagerNode::find($user->supplySet->node->id)->parent_manager_node;
 		}
 
 		DB::commit();
@@ -291,7 +291,7 @@ class EqInventoryController extends EquipController {
 	public function show($itemCode) {
 		$data['code']=EqItemCode::where('code','=',$itemCode)->first();
 		$user = Sentry::getUser();
-		$userNode = $user->supplyNode;
+		$userNode = $user->supplySet->node;
 
 		if ($userNode->id == 2) {
 			$data['children'] = EqSupplyManagerNode::where('full_path','like',$userNode->full_path.'%')->where('is_selectable','=','1')->orderBy('full_path')->get();
@@ -411,7 +411,7 @@ class EqInventoryController extends EquipController {
 	public function showDetail($itemCode, $itemId){
 		$user = Sentry::getUser();
 		$item = EqItem::find($itemId);
-		$userRegion = $user->supplyNode->region();
+		$userRegion = $user->supplySet->node->region();
 		if ($item == null) {
 			return App::abort(404);
 		}
@@ -421,10 +421,10 @@ class EqInventoryController extends EquipController {
 		$data['item'] = $item;
 		$data['types'] = $types;
 		$data['discardSets'] = EqItemDiscardSet::where('item_id','=',$data['item']->id)->whereHas('node', function($q) use ($user){
-			$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
+			$q->where('full_path','like',$user->supplySet->node->full_path.'%')->where('is_selectable','=',1);
 		})->count();
 
-		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first();
+		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplySet->node->id)->first();
 		$modifiable = true;
 		$now = Carbon::now();
 		$includingToday = EqQuantityCheckPeriod::where('node_id','=',$userRegion->id)->where('item_id','=',$itemId)->where('check_end','<',$now)->get();
@@ -440,7 +440,7 @@ class EqInventoryController extends EquipController {
 			$invSet = new EqInventorySet;
 
 			$invSet->item_id = $item->id;
-			$invSet->node_id = $user->supplyNode->id;
+			$invSet->node_id = $user->supplySet->node->id;
 
 			if (!$invSet->save()) {
 				return App::abort(500);
@@ -460,7 +460,7 @@ class EqInventoryController extends EquipController {
 			DB::commit();
 		}
 		$data['inventorySet'] = $invSet;
-		$inventory = EqInventorySet::where('item_id','=',$data['item']->id)->where('node_id','=',$user->supplyNode->id)->first();
+		$inventory = EqInventorySet::where('item_id','=',$data['item']->id)->where('node_id','=',$user->supplySet->node->id)->first();
 		foreach ($data['item']->types as $t) {
 			$holding[$t->id] = EqInventoryData::where('item_type_id','=',$t->id)->where('inventory_set_id','=',$inventory->id)->first()->count;
 			$wrecked[$t->id] = EqInventoryData::where('item_type_id','=',$t->id)->where('inventory_set_id','=',$inventory->id)->first()->wrecked;
@@ -495,7 +495,7 @@ class EqInventoryController extends EquipController {
 	public function index()
 	{
 		$user = Sentry::getUser();
-		$userNode = $user->supplyNode;
+		$userNode = $user->supplySet->node;
 
 		$data['domains'] = $this->service->getVisibleDomains($user);
 
@@ -569,7 +569,7 @@ class EqInventoryController extends EquipController {
 			}
 		}
 		//Excel로 총괄표 export
-		$node = $user->supplyNode;
+		$node = $user->supplySet->node;
 		if (Input::get('export')) {
 			if (Input::get('supply_node_id')) {
 				$node = EqSupplyManagerNode::find(Input::get('supply_node_id'));
@@ -608,12 +608,12 @@ class EqInventoryController extends EquipController {
 		DB::beginTransaction();
 
 		//자기가 자신에게 물품 지급함.
-		$invSet = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$data['classification'])->first();
+		$invSet = EqInventorySet::where('node_id','=',$user->supplySet->node->id)->where('item_id','=',$data['classification'])->first();
 		// Inventory에 해당 물품이 존재한다면 불러오고 없으면 만든다.
 		if ($invSet == null) {
 			$invSet = new EqInventorySet;
 			$invSet->item_id = $data['classification'];
-			$invSet->node_id = $user->supplyNode->id;
+			$invSet->node_id = $user->supplySet->node->id;
 			if (!$invSet->save()) {
 				return App::abort(400);
 			}

@@ -21,7 +21,7 @@
 				</h3>
 			</div>
 			<div class="panel-body">
-				@if($user->supplyNode->id == 1)
+				@if($user->supplySet->node->id == 1)
 				<div class="toolbar-table">
 					<a href="{{url('equips/inventories/create')}}" class="btn btn-info btn-xs pull-right">
 						<span class="glyphicon glyphicon-plus"></span> 취득장비추가
@@ -103,7 +103,7 @@
 								산하 총계
 							</th>
 							<th colspan="4" style="background-color: #FFFCC5; text-align: center">
-								{{$user->supplyNode->full_name}}
+								{{$user->supplySet->node->full_name}}
 							</th>
 						</tr>
 						<tr>
@@ -195,14 +195,14 @@
 							@else
 								<td> <a href="{{ URL::current().'/'.$i->id }}">{{ $i->maker_name }}({{$i->classification}})</a> </td>
 							@endif
-							<td> {{ $subWreckedSum[$user->supplyNode->id][$i->id] + $subAvailSum[$user->supplyNode->id][$i->id] }}</td>
-							<td> <a href="{{ URL::to('equips/items').'/'.$i->id.'/discard_list' }}" target="_blank">{{ $subDiscardSum[$user->supplyNode->id][$i->id] }} ({{ $subDiscardSets[$user->supplyNode->id][$i->id] }}건)</a> </td>
-							<td> {{ $subWreckedSum[$user->supplyNode->id][$i->id] }}</td>
-							<td> {{ $subAvailSum[$user->supplyNode->id][$i->id] }}</td>
-							<td style="background-color: #FFF8E5"> {{ $wreckedSum[$user->supplyNode->id][$i->id] + $availSum[$user->supplyNode->id][$i->id] }}</td>
-							<td style="background-color: #FFF8E5"> {{ $discardSum[$user->supplyNode->id][$i->id] }} ({{ $discardSets[$user->supplyNode->id][$i->id] }}건) </td>
-							<td style="background-color: #FFF8E5"> {{ $wreckedSum[$user->supplyNode->id][$i->id] }} </td>
-							<td style="background-color: #FFF8E5"> {{ $availSum[$user->supplyNode->id][$i->id] }}</td>
+							<td> {{ $subWreckedSum[$user->supplySet->node->id][$i->id] + $subAvailSum[$user->supplySet->node->id][$i->id] }}</td>
+							<td> <a href="{{ URL::to('equips/items').'/'.$i->id.'/discard_list' }}" target="_blank">{{ $subDiscardSum[$user->supplySet->node->id][$i->id] }} ({{ $subDiscardSets[$user->supplySet->node->id][$i->id] }}건)</a> </td>
+							<td> {{ $subWreckedSum[$user->supplySet->node->id][$i->id] }}</td>
+							<td> {{ $subAvailSum[$user->supplySet->node->id][$i->id] }}</td>
+							<td style="background-color: #FFF8E5"> {{ $wreckedSum[$user->supplySet->node->id][$i->id] + $availSum[$user->supplySet->node->id][$i->id] }}</td>
+							<td style="background-color: #FFF8E5"> {{ $discardSum[$user->supplySet->node->id][$i->id] }} ({{ $discardSets[$user->supplySet->node->id][$i->id] }}건) </td>
+							<td style="background-color: #FFF8E5"> {{ $wreckedSum[$user->supplySet->node->id][$i->id] }} </td>
+							<td style="background-color: #FFF8E5"> {{ $availSum[$user->supplySet->node->id][$i->id] }}</td>
 
 						</tr>
 						@endforeach

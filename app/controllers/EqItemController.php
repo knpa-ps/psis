@@ -77,9 +77,9 @@ class EqItemController extends EquipController {
 				return App::abort(400);
 			}
 		}
-		Cache::forever('avail_sum_'.$user->supplyNode->id.'_'.$item->id, 0);
-		Cache::forever('wrecked_sum_'.$user->supplyNode->id.'_'.$item->id, 0);
-		Cache::forever('acquired_sum_'.$user->supplyNode->id.'_'.$item->id, 0);
+		Cache::forever('avail_sum_'.$user->supplySet->node->id.'_'.$item->id, 0);
+		Cache::forever('wrecked_sum_'.$user->supplySet->node->id.'_'.$item->id, 0);
+		Cache::forever('acquired_sum_'.$user->supplySet->node->id.'_'.$item->id, 0);
 
 		DB::commit();
 

@@ -10,7 +10,7 @@ class EqPavaIOController extends EquipController {
 	public function index()
 	{
 		$user = Sentry::getUser();
-		$node = $user->supplyNode;
+		$node = $user->supplySet->node;
 		$data['node'] = $node;
 		$start = Input::get('start');
 		$end = Input::get('end');
@@ -82,7 +82,7 @@ class EqPavaIOController extends EquipController {
 	public function create()
 	{
 		$user = Sentry::getUser();
-		$node = $user->supplyNode;
+		$node = $user->supplySet->node;
 		$mode = 'create';
         return View::make('equip.pava.create',get_defined_vars());
 	}

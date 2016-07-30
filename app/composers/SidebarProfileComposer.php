@@ -12,7 +12,8 @@ class SidebarProfileComposer {
 		//장비 관리자 그룹 중 하나에 있을 것이고..
 		//SEMS 접근 permission을 가질 것이므로..
 		if ($user->hasAccess('eq.*')) {
-			$node = $user->supplyNode;
+			$node = $user->supplySet->node;
+			// $node = $user->supplySet->node;
 			//산하 현원 총계
 			$personnelSum = EqSupplyManagerNode::where('full_path','like',$node->full_path.'%')->sum('personnel');
 			//산하 정원 총계 

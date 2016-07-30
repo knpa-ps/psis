@@ -38,13 +38,13 @@
 							<fieldset>
 
 								<div class="form-group">
-									@if(sizeof($user->supplyNode->managedChildren) !== 0 )
+									@if(sizeof($user->supplySet->node->managedChildren) !== 0 )
 									<label for="supply_node_id" class="col-xs-2 control-label">다운로드할 관서 선택</label>
 									<div class="col-xs-4">
-										{{ View::make('widget.dept-selector', array('id'=>'supply_node_id', 'inputClass'=>'select-node', 'initNodeId'=> $node->id , 'full_name'=>$user->supplyNode->full_name )) }}
+										{{ View::make('widget.dept-selector', array('id'=>'supply_node_id', 'inputClass'=>'select-node', 'initNodeId'=> $node->id , 'full_name'=>$user->supplySet->node->full_name )) }}
 									</div>
 									@endif
-									@if(sizeof($user->supplyNode->managedChildren) !== 0)
+									@if(sizeof($user->supplySet->node->managedChildren) !== 0)
 									<div class="col-xs-6">
 									@else
 									<div>
@@ -77,7 +77,7 @@
 										산하 총계
 									</th>
 									<th style="background-color: #FFFCC5; text-align: center" colspan="4" >
-										{{$user->supplyNode->full_name}}
+										{{$user->supplySet->node->full_name}}
 									</th>
 								</tr>
 								<tr>

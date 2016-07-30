@@ -85,7 +85,7 @@ $(function(){
 	var amountSum=0;
 	var countSum=0;
 
-	var regionId = {{ $user->supplyNode->id }};
+	var regionId = {{ $user->supplySet->node->id }};
 
 	params = { regionId: regionId, year: year };
 	$.ajax({

@@ -24,7 +24,7 @@ class EqWaterPavaController extends EquipController {
 
 	public function showRegionConfirm() {
 		$user = Sentry::getUser();
-		$node = $user->supplyNode;
+		$node = $user->supplySet->node;
 
 		$data['node'] = $node;
 		$data['requests'] = EqDeleteRequest::where('confirmed','=','0')->where('type','=','pava')->paginate(15);
@@ -43,7 +43,7 @@ class EqWaterPavaController extends EquipController {
 	public function pavaPerMonth()
 	{
 		$user = Sentry::getuser();
-		$node = $user->supplyNode;
+		$node = $user->supplySet->node;
 
 		$nowYear = Carbon::now()->year;
 
@@ -106,7 +106,7 @@ class EqWaterPavaController extends EquipController {
 	public function waterPerMonth()
 	{
 		$user = Sentry::getUser();
-		$node = $user->supplyNode;
+		$node = $user->supplySet->node;
 		$nowYear = Carbon::now()->year;
 
 		$selectedYear = Input::get('year') ? Input::get('year') : $nowYear;
@@ -118,7 +118,7 @@ class EqWaterPavaController extends EquipController {
 		} else {
 			$initYear = $nowYear;
 		}
-		if ($user->supplyNode->type_code == "D002") {
+		if ($user->supplySet->node->type_code == "D002") {
 			return View::make('equip.waterpava.water-per-month', get_defined_vars());
 		}
 
@@ -145,7 +145,7 @@ class EqWaterPavaController extends EquipController {
 	public function index()
 	{
 		$user = Sentry::getUser();
-		$node = $user->supplyNode;
+		$node = $user->supplySet->node;
 		$data['node'] = $node;
 		$start = Input::get('start');
 		$end = Input::get('end');
@@ -213,7 +213,7 @@ class EqWaterPavaController extends EquipController {
 	public function create()
 	{
 		$user = Sentry::getUser();
-		$node = $user->supplyNode;
+		$node = $user->supplySet->node;
 		$mode = 'create';
         return View::make('equip.waterpava.create', get_defined_vars());
 	}

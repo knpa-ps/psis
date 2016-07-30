@@ -11,6 +11,10 @@ class User extends Cartalyst\Sentry\Users\Eloquent\User {
 		return $this->hasOne('EqSupplyManagerNode', 'manager_id', 'id');
 	}
 
+	public function supplySet() {
+		return $this->hasOne('EqSupplyManagerSet', 'manager_id', 'id');
+	}
+
 	public function department()
 	{
 		return $this->belongsTo('Department', 'dept_id', 'id');

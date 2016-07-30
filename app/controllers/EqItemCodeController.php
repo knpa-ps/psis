@@ -10,7 +10,7 @@ class EqItemCodeController extends EquipController {
 
 		$elements = array();
 
-		if ($user->supplyNode->parent_id == null) {
+		if ($user->supplySet->node->parent_id == null) {
 			// 본청인 경우
 			// 본청에서 취득한것
 			$acquiredSet = EqItemAcquire::where('item_id','=',$itemId)->select('acquired_date as date', DB::raw('SUM(count) as income'))->groupby('acquired_date')->get();
@@ -29,8 +29,8 @@ class EqItemCodeController extends EquipController {
 		} else {
 			// 본청 아닌 경우
 			// 보급받은것
-			if(!$user->supplyNode->typecode="D001")
-				$beSuppliedSet = EqItemSupplySet::where('item_id','=',$itemId)->where('from_node_id','=',$user->supplyNode->managedParent->id)->get();
+			if(!$user->supplySet->node->typecode="D001")
+				$beSuppliedSet = EqItemSupplySet::where('item_id','=',$itemId)->where('from_node_id','=',$user->supplySet->node->managedParent->id)->get();
 			if(isset($beSuppliedSet)) {
 				foreach ($beSuppliedSet as $s) {
 					$obj = new stdClass();
@@ -44,7 +44,7 @@ class EqItemCodeController extends EquipController {
 		}
 
 		//보급준것
-		$suppliedSet = EqItemSupplySet::where('item_id','=', $itemId)->where('from_node_id','=',$user->supplyNode->id)->get();
+		$suppliedSet = EqItemSupplySet::where('item_id','=', $itemId)->where('from_node_id','=',$user->supplySet->node->id)->get();
 
 		if($suppliedSet) {
 			foreach ($suppliedSet as $s) {
@@ -59,8 +59,8 @@ class EqItemCodeController extends EquipController {
 		}
 
 		//관리전환받은것, 준것 convert
-		$convertedSet = EqConvertSet::where('from_node_id','=',$user->supplyNode->id)->where('is_confirmed','=',1)->get();
-		$beConvertedSet = EqConvertSet::where('target_node_id','=',$user->supplyNode->id)->where('is_confirmed','=',1)->get();
+		$convertedSet = EqConvertSet::where('from_node_id','=',$user->supplySet->node->id)->where('is_confirmed','=',1)->get();
+		$beConvertedSet = EqConvertSet::where('target_node_id','=',$user->supplySet->node->id)->where('is_confirmed','=',1)->get();
 
 		if($convertedSet) {
 			foreach ($convertedSet as $c) {
@@ -84,7 +84,7 @@ class EqItemCodeController extends EquipController {
 			}
 		}
 		// 폐기한것 discard
-		$discardSets = EqItemDiscardSet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->get();
+		$discardSets = EqItemDiscardSet::where('item_id','=',$itemId)->where('node_id','=',$user->supplySet->node->id)->get();
 		if ($discardSets) {
 			foreach ($discardSets as $dSet) {
 				$obj = new stdClass();
@@ -110,7 +110,7 @@ class EqItemCodeController extends EquipController {
 		}
 
 		$data['elements'] = $elements;
-		$data['remaining'] = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first()->children->sum('count');
+		$data['remaining'] = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplySet->node->id)->first()->children->sum('count');
 		$data['itemId'] = $itemId;
 		return View::make('equip.item-holding-detail', $data);
 
@@ -297,7 +297,7 @@ class EqItemCodeController extends EquipController {
 		$data['category'] = $item->code->category;
 		$data['item'] = $item;
 		$data['types'] = $types;
-		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplyNode->id)->first();
+		$invSet = EqInventorySet::where('item_id','=',$itemId)->where('node_id','=',$user->supplySet->node->id)->first();
 		$data['inventorySet'] = $invSet;
 		$modifiable = false;
 		$now = Carbon::now();
@@ -429,7 +429,7 @@ class EqItemCodeController extends EquipController {
 
 		$parentId = Input::get('parent');
 		$user = Sentry::getUser();
-		$userNode = $user->supplyNode;
+		$userNode = $user->supplySet->node;
 
 		if (!$parentId || $parentId == $userNode->id ) {
 

@@ -13,21 +13,4 @@ Route::group(array('prefix'=>'manager', 'before'=>'auth|permission:manager'), fu
 	Route::get('/sems/users', "ManagerController@getUsers");
 	Route::post('/sems/users/change_node_manager', "ManagerController@changeNodeManager");
 
-	Route::get('/sems/ildanwi', function() {
-		$guards = EqSupplyManagerNode::where("node_name",'=',"경비")->get();
-		foreach ($guards as $guard) {
-			$idw = new EqSupplyManagerNode;
-			$idw->manager_id = null;
-			$idw->parent_id = $guard->id;
-			$idw->node_name = "1단위부대";
-			$idw->full_path = $guard->full_path.$idw->id.':';
-			$idw->is_terminal = 1;
-			$idw->full_name = $guard->full_name;
-			$idw->is_selectable = 0;
-
-			if (!$idw->save()) {
-				return App::abort(500);
-			}
-		}
-	});
 });

@@ -29,12 +29,12 @@
 			var params = {};
 			params['userId'] = id;
 			params['nodeId'] = "{{ $nodeId }}";
+			params['managerId'] = "{{ $managerId }}";
 			$.ajax({
 				url : base_url+"/manager/sems/users/change_node_manager",
 				type : 'post',
 				data : params,
 				success : function(res) {
-
 					alert(res.msg);
 					if (res.code==1) {
 						$('#ajax_modal').modal("hide");

@@ -173,7 +173,7 @@
 									{{ $survey->expired_at }} 까지
 								</td>
 								<td>
-									@if ($survey->isResponsed($user->supplyNode->id))
+									@if ($survey->isResponsed($user->supplySet->node->id))
 										<span class="label label-success">설문응답완료</span>
 									@else
 										<span class="label label-danger">미응답</span>

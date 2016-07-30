@@ -13,7 +13,7 @@ class EquipController extends BaseController {
 	 */
 	public function index() {
 		$user = Sentry::getUser();
-		$userNode = $user->supplyNode;
+		$userNode = $user->supplySet->node;
 
 		$inbounds = EqConvertSet::where('target_node_id','=',$userNode->id)->take(4)->get();
 		$outbounds = EqConvertSet::where('from_node_id','=',$userNode->id)->take(4)->get();
@@ -198,13 +198,13 @@ class EquipController extends BaseController {
 
 	public function showUpdatePersonnelForm(){
 		$user = Sentry::getUser();
-		$node = $user->supplyNode;
+		$node = $user->supplySet->node;
 		return View::make('equip.update-personnel-form', array('node'=>$node));
 	}
 
 	public function updatePersonnel() {
 		$user = Sentry::getUser();
-		$node = $user->supplyNode;
+		$node = $user->supplySet->node;
 
 		$node->personnel = (int) Input::get('personnel');
 		$node->capacity = (int) Input::get('capacity');
@@ -294,7 +294,7 @@ class EquipController extends BaseController {
 
 	public function displayCheckPeriod() {
 		$user = Sentry::getUser();
-		$userNode = $user->supplyNode;
+		$userNode = $user->supplySet->node;
 		$regions = EqSupplyManagerNode::where('type_code','=',"D002")->get();
 		$categories = EqCategory::orderBy('sort_order')->get();
 		// 오늘 날짜
@@ -382,6 +382,40 @@ class EquipController extends BaseController {
 				if (!$checkPeriod->save()) {
 					return App::abort(500);
 				}
+			}
+		}
+		DB::commit();
+		return "finished";
+	}
+
+	//경기북부청 신설로 checkPeriod 만들어 주기
+	public function addNode($nodeId) {
+		$items = EqItem::where('is_active','=',1)->get();
+		DB::beginTransaction();
+		foreach ($items as $item) {
+			$checkPeriod = new EqQuantityCheckPeriod;
+			$checkPeriod->check_start = "2016-01-01";
+			$checkPeriod->check_end = "2016-01-30";
+			$checkPeriod->item_id = $item->id;
+			$checkPeriod->node_id = $nodeId;
+			if (!$checkPeriod->save()) {
+				return App::abort(500);
+			}
+		}
+		DB::commit();
+		return "finished";
+	}
+
+	//EqSupplyManagerSet 추가로 인해 데이터 넣어주기
+	public function insertNodeAndManager() {
+		$nodes = EqSupplyManagerNode::all();
+		DB::beginTransaction();
+		foreach ($nodes as $node) {
+			$set = new EqSupplyManagerSet;
+			$set->node_id = $node->id;
+			$set->manager_id = $node->manager_id;
+			if (!$set->save()) {
+				return App::abort(500);
 			}
 		}
 		DB::commit();

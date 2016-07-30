@@ -14,7 +14,7 @@
 				<li><a href="{{url('equips/convert?is_import=true')}}">입고내역</a></li>
 				<li class="active"><a href="{{url('equips/convert?is_import=false')}}">출고내역</a></li>
 			@endif
-			@if ($user->supplyNode->type_code == 'D001')
+			@if ($user->supplySet->node->type_code == 'D001')
 				<li><a href="{{url('equips/convert_cross_head')}}">청간전환</a></li>
 			@endif
 		</ul>
@@ -181,7 +181,7 @@
 									@endif
 								</td>
 								<!-- 자신만 관리전환 취소버튼을 볼 수 있고, confirm되면 취소시킬 수 없음. -->
-								@if(($convert->from_node_id == $user->supplyNode->id) && ($convert->is_confirmed == 0))
+								@if(($convert->from_node_id == $user->supplySet->node->id) && ($convert->is_confirmed == 0))
 									<td>
 										{{ Form::open(array(
 												'url'=>url('equips/convert/'.$convert->id),

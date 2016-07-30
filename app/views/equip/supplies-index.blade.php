@@ -143,7 +143,7 @@
 								<td>
 									{{ number_format($supply->count_sum) }}
 								</td>
-									@if($supply->from_node_id == $user->supplyNode->id)
+									@if($supply->from_node_id == $user->supplySet->node->id)
 								<td>
 								<!-- 현재 날짜 기준으로 보급일이 10일 이내인 경우만 보급취소 가능 -->
 									@if( date_diff(new DateTime('now'),new DateTime($supply->supplied_date))->format('%a') < 10 )

@@ -67,7 +67,7 @@ class EqSupplyController extends EquipController {
 		$start = Input::get('start');
 		$end = Input::get('end');
 		$user = Sentry::getUser();
-		$nodeId = $user->supplyNode->id;
+		$nodeId = $user->supplySet->node->id;
 
 		$data['user'] = $user;
 
@@ -119,7 +119,7 @@ class EqSupplyController extends EquipController {
 		$data['itemName'] = $itemName;
 
 		$supplies = $query->whereHas('node', function($q) use($user){
-			$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
+			$q->where('full_path','like',$user->supplySet->node->full_path.'%')->where('is_selectable','=',1);
 		})->orderBy('supplied_date','DESC')-> get();
 
 		$rows = array();
@@ -172,7 +172,7 @@ class EqSupplyController extends EquipController {
 			return Redirect::back();
 		}
 		$user = Sentry::getUser();
-		$userNode = $user->supplyNode;
+		$userNode = $user->supplySet->node;
 		$lowerNodes = $userNode->managedChildren;
 		$data = array();
 
@@ -208,14 +208,14 @@ class EqSupplyController extends EquipController {
 	{
 		$data = Input::all();
 		$user = Sentry::getUser();
-		$userNode = $user->supplyNode;
+		$userNode = $user->supplySet->node;
 		$nodes = $userNode->managedChildren;
 		$types = EqItemType::where('item_id','=',$data['item_id'])->get();
 
 		//현재 보유중인 사이즈별 수량을 holdingNum[type_id]에 저장한다.
 		foreach ($types as $t) {
 			$holdingNum[$t->id] = EqInventoryData::whereHas('parentSet', function($q) use ($user) {
-				$q->where('node_id','=',$user->supplyNode->id);
+				$q->where('node_id','=',$user->supplySet->node->id);
 			})->where('item_type_id','=',$t->id)->first()->count;
 		}
 
@@ -224,7 +224,7 @@ class EqSupplyController extends EquipController {
 		$supplySet = new EqItemSupplySet;
 		$supplySet->item_id = $data['item_id'];
 		$supplySet->creator_id = $user->id;
-		$supplySet->from_node_id = $user->supplyNode->id;
+		$supplySet->from_node_id = $user->supplySet->node->id;
 		$supplySet->supplied_date = $data['supply_date'];
 
 		if (!$supplySet->save()) {
@@ -332,7 +332,7 @@ class EqSupplyController extends EquipController {
 	public function show($id)
 	{
 		$user = Sentry::getUser();
-		$userNode = $user->supplyNode;
+		$userNode = $user->supplySet->node;
 		$data = array();
 		$supply = EqItemSupplySet::find($id);
 
@@ -380,7 +380,7 @@ class EqSupplyController extends EquipController {
 		$supply = EqItemSupplySet::find($id);
 		$item = $supply->item;
 		$types = $item->types;
-		$userNode = $user->supplyNode;
+		$userNode = $user->supplySet->node;
 		$lowerNodes = $userNode->children;
 		$mode = 'update';
 

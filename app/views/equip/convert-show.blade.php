@@ -58,7 +58,7 @@
 
 					<!-- 지방청간 전환인 경우에만 본청 승인하도록 함 -->
 					@if ($convSet->cross_head == 1)
-						@if ($user->supplyNode->type_code === "D001")
+						@if ($user->supplySet->node->type_code === "D001")
 							@if ($convSet->head_confirmed==0)
 								<a class="btn btn-primary btn-xs pull-right" href="{{url('equips/convert_cross_head/'.$convSet->id.'/confirm')}}"><span class="glyphicon glyphicon-ok-sign"></span> 본청 승인하기</a>
 							@else

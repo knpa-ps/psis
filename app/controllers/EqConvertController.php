@@ -124,7 +124,7 @@ class EqConvertController extends EquipController {
 		$isImport = Input::get('is_import');
 
 		$data['user'] = $user;
-		$data['userNodeName'] = explode(' ', $user->supplyNode->full_name);
+		$data['userNodeName'] = explode(' ', $user->supplySet->node->full_name);
 
 		if (!$isImport) {
 			$data['isImport'] = true;
@@ -214,12 +214,12 @@ class EqConvertController extends EquipController {
 		if ($data['isImport'] == true) {
 			// 입고내역 조회
 			$converts = $query->whereHas('childOfTargetNode', function($q) use ($user){
-				$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
+				$q->where('full_path','like',$user->supplySet->node->full_path.'%')->where('is_selectable','=',1);
 			})->get();
 		} else {
 			// 출고내역 조회
 			$converts = $query->whereHas('childOfFromNode', function($q) use ($user){
-				$q->where('full_path','like',$user->supplyNode->full_path.'%')->where('is_selectable','=',1);
+				$q->where('full_path','like',$user->supplySet->node->full_path.'%')->where('is_selectable','=',1);
 			})->get();
 		}
 		$rows = array();
@@ -258,7 +258,7 @@ class EqConvertController extends EquipController {
 		foreach ($categories as $category) {
 			foreach ($category->codes as $c) {
 				$data['items'][$c->id] = EqItem::where('item_code','=',$c->code)->where('is_active','=',1)->whereHas('inventories', function($q) use ($user) {
-					$q->where('node_id','=',$user->supplyNode->id);
+					$q->where('node_id','=',$user->supplySet->node->id);
 				})->orderBy('acquired_date','DESC')->get();
 			}
 		}
@@ -278,7 +278,7 @@ class EqConvertController extends EquipController {
 		$item = EqItem::find($itemId);
 		$itemTypes = $item->types;
 
-		$inventorySet = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$item->id)->first();
+		$inventorySet = EqInventorySet::where('node_id','=',$user->supplySet->node->id)->where('item_id','=',$item->id)->first();
 
 		foreach ($itemTypes as $t) {
 			$query = EqInventoryData::where('inventory_set_id','=',$inventorySet->id);
@@ -313,7 +313,7 @@ class EqConvertController extends EquipController {
 		}
 
 		$user = Sentry::getUser();
-		$userNode = $user->supplyNode;
+		$userNode = $user->supplySet->node;
 		$item = EqItem::find($input['item_id']);
 		$itemTypes = $item->types;
 
@@ -349,7 +349,7 @@ class EqConvertController extends EquipController {
 
 		$convSet = new EqConvertSet;
 		$convSet->item_id = $input['item_id'];
-		$convSet->from_node_id = $user->supplyNode->id;
+		$convSet->from_node_id = $user->supplySet->node->id;
 		$convSet->target_node_id = $input['supply_node_id'];
 		$convSet->converted_date = $input['converted_date'];
 		$convSet->explanation = $input['explanation'];
@@ -400,7 +400,7 @@ class EqConvertController extends EquipController {
 	{
 		$convSet = EqConvertSet::find($id);
 		$user = Sentry::getUser();
-		$isImport = $convSet->target_node_id == Sentry::getUser()->supplyNode->id;
+		$isImport = $convSet->target_node_id == Sentry::getUser()->supplySet->node->id;
 		$item = EqItem::find($convSet->item_id);
 		$types = $item->types;
 
@@ -484,20 +484,20 @@ class EqConvertController extends EquipController {
 
 		DB::beginTransaction();
 
-		$myInvSet = EqInventorySet::where('node_id','=',$user->supplyNode->id)->where('item_id','=',$item->id)->first();
+		$myInvSet = EqInventorySet::where('node_id','=',$user->supplySet->node->id)->where('item_id','=',$item->id)->first();
 		// 관리전환 받는 관서에서 기존 보유전적이 없는 경우 인벤토리를 만들어준다.
 
 		if (!$myInvSet) {
 			$myInvSet = new EqInventorySet;
 			$myInvSet->item_id = $item->id;
-			$myInvSet->node_id = $user->supplyNode->id;
+			$myInvSet->node_id = $user->supplySet->node->id;
 
 			if (!$myInvSet->save()) {
 				return App::abort(500);
 			}
 			// 캐시도 만들어준다
 			try {
-				$this->service->makeCache($user->supplyNode->id);
+				$this->service->makeCache($user->supplySet->node->id);
 			} catch (Exception $e) {
 				return Redirect::to('equips/convert')->with('message', $e->getMessage() );
 			}
