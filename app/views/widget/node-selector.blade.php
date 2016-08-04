@@ -30,6 +30,7 @@
 			params['userId'] = id;
 			params['nodeId'] = "{{ $nodeId }}";
 			params['managerId'] = "{{ $managerId }}";
+			params['setId'] = "{{ $setId }}";
 			$.ajax({
 				url : base_url+"/manager/sems/users/change_node_manager",
 				type : 'post',

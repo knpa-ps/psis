@@ -9,6 +9,7 @@ class ManagerController extends \BaseController {
 	public function changeNodeManager() {
 		$userId = Input::get('userId');
 		$nodeId = Input::get('nodeId');
+		$setId = Input::get('setId');
 		$managerId = Input::get('managerId');
 		$user = User::find($userId);
 		if(!$userId){
@@ -37,9 +38,12 @@ class ManagerController extends \BaseController {
 		};
 		// 선택한 노드의 관리자로 임명함
 		if ($managerId != '') {
-			$set = EqSupplyManagerSet::where('node_id','=',$nodeId)->where('manager_id','=',$managerId)->first();
+			$set = EqSupplyManagerSet::where('node_id','=',$nodeId)
+				->where('manager_id','=',$managerId)
+				->where('id','=',$setId)
+				->first();
 		} else {
-			$set = EqSupplyManagerSet::where('node_id','=',$nodeId)->first();
+			$set = EqSupplyManagerSet::where('node_id','=',$nodeId)->where('id','=',$setId)->first();
 		}
 		$predecessorId = $set->manager_id;
 		$set->manager_id = $userId[0];
@@ -82,17 +86,18 @@ class ManagerController extends \BaseController {
 		return array('msg'=>$msg, 'code'=>$code);
 	}
 	public function displayNodesSelectModal() {
+		$setId = Input::get('set_id');
 		$nodeId = Input::get('node_id');
 		$managerId = Input::get('manager_id');
 		return View::make('widget.node-selector', get_defined_vars());
 	}
 	public function getUsers() {
 		return Datatable::query(User::with('department'))
-		->showColumns('id', 'user_name', 'account_name')
+		->showColumns('id', 'email', 'user_name', 'account_name')
 		->addColumn('dept_name', function($model) {
 			return $model->department->full_name;
 		})
-		->searchColumns('user_name', 'dept_name', 'account_name')
+		->searchColumns('email', 'user_name', 'dept_name', 'account_name')
 		->orderColumns('id')
 		->make();
 	}
@@ -102,12 +107,13 @@ class ManagerController extends \BaseController {
 		$sets = EqSupplyManagerSet::where('node_id','=',$nodeId)->get();
 		$managers = [];
 		foreach ($sets as $set) {
-			$node = EqSupplyManagerNode::find($set->node_id);
 			$manager = $set->manager;
 			if ($manager) {
+				$manager['set_id'] = $set->id;
 				$manager['manager_id'] = $set->manager_id;
 				$managers[] = $manager->toArray(); //이 부분이 가장 중요
 			} else {
+				$manager['set_id'] = $set->id;
 				$managers[] = $manager;
 			}
 		}

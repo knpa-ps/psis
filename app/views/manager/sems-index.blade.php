@@ -49,6 +49,7 @@
 						<!-- 선택한 부서 id 및 manager id-->
 						<input type="text" class="hidden" id="node_id_1">
 						<input type="text" class="hidden" id="manager_id_1">
+						<input type="text" class="hidden" id="set_id_1">
 						<input type="button" value="관리자 변경" class="btn btn-primary btn-xs pull-right" id="change_manager_1">
 					</fieldset>
 				</form>
@@ -91,6 +92,7 @@
 						<!-- 선택한 부서 id 및 manager id-->
 						<input type="text" class="hidden" id="node_id_2">
 						<input type="text" class="hidden" id="manager_id_2">
+						<input type="text" class="hidden" id="set_id_2">
 						<input type="button" value="관리자 변경" class="btn btn-primary btn-xs pull-right" id="change_manager_2">
 					</fieldset>
 				</form>
@@ -132,6 +134,7 @@
 						<!-- 선택한 부서 id 및 manager id-->
 						<input type="text" class="hidden" id="node_id_3">
 						<input type="text" class="hidden" id="manager_id_3">
+						<input type="text" class="hidden" id="set_id_3">
 						<input type="button" value="관리자 변경" class="btn btn-primary btn-xs pull-right" id="change_manager_3">
 					</fieldset>
 				</form>
@@ -182,8 +185,9 @@ $(function(){
 				}
 				for (var i=0; i<res.length; i++) {
 					$("#detail_panel_"+(i+1)).show();
-					if (res[i] == null) {
+					if (res[i].manager_id == null) {
 						$("#manager_id_"+(i+1)).val('');
+						$("#set_id_"+(i+1)).val(res[i].set_id);
 						$("#manager_name_"+(i+1)).text("없음");
 						$("#user_account_"+(i+1)).empty();
 						$("#guard_phone_"+(i+1)).empty();
@@ -191,6 +195,7 @@ $(function(){
 						$("#cellphone_"+(i+1)).empty();
 					} else {
 						$("#manager_id_"+(i+1)).val(res[i].manager_id);
+						$("#set_id_"+(i+1)).val(res[i].set_id);
 						$("#manager_name_"+(i+1)).text(res[i].user_name);
 						$("#user_account_"+(i+1)).text(res[i].account_name);
 						$("#guard_phone_"+(i+1)).text(res[i].contact_extension);
@@ -223,6 +228,8 @@ $(function(){
 	$("#change_manager_1").click(function() {
 		var node_id = $("#node_id_1").val();
 		var manager_id = $("#manager_id_1").val();
+		var set_id = $("#set_id_1").val();
+		console.log(set_id);
 		if (!node_id) {
 			alert('먼저 부서를 선택해주세요.');
 			return;
@@ -230,7 +237,7 @@ $(function(){
 
 		$("body").modalmanager('loading');
 		var $modal = $("#ajax_modal");
-		$modal.load(base_url+"/manager/sems/users/show", { node_id: node_id, manager_id: manager_id },  function() {
+		$modal.load(base_url+"/manager/sems/users/show", { set_id: set_id, node_id: node_id, manager_id: manager_id },  function() {
 			$modal.modal({
 				modalOverflow: true
 			});
@@ -239,6 +246,8 @@ $(function(){
 	$("#change_manager_2").click(function() {
 		var node_id = $("#node_id_2").val();
 		var manager_id = $("#manager_id_2").val();
+		var set_id = $("#set_id_2").val();
+		console.log(set_id);
 		if (!node_id) {
 			alert('먼저 부서를 선택해주세요.');
 			return;
@@ -246,7 +255,7 @@ $(function(){
 
 		$("body").modalmanager('loading');
 		var $modal = $("#ajax_modal");
-		$modal.load(base_url+"/manager/sems/users/show", { node_id: node_id, manager_id: manager_id },  function() {
+		$modal.load(base_url+"/manager/sems/users/show", { set_id: set_id, node_id: node_id, manager_id: manager_id },  function() {
 			$modal.modal({
 				modalOverflow: true
 			});
@@ -255,6 +264,7 @@ $(function(){
 	$("#change_manager_3").click(function() {
 		var node_id = $("#node_id_3").val();
 		var manager_id = $("#manager_id_3").val();
+		var set_id = $("#set_id_3").val();
 		if (!node_id) {
 			alert('먼저 부서를 선택해주세요.');
 			return;
@@ -262,7 +272,7 @@ $(function(){
 
 		$("body").modalmanager('loading');
 		var $modal = $("#ajax_modal");
-		$modal.load(base_url+"/manager/sems/users/show", { node_id: node_id, manager_id: manager_id},  function() {
+		$modal.load(base_url+"/manager/sems/users/show", { set_id: set_id, node_id: node_id, manager_id: manager_id},  function() {
 			$modal.modal({
 				modalOverflow: true
 			});
