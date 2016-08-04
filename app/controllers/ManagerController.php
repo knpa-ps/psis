@@ -20,6 +20,7 @@ class ManagerController extends \BaseController {
 		$capsaicinGroup = Group::where('key','=','equip.capsaicin')->first();
 		$psGroup = Group::where('key','=','equip.ps.admin')->first();
 		// 유저가 타 관서 장비관리자였을 경우 원래 관서의 관리자 없애기
+		DB::beginTransaction();
 		$prevSet = EqSupplyManagerSet::where('manager_id','=',$userId[0])->first();
 		if ($prevSet) {
 			$prevSet->manager_id = null;
@@ -27,6 +28,7 @@ class ManagerController extends \BaseController {
 				// return App::abort(500);
 			}
 		}
+		DB::commit();
 		// 유저가 타 관서 장비관리자였을 경우 일단 관리자그룹에서 제거
 		$havingEqGroups = Group::whereHas('users', function($q) use($userId) {
 			$q->where('id','=',$userId[0]);
@@ -37,7 +39,8 @@ class ManagerController extends \BaseController {
 			}
 		};
 		// 선택한 노드의 관리자로 임명함
-		if ($managerId != '') {
+		$prevSet = EqSupplyManagerSet::where('manager_id','=',$userId[0])->first();
+		if (($managerId != '')&&($prevSet)) {
 			$set = EqSupplyManagerSet::where('node_id','=',$nodeId)
 				->where('manager_id','=',$managerId)
 				->where('id','=',$setId)
