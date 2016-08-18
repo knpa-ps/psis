@@ -73,14 +73,14 @@ $(function() {
 			@foreach ($types as $type)
 				var typeValue = $("#{{'count_'.$node->id.'_'.$type->id}}").text();
 				if (jQuery.isNumeric(typeValue)) {
-					sumNode += parseInt(typeValue);
+					sumNode += parseFloat(typeValue);
 				}
 				//노드별합계 계산
 			@endforeach
 			$("#{{'sum_node_'.$node->id}}").html('<b>'+sumNode+'</b>');
 			//노드별 합계를 넣었다.
 			//총 합계 계산
-			sumAll += parseInt(sumNode);
+			sumAll += parseFloat(sumNode);
 		@endforeach
 		$("#sum_all").html('<b>'+sumAll+'</b>');
 		//총 합계를 넣었다.
@@ -89,7 +89,7 @@ $(function() {
 			@foreach($lowerNodes as $node)
 				var nodeValue = $("#{{'count_'.$node->id.'_'.$type->id}}").text();
 				if(jQuery.isNumeric(nodeValue)){
-					sumType += parseInt(nodeValue);
+					sumType += parseFloat(nodeValue);
 				}
 			@endforeach
 			$("#{{'sum_type_'.$type->id}}").html('<b>'+sumType+'</b>');

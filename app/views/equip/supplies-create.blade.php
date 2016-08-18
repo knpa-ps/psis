@@ -75,11 +75,24 @@
 										<td>{{$node->node_name}}</td>
 									@endif
 									<td id="{{'sum_node_'.$node->id}}">0</td>
+
+									@if($item->item_code == "M004")
+
 									@foreach($types as $t)
-									<td>
+									<td style="text-align: center;">
+										<input class="input-count-real-number input-sm form-control" style="width:100%;" type="text" id="count_{{$node->id}}_{{$t->id}}" name="count_{{$node->id}}_{{$t->id}}" value="{{$mode === 'create' ? '' : $count[$node->id][$t->id] }}">
+									</td>
+									@endforeach
+
+									@else
+
+									@foreach($types as $t)
+									<td style="text-align: center;">
 										<input class="input-count input-sm form-control" style="width:100%;" type="text" id="count_{{$node->id}}_{{$t->id}}" name="count_{{$node->id}}_{{$t->id}}" value="{{$mode === 'create' ? '' : $count[$node->id][$t->id] }}">
 									</td>
 									@endforeach
+
+									@endif
 									<td>{{$node->personnel}}</td>
 									<td>{{$node->capacity}}</td>
 								</tr>
@@ -117,14 +130,14 @@ $(function(){
 			@foreach ($types as $type)
 				var typeValue = $("#{{'count_'.$node->id.'_'.$type->id}}").val();
 				if (jQuery.isNumeric(typeValue)) {
-					sumNode += parseInt(typeValue);
+					sumNode += parseFloat(typeValue);
 				}
 				//노드별합계 계산
 			@endforeach
 			$("#{{'sum_node_'.$node->id}}").text(sumNode);
 			//노드별 합계를 넣었다.
 			//총 합계 계산
-			sumAll += parseInt(sumNode);
+			sumAll += parseFloat(sumNode);
 		@endforeach
 		$("#sum_all").text(sumAll);
 		//총 합계를 넣었다.
@@ -133,12 +146,12 @@ $(function(){
 			@foreach($lowerNodes as $node)
 				var nodeValue = $("#{{'count_'.$node->id.'_'.$type->id}}").val();
 				if(jQuery.isNumeric(nodeValue)){
-					sumType += parseInt(nodeValue);
+					sumType += parseFloat(nodeValue);
 				}
 			@endforeach
 			$("#{{'sum_type_'.$type->id}}").text(sumType);
 			var invType = $("#{{'inv_type_'.$type->id}}").text();
-			if (sumType > parseInt(invType)) {
+			if (sumType > parseFloat(invType)) {
 				$("#{{'sum_type_'.$type->id}}").css('color', 'red');
 				$("#{{'sum_type_'.$type->id}}").css('font-weight', 'bold');
 			} else {
@@ -147,7 +160,6 @@ $(function(){
 			};
 		@endforeach
 	}
-
 
 	$('.input-count').on('change', function(){
 		var input = $(this).val();
@@ -160,6 +172,19 @@ $(function(){
 
 		calcSum();
 	});
+
+	
+	$('.input-count-real-number').on('change', function(){
+		var input = $(this).val();
+		var re = /^[+]?\d*(\.?\d*)$/;
+
+		if (!re.test(input)) {
+			alert('양의 실수만 입력하세요');
+			$(this).val('');
+		};
+		calcSum();
+	});
+	
 
 	$("#supply_form").validate({
 		rules: {
@@ -177,15 +202,15 @@ $(function(){
 			@foreach($lowerNodes as $node)
 				var nodeValue = $("#{{'count_'.$node->id.'_'.$type->id}}").val();
 				if(jQuery.isNumeric(nodeValue)){
-					sumType += parseInt(nodeValue);
+					sumType += parseFloat(nodeValue);
 				}
 			@endforeach
 			var invType = $("#{{'inv_type_'.$type->id}}").text();
-			if (sumType > parseInt(invType)) {
+			if (sumType > parseFloat(invType)) {
 				alert('보급수량이 보유수량보다 많습니다');
 				return;
 			}
-			sumAll += parseInt(sumType);
+			sumAll += parseFloat(sumType);
 		@endforeach
 		if(sumAll == 0){
 			alert('보급수량이 0 입니다');

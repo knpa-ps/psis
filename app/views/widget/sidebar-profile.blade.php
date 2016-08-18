@@ -1,8 +1,9 @@
 <div class="row">
 	<div class="col-xs-12 well">
 		<p class="">
+			<span class="glyphicon glyphicon-user"></span> {{ $user->rank->title or '' }} {{ $user->user_name or '' }}
 			<a href="{{ action('UserController@displayProfile') }}" class="black">
-			<span class="glyphicon glyphicon-user"></span> {{ $user->rank->title or '' }} <b>{{ $user->user_name or '' }}</b>
+				<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
 			</a>
 		</p>
 		<p><small><b><span class="glyphicon glyphicon-map-marker"></span> 소속관서</small></b></p>

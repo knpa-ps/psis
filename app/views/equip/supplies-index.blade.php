@@ -66,7 +66,7 @@
 						<label style="margin-top: 9px; text-align: center;" for="item_to_supply" class="control-label col-xs-1">장비선택</label>
 						<div class="col-xs-9">
 							<select name="item" id="item_to_supply" class="form-control">
-								<option disabled selected>-----------14년도와 15년도 장비만 보급할 수 있습니다-----------</option>	
+								<option disabled selected>-------------14~16년도 장비만 보급할 수 있습니다-------------</option>	
 								@if(count($items)>0)
 								@foreach ($categories as $category)
 								<optgroup label="{{$category->sort_order.'. '.$category->name}}">
@@ -141,7 +141,19 @@
 									{{ $supply->from_node_name }}
 								</td>
 								<td>
+									{{-- There is decimal and larger than 1000--}}
+									{{-- There is decimal and less than 1000--}}
+									{{-- less than 1000--}}
+
+									@if( preg_match('/\./', $supply->count_sum) &&  $supply->count_sum >= 1000 )
+									{{ number_format($supply->count_sum, 2) }}
+									@elseif( preg_match('/\./', $supply->count_sum) &&  $supply->count_sum < 1000 )
+									{{ $supply->count_sum }}
+									@elseif( $supply->count_sum < 1000 )
+									{{ $supply->count_sum }}
+									@else
 									{{ number_format($supply->count_sum) }}
+									@endif
 								</td>
 									@if($supply->from_node_id == $user->supplySet->node->id)
 								<td>

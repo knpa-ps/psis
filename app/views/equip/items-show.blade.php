@@ -293,7 +293,7 @@ $(function() {
 	});
 	$(".positive").on('change', function(){
 		var input = $(this).val();
-		var re = /([0-9]+\.[0-9]*)|([0-9]*\.[0-9]+)|([0-9]+)/;
+		var re = /^[+]?\d*(\.?\d*)$/;
 
 		if (!re.test(input)) {
 		alert('양수만 입력하세요');
