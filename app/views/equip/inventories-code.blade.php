@@ -195,14 +195,14 @@
 							@else
 								<td> <a href="{{ URL::current().'/'.$i->id }}">{{ $i->maker_name }}({{$i->classification}})</a> </td>
 							@endif
-							<td> {{ $subWreckedSum[$user->supplySet->node->id][$i->id] + $subAvailSum[$user->supplySet->node->id][$i->id] }}</td>
+							<td> {{ round($subWreckedSum[$user->supplySet->node->id][$i->id] + $subAvailSum[$user->supplySet->node->id][$i->id], 4); }}</td>
 							<td> <a href="{{ URL::to('equips/items').'/'.$i->id.'/discard_list' }}" target="_blank">{{ $subDiscardSum[$user->supplySet->node->id][$i->id] }} ({{ $subDiscardSets[$user->supplySet->node->id][$i->id] }}건)</a> </td>
-							<td> {{ $subWreckedSum[$user->supplySet->node->id][$i->id] }}</td>
-							<td> {{ $subAvailSum[$user->supplySet->node->id][$i->id] }}</td>
-							<td style="background-color: #FFF8E5"> {{ $wreckedSum[$user->supplySet->node->id][$i->id] + $availSum[$user->supplySet->node->id][$i->id] }}</td>
+							<td> {{ round($subWreckedSum[$user->supplySet->node->id][$i->id], 4); }}</td>
+							<td> {{ round($subAvailSum[$user->supplySet->node->id][$i->id], 4); }}</td>
+							<td style="background-color: #FFF8E5"> {{ round($wreckedSum[$user->supplySet->node->id][$i->id] + $availSum[$user->supplySet->node->id][$i->id], 4); }}</td>
 							<td style="background-color: #FFF8E5"> {{ $discardSum[$user->supplySet->node->id][$i->id] }} ({{ $discardSets[$user->supplySet->node->id][$i->id] }}건) </td>
-							<td style="background-color: #FFF8E5"> {{ $wreckedSum[$user->supplySet->node->id][$i->id] }} </td>
-							<td style="background-color: #FFF8E5"> {{ $availSum[$user->supplySet->node->id][$i->id] }}</td>
+							<td style="background-color: #FFF8E5"> {{ round($wreckedSum[$user->supplySet->node->id][$i->id], 4); }} </td>
+							<td style="background-color: #FFF8E5"> {{ round($availSum[$user->supplySet->node->id][$i->id], 4); }}</td>
 
 						</tr>
 						@endforeach
@@ -316,7 +316,7 @@ $(function() {
     drawCallback: function ( settings ) {
       var api = this.api();
       var rows = api.rows( {page:'current'} ).nodes();
-      var last=null;
+      var last = null;
       api.column(1, {page:'current'} ).data().each( function ( group, i ) {
           if ( last !== group ) {
               $(rows).eq( i ).before(

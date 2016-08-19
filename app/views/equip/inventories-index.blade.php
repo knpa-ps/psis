@@ -115,14 +115,14 @@
 										<td> {{ $ctgr->sort_order.'. '.$ctgr->codes[$i]->category->name }}({{sizeof($ctgr->codes[$i]->category->codes)}}종) </td>
 										<td> {{ $i+1 }} </td>
 										<td> <a href="{{ url('equips/inventories/'.$ctgr->codes[$i]->code) }}">{{ $ctgr->codes[$i]->title }}</a> </td>
-										<td> {{ $subWreckedSum[$ctgr->codes[$i]->id] + $subAvailSum[$ctgr->codes[$i]->id] }}</td>
+										<td> {{ round( $subWreckedSum[$ctgr->codes[$i]->id] + $subAvailSum[$ctgr->codes[$i]->id], 4 ) }}</td>
 										<td> {{ $subDiscardSum[$ctgr->codes[$i]->id] }} ({{ $subDiscardSets[$ctgr->codes[$i]->id] }}건)</td>
-										<td> {{ $subWreckedSum[$ctgr->codes[$i]->id] }}</td>
-										<td> {{ $subAvailSum[$ctgr->codes[$i]->id] }}</td>
-										<td style="background-color: #FFF8E5"> {{ $wreckedSum[$ctgr->codes[$i]->id] + $availSum[$ctgr->codes[$i]->id] }}</td>
+										<td> {{ round( $subWreckedSum[$ctgr->codes[$i]->id], 4 ) }}</td>
+										<td> {{ round( $subAvailSum[$ctgr->codes[$i]->id], 4) }}</td>
+										<td style="background-color: #FFF8E5"> {{ round( $wreckedSum[$ctgr->codes[$i]->id] + $availSum[$ctgr->codes[$i]->id], 4 ) }}</td>
 										<td style="background-color: #FFF8E5"> {{ $discardSum[$ctgr->codes[$i]->id] }} ({{ $discardSets[$ctgr->codes[$i]->id] }}건) </td>
-										<td style="background-color: #FFF8E5"> {{ $wreckedSum[$ctgr->codes[$i]->id] }}</td>
-										<td style="background-color: #FFF8E5"> {{ $availSum[$ctgr->codes[$i]->id] }}</td>
+										<td style="background-color: #FFF8E5"> {{ round( $wreckedSum[$ctgr->codes[$i]->id], 4 ) }}</td>
+										<td style="background-color: #FFF8E5"> {{ round( $availSum[$ctgr->codes[$i]->id], 4 ) }}</td>
 									</tr>
 									@endfor
 								@endforeach

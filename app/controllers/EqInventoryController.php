@@ -21,7 +21,7 @@ class EqInventoryController extends EquipController {
 					return Redirect::back()->with('message', '보유수량이 파손수량보다 적을 수 없습니다.');
 				}
 				$data->count = $count[$t->id];
-				$countSum+=$count[$t->id];
+				$countSum +=$count[$t->id];
 				if (!$data->save()) {
 					return App::abort(500);
 				}

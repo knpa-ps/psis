@@ -455,7 +455,7 @@ class EqItemCodeController extends EquipController {
 					$row[$t->type_name] = 0;
 				}
 
-				$row['sum_row'] += $row[$t->type_name];
+				$row['sum_row'] += round($row[$t->type_name], 4);
 			}
 
 			$row['row_type']=0;
@@ -473,17 +473,17 @@ class EqItemCodeController extends EquipController {
 				$invData = EqInventoryData::whereHas('parentSet', function($q) use ($userNode) {
 					$q->where('node_id','=',$userNode->id);
 				})->where('item_type_id','=',$t->id)->first();
-
+				//$invData can not be rounded.
 				if ($invData != null) {
 					$row[$t->type_name] = $invData->wrecked;
 				} else {
 					$row[$t->type_name] = 0;
 				}
 
-				$row['sum_row'] += $row[$t->type_name];
+				$row['sum_row'] += round($row[$t->type_name], 4);
 			}
 
-			$row['row_type']=0;
+			$row['row_type'] = 0;
 			$data[] = $row;
 
 			// 총계
@@ -503,9 +503,9 @@ class EqItemCodeController extends EquipController {
 					});
 				})->where('item_type_id','=',$t->id)->sum('count'),2);
 
-				$row['sum_row'] += $row[$t->type_name];
+				$row['sum_row'] += round($row[$t->type_name], 4);
 			}
-			$row['row_type']=0;
+			$row['row_type'] = 0;
 			$data[] = $row;
 
 			// 파손 총계
@@ -525,7 +525,7 @@ class EqItemCodeController extends EquipController {
 					});
 				})->where('item_type_id','=',$t->id)->sum('wrecked'),2);
 
-				$row['sum_row'] += $row[$t->type_name];
+				$row['sum_row'] += round($row[$t->type_name], 4);
 			}
 			$row['row_type']=0;
 			$data[] = $row;
@@ -575,10 +575,10 @@ class EqItemCodeController extends EquipController {
 						$row[$t->type_name] = 0;
 					}
 
-					$row['sum_row'] += $row[$t->type_name];
+					$row['sum_row'] += round( $row[$t->type_name], 4);
 				}
 
-				$row['row_type']=0;
+				$row['row_type'] = 0;
 				$data[] = $row;
 
 				$row = array(
@@ -600,10 +600,10 @@ class EqItemCodeController extends EquipController {
 						$row[$t->type_name] = 0;
 					}
 
-					$row['sum_row'] += $row[$t->type_name];
+					$row['sum_row'] += round( $row[$t->type_name], 4);
 				}
 
-				$row['row_type']=0;
+				$row['row_type'] = 0;
 				$data[] = $row;
 			}
 
@@ -624,10 +624,10 @@ class EqItemCodeController extends EquipController {
 					});
 				})->where('item_type_id','=',$t->id)->sum('count');
 
-				$row['sum_row'] += $row[$t->type_name];
+				$row['sum_row'] += round( $row[$t->type_name], 4);
 			}
 
-			$row['row_type']=0;
+			$row['row_type'] = 0;
 			$data[] = $row;
 
 			$row = array(
@@ -647,12 +647,11 @@ class EqItemCodeController extends EquipController {
 					});
 				})->where('item_type_id','=',$t->id)->sum('wrecked');
 
-				$row['sum_row'] += $row[$t->type_name];
+				$row['sum_row'] += round( $row[$t->type_name], 4);
 			}
 
-			$row['row_type']=0;
+			$row['row_type'] = 0;
 			$data[] = $row;
-
 		}
 
 
@@ -672,19 +671,19 @@ class EqItemCodeController extends EquipController {
 
 			foreach ($types as $t) {
 
-				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($node) {
+				$row[$t->type_name] = round(EqInventoryData::whereHas('parentSet', function($q) use ($node) {
 					$q->whereHas('ownerNode', function($qq) use ($node) {
 						$qq->where('full_path','like',$node->full_path.'%');
 					});
-				})->where('item_type_id','=',$t->id)->sum('count');
+				})->where('item_type_id','=',$t->id)->sum('count'), 4);
 
-				$row['sum_row'] += $row[$t->type_name];
+				$row['sum_row'] += round( $row[$t->type_name], 4);
 
-				if ($row[$t->type_name]==0) {
+				if ($row[$t->type_name] == 0) {
 					$row[$t->type_name] = '';
 				}
 
-				if ($row['sum_row']==0) {
+				if ($row['sum_row'] == 0) {
 					$row['sum_row'] = '';
 				}
 
@@ -702,14 +701,13 @@ class EqItemCodeController extends EquipController {
 			$row['sum_row'] = 0;
 
 			foreach ($types as $t) {
-
 				$row[$t->type_name] = EqInventoryData::whereHas('parentSet', function($q) use ($node) {
 					$q->whereHas('ownerNode', function($qq) use ($node) {
-						$qq->where('full_path','like',$node->full_path.'%');
+						$qq->where('full_path','like', $node->full_path.'%');
 					});
 				})->where('item_type_id','=',$t->id)->sum('wrecked');
 
-				$row['sum_row'] += $row[$t->type_name];
+				$row['sum_row'] += round($row[$t->type_name], 4);
 
 				if ($row[$t->type_name]==0) {
 					$row[$t->type_name] = '';
@@ -717,7 +715,6 @@ class EqItemCodeController extends EquipController {
 				if ($row['sum_row']==0) {
 					$row['sum_row'] = '';
 				}
-
 			}
 			$row['row_type'] = 1;
 			$data[] = $row;

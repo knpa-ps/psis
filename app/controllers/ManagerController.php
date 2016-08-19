@@ -96,7 +96,7 @@ class ManagerController extends \BaseController {
 	}
 	public function getUsers() {
 		return Datatable::query(User::with('department'))
-		->showColumns('id', 'email', 'user_name', 'account_name')
+		->showColumns('id', 'user_name', 'account_name')
 		->addColumn('dept_name', function($model) {
 			return $model->department->full_name;
 		})

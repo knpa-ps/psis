@@ -113,11 +113,11 @@
 		            </tr>
 		          </thead>
 		          <tbody>
-								{{ Form::open(array(
+								<!-- {{ Form::open(array(
 									'id'=>'term_form',
 									'url'=> 'equips/equips_term',
 									'method'=>'post'
-								)) }}
+								)) }} -->
 									@foreach ($categories as $category)
 									<tr class="group"><td colspan="5" class="group-cell">{{ $category->sort_order.'. '.$category->name }}({{sizeof($category->codes)}}종) </td></tr>
 										<tr>
@@ -125,13 +125,13 @@
 												{{ $category->name}}({{sizeof($category->codes)}}종)
 											</td>
 											<td>
-												<input type="text" class="form-control input-datepicker input-sm category" id="category_{{$category->id}}" name="category_{{$category->id}}">
+												<!-- <input type="text" class="form-control input-datepicker input-sm category" id="category_{{$category->id}}" name="category_{{$category->id}}"> -->
 											</td>
 										@foreach ($category->codes as $c)
 										<tr>
 											<td colspan="3"> <a href="{{ url('equips/inventories/'.$c->code) }}">{{ $c->title }}</a> </td>
 											<td>
-												<input type="text" class="form-control input-datepicker input-sm code" id="code_{{$c->id}}" name="code_{{$c->id}}">
+												<!-- <input type="text" class="form-control input-datepicker input-sm code" id="code_{{$c->id}}" name="code_{{$c->id}}"> -->
 											</td>
 										</tr>
 											@foreach ($items[$c->id] as $item)
@@ -146,7 +146,7 @@
 												</td>
 					              <td> {{ $item->code->title}} {{$item->maker_name}} </td>
 					              <td>
-					                <input type="text" class="form-control input-datepicker input-sm" id="item_{{$item->id}}" name="item_{{$item->id}}" value="{{$checkPeriod[$item->id]->check_end}}">
+					                {{$checkPeriod[$item->id]->check_end}}
 					              </td>
 					            </tr>
 
@@ -154,7 +154,7 @@
 										@endforeach
 									@endforeach
 									<input type="hidden" name="node_id" id="node_id" value="{{$userNode->id}}">
-								{{ Form::close(); }}
+							<!-- 	{{ Form::close(); }} -->
 
 		          </tbody>
 		        </table>

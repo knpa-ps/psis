@@ -339,7 +339,6 @@ class EqSupplyController extends EquipController {
 		$types = EqItemType::where('item_id','=',$supply->item->id)->get();
 		$lowerNodes = $supply->managedChildren;
 		$count = array();
-
 		$data['types'] = $types;
 		$data['supply'] = $supply;
 		$data['item'] = $supply->item;
