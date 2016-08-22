@@ -167,7 +167,14 @@
 									{{ $convert->target_node_name }}
 								</td>
 								<td>
-									{{ number_format($convert->count_sum) }}
+									<!-- if 총수량 is bigger than 1000 -->
+									<!-- number_format으로 소수점 1째 자리까지 나타냄 -->
+									<!-- 2016.08.22 edited -->
+									@if( $convert->count_sum >= 1000 )
+									{{ number_format($convert->count_sum, 1) }}
+									@else
+									{{ $convert->count_sum }}
+									@endif
 								</td>
 								<td>
 									@if($convert->cross_head == 1 && $convert->head_confirmed == 0)

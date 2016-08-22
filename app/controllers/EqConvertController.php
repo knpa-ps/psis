@@ -408,7 +408,7 @@ class EqConvertController extends EquipController {
 			$convData[$t->id] = EqConvertData::where('convert_set_id','=',$id)->where('item_type_id','=',$t->id)->first()->count;
 		}
 
-		$sum = $convSet->children->sum('count');
+		$sum = round( $convSet->children->sum('count'), 4);
 
 		return View::make('equip.convert-show', get_defined_vars());
 	}
